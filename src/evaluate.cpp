@@ -445,7 +445,7 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-            kingDanger += QueenSafeCheck * (1 + 0.1 * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]));
+            kingDanger += QueenSafeCheck * (0.9 + 0.1 * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]));
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
