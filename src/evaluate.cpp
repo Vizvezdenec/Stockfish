@@ -93,7 +93,7 @@ namespace {
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 700;
-  constexpr int QueenSafeCheck2 =  40;
+  constexpr int QueenSafeCheck2 =  60;
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
