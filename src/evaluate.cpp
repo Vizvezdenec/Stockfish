@@ -92,10 +92,14 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 880;
-  constexpr int BishopSafeCheck = 435;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 660;
+  constexpr int RookSafeCheck   = 744;
+  constexpr int BishopSafeCheck = 367;
+  constexpr int KnightSafeCheck = 668;
+  constexpr int QueenSafeCheck2 =  60;
+  constexpr int RookSafeCheck2  =  68;
+  constexpr int BishopSafeCheck2 = 34;
+  constexpr int KnightSafeCheck2 = 61;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -445,27 +449,27 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-            kingDanger += QueenSafeCheck * (0.75 + 0.2 * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]));
+            kingDanger += QueenSafeCheck + QueenSafeCheck2 * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck * (0.75 + 0.2 * popcount(b1 & safe));
+            kingDanger += RookSafeCheck + RookSafeCheck2 * popcount(b1 & safe);
         else
             unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck * (0.75 + 0.2 * popcount(b2 & safe));
+            kingDanger += BishopSafeCheck + BishopSafeCheck2 * popcount(b2 & safe);
         else
             unsafeChecks |= b2;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
-            kingDanger += KnightSafeCheck * (0.75 + 0.2 * popcount(b & safe));
+            kingDanger += KnightSafeCheck + KnightSafeCheck * popcount(b & safe);
         else
             unsafeChecks |= b;
 
