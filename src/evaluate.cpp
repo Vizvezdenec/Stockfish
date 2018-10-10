@@ -93,7 +93,8 @@ namespace {
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 880;
+  constexpr int RookSafeCheck   = 480;
+  constexpr int RookSafeCheck2  = 400;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
 
@@ -452,7 +453,7 @@ namespace {
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck;
+            kingDanger += RookSafeCheck + RookSafeCheck2 * popcount (b1 & safe);
         else
             unsafeChecks |= b1;
 
