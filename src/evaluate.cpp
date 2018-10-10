@@ -452,7 +452,7 @@ namespace {
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck;
+            kingDanger += RookSafeCheck * popcount (b1 & safe);
         else
             unsafeChecks |= b1;
 
