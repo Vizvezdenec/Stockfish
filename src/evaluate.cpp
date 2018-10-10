@@ -446,26 +446,27 @@ namespace {
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
+        else unsafeChecks |= ((b1 | b2) & attackedBy[Them][QUEEN] & ~attackedBy[Us][QUEEN]);
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck * popcount (b1 & safe);
+            kingDanger += RookSafeCheck;
         else
             unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck * popcount (b2 & safe);
+            kingDanger += BishopSafeCheck;
         else
             unsafeChecks |= b2;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
-            kingDanger += KnightSafeCheck * popcount (b & safe);
+            kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
 
