@@ -93,11 +93,10 @@ namespace {
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 480;
-  constexpr int QueenSafeCheck2 = 150;
+  constexpr int BonusSafeCheck  = 150;
   constexpr int RookSafeCheck   = 580;
-  constexpr int RookSafeCheck2  = 150;
-  constexpr int BishopSafeCheck = 435;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int BishopSafeCheck = 135;
+  constexpr int KnightSafeCheck = 490;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -447,27 +446,27 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-            kingDanger += QueenSafeCheck + QueenSafeCheck2 * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
+            kingDanger += QueenSafeCheck + BonusSafeCheck * popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck + RookSafeCheck2 * popcount (b1 & safe);
+            kingDanger += RookSafeCheck + BonusSafeCheck * popcount (b1 & safe);
         else
             unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck;
+            kingDanger += BishopSafeCheck + BonusSafeCheck * popcount (b2 & safe);
         else
             unsafeChecks |= b2;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
-            kingDanger += KnightSafeCheck;
+            kingDanger += KnightSafeCheck + BonusSafeCheck * popcount (b & safe);
         else
             unsafeChecks |= b;
 
