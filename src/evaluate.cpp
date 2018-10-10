@@ -92,9 +92,9 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 500;
-  constexpr int QueenSafeCheckL = 120;
-  constexpr int QueenSafeCheckQ =  10;
+  constexpr int QueenSafeCheck  = 540;
+  constexpr int QueenSafeCheckL =  60;
+  constexpr int QueenSafeCheckQ =  30;
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
