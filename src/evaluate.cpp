@@ -94,7 +94,7 @@ namespace {
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
   constexpr int RookSafeCheck   = 880;
-  constexpr int BishopSafeCheck = 300;
+  constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
@@ -457,8 +457,10 @@ namespace {
             unsafeChecks |= b1;
 
         // Enemy bishops checks
+        bool noOppBish = pos.count<BISHOP>(Us) == 0 
+                    || (pos.count<BISHOP>(Us) == 1 && pos.opposite_bishops());
         if (b2 & safe)
-            kingDanger += BishopSafeCheck * (1 + pos.opposite_bishops());
+            kingDanger += BishopSafeCheck * (1 + noOppBish);
         else
             unsafeChecks |= b2;
 
