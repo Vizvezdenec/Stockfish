@@ -457,10 +457,8 @@ namespace {
             unsafeChecks |= b1;
 
         // Enemy bishops checks
-        bool noOppBish = pos.opposite_bishops() 
-                    || (pos.count<BISHOP>(Us) == 1 && opposite_colors(ksq, pos.square<BISHOP>(Us)));
         if (b2 & safe)
-            kingDanger += BishopSafeCheck * (1 + noOppBish);
+            kingDanger += BishopSafeCheck;
         else
             unsafeChecks |= b2;
 
