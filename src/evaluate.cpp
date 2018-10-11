@@ -458,7 +458,7 @@ namespace {
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck;
+            kingDanger += BishopSafeCheck * (1 + pos.opposite_bishops());
         else
             unsafeChecks |= b2;
 
