@@ -165,7 +165,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
-  constexpr Score QueenOnPawn        = S( 10, 10);
+  constexpr Score QueenOnPawn        = S( 20,  0);
   constexpr Score RookOnPawn         = S( 10, 30);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
@@ -608,7 +608,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
         
         b = pos.pieces(Us, PAWN) & ~attackedBy2[Us] & ~attackedBy[Us][PAWN] & pos.attacks_from<QUEEN>(s);
-        score -= QueenOnPawn * std::max(0 , popcount(b) - 1);
+        score += QueenOnPawn * (1 - popcount(b));
     }
 
     if (T)
