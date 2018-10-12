@@ -607,7 +607,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
         
-        b = pos.pieces(Us, PAWN) & ~attackedBy2[Us] & pos.attacks_from<QUEEN>(s);
+        b = pos.pieces(Us, PAWN) & ~attackedBy2[Us] & ~attackedBy[Us][PAWN] & pos.attacks_from<QUEEN>(s);
         score += QueenOnPawn * (1 - popcount(b));
     }
 
