@@ -90,10 +90,7 @@ namespace {
     constexpr Color Them = (Us == WHITE ? BLACK : WHITE);
 
     int bonus = 0;
-    if ((pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN] == 1)
-       && (pieceCount[Them][BISHOP] + pieceCount[Them][KNIGHT] - pieceCount[Us][BISHOP] - pieceCount[Us][KNIGHT] == 3)
-       && (pieceCount[Us][PAWN] - pieceCount[Them][PAWN] <= 3))
-       bonus = -200;
+
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
     {
