@@ -608,7 +608,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
         
         b = pos.pieces(Us, PAWN) & ~attackedBy2[Us] & ~attackedBy[Us][PAWN] & pos.attacks_from<QUEEN>(s);
-        score += QueenOnPawn * (1 - popcount(b));
+        score -= QueenOnPawn * std::max(0, popcount(b) - 1);
     }
 
     if (T)
