@@ -162,6 +162,7 @@ namespace {
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
+  constexpr Score LongRangedPawn     = S(  6,  3);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
@@ -606,6 +607,10 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    int rangeness = ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them)) * 10 +  (pos.count<ROOK>(Us) - pos.count<ROOK>(Them)) * 5 + (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them)) * 3);
+    if (rangeness > 0) 
+        score += LongRangedPawn * rangeness / (1 + pos.count<PAWN>(Them));
+    else score += LongRangedPawn * rangeness / (1 + pos.count<PAWN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
