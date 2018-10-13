@@ -165,7 +165,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
-  constexpr Score QueenOnPawn        = S( 15,  8);
+  constexpr Score OverloadPawn       = S(  8,  4);
   constexpr Score RookOnPawn         = S( 10, 30);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
@@ -515,7 +515,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, weak, weak1, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -570,9 +570,9 @@ namespace {
         b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
         score += Overload * popcount(b);
         
-        weak = pos.pieces(Them, PAWN) & ~stronglyProtected & attackedBy[Us][QUEEN];
-        b = weak & attackedBy[Them][ALL_PIECES];
-        score += QueenOnPawn * popcount(b);
+        weak1 = pos.pieces(Them, PAWN) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+        b = weak1 & attackedBy[Them][ALL_PIECES];
+        score += OverloadPawn * popcount(b);
     }
 
     // Bonus for enemy unopposed weak pawns
