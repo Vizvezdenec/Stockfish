@@ -608,7 +608,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     int rangeness = ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them)) * QueenValueMg +  (pos.count<ROOK>(Us) - pos.count<ROOK>(Them)) * RookValueMg + (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them)) * BishopValueMg);
-        score += LongRangedPawn * (rangeness/800) * std::max(0 , pe->pawn_asymmetry() - 6);
+        score += LongRangedPawn * rangeness * std::max(0 , pe->pawn_asymmetry() - 6) / 800;
 
     if (T)
         Trace::add(THREAT, Us, score);
