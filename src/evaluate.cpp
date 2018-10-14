@@ -162,7 +162,7 @@ namespace {
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
-  constexpr Score LongRangedPawn     = S(  4,  2);
+  constexpr Score LongRangedPawn     = S(  9,  5);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
@@ -610,8 +610,8 @@ namespace {
     int rangeness = ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them)) * QueenValueMg +  (pos.count<ROOK>(Us) - pos.count<ROOK>(Them)) * RookValueMg + (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them)) * BishopValueMg) 
         / BishopValueMg;
     if (rangeness > 0) 
-        score += LongRangedPawn * rangeness * std::max(0 , 6 - pos.count<PAWN>(Them));
-    else score += LongRangedPawn * rangeness * std::max(0 , 6 - pos.count<PAWN>(Us));
+        score += LongRangedPawn * rangeness * std::max(0 , 4 - pos.count<PAWN>(Them));
+    else score += LongRangedPawn * rangeness * std::max(0 , 4 - pos.count<PAWN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
