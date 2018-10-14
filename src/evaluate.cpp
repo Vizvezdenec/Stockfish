@@ -609,7 +609,7 @@ namespace {
     }
     int rangeness = ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them)) * QueenValueMg +  (pos.count<ROOK>(Us) - pos.count<ROOK>(Them)) * RookValueMg + (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them)) * BishopValueMg) 
         / BishopValueMg;
-        score += LongRangedPawn * rangeness * std::max(0 , pe->pawn_asymmetry()-4);
+        score += LongRangedPawn * rangeness * std::max(0 , pe->pawn_asymmetry() - 6);
 
     if (T)
         Trace::add(THREAT, Us, score);
