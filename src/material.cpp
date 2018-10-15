@@ -91,10 +91,9 @@ namespace {
 
     int bonus = 0;
         if ((pieceCount[Them][ROOK] - pieceCount[Us][ROOK]) == 1
-		&& (pieceCount[Us][KNIGHT] - pieceCount[Them][KNIGHT]) == 1
+		&& (pieceCount[Us][KNIGHT] - pieceCount[Them][KNIGHT] + pieceCount[Us][BISHOP] - pieceCount[Them][BISHOP]) == 1
 		&& (pieceCount[Us][PAWN] - pieceCount[Them][PAWN]) >= 1
-		&& (pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN]) == 0
-		&& (pieceCount[Us][BISHOP] - pieceCount[Them][BISHOP]) == 0)
+		&& (pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN]) == 0)
 		bonus = 200;
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
