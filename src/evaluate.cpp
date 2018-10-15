@@ -478,6 +478,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
+                     +   4 * (8 - popcount(pos.pieces(PAWN) & kingFlank))
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
