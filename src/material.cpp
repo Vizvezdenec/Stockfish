@@ -92,7 +92,7 @@ namespace {
     int bonus = 0;
     if ((pieceCount[Them][ROOK] - pieceCount[Us][ROOK]) == 1
 		&& (pieceCount[Us][KNIGHT] - pieceCount[Them][KNIGHT]) == 1
-		&& (pieceCount[Us][PAWN] - pieceCount[Them][PAWN]) >= 1
+		&& (pieceCount[Us][PAWN] - pieceCount[Them][PAWN]) >= 2
 		&& (pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN]) == 0
 		&& (pieceCount[Us][BISHOP] - pieceCount[Them][BISHOP]) == 0)
 		bonus = 150;
