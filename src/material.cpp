@@ -94,7 +94,7 @@ namespace {
 		&& (pieceCount[Us][KNIGHT] - pieceCount[Them][KNIGHT] + pieceCount[Us][BISHOP] - pieceCount[Them][BISHOP]) == 1
 		&& (pieceCount[Us][PAWN] - pieceCount[Them][PAWN]) >= 1
 		&& (pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN]) == 0)
-		bonus = 200;
+		bonus = 100;
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
     {
