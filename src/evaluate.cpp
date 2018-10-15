@@ -397,6 +397,9 @@ namespace {
                 score -= WeakQueen;
         }
     }
+    if ((pos.non_pawn_material(Us) - pos.non_pawn_material(Them) == KnightValueMg - RookValueMg)
+              && (pos.count<PAWN>(Us) - pos.count<PAWN>(Them) > 0))
+                score += NvsRmg;
     if (T)
         Trace::add(Pt, Us, score);
 
