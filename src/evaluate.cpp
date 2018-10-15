@@ -472,13 +472,13 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-        int pawnDiff = popcount(pos.pieces(Them, PAWN) & kingFlank) - popcount(pos.pieces(Us, PAWN) & kingFlank);
+        int pawnDiff = abs(popcount(pos.pieces(Them, PAWN) & kingFlank) - popcount(pos.pieces(Us, PAWN) & kingFlank));
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
-                     +   2 * pawnDiff * pawnDiff
+                     +  20 * pawnDiff
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      -   30;
