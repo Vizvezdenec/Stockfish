@@ -1036,7 +1036,7 @@ moves_loop: // When in check, search starts from here
                              - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
-              if (ss->statScore >= 0 && (ss-1)->statScore < 0)
+              if (ss->statScore >= 0 && (ss-1)->statScore < 0 && rootNode)
                   r -= ONE_PLY;
 
               else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
