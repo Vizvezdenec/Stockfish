@@ -388,9 +388,7 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
-                  && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3)
-                  && (relative_rank(Us, s) < RANK_3 || !(pos.attacks_from<ROOK>(s) & TRank7BB)))
+            if (relative_rank(Us, s) < RANK_3 && !(pos.attacks_from<ROOK>(s) & TRank7BB))
                   score -= QueenRook3r;
         }
 
@@ -400,9 +398,7 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-            if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
-                  && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3)
-                  && (relative_rank(Us, s) < RANK_3 || !(pos.attacks_from<QUEEN>(s) & TRank7BB)))
+            if (relative_rank(Us, s) < RANK_3 && !(pos.attacks_from<QUEEN>(s) & TRank7BB))
                   score -= QueenRook3r;
         }
     }
