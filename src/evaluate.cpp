@@ -292,6 +292,7 @@ namespace {
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank7BB | Rank8BB);
+    constexpr Bitboard LowFiles = (FileABB | FileBBB| FileCBB | FileDBB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -400,7 +401,7 @@ namespace {
     }
     if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
          && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3))
-        score -= QueenRook3r * popcount(pos.pieces(Us, ROOK, QUEEN) & LowRanks);
+        score -= QueenRook3r * popcount(pos.pieces(Us, ROOK, QUEEN) & (LowRanks| LowFiles));
     if (T)
         Trace::add(Pt, Us, score);
 
