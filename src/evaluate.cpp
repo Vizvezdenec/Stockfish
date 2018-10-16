@@ -165,7 +165,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
-  constexpr Score QueenRook3r        = S(  5,  5);
+  constexpr Score Queen3r        = S(  5,  5);
   constexpr Score RookOnPawn         = S( 10, 30);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
@@ -388,8 +388,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            if (relative_rank(Us, s) < RANK_3 && !(pos.attacks_from<ROOK>(s) & TRank7BB))
-                  score -= QueenRook3r;
         }
 
         if (Pt == QUEEN)
@@ -399,7 +397,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
             if (relative_rank(Us, s) < RANK_3 && !(pos.attacks_from<QUEEN>(s) & TRank7BB))
-                  score -= QueenRook3r;
+                  score -= Queen3r;
         }
     }
     if (T)
