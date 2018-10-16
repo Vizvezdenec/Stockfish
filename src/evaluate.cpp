@@ -291,7 +291,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank7BB | Rank8BB);
+    const Bitboard TRank7BB = (Us == WHITE ? Rank7BB    : Rank2BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -388,6 +388,10 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
+                  && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3)
+                  && (relative_rank(Us, s) < RANK_3 || !(pos.attacks_from<ROOK>(s) & TRank7BB)))
+                  score -= QueenRook3r;
         }
 
         if (Pt == QUEEN)
@@ -396,11 +400,12 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
+                  && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3)
+                  && (relative_rank(Us, s) < RANK_3 || !(pos.attacks_from<QUEEN>(s) & TRank7BB)))
+                  score -= QueenRook3r;
         }
     }
-    if ((pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them) == 1)
-         && (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) - pos.count<BISHOP>(Us) - pos.count<KNIGHT>(Us) == 3))
-        score -= QueenRook3r * popcount(pos.pieces(Us, ROOK, QUEEN) & LowRanks);
     if (T)
         Trace::add(Pt, Us, score);
 
