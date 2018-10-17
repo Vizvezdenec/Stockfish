@@ -387,7 +387,8 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            score += make_score(0, popcount(pos.attacks_from<ROOK>(s) & ~attackedBy[Them][PAWN] & ~LowRanks));
+            score += make_score(0, popcount(pos.attacks_from<ROOK>(s) & ~attackedBy[Them][PAWN] & 
+                           ~attackedBy[Them][KNIGHT] & ~attackedBy[Them][BISHOP] & ~LowRanks));
         }
 
         if (Pt == QUEEN)
