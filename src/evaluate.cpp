@@ -603,7 +603,7 @@ namespace {
     }
     b = ~attackedBy[Them][PAWN] & ~attackedBy[Them][KNIGHT] & ~attackedBy[Them][BISHOP];
     int rank3control = popcount(attackedBy[Us][ROOK] & ~LowRanks & b) - 5 * pos.count<ROOK>(Us);
-    score += make_score(3, 0) * rank3control;
+    score += make_score(-2, 4) * rank3control;
     if (T)
         Trace::add(THREAT, Us, score);
 
