@@ -290,7 +290,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank8BB | Rank7BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -387,8 +386,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            int rank3control = popcount(pos.attacks_from<ROOK>(s) & ~LowRanks & ~attackedBy[Them][PAWN]);
-            score += make_score(1, 1) * rank3control;
         }
 
         if (Pt == QUEEN)
@@ -516,6 +513,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank8BB | Rank7BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -603,7 +601,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    b = ~attackedBy[Them][PAWN] & ~attackedBy[Them][KNIGHT] & ~attackedBy[Them][BISHOP];
+    int rank3control = popcount(attackedBy[Us][ROOK] & ~LowRanks & b);
+    score += make_score(1, 1) * rank3control;
     if (T)
         Trace::add(THREAT, Us, score);
 
