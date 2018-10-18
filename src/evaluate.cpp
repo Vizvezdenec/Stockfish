@@ -290,7 +290,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank7BB | Rank8BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank1BB | Rank2BB: Rank8BB | Rank7BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -387,8 +387,8 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            score += make_score(0, popcount(pos.attacks_from<ROOK>(s) & ~attackedBy[Them][PAWN] & 
-                           ~attackedBy[Them][KNIGHT] & ~attackedBy[Them][BISHOP] & ~LowRanks));
+            int rank3control = popcount(pos.attacks_from<ROOK>(s) & ~LowRanks & ~attackedBy[Them][PAWN]);
+            score += make_score(1, 1) * rank3control;
         }
 
         if (Pt == QUEEN)
