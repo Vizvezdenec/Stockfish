@@ -490,7 +490,7 @@ namespace {
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
         else if ((mobilityDanger > 0) && (pos.count<BISHOP>(Us) + pos.count<KNIGHT>(Us) < pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them)))
-            score -= make_score(mobilityDanger * mobilityDanger / 4096, mobilityDanger / 16);
+            score -= make_score(mobilityDanger * mobilityDanger / 8192, 0);
     }
 
     // Penalty when our king is on a pawnless flank
