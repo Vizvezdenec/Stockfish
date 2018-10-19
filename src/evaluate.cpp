@@ -749,7 +749,7 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int mobilityDanger = abs(mg_value(mobility[WHITE] - mobility[BLACK]))/32;
+    int mobilityDanger = abs(mg_value(mobility[WHITE] - mobility[BLACK])) / 24;
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
