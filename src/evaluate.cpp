@@ -489,8 +489,8 @@ namespace {
             kingDanger = std::max(0, kingDanger + mobilityDanger);
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
-        else if (mobilityDanger > 0)
-            score -= make_score(mobilityDanger * mobilityDanger / 8192, 0);
+        else if (mobilityDanger > 0 && ((pos.count<QUEEN>(Us) != pos.count<QUEEN>(Them)) || (pos.count<ROOK>(Us) != pos.count<ROOK>(Them))))
+            score -= make_score(mobilityDanger * mobilityDanger / 4096, mobilityDanger / 16);
     }
 
     // Penalty when our king is on a pawnless flank
