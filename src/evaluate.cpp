@@ -483,13 +483,14 @@ namespace {
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
-
+        int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
         if (kingDanger > 0)
         {
-            int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
             kingDanger = std::max(0, kingDanger + mobilityDanger);
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
+        else if ((mobilityDanger > 0) && (pos.count<BISHOP>(Us) + pos.count<KNIGHT>(Us) < pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them)))
+            score -= make_score(mobilityDanger * mobilityDanger / 4096, mobilityDanger / 16);
     }
 
     // Penalty when our king is on a pawnless flank
@@ -749,14 +750,12 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int mobilityDanger = abs(mg_value(mobility[WHITE] - mobility[BLACK])) / 64;
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +      mobilityDanger
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
