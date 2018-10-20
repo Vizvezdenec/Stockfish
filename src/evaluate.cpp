@@ -788,7 +788,7 @@ namespace {
             {
             bool pawnsOnBothFlanks =   (pos.pieces(strongSide, PAWN) & QueenSide)
                             && (pos.pieces(strongSide, PAWN) & KingSide);
-            sf = std::min(36 + pawnsOnBothFlanks * 16 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(20 + pawnsOnBothFlanks * 20 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
             }
 
     }
