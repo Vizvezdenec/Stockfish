@@ -786,8 +786,8 @@ namespace {
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
             {
-            bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
+            bool pawnsOnBothFlanks =   (pos.pieces(strongSide, PAWN) & QueenSide)
+                            && (pos.pieces(strongSide, PAWN) & KingSide);
             sf = std::min(32 + pawnsOnBothFlanks * 12 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
             }
 
