@@ -755,7 +755,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +      mobilityDanger * mobilityDanger / 4096
+                    +      mobilityDanger * mobilityDanger / 12288
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
