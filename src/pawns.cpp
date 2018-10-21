@@ -144,7 +144,8 @@ namespace {
         if (doubled && !supported)
             score -= Doubled;
     }
-
+         b = e->semiopenFiles[Us] ^ 0xFF;
+         e->pawnspan[Us] = b ? int (msb(b) - lsb (b)) : 0;
     return score;
   }
 
