@@ -163,7 +163,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
-  constexpr Score MinorOnRook        = S(  8,  4);
+  constexpr Score MinorOnRook        = S(  4,  2);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 30);
@@ -606,7 +606,7 @@ namespace {
     Square s = SQ_NONE;
     while ((s = *pl1++) != SQ_NONE)
     {
-        safe = mobilityArea[Us] & ~stronglyProtected & ~attackedBy[Them][BISHOP] & ~attackedBy[Them][KNIGHT];
+        safe = mobilityArea[Us] & ~stronglyProtected;
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s));
         
