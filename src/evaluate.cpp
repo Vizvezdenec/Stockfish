@@ -292,9 +292,8 @@ namespace {
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
-    const Square* pl1 = pos.squares<ROOK>(Us);
 
-    Bitboard b, bb, safe, stronglyProtected;
+    Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
 
@@ -398,16 +397,7 @@ namespace {
                 score -= WeakQueen;
         }
     }
-    stronglyProtected =  attackedBy[Them][PAWN]
-                       | (attackedBy2[Them] & ~attackedBy2[Us]);
-    while ((s = *pl1++) != SQ_NONE)
-    {
-        safe = mobilityArea[Us] & ~stronglyProtected;
-        b =  (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s));
-        
-        score += MinorOnRook * popcount(b & safe);
-    }
+
     if (T)
         Trace::add(Pt, Us, score);
 
@@ -525,7 +515,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-
+    
+    const Square* pl1 = pos.squares<ROOK>(Us);
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
@@ -612,7 +603,15 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    Square s = SQ_NONE;
+    while ((s = *pl1++) != SQ_NONE)
+    {
+        safe = mobilityArea[Us] & ~stronglyProtected;
+        b =  (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s));
+        
+        score += MinorOnRook * popcount(b & safe);
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
