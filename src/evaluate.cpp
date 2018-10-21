@@ -606,7 +606,7 @@ namespace {
     Square s = SQ_NONE;
     while ((s = *pl1++) != SQ_NONE)
     {
-        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected & ~attackedBy[Them][BISHOP] & ~attackedBy[Them][KNIGHT];
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s));
         
