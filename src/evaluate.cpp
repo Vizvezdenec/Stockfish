@@ -163,7 +163,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
-  constexpr Score MinorOnRook        = S( 15,  8);
+  constexpr Score MinorOnRook        = S(  8,  4);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 30);
@@ -516,7 +516,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
     
-    const Square* pl1 = pos.squares<ROOK>(Us);
+    const Square* pl1 = pos.squares<ROOK>(Them);
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
@@ -607,8 +607,8 @@ namespace {
     while ((s = *pl1++) != SQ_NONE)
     {
         safe = mobilityArea[Us] & ~stronglyProtected;
-        b =  (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s));
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s));
         
         score += MinorOnRook * popcount(b & safe);
     }
