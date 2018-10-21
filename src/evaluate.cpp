@@ -786,7 +786,7 @@ namespace {
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
             {
-            sf = std::min(30 + pe->max_pawn_distance(strongSide) * 2 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(20 + pe->max_pawn_distance(strongSide) * 4 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
             }
 
     }
