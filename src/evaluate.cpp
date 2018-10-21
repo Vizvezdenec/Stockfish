@@ -785,7 +785,7 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else if (pos.count<KNIGHT>(strongSide) < pos.count<KNIGHT>(~strongSide))
-            sf = std::min(20 + pe->max_pawn_distance(strongSide) * 4 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf + pe->max_pawn_distance(strongSide) * 4);
+            sf = std::min(20 + pe->max_pawn_distance(strongSide) * 6 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf + pe->max_pawn_distance(strongSide) * 4);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
