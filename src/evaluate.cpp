@@ -163,6 +163,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
+  constexpr Score MinorOnRook        = S( 15,  8);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 30);
@@ -291,8 +292,9 @@ namespace {
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
+    const Square* pl1 = pos.squares<ROOK>(Us);
 
-    Bitboard b, bb;
+    Bitboard b, bb, safe, stronglyProtected;
     Square s;
     Score score = SCORE_ZERO;
 
@@ -395,6 +397,16 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+    }
+    stronglyProtected =  attackedBy[Them][PAWN]
+                       | (attackedBy2[Them] & ~attackedBy2[Us]);
+    while ((s = *pl1++) != SQ_NONE)
+    {
+        safe = mobilityArea[Us] & ~stronglyProtected;
+        b =  (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s));
+        
+        score += MinorOnRook * popcount(b & safe);
     }
     if (T)
         Trace::add(Pt, Us, score);
