@@ -608,7 +608,7 @@ namespace {
         {
         safe = mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES];
         b =  (attackedBy[Us][QUEEN] & pos.attacks_from<QUEEN>(s));
-        score += QueenOnKnight * popcount (b & safe);
+        score += QueenOnKnight * bool (b & safe);
         }
     }
     if (T)
