@@ -163,7 +163,7 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
-  constexpr Score MinorOnRook        = S( 24, 24);
+  constexpr Score MinorOnRook        = S( 32, 16);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 30);
@@ -603,6 +603,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    if (pos.count<ROOK>(Them) > pos.count<ROOK>(Us)
+        && pos.count<BISHOP>(Us) + pos.count<KNIGHT>(Us) > pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them))
+    {
     Square s = SQ_NONE;
     while ((s = *pl1++) != SQ_NONE)
     {
@@ -610,6 +613,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s));
         score += MinorOnRook * popcount(b & safe);
+    }
     }
     if (T)
         Trace::add(THREAT, Us, score);
