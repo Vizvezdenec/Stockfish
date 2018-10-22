@@ -165,7 +165,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
-  constexpr Score QueenOnKnight      = S(  5, 10);
+  constexpr Score QueenOnKnight      = S(  8,  8);
   constexpr Score RookOnPawn         = S( 10, 30);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
@@ -515,7 +515,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
     const Square* pl1 = pos.squares<KNIGHT>(Them);
-    Bitboard b, b1, weak, defended, nonPawnEnemies, stronglyProtected, stronglyProtected1, safe, safe1;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -604,19 +604,11 @@ namespace {
     Square s = SQ_NONE;
     while ((s = *pl1++) != SQ_NONE)
     {
-        if (s & ~attackedBy[Them][ALL_PIECES] && pos.count<QUEEN>(Us) == 1)
-        {
-        stronglyProtected1 =  attackedBy[Us][PAWN]
-                       | (attackedBy2[Us] & ~attackedBy2[Them]);
-        Square s1 = pos.square<QUEEN>(Us);
-        safe1 = mobilityArea[Them] & ~stronglyProtected1;
-        b1 = attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s1);
-        if (popcount(b1 & safe1) == 0)
+        if (s & ~attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES])
         {
         safe = mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES];
         b =  (attackedBy[Us][QUEEN] & pos.attacks_from<QUEEN>(s));
-        score += QueenOnKnight * popcount(b & safe);
-        }
+        score += QueenOnKnight * popcount (b & safe);
         }
     }
     if (T)
