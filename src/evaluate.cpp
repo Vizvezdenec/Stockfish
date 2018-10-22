@@ -163,10 +163,10 @@ namespace {
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
-  constexpr Score MinorOnRook        = S( 32, 16);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 30);
+  constexpr Score SliderByQueen      = S(  4,  2);
   constexpr Score SliderOnQueen      = S( 42, 21);
   constexpr Score ThreatByKing       = S( 23, 76);
   constexpr Score ThreatByPawnPush   = S( 45, 40);
@@ -291,7 +291,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    const Square* pl = pos.squares<Pt>(Us);
+    const Square* pl = pos.squares<Pt>(Them);
 
     Bitboard b, bb;
     Square s;
@@ -516,7 +516,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
     
-    const Square* pl1 = pos.squares<ROOK>(Them);
+    const Square* pl1 = pos.squares<ALL_PIECES>(Them);
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
@@ -603,17 +603,12 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    if (pos.count<ROOK>(Them) > pos.count<ROOK>(Us)
-        && pos.count<BISHOP>(Us) + pos.count<KNIGHT>(Us) > pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them))
-    {
     Square s = SQ_NONE;
     while ((s = *pl1++) != SQ_NONE)
     {
-        safe = mobilityArea[Us] & ~stronglyProtected & ~attackedBy[Them][BISHOP] & ~attackedBy[Them][KNIGHT];
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s));
-        score += MinorOnRook * popcount(b & safe);
-    }
+        safe = mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES];
+        b =  (attackedBy[Us][QUEEN] & pos.attacks_from<QUEEN>(s));
+        score += SliderByQueen * popcount(b & safe);
     }
     if (T)
         Trace::add(THREAT, Us, score);
