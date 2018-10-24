@@ -750,15 +750,15 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
     Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK)))
                        | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE)));
-    int pawnStructureVolatility = pos.count<PAWN>() - popcount(blocked);
+    bool pawnStructureVolatility = (pos.count<PAWN>() - popcount(blocked) < 2);
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +  6 * pawnStructureVolatility
-                    -142 ;
+                    - 60 * pawnStructureVolatility
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
