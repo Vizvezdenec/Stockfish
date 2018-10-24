@@ -748,8 +748,8 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK)))
-                       | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE)));
+    Bitboard blocked = (pos.pieces(WHITE, PAWN) & (shift<SOUTH>(pos.pieces(BLACK)) | shift<SOUTH>(attackedBy2[BLACK])))
+                       | (pos.pieces(BLACK, PAWN) & (shift<NORTH>(pos.pieces(WHITE)) | shift<NORTH>(attackedBy2[WHITE])));
     bool pawnStructureVolatility = (pos.count<PAWN>() - popcount(blocked) < 2);
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
