@@ -35,6 +35,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
+  constexpr Score Outpost  = S(30, 10);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
   Score Connected[2][2][3][RANK_NB];
@@ -70,6 +71,8 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Right   = (Us == WHITE ? EAST : WEST);
+    constexpr Direction Left   = (Us == WHITE ? WEST : EAST);
 
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
     Bitboard lever, leverPush;
@@ -143,6 +146,12 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+        if (supported & 
+           ~((theirPawns & forward_file_bb(Us, s)) 
+           | (theirPawns & forward_file_bb(Us, s + Right)) 
+           | (theirPawns & forward_file_bb(Us, s + Left))))
+            if (relative_rank(Us, s) >= RANK_5)
+                score += Outpost;
     }
 
     return score;
