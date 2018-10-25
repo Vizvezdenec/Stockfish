@@ -148,8 +148,8 @@ namespace {
         if (doubled && !supported)
             score -= Doubled;
         if ((relative_rank(Us, s) >= RANK_5) && (s & CenterFiles))
-        if (supported & 
-           ~((theirPawns & forward_file_bb(Us, s)) 
+        if (supported && 
+           !((theirPawns & forward_file_bb(Us, s)) 
            | (theirPawns & forward_file_bb(Us, s + Right)) 
            | (theirPawns & forward_file_bb(Us, s + Left))))
                 score += Outpost * (relative_rank(Us, s) - RANK_4);
