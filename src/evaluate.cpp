@@ -748,17 +748,17 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    Bitboard blocked = (pos.pieces(WHITE, PAWN) & (shift<SOUTH>(pos.pieces(BLACK))))
-                       | (pos.pieces(BLACK, PAWN) & (shift<NORTH>(pos.pieces(WHITE))));
-    int pawnStructureVolatility = std::min(pos.count<PAWN>() - popcount(blocked), 2);
+    Bitboard blocked = (pos.pieces(WHITE, PAWN) & (shift<SOUTH>(pos.pieces(BLACK)) | shift<SOUTH>(attackedBy2[BLACK] & attackedBy[BLACK] [PAWN])))
+                       | (pos.pieces(BLACK, PAWN) & (shift<NORTH>(pos.pieces(WHITE)) | shift<NORTH>(attackedBy2[WHITE] & attackedBy[WHITE] [PAWN])));
+    bool pawnStructureBlockness = (pos.count<PAWN>() - popcount(blocked) < 1);
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    + 30 * pawnStructureVolatility
-                    -182 ;
+                    - 80 * pawnStructureBlockness
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
