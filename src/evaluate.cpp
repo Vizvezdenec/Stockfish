@@ -778,6 +778,11 @@ namespace {
     int sf = me->scale_factor(pos, strongSide);
 
     // If scale is not already specific, scale down the endgame via general heuristics
+    if (pos.non_pawn_material(strongSide) < QueenValueMg
+       && pos.count<PAWN>(strongSide) == 0
+       && (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) == KnightValueMg
+       || pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) == BishopValueMg))
+        sf = SCALE_FACTOR_DRAW;
     if (sf == SCALE_FACTOR_NORMAL)
     {
         if (   pos.opposite_bishops()
