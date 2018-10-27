@@ -90,7 +90,53 @@ namespace {
     constexpr Color Them = (Us == WHITE ? BLACK : WHITE);
 
     int bonus = 0;
+        int Piece_Us = 0;
+	int Piece_Them = 0;
+	int Sum_Us = 0;
+	int Sum_Them = 0;
 
+	Piece_Us = pieceCount[Us][QUEEN] + pieceCount[Us][ROOK] + pieceCount[Us][BISHOP] + pieceCount[Us][KNIGHT] + pieceCount[Us][PAWN];
+	Piece_Them = pieceCount[Them][QUEEN] + pieceCount[Them][ROOK] + pieceCount[Them][BISHOP] + pieceCount[Them][KNIGHT] + pieceCount[Them][PAWN];
+
+	//EndGame
+	if (Piece_Us + Piece_Them < 13)
+	{
+		Sum_Us = pieceCount[Us][QUEEN] * QueenValueEg
+			+ pieceCount[Us][ROOK] * RookValueEg
+			+ pieceCount[Us][BISHOP] * BishopValueEg
+			+ pieceCount[Us][KNIGHT] * KnightValueEg
+			+ pieceCount[Us][PAWN] * PawnValueEg;
+
+		Sum_Them = pieceCount[Them][QUEEN] * QueenValueEg
+			+ pieceCount[Them][ROOK] * RookValueEg
+			+ pieceCount[Them][BISHOP] * BishopValueEg
+			+ pieceCount[Them][KNIGHT] * KnightValueEg
+			+ pieceCount[Them][PAWN] * PawnValueEg;
+
+
+		if (abs(Sum_Us - Sum_Them >= PawnValueEg))
+			bonus = (Sum_Us - Sum_Them) / 2.7;
+	}
+
+	//MiddleGame
+	else
+	{
+		Sum_Us = pieceCount[Us][QUEEN] * QueenValueMg
+			+ pieceCount[Us][ROOK] * RookValueMg
+			+ pieceCount[Us][BISHOP] * BishopValueMg
+			+ pieceCount[Us][KNIGHT] * KnightValueMg
+			+ pieceCount[Us][PAWN] * PawnValueMg;
+
+		Sum_Them = pieceCount[Them][QUEEN] * QueenValueMg
+			+ pieceCount[Them][ROOK] * RookValueMg
+			+ pieceCount[Them][BISHOP] * BishopValueMg
+			+ pieceCount[Them][KNIGHT] * KnightValueMg
+			+ pieceCount[Them][PAWN] * PawnValueMg;
+
+
+		if (abs(Sum_Us - Sum_Them >= PawnValueMg))
+			bonus = (Sum_Us - Sum_Them) / 4.1;
+	}
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
     {
