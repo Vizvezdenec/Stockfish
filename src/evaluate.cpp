@@ -384,7 +384,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + 3 * !pos.can_castle(Us));
             }
         }
 
@@ -748,14 +748,13 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int queenImbalance = (pos.count<QUEEN>(WHITE) != pos.count<QUEEN>(BLACK));
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    + 32 * queenImbalance
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
