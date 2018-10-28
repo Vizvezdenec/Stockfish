@@ -135,7 +135,7 @@ namespace {
 
 
 		if (abs(Sum_Us - Sum_Them >= PawnValueMg))
-			bonus = (Sum_Us - Sum_Them) / 4.2;
+			bonus = (Sum_Us - Sum_Them) / 4.0;
 	}
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
