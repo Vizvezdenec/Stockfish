@@ -388,7 +388,7 @@ namespace {
                     Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
                     Square s1 = pos.square<KING>(Us);
                     Bitboard kingMob = pos.attacks_from<KING>(s1);
-                    bool immobileKing = popcount(kingMob & ~blocked & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ROOK)) == 0;
+                    bool immobileKing = !(kingMob & ~blocked & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ROOK));
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
                     score -= TrappedRook * immobileKing;
                     }
