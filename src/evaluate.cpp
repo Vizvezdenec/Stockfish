@@ -385,10 +385,12 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     {
-                    if (!pos.can_castle(Us))
-                        score -= (TrappedRook - make_score(mob * 22, 0)) * (4 - mob);
-                    else 
-                        score -= (TrappedRook - make_score(mob * 22, 0));
+                    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
+                    Square s1 = pos.square<KING>(Us);
+                    Bitboard kingMob = pos.attacks_from<KING>(s1);
+                    bool immobileKing = popcount(kingMob & ~blocked & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ROOK)) == 0;
+                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+                    score -= TrappedRook * immobileKing;
                     }
             }
         }
