@@ -612,7 +612,7 @@ namespace {
              Square s1 = pos.square<KING>(Us);
              Bitboard kingMob = pos.attacks_from<KING>(s1);
              bool immobileKing = !(kingMob & ~blocked & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ROOK));
-             bool cornered = ((shift<Up>(s) | shift<Up>(shift<Up>(s))) & pos.pieces(Us, PAWN));
+             bool cornered = ((shift<Up>(s) | shift<Up>(shift<Up>(s))) & blocked);
              score -= BlockedRook * immobileKing * cornered;
              }
     }
