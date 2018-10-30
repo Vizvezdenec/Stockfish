@@ -156,6 +156,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BlockedRook        = S(200,100);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
@@ -512,8 +513,9 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-
+    const Square* pl = pos.squares<ROOK>(Us);
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
@@ -600,7 +602,20 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    Square s;
+    while ((s = *pl++) != SQ_NONE)
+    {
+        File kf = file_of(pos.square<KING>(Us));
+        if ((kf < FILE_E) == (file_of(s) < kf))
+             {
+             Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
+             Square s1 = pos.square<KING>(Us);
+             Bitboard kingMob = pos.attacks_from<KING>(s1);
+             bool immobileKing = !(kingMob & ~blocked & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ROOK));
+             bool cornered = ((shift<Up>(s) | shift<Up>(shift<Up>(s))) & blocked);
+             score -= BlockedRook * immobileKing * cornered;
+             }
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
