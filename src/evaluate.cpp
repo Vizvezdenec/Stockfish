@@ -788,7 +788,7 @@ namespace {
             Bitboard AdvancedRanks = (strongSide == WHITE ? Rank6BB | Rank7BB
                                                    : Rank3BB | Rank2BB);
             bool advancedPawns = (pos.pieces(strongSide,PAWN) & AdvancedRanks);
-            sf = std::min(24 + 16 * advancedPawns + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(32 + 16 * advancedPawns + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
             }
     }
 
