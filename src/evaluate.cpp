@@ -758,7 +758,7 @@ namespace {
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
                     + 16 * pawnsInBothCamps
-                    -118 ;
+                    -122 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
