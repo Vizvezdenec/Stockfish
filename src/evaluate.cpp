@@ -749,8 +749,8 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int broadPawnStructure = popcount(pos.pieces(WHITE, PAWN) & CampBlack) +
-                             popcount(pos.pieces(BLACK, PAWN) & CampWhite);
+    int broadPawnStructure = popcount(pos.pieces(WHITE, PAWN) & CampBlack) * (bool (pos.pieces(WHITE, PAWN) & CampWhite)) +
+                             popcount(pos.pieces(BLACK, PAWN) & CampWhite) * (bool (pos.pieces(BLACK, PAWN) & CampBlack));
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
