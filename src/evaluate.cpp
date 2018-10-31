@@ -773,7 +773,6 @@ namespace {
 
   template<Tracing T>
   ScaleFactor Evaluation<T>::scale_factor(Value eg) const {
-
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
 
@@ -785,8 +784,12 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-
+            {
+            Bitboard AdvancedRanks = (strongSide == WHITE ? Rank6BB | Rank7BB
+                                                   : Rank3BB | Rank2BB);
+            bool advancedPawns = (pos.pieces(strongSide,PAWN) & AdvancedRanks);
+            sf = std::min(24 + 16 * advancedPawns + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            }
     }
 
     return ScaleFactor(sf);

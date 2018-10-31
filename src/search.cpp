@@ -331,7 +331,6 @@ void Thread::search() {
   multiPV = std::min(multiPV, rootMoves.size());
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
-  ct -= rootPos.count<ALL_PIECES>() - 16;
 
   // In analysis mode, adjust contempt in accordance with user preference
   if (Limits.infinite || Options["UCI_AnalyseMode"])
