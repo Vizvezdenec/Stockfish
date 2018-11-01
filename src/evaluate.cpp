@@ -483,13 +483,16 @@ namespace {
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
+        int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
         if (kingDanger > 0)
         {
-            int mobilityDangerMg = mg_value(mobility[Them] - mobility[Us]);
-            int mobilityDangerEg = eg_value(mobility[Them] - mobility[Us]);
-            int kingDangerMg = std::max(0, kingDanger + mobilityDangerMg);
-            int kingDangerEg = std::max(0, kingDanger + mobilityDangerEg);
-            score -= make_score(kingDangerMg * kingDangerMg / 4096, kingDangerEg / 16);
+            kingDanger = std::max(0, kingDanger + mobilityDanger);
+            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+        }
+        else if (kingDanger + mobilityDanger > 0)
+        {
+            kingDanger += mobilityDanger;
+            score -= make_score(kingDanger * kingDanger / 8192, kingDanger / 32);
         }
     }
 
