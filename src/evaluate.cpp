@@ -492,7 +492,7 @@ namespace {
         else if (kingDanger + mobilityDanger > 0)
         {
             kingDanger += mobilityDanger;
-            score -= make_score(kingDanger * kingDanger / 8192, kingDanger / 32);
+            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
     }
 
