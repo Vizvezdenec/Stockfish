@@ -485,9 +485,11 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
         {
-            int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
-            kingDanger = std::max(0, kingDanger + mobilityDanger);
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+            int mobilityDangerMg = mg_value(mobility[Them] - mobility[Us]);
+            int mobilityDangerEg = eg_value(mobility[Them] - mobility[Us]);
+            int kingDangerMg = std::max(0, kingDanger + mobilityDangerMg);
+            int kingDangerEg = std::max(0, kingDanger + mobilityDangerEg);
+            score -= make_score(kingDangerMg * kingDangerMg / 4096, kingDangerEg / 16);
         }
     }
 
@@ -742,14 +744,11 @@ namespace {
 
   template<Tracing T>
   Score Evaluation<T>::initiative(Value eg) const {
-    constexpr Bitboard CampWhite = (Rank2BB | Rank3BB);
-    constexpr Bitboard CampBlack = (Rank6BB | Rank7BB);
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int pawnsInBothCamps = popcount(pos.pieces(WHITE, PAWN) & CampBlack) * popcount(pos.pieces(BLACK, PAWN) & CampWhite);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
@@ -757,7 +756,6 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +  4 * pawnsInBothCamps
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
