@@ -288,6 +288,9 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction   Up = (Us == BLACK ? SOUTH : NORTH);
+    //constexpr Direction Left = (Us == WHITE ? WEST : EAST);
+    //constexpr Direction Right = (Us == BLACK ? WEST : EAST);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -320,7 +323,6 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -374,11 +376,11 @@ namespace {
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
-
+            if (relative_rank(Us, s) < RANK_8)
+            mob = mob - (popcount(pos.attacks_from<ROOK>(s + Up)) < 2);
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
-
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
