@@ -394,6 +394,8 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            if (pos.count<QUEEN>(Us) > pos.count<QUEEN>(Them))
+                mobility[Us] += MobilityBonus[Pt - 2][mob];
         }
     }
     if (T)
