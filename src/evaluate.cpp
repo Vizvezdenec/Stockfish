@@ -323,7 +323,7 @@ namespace {
         if (Pt == ROOK)
         {
         if (relative_rank(Us, s) == RANK_1 && (~pos.pieces(Us, PAWN) & (s + Up)) && mob > 0)
-            mob -= !(pos.attacks_from<ROOK>(s + Up) & ~pos.pieces(Us));
+            mob -= !(pos.attacks_from<ROOK>(s + Up) & ~pos.pieces(Us, PAWN, ROOK));
         }
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
