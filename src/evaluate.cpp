@@ -322,16 +322,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
         if (Pt == ROOK)
         {
-        if (relative_rank(Us, s) < RANK_8 && (~pos.pieces(Us, PAWN) & (s + Up)))
+        if (relative_rank(Us, s) == RANK_1 && (~pos.pieces(Us, PAWN) & (s + Up)) && mob > 0)
             mob -= !(pos.attacks_from<ROOK>(s + Up) & ~pos.pieces(Us));
-        if (relative_rank(Us, s) > RANK_1 && (~pos.pieces(Us, PAWN) & (s + Down)))
-            mob -= !(pos.attacks_from<ROOK>(s + Down) & ~pos.pieces(Us));
-        if (file_of(s) != FILE_A && (~pos.pieces(Us, PAWN) & (s + WEST)))
-            mob -= !(pos.attacks_from<ROOK>(s + WEST) & ~pos.pieces(Us));
-        if (file_of(s) != FILE_H && (~pos.pieces(Us, PAWN) & (s + EAST)))
-            mob -= !(pos.attacks_from<ROOK>(s + EAST) & ~pos.pieces(Us));
-        if (mob < 0)
-            mob = 0;
         }
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
