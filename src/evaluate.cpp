@@ -395,7 +395,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
             if ((pos.count<QUEEN>(Us) > pos.count<QUEEN>(Them)) && mob < 8)
-                mobility[Us] += MobilityBonus[Pt - 2][mob];
+                mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
         }
     }
     if (T)
