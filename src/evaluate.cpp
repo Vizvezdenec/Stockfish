@@ -514,7 +514,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
+    constexpr Bitboard  TRank12BB = (Us == WHITE ? Rank1BB | Rank2BB : Rank8BB | Rank7BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -603,7 +603,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     if (!pos.can_castle(Us) && !(attackedBy[Us][ROOK] & pos.pieces(Us, ROOK)) 
-        && popcount (pos.pieces(Us, ROOK) & TRank1BB) == 2)
+        && popcount (pos.pieces(Us, ROOK) & TRank12BB) == 2)
         score -= UncastledRook;
 
     if (T)
