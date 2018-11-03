@@ -606,7 +606,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     if (!pos.can_castle(Us) && (pos.pieces(Us, ROOK) & LeftEdge) && (pos.pieces(Us, ROOK) & RightEdge) 
-        && (more_than_one(pos.pieces(Us, ROOK) & TRank12BB)) && (pos.pieces(Us, KING) & TRank1BB & ~RightEdge & ~LeftEdge))
+        && (more_than_one(pos.pieces(Us, ROOK) & TRank12BB)) && (pos.pieces(Us, KING) & TRank1BB)
+        && !(pos.pieces(Us, KING) & (FileABB | FileHBB)))
         score -= UncastledRook;
 
     if (T)
