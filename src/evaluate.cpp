@@ -606,7 +606,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     if (!pos.can_castle(Us) && (pos.pieces(Us, ROOK) & LeftEdge) && (pos.pieces(Us, ROOK) & RightEdge) 
-        && (more_than_one(pos.pieces(Us, ROOK) & TRank12BB)) && (pos.pieces(Us, KING) & TRank1BB))
+        && (more_than_one(pos.pieces(Us, ROOK) & TRank12BB)) && (pos.pieces(Us, KING) & TRank1BB & ~RightEdge & ~LeftEdge))
         score -= UncastledRook;
 
     if (T)
