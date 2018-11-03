@@ -172,6 +172,7 @@ namespace {
   constexpr Score ThreatByRank       = S( 16,  3);
   constexpr Score ThreatBySafePawn   = S(173,102);
   constexpr Score TrappedRook        = S( 96,  5);
+  constexpr Score UncastledRook      = S( 20,  0);
   constexpr Score WeakQueen          = S( 50, 10);
   constexpr Score WeakUnopposedPawn  = S( 15, 19);
 
@@ -600,6 +601,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    if (!pos.can_castle(Us) && !(attackedBy[Us][ROOK] & pos.pieces(Us, ROOK)))
+        score -= UncastledRook;
 
     if (T)
         Trace::add(THREAT, Us, score);
