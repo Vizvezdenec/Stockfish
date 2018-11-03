@@ -162,6 +162,7 @@ namespace {
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
+  constexpr Score LowMobQueenImb     = S(  5,  5);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 13,  6);
   constexpr Score PawnlessFlank      = S( 19, 84);
@@ -394,8 +395,8 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-            if ((pos.count<QUEEN>(Us) > pos.count<QUEEN>(Them)) && mob < 5)
-                mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
+            if ((pos.count<QUEEN>(Them) == 0) && (mob < 5))
+                score -= LowMobQueenImb * std::max(5 - mob, 0);
         }
     }
     if (T)
