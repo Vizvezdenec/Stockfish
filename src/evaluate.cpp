@@ -396,7 +396,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
             if ((pos.count<QUEEN>(Them) == 0) && (mob < 5))
-                score -= LowMobQueenImb * std::max(5 - mob, 0);
+                mobility[Us] -= LowMobQueenImb * std::max(5 - mob, 0);
         }
     }
     if (T)
