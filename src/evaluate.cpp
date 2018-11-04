@@ -387,7 +387,7 @@ namespace {
                 mob -= !pos.can_castle(Us) * (bool (b & mobilityArea[Us] & shift<Down>(pos.pieces(Us, PAWN)))
                        + more_than_one (b & mobilityArea[Us] & shift<Down>(pos.pieces(Us, PAWN))));
                 mob = std::max(mob,0);
-                score -= (TrappedRook - make_score(mob * 22, 0)); 
+                score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us)); 
                 }
             }
         }
