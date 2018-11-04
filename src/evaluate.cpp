@@ -385,7 +385,7 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                 {
                 mob -= !pos.can_castle(Us) * popcount(b & mobilityArea[Us] & shift<Down>(pos.pieces(Us, PAWN)));
-                score -= (TrappedRook - make_score(mob * 22, 0)); 
+                score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us)); 
                 }
             }
         }
