@@ -384,13 +384,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                {
-                score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
-                mob -= !pos.can_castle(Us) * popcount(b & mobilityArea[Us] & ~shift<Down>(pos.pieces(Us, PAWN)));
-                mobility[Us] += MobilityBonus[Pt - 2][mob];
-                } 
-                else 
-                mobility[Us] += MobilityBonus[Pt - 2][mob];
+                score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us) * !(b & mobilityArea[Us] & ~shift<Down>(pos.pieces(Us, PAWN))) * 2);;
             }
         }
 
