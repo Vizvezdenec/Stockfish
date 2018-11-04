@@ -320,7 +320,7 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
+        if (Pt != ROOK || mob > 3)
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -385,6 +385,9 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
+
+                mob -= popcount(b & mobilityArea[Us] & ~shift<Down>(pos.pieces(Us, PAWN)));
+                mobility[Us] += MobilityBonus[Pt - 2][mob];
             }
         }
 
