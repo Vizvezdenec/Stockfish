@@ -387,7 +387,7 @@ namespace {
                     {
                     score -= (TrappedRook - make_score(mob * 22, 0));
                     if (!pos.can_castle(Us) && (rank_of(pos.square<KING>(Us)) == rank_of(s)))
-                    mobility[Us] -= make_score((4 - mob) * 35, 0);
+                    mobility[Us] -= make_score((4 - mob) * 15, 0);
                     }
             }
         }
