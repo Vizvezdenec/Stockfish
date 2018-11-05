@@ -442,7 +442,7 @@ namespace {
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-        int kingMob = popcount (pos.attacks_from<KING>(ksq) & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ALL_PIECES));
+
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
@@ -478,7 +478,6 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
-                     +  50 * (kingMob < 2)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -486,7 +485,11 @@ namespace {
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
+            {
+            if (pos.non_pawn_material(Us) - pos.non_pawn_material(Them) > 400)
+            kingDanger += (pos.non_pawn_material(Us) - pos.non_pawn_material(Them)) / 30;
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+            }
     }
 
     // Penalty when our king is on a pawnless flank
