@@ -235,7 +235,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int kingMob[COLOR_NB];
   };
 
 
@@ -323,8 +322,6 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        if (Pt == KING)
-            kingMob[Us] = mob;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -445,7 +442,7 @@ namespace {
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-
+        int kingMob = popcount (pos.attacks_from<KING>(ksq) & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ALL_PIECES));
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
@@ -481,7 +478,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +   4 * tropism
-                     +  50 * (kingMob[Us] < 2)
+                     +  50 * (kingMob < 2)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
