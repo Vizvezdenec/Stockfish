@@ -443,7 +443,7 @@ namespace {
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-        int kingMob = popcount (pos.attacks_from<KING>(ksq) & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ALL_PIECES));
+        bool kingMob = !more_than_one(pos.attacks_from<KING>(ksq) & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ALL_PIECES));
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
@@ -479,7 +479,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +  25 * (2 - kingMob)
+                     +  50 * kingMob
                      +  4  * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
