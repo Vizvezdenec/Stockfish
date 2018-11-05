@@ -487,7 +487,7 @@ namespace {
         if (kingDanger > 0)
             {
             if (pos.non_pawn_material(Us) - pos.non_pawn_material(Them) > 400)
-            kingDanger += (pos.non_pawn_material(Us) - pos.non_pawn_material(Them)) / 30;
+            kingDanger += (pos.non_pawn_material(Us) - pos.non_pawn_material(Them)) / 5;
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
             }
     }
