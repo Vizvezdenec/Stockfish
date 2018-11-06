@@ -114,7 +114,8 @@ namespace {
       S( 28, 61), S( 41, 73), S( 43, 79), S( 48, 92), S( 56, 94), S( 60,104),
       S( 60,113), S( 66,120), S( 67,123), S( 70,126), S( 71,133), S( 73,136),
       S( 79,140), S( 88,143), S( 88,148), S( 99,166), S(102,170), S(102,175),
-      S(106,184), S(109,191), S(113,206), S(116,212) }
+      S(106,184), S(109,191), S(113,206), S(116,212) },
+    { S(-6,-3),S(-2,-2),S(2,-1),S(2,0),S(-1,1),S(-3,2),S(-5,3),S(-7,4),S(-9,5) }  //KING
   };
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
@@ -443,8 +444,6 @@ namespace {
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-        bool kingMob = !more_than_one(pos.attacks_from<KING>(ksq) & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us, ALL_PIECES));
-
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
@@ -479,8 +478,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +  50 * kingMob
-                     +  4  * tropism
+                     +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -498,6 +496,8 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
+    int kingmob = popcount(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Us)));
+    score += MobilityBonus[KING-2][kingmob];
     if (T)
         Trace::add(KING, Us, score);
 
