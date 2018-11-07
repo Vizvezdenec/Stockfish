@@ -945,7 +945,7 @@ moves_loop: // When in check, search starts from here
 
       if (   type_of(movedPiece) == KING
           && pos.can_castle(us)
-          && (ss-1)->statScore > 0
+          && (ss-1)->statScore > 17000
           && depth < 12 * ONE_PLY)
           extension = ONE_PLY;
 
