@@ -944,8 +944,8 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       if (   type_of(movedPiece) == KING
-          && (pos.can_castle(us) || ((ss-1)->statScore > 20000))
-          && depth < 12 * ONE_PLY)
+          && pos.can_castle(us)
+          && depth < (12 + (ss-1)->statScore / 10000) * ONE_PLY)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
