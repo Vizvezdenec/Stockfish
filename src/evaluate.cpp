@@ -787,7 +787,7 @@ namespace {
             && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_A8:SQ_A1)))
             || ((pos.pieces(strongSide, PAWN) & FileHBB)
             && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_H8:SQ_H1)))))
-            sf = 25 + pos.non_pawn_material(strongSide)/300;
+            sf = pos.non_pawn_material(strongSide)/100;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
     }
