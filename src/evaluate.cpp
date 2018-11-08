@@ -114,7 +114,8 @@ namespace {
       S( 28, 61), S( 41, 73), S( 43, 79), S( 48, 92), S( 56, 94), S( 60,104),
       S( 60,113), S( 66,120), S( 67,123), S( 70,126), S( 71,133), S( 73,136),
       S( 79,140), S( 88,143), S( 88,148), S( 99,166), S(102,170), S(102,175),
-      S(106,184), S(109,191), S(113,206), S(116,212) }
+      S(106,184), S(109,191), S(113,206), S(116,212) },
+    { S(-12,-6),S(-4,-4),S(4,-2),S(4,0),S(-2,2),S(-6,4),S(-10,6),S(-14,8),S(-18,10) }  //KING
   };
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
@@ -494,7 +495,8 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-
+    int kingmob = popcount(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Us)));
+    score += MobilityBonus[KING-2][kingmob];
     if (T)
         Trace::add(KING, Us, score);
 
