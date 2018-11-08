@@ -781,15 +781,15 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
-        else if (pos.count<BISHOP>(strongSide) == 1
+        else
+            {
+            bool wcb = pos.count<BISHOP>(strongSide) == 1
             && (((pos.pieces(strongSide, PAWN) & FileABB)
             && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_A8:SQ_A1)))
             || ((pos.pieces(strongSide, PAWN) & FileHBB)
-            && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_H8:SQ_H1)))))
-            sf = std::min(35 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-        else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-
+            && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_H8:SQ_H1))));
+            sf = std::min(40 - 10 * wcb + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            }
     }
 
     return ScaleFactor(sf);
