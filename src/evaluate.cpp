@@ -114,8 +114,7 @@ namespace {
       S( 28, 61), S( 41, 73), S( 43, 79), S( 48, 92), S( 56, 94), S( 60,104),
       S( 60,113), S( 66,120), S( 67,123), S( 70,126), S( 71,133), S( 73,136),
       S( 79,140), S( 88,143), S( 88,148), S( 99,166), S(102,170), S(102,175),
-      S(106,184), S(109,191), S(113,206), S(116,212) },
-    { S(-9,-5),S(-3,-3),S(3,-2),S(3,0),S(-2,2),S(-5,3),S(-8,5),S(-11,6),S(-14,8) }  //KING
+      S(106,184), S(109,191), S(113,206), S(116,212) }
   };
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
@@ -495,8 +494,7 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-    int kingmob = popcount(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Us)));
-    score += MobilityBonus[KING-2][kingmob];
+
     if (T)
         Trace::add(KING, Us, score);
 
@@ -783,6 +781,13 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
+        else if (pos.count<PAWN>(strongSide) == 1
+            && pos.count<BISHOP>(strongSide) == 1
+            && (((pos.pieces(strongSide, PAWN) & FileABB)
+            && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_A8:SQ_A1)))
+            || ((pos.pieces(strongSide, PAWN) & FileHBB)
+            && opposite_colors(pos.square<BISHOP>(strongSide), (strongSide==WHITE? SQ_H8:SQ_H1)))))
+            sf = 20 + pos.non_pawn_material(strongSide)/200;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
