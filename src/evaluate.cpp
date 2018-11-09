@@ -349,8 +349,9 @@ namespace {
                 Bitboard protectedPawns = pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
-                score -= BishopPawns1 * pe->pawns_on_same_color_squares(Them, s) 
-                                      * popcount(protectedPawns & CenterFiles);
+                int protectedStructure = popcount(protectedPawns);
+                if (protectedStructure * 2 >= pos.count<PAWN>(Them))
+                score -= BishopPawns1 * pe->pawns_on_same_color_squares(Them, s) * protectedStructure;
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
