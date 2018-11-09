@@ -350,8 +350,8 @@ namespace {
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
                 Bitboard protectedPawns = pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
-                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them,PAWN));
-                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpLeft>(pos.pieces(Them,PAWN));
+                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them,PAWN)) & ~attackedBy[Us][PAWN];
+                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpLeft>(pos.pieces(Them,PAWN)) & ~attackedBy[Us][PAWN];
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
                 int protectedStructure = popcount(protectedPawns & LargeCenter);
