@@ -289,6 +289,8 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction UpRight = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
+    constexpr Direction UpLeft = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     constexpr Bitboard LargeCenter = (AllSquares ^ FileABB ^ FileHBB);
@@ -348,10 +350,12 @@ namespace {
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
                 Bitboard protectedPawns = pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
+                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them,PAWN));
+                protectedPawns |= pos.pieces(Them, PAWN) & shift<UpLeft>(pos.pieces(Them,PAWN));
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
                 int protectedStructure = popcount(protectedPawns & LargeCenter);
-                if (protectedStructure >= 3)
+                if (protectedStructure >= 5)
                 score -= BishopPawns1 * pe->pawns_on_same_color_squares(Them, s) * protectedStructure;
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
