@@ -745,16 +745,17 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int blockedStructure = (eg > 0) * std::max(pe->blocked_structure(WHITE) + 4 - pos.count<PAWN>(WHITE), 0) * pos.count<PAWN>(WHITE)
-                          + (eg < 0) * std::max(pe->blocked_structure(BLACK) + 4 - pos.count<PAWN>(BLACK), 0) * pos.count<PAWN>(BLACK);
+    int blockedStructure = (eg > 0) * (pe->blocked_structure(WHITE) > 6) * (pe->blocked_structure(WHITE) - 6)
+                           + (eg < 0) * (pe->blocked_structure(BLACK) > 6) * (pe->blocked_structure(BLACK) - 6);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -  2 * blockedStructure 
-                    -102 ;
+                    - 32 * blockedStructure 
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
