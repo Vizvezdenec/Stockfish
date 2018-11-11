@@ -745,7 +745,6 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    int blockedStructure = std::max(pe->blocked_structure(WHITE) + pe->blocked_structure(BLACK) - 12, 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
@@ -753,7 +752,6 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    - 16 * blockedStructure
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -834,7 +832,13 @@ namespace {
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
-    score += mobility[WHITE] - mobility[BLACK];
+    Score mobilityBonus = mobility[WHITE] - mobility[BLACK];
+    if (mg_value(mobilityBonus) > 0)
+            mobilityBonus -= mobilityBonus * (pe->blocked_structure(WHITE) > 6);
+    else 
+            mobilityBonus -= mobilityBonus * (pe->blocked_structure(BLACK) > 6);
+
+    score += mobilityBonus;
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
