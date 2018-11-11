@@ -834,9 +834,9 @@ namespace {
 
     Score mobilityBonus = mobility[WHITE] - mobility[BLACK];
     if (mg_value(mobilityBonus) > 0)
-            mobilityBonus -= mobilityBonus * (pe->blocked_structure(WHITE) > 6);
+            mobilityBonus -= mobilityBonus * std::max(pe->blocked_structure(WHITE) - 6, 0) / 2;
     else 
-            mobilityBonus -= mobilityBonus * (pe->blocked_structure(BLACK) > 6);
+            mobilityBonus -= mobilityBonus * std::max(pe->blocked_structure(BLACK) - 6, 0) / 2;
 
     score += mobilityBonus;
 
