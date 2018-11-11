@@ -77,7 +77,7 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, supported, phalanx, blocked;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward, potentiallyBlocked;
+    bool opposed, backward, potentiallyBlocked, outsideBlocked;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -117,6 +117,8 @@ namespace {
                      && ((more_than_one(neighbours) && more_than_one(neighbours & blocked)) 
                      || (!more_than_one(neighbours) && neighbours && (neighbours & blocked))
                      || (!neighbours));
+        outsideBlocked = (s & (FileABB | FileHBB))
+                         && (forward_file_bb(Us, s) & (shift<DownRight>(theirPawns) | shift<DownLeft>(theirPawns)));
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
@@ -154,7 +156,7 @@ namespace {
         if (doubled && !supported)
             score -= Doubled;
         
-        if (potentiallyBlocked || (blocked & s))
+        if (potentiallyBlocked || (blocked & s) || outsideBlocked)
             e->blockedStructure[Us]++;
     }
 
