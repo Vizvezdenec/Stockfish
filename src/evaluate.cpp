@@ -393,7 +393,7 @@ namespace {
                 score -= WeakQueen;
             if (pos.count<QUEEN>(Them) == 0
                 && (pos.count<BISHOP>(Them)+pos.count<KNIGHT>(Them)-pos.count<BISHOP>(Us)-pos.count<KNIGHT>(Us) > 1))
-                mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
+                mobility[Us] += make_score(mg_value(MobilityBonus[Pt - 2][mob]), 0);
         }
     }
     if (T)
