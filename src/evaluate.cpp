@@ -312,7 +312,7 @@ namespace {
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += (pos.opposite_bishops() && (Pt == BISHOP)) * KingAttackWeights[Pt] / 2 + KingAttackWeights[Pt];
+            kingAttackersWeight[Us] += (pos.opposite_bishops() && (Pt == BISHOP)) * KingAttackWeights[Pt] / 3 + KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
