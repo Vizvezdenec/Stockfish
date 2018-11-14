@@ -288,6 +288,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Direction UpLeft = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
     constexpr Direction UpRight = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
+    constexpr Direction DownLeft = (Us == WHITE ? SOUTH_WEST : NORTH_EAST);
+    constexpr Direction DownRight = (Us == WHITE ? SOUTH_EAST : NORTH_WEST);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     constexpr Bitboard LargeCenter      = (FileDBB | FileEBB | FileCBB | FileFBB) & (Rank3BB | Rank4BB | Rank5BB | Rank6BB);
@@ -350,14 +352,24 @@ namespace {
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
-                Bitboard protectedPawns = pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
-                Bitboard protectingPawns = pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them, PAWN)) 
+
+                Bitboard protectedBy2Pawns = pos.pieces(Them, PAWN) & shift<DownRight>(pos.pieces(Them, PAWN)) 
+                                           & shift<DownLeft>(pos.pieces(Them, PAWN)) & ~attackedBy[Us][PAWN];
+
+                Bitboard protectedProtectingPawns = pos.pieces(Them, PAWN) & (shift<DownRight>(pos.pieces(Them, PAWN)) 
+                                           | shift<DownLeft>(pos.pieces(Them, PAWN))) 
+                                           & (shift<UpRight>(pos.pieces(Them, PAWN)) 
+                                           | shift<UpLeft>(pos.pieces(Them, PAWN))) & ~attackedBy[Us][PAWN];
+
+                Bitboard protecting2Pawns = pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them, PAWN)) 
                                            & shift<UpLeft>(pos.pieces(Them, PAWN));
-                Bitboard unbreakableStructure = (protectedPawns | protectingPawns) & LargeCenter;
+
+                Bitboard unbreakableStructure = (protectedBy2Pawns | protectedProtectingPawns | protecting2Pawns) & LargeCenter;
+
                 if (DarkSquares & s)
-                    score -= BishopPawns1 * (popcount (unbreakableStructure & DarkSquares) > 3);
+                    score -= BishopPawns1 * (popcount (unbreakableStructure & DarkSquares) > 2);
                 else 
-                    score -= BishopPawns1 * (popcount (unbreakableStructure & ~DarkSquares) > 3);
+                    score -= BishopPawns1 * (popcount (unbreakableStructure & ~DarkSquares) > 2);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
