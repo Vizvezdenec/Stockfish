@@ -948,7 +948,7 @@ moves_loop: // When in check, search starts from here
            {
            if (type_of(movedPiece) == KING)
            extension = ONE_PLY;
-           if (type_of(movedPiece) == ROOK)
+           if (type_of(movedPiece) == ROOK && (depth<12 * ONE_PLY))
            extension = -ONE_PLY;
            }
       // Calculate new depth for this move
