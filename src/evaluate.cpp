@@ -375,14 +375,14 @@ namespace {
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
-
+            
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-                if (rank_of(pos.square<KING>(Us)) == rank_of(s) && ((kf < FILE_E) == (file_of(s) < kf)))
+            else if (rank_of(pos.square<KING>(Us)) == rank_of(s) && ((kf < FILE_E) == (file_of(s) < kf)))
                     score -= make_score(50,0) * !pos.can_castle(Us);
         }
 
