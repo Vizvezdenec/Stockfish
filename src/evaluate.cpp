@@ -164,6 +164,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 29);
   constexpr Score SliderOnQueen      = S( 42, 21);
+  constexpr Score ThornPawn          = S(  3,  2);
   constexpr Score ThreatByKing       = S( 22, 78);
   constexpr Score ThreatByPawnPush   = S( 45, 40);
   constexpr Score ThreatByRank       = S( 16,  3);
@@ -507,6 +508,8 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+ 
+    const Square* pl = pos.squares<PAWN>(Us);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -594,7 +597,34 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    Square s;
+    while ((s = *pl++) != SQ_NONE)
+    {
+    if (relative_rank(Us, s) > RANK_4
+        && (CenterFiles & s)
+        && !(attackedBy[Them][PAWN] & s)
+        && attackedBy[Us][PAWN])
+        {
+        Bitboard CrampledMobilityPieces1, CrampledMobilityPieces2;
+        Square s1 = s + Up + WEST;
+        Square s2 = s + Up + EAST;
 
+        Bitboard CrampledKnight1 = pos.attacks_from<KNIGHT>(s1) & pos.pieces(Them, KNIGHT);
+        Bitboard CrampledBishop1 = pos.attacks_from<BISHOP>(s1) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
+        Bitboard CrampledRook1 = pos.attacks_from<ROOK>(s1) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
+        Bitboard CrampledKing1 = pos.attacks_from<KING>(s1) & pos.pieces(Them, KING);
+
+        Bitboard CrampledKnight2 = pos.attacks_from<KNIGHT>(s2) & pos.pieces(Them, KNIGHT);
+        Bitboard CrampledBishop2 = pos.attacks_from<BISHOP>(s2) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
+        Bitboard CrampledRook2 = pos.attacks_from<ROOK>(s2) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
+        Bitboard CrampledKing2 = pos.attacks_from<KING>(s2) & pos.pieces(Them, KING);
+  
+        CrampledMobilityPieces1 = CrampledKnight1 | CrampledBishop1 | CrampledRook1 | CrampledKing1;
+        CrampledMobilityPieces2 = CrampledKnight2 | CrampledBishop2 | CrampledRook2 | CrampledKing2;
+
+        score += ThornPawn * (popcount(CrampledMobilityPieces1) + popcount(CrampledMobilityPieces2));
+        }
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
