@@ -153,6 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BishopPawns1       = S( 20, 20);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
@@ -285,8 +286,12 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction UpLeft = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    constexpr Direction UpRight = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LargeCenter      = (FileDBB | FileEBB | FileCBB | FileFBB) & (Rank3BB | Rank4BB | Rank5BB | Rank6BB);
+    
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -345,6 +350,14 @@ namespace {
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
+                Bitboard protectedPawns = pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
+                Bitboard protectingPawns = pos.pieces(Them, PAWN) & shift<UpRight>(pos.pieces(Them, PAWN)) 
+                                           & shift<UpLeft>(pos.pieces(Them, PAWN));
+                Bitboard unbreakableStructure = (protectedPawns | protectingPawns) & LargeCenter;
+                if (DarkSquares & s)
+                    score -= BishopPawns1 * (popcount (unbreakableStructure & DarkSquares) > 3);
+                else 
+                    score -= BishopPawns1 * (popcount (unbreakableStructure & ~DarkSquares) > 3);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
