@@ -382,7 +382,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            else if (rank_of(pos.square<KING>(Us)) == rank_of(s) && ((kf < FILE_E) == (file_of(s) < kf)))
+            else if (rank_of(pos.square<KING>(Us)) == rank_of(s) 
+                    && ((kf < FILE_E) == (file_of(s) < kf)) 
+                    && (pos.count<QUEEN>(Them) > 0))
                     score -= make_score(50,0) * !pos.can_castle(Us);
         }
 
