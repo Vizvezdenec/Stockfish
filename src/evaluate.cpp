@@ -602,7 +602,8 @@ namespace {
     {
     if (relative_rank(Us, s) > RANK_4
         && (CenterFiles & s)
-        && !(attackedBy[Them][PAWN] & s)
+        && !(forward_file_bb(Us, s + WEST) & pos.pieces(Them, PAWN))
+        && !(forward_file_bb(Us, s + EAST) & pos.pieces(Them, PAWN))
         && attackedBy[Us][PAWN])
         {
         Bitboard CrampledMobilityPieces1, CrampledMobilityPieces2;
