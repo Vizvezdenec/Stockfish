@@ -610,18 +610,15 @@ namespace {
         Square s1 = s + Up + WEST;
         Square s2 = s + Up + EAST;
 
-        Bitboard CrampledKnight1 = pos.attacks_from<KNIGHT>(s1) & pos.pieces(Them, KNIGHT);
-        Bitboard CrampledBishop1 = pos.attacks_from<BISHOP>(s1) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
-        Bitboard CrampledRook1 = pos.attacks_from<ROOK>(s1) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
-        Bitboard CrampledKing1 = pos.attacks_from<KING>(s1) & pos.pieces(Them, KING);
+        CrampledMobilityPieces1 = pos.attacks_from<KNIGHT>(s1) & pos.pieces(Them, KNIGHT);
+        CrampledMobilityPieces1 |= pos.attacks_from<BISHOP>(s1) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
+        CrampledMobilityPieces1 |= pos.attacks_from<ROOK>(s1) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
+        CrampledMobilityPieces1 |= pos.attacks_from<KING>(s1) & pos.pieces(Them, KING);
 
-        Bitboard CrampledKnight2 = pos.attacks_from<KNIGHT>(s2) & pos.pieces(Them, KNIGHT);
-        Bitboard CrampledBishop2 = pos.attacks_from<BISHOP>(s2) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
-        Bitboard CrampledRook2 = pos.attacks_from<ROOK>(s2) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
-        Bitboard CrampledKing2 = pos.attacks_from<KING>(s2) & pos.pieces(Them, KING);
-  
-        CrampledMobilityPieces1 = CrampledKnight1 | CrampledBishop1 | CrampledRook1 | CrampledKing1;
-        CrampledMobilityPieces2 = CrampledKnight2 | CrampledBishop2 | CrampledRook2 | CrampledKing2;
+        CrampledMobilityPieces2 = pos.attacks_from<KNIGHT>(s2) & pos.pieces(Them, KNIGHT);
+        CrampledMobilityPieces2 |= pos.attacks_from<BISHOP>(s2) & (pos.pieces(Them, BISHOP) | pos.pieces(Them, QUEEN));
+        CrampledMobilityPieces2 |= pos.attacks_from<ROOK>(s2) & (pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN));
+        CrampledMobilityPieces2 |= pos.attacks_from<KING>(s2) & pos.pieces(Them, KING);
 
         score += ThornPawn * (popcount(CrampledMobilityPieces1) + popcount(CrampledMobilityPieces2));
         }
