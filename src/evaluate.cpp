@@ -164,7 +164,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 19, 84);
   constexpr Score RookOnPawn         = S( 10, 29);
   constexpr Score SliderOnQueen      = S( 42, 21);
-  constexpr Score ThornPawn          = S(  3,  2);
+  constexpr Score ThornPawn          = S(  5,  5);
   constexpr Score ThreatByKing       = S( 22, 78);
   constexpr Score ThreatByPawnPush   = S( 45, 40);
   constexpr Score ThreatByRank       = S( 16,  3);
@@ -602,8 +602,7 @@ namespace {
     {
     if (relative_rank(Us, s) > RANK_4
         && (CenterFiles & s)
-        && !(forward_file_bb(Us, s + WEST) & pos.pieces(Them, PAWN))
-        && !(forward_file_bb(Us, s + EAST) & pos.pieces(Them, PAWN))
+        && !(attackedBy[Them][PAWN] & s)
         && (attackedBy[Us][PAWN] & s))
         {
         Bitboard CrampledMobilityPieces1, CrampledMobilityPieces2;
