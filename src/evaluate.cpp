@@ -367,10 +367,10 @@ namespace {
             }
             if (Pt == KNIGHT
                && (
-                  ((FileABB & s) && (pos.pieces(Them, BISHOP) & (s + EAST + EAST + EAST)))
-               || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & (s + WEST + WEST + WEST)))
-               || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & (s + NORTH + NORTH + NORTH)))
-               || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & (s + SOUTH + SOUTH + SOUTH)))
+                  ((FileABB & s) && (pos.pieces(Them, BISHOP) & (s + EAST + EAST + EAST) & ~attackedBy[Us][PAWN]))
+               || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & (s + WEST + WEST + WEST) & ~attackedBy[Us][PAWN]))
+               || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & (s + NORTH + NORTH + NORTH) & ~attackedBy[Us][PAWN]))
+               || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & (s + SOUTH + SOUTH + SOUTH) & ~attackedBy[Us][PAWN]))
                   ))
             score -= DominatedKnight;
         }
