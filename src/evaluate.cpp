@@ -321,14 +321,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         
-        if (Pt == KNIGHT
-           && (
-              ((FileABB & s) && (pos.pieces(Them, BISHOP) & (s + EAST + EAST + EAST)))
-           || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & (s + WEST + WEST + WEST)))
-           || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & (s + NORTH + NORTH + NORTH)))
-           || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & (s + SOUTH + SOUTH + SOUTH)))
-              ))
-            score -= DominatedKnight;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -603,7 +595,14 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    const Square* pl = pos.squares<KNIGHT>(Us);
+    Square s;
+    while ((s = *pl++) != SQ_NONE)
+    {
+    if (!(pos.attacks_from<KNIGHT>(s) & ~attackedBy[Them][PAWN] & 
+          ~(attackedBy[Them][ALL_PIECES] & ~ attackedBy2[Us])))
+        score -= DominatedKnight;
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
