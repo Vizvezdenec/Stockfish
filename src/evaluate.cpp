@@ -600,7 +600,7 @@ namespace {
     while ((s = *pl++) != SQ_NONE)
     {
     if (!(pos.attacks_from<KNIGHT>(s) & ~attackedBy[Them][PAWN] & 
-          ~(attackedBy[Them][ALL_PIECES] & ~ attackedBy2[Us])))
+          ~(attackedBy[Them][ALL_PIECES] & ~ attackedBy2[Us]) & ~pos.pieces(Us)))
         score -= DominatedKnight;
     }
     if (T)
