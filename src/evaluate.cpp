@@ -419,7 +419,7 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy2[Us] & kingFlank & Camp;
+    b3 = attackedBy[Us][ALL_PIECES^KING] & kingFlank & Camp;
 
     int tropism = popcount(b1) + popcount(b2);
 
