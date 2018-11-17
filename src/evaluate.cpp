@@ -155,6 +155,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
+  constexpr Score DominatedKnight    = S(  0, 40);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
@@ -364,6 +365,14 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
                                                                               : CorneredBishop;
             }
+            if (Pt == KNIGHT
+               && (
+                  ((FileABB & s) && (pos.pieces(Them, BISHOP) & (s + EAST + EAST + EAST)))
+               || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & (s + WEST + WEST + WEST)))
+               || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & (s + NORTH + NORTH + NORTH)))
+               || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & (s + SOUTH + SOUTH + SOUTH)))
+                  ))
+            score -= DominatedKnight;
         }
 
         if (Pt == ROOK)

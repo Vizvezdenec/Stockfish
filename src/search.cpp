@@ -947,8 +947,7 @@ moves_loop: // When in check, search starts from here
       if (   pos.can_castle(us)
           && type_of(movedPiece) == KING
           && depth < 12 * ONE_PLY)
-          extension = ONE_PLY * ((us == WHITE && pos.can_castle(WHITE_OO)) + (us == WHITE && pos.can_castle(WHITE_OOO)))
-                      + ONE_PLY * ((us == BLACK && pos.can_castle(BLACK_OO)) + (us == WHITE && pos.can_castle(BLACK_OOO)));
+          extension = ONE_PLY;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
