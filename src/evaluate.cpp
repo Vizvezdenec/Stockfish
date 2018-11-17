@@ -155,7 +155,6 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score DominatedKnight    = S(  0, 20);
   constexpr Score Hanging            = S( 57, 32);
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
@@ -320,7 +319,7 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -595,14 +594,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    const Square* pl = pos.squares<KNIGHT>(Us);
-    Square s;
-    while ((s = *pl++) != SQ_NONE)
-    {
-    if (!(pos.attacks_from<KNIGHT>(s) & ~attackedBy[Them][PAWN] & 
-          ~(attackedBy[Them][ALL_PIECES] & ~ attackedBy2[Us]) & ~pos.pieces(Us)))
-        score -= DominatedKnight;
-    }
+
     if (T)
         Trace::add(THREAT, Us, score);
 
