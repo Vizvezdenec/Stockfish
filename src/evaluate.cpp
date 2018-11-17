@@ -421,7 +421,7 @@ namespace {
     b2 = b1 & attackedBy2[Them];
     b3 = attackedBy2[Us] & kingFlank & Camp;
 
-    int tropism = popcount(b1) + popcount(b2) - popcount(b3);
+    int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -475,7 +475,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   8 * tropism
+                     +   8 * (tropism  - popcount(b3))
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
