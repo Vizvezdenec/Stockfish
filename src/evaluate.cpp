@@ -365,12 +365,11 @@ namespace {
                             : pos.piece_on(s + d + d) == make_piece(Us, PAWN) ? CorneredBishop * 2
                                                                               : CorneredBishop;
             }
-            if (Pt == KNIGHT
-               && (
-                  ((FileABB & s) && (pos.pieces(Them, BISHOP) & (s + EAST + EAST + EAST) & ~attackedBy[Us][PAWN]))
-               || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & (s + WEST + WEST + WEST) & ~attackedBy[Us][PAWN]))
-               || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & (s + NORTH + NORTH + NORTH) & ~attackedBy[Us][PAWN]))
-               || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & (s + SOUTH + SOUTH + SOUTH) & ~attackedBy[Us][PAWN]))
+            else if ((
+                  ((FileABB & s) && (pos.pieces(Them, BISHOP) & ~attackedBy[Us][PAWN] & (s + EAST + EAST + EAST)))
+               || ((FileHBB & s) && (pos.pieces(Them, BISHOP) & ~attackedBy[Us][PAWN] & (s + WEST + WEST + WEST)))
+               || ((Rank1BB & s) && (pos.pieces(Them, BISHOP) & ~attackedBy[Us][PAWN] & (s + NORTH + NORTH + NORTH)))
+               || ((Rank8BB & s) && (pos.pieces(Them, BISHOP) & ~attackedBy[Us][PAWN] & (s + SOUTH + SOUTH + SOUTH)))
                   ))
             score -= DominatedKnight;
         }
