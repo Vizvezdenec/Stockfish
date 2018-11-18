@@ -156,6 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  6,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 57, 32);
+  constexpr Score ImmobileQueen      = S( 30, 30);
   constexpr Score KingProtector      = S(  6,  6);
   constexpr Score KnightOnQueen      = S( 21, 11);
   constexpr Score LongDiagonalBishop = S( 46,  0);
@@ -409,7 +410,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, weak, b, b1, b2, b3, safe, unsafeChecks;
+    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -419,7 +420,6 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy[Us][ALL_PIECES^KING] & kingFlank & Camp;
 
     int tropism = popcount(b1) + popcount(b2);
 
@@ -475,7 +475,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   8 * (tropism  - popcount(b3))
+                     +   4 * tropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -594,6 +594,9 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        if (!more_than_one(attackedBy[Them][QUEEN] & ~attackedBy[Us][BISHOP] & ~attackedBy[Us][ROOK] 
+            & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][PAWN] & ~attackedBy2[Us]))
+            score +=ImmobileQueen;
     }
 
     if (T)
