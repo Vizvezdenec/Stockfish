@@ -153,7 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score CloseEnemies       = S(  7,  0);
+  constexpr Score CloseEnemies       = S( 10,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
@@ -491,8 +491,7 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    if (tropism >= defensiveTropism)
-        score -= CloseEnemies * tropism;
+    score -= CloseEnemies * std::max(tropism - defensiveTropism, 0);
 
 
     if (T)
