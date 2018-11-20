@@ -153,7 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score CloseEnemies       = S( 10,  0);
+  constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
@@ -423,6 +423,7 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
     int defensiveTropism = popcount(b3);
+
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
@@ -475,7 +476,8 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +   4 * tropism
+                     +   8 * tropism
+                     -   4 * defensiveTropism
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -491,8 +493,7 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    score -= CloseEnemies * std::max(tropism - defensiveTropism, 0);
-
+    score -= CloseEnemies * tropism;
 
     if (T)
         Trace::add(KING, Us, score);
