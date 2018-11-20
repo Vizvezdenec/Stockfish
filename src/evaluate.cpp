@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobileQueen      = S( 30, 30);
+  constexpr Score ImmobileQueen      = S( 15, 15);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
