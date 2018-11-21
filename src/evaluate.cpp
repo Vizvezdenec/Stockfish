@@ -154,7 +154,6 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
-  constexpr Score CloseImbalance     = S(  1,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
@@ -409,9 +408,10 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up = (Us == BLACK ? SOUTH : NORTH);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, weak, b, b1, b2, b3, safe, unsafeChecks;
+    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks, blocked;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -421,14 +421,14 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-    b3 = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | ~attackedBy[Us][KING])) & kingFlank & Camp;
+    blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us, PAWN));
 
     int tropism = popcount(b1) + popcount(b2);
-    int tropismDifference = tropism - popcount(b3);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
+        int lockedAttack = popcount(blocked & kingFlank);
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -480,6 +480,7 @@ namespace {
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
+                     -  30 * lockedAttack
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
@@ -494,7 +495,7 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-    score -= CloseImbalance * tropismDifference;
+
     if (T)
         Trace::add(KING, Us, score);
 
