@@ -608,7 +608,8 @@ namespace {
         bb = b & ~attackedBy[Them][PAWN];
         bbb = b & ~attackedBy2[Them];
         bbbb = b & ~attackedBy[Them][ALL_PIECES];
-        score += KnightFork * (bool(b) + bool(bb) + bool(bbb) + bool(bbbb));
+        score += KnightFork * 
+            ((1 + bool(b)) * (1 + bool(bb)) * (1 + bool(bbb)) * (1 + bool(bbbb)) - 1);
     }
 
     if (T)
