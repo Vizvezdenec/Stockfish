@@ -510,7 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, bb, bbb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, bb, bbb, bbbb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -607,7 +607,8 @@ namespace {
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
         bb = b & ~attackedBy[Them][PAWN];
         bbb = b & ~attackedBy2[Them];
-        score += KnightFork * (bool(b) + bool(bb) + bool(bbb));
+        bbbb = b & ~attackedBy[Them][ALL_PIECES];
+        score += KnightFork * (bool(b) + bool(bb) + bool(bbb) + bool(bbbb));
     }
 
     if (T)
