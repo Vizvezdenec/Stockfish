@@ -157,8 +157,8 @@ namespace {
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
+  constexpr Score KnightFork         = S( 10, 10);
   constexpr Score KnightOnQueen      = S( 20, 12);
-  constexpr Score KnightFork         = S( 20, 20);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
@@ -385,16 +385,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-                    
-            Square s1 = pos.square<KING>(Us);
-            b = attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
-            if (pos.count<QUEEN>(Us) == 1)
-            {
-                 Square s2 = pos.square<QUEEN>(Us);
-                 b|= attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s2);
-                 b|= attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s1) & pos.attacks_from<KNIGHT>(s2);
-            }
-            score -= KnightFork * popcount(b);   
         }
 
         if (Pt == QUEEN)
@@ -612,6 +602,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        Square s1 = pos.square<KING>(Them);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
+        score += KnightFork * bool(b);
     }
 
     if (T)
@@ -843,9 +837,8 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>();
-
-    score +=  pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
