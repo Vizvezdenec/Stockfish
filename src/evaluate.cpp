@@ -421,11 +421,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
     b3 = (attackedBy[Us][ALL_PIECES] & ~(~attackedBy2[Us] & attackedBy[Us][KING])) & kingFlank & Camp;
-    b4 = kingFlank & Camp & 
-         ((attackedBy[Us][PAWN] & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK] | attackedBy[Us][QUEEN])) |
-          (attackedBy[Us][KNIGHT] & (attackedBy[Us][BISHOP] | attackedBy[Us][ROOK] | attackedBy[Us][QUEEN])) |
-          (attackedBy[Us][BISHOP] & (attackedBy[Us][ROOK] | attackedBy[Us][QUEEN])) |
-          (attackedBy[Us][ROOK] & attackedBy[Us][QUEEN]));
+    b4 = kingFlank & Camp & attackedBy2[Us] & ~attackedBy[Us][KING];
 
     int tropism = popcount(b1) + popcount(b2);
     int tropismDifference = tropism - popcount(b3) - popcount(b4);
@@ -483,7 +479,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      - 873 * !pos.count<QUEEN>(Them)
-                     +  16 * tropismDifference
+                     +   8 * tropismDifference
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
