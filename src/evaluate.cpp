@@ -157,7 +157,7 @@ namespace {
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
-  constexpr Score KnightFork         = S( 10, 10);
+  constexpr Score KnightFork         = S(  7,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
@@ -510,7 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, bb, bbb, bbbb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, bb, bbb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -607,9 +607,8 @@ namespace {
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
         bb = b & ~attackedBy[Them][PAWN];
         bbb = b & ~attackedBy2[Them];
-        bbbb = b & ~attackedBy[Them][ALL_PIECES];
         score += KnightFork * 
-            ((1 + bool(b)) * (1 + bool(bb)) * (1 + bool(bbb)) * (1 + bool(bbbb)) - 1);
+            ((1 + bool(b)) * (1 + bool(bb)) * (1 + bool(bbb)) - 1);
     }
 
     if (T)
