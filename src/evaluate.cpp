@@ -158,6 +158,7 @@ namespace {
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
+  constexpr Score KnightFork         = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
@@ -601,6 +602,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        
+        Square s1 = pos.square<KING>(Them);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
+        score += KnightFork * bool(b);
     }
 
     if (T)
