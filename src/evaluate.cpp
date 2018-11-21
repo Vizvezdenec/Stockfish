@@ -158,7 +158,7 @@ namespace {
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
-  constexpr Score KnightFork         = S( 10, 10);
+  constexpr Score KnightFork         = S( 20, 20);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
