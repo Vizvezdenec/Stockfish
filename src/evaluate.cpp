@@ -602,9 +602,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        bb = pos.attacks_from<QUEEN>(s) & pos.pieces(Us, ALL_PIECES) & ~attackedBy[Us][ALL_PIECES];
+        bb = pos.attacks_from<QUEEN>(s) & pos.pieces(Us, ALL_PIECES);
         if (!(attackedBy[Us][ALL_PIECES] & s))
-              score -= Fork * (popcount(bb) - 1);
+              score -= Fork * (popcount(bb  & ~attackedBy[Us][ALL_PIECES]) + bool (bb) - 1);
     }
 
     if (T)
