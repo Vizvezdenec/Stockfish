@@ -602,7 +602,7 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-        score += SliderOnQueen2 * popcount(b & ~safe & attackedBy2[Us]);
+        score += SliderOnQueen2 * popcount(b & ~safe);
     }
 
     if (T)
