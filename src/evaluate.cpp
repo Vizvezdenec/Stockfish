@@ -603,7 +603,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
         bb = pos.attacks_from<QUEEN>(s) & pos.pieces(Us, ALL_PIECES) & ~attackedBy[Us][ALL_PIECES];
-        if (!(attackedBy[Us][ALL_PIECES] & s) && more_than_one(bb))
+        if (!(attackedBy[Us][ALL_PIECES] & s))
               score -= Fork * (popcount(bb) - 1);
     }
 
