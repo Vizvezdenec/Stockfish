@@ -571,7 +571,7 @@ namespace {
 
     blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN)) & LowRanks;
     score -= SelfRestricted * 
-              popcount (blocked & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]) | (attackedBy2[Us]))); 
+              popcount (blocked & attackedBy[Us][ALL_PIECES]); 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
