@@ -569,9 +569,9 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
-    blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN)) & LowRanks;
+    blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN)) & LowRanks & CenterFiles;
     score -= SelfRestricted * 
-              popcount (blocked & attackedBy[Us][ALL_PIECES]); 
+              (popcount (blocked & attackedBy[Us][BISHOP]) + popcount (blocked & attackedBy[Us][KNIGHT])); 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
