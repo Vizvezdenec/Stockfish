@@ -164,6 +164,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
+  constexpr Score SelfRestricted     = S(  7,  6);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
@@ -507,9 +508,10 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted, blocked;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -564,8 +566,11 @@ namespace {
                 & ~attackedBy[Them][PAWN]
                 & ~attackedBy2[Them]
                 &  attackedBy[Us][ALL_PIECES];
-    score += RestrictedPiece * (popcount(restricted) + popcount(restricted & attackedBy[Us][PAWN]));
+    score += RestrictedPiece * popcount(restricted);
 
+    blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN));
+    score -= SelfRestricted * 
+              (popcount (blocked & attackedBy[Us][BISHOP]) + popcount (blocked & attackedBy[Us][KNIGHT])); 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
