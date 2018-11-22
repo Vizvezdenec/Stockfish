@@ -155,7 +155,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score Fork               = S( 15, 15);
+  constexpr Score Fork               = S(  7,  7);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
@@ -604,7 +604,7 @@ namespace {
 
         bb = pos.attacks_from<QUEEN>(s) & pos.pieces(Us, ALL_PIECES);
         if (!(attackedBy[Us][ALL_PIECES] & s))
-              score -= Fork * (popcount(bb  & ~attackedBy[Us][ALL_PIECES]) + bool (bb) - 1);
+              score -= Fork * (popcount(bb  & ~attackedBy[Us][ALL_PIECES]) + popcount (bb) - 1);
     }
 
     if (T)
