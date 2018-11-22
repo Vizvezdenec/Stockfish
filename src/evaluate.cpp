@@ -164,6 +164,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
+  constexpr Score SelfRestricted     = S(  5,  3);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
@@ -290,11 +291,12 @@ namespace {
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
-    Bitboard b, bb;
+    Bitboard b, bb, blockedByPawn;
     Square s;
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
+    blockedByPawn = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN));
 
     while ((s = *pl++) != SQ_NONE)
     {
@@ -316,7 +318,7 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-
+        score -= SelfRestricted * (bool (blockedByPawn & b) + more_than_one (blockedByPawn & b));
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
