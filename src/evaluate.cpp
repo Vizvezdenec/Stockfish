@@ -318,7 +318,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        score -= SelfRestricted * (bool (blockedByPawn & b) + more_than_one (blockedByPawn & b));
+        Bitboard blockedAttacks = blockedByPawn & b & ~attackedBy[Them][PAWN];
+        score -= SelfRestricted * (bool (blockedAttacks) + more_than_one (blockedAttacks));
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
