@@ -510,6 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Direction Down     = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  LowRanks = (Us == WHITE ? Rank1BB | Rank2BB | Rank3BB: Rank8BB | Rank7BB | Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted, blocked;
     Score score = SCORE_ZERO;
@@ -568,7 +569,7 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
-    blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN));
+    blocked = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN)) & LowRanks;
     score -= SelfRestricted * 
               popcount (blocked & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]) | (attackedBy2[Us]))); 
     // Bonus for enemy unopposed weak pawns
