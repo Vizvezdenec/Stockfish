@@ -165,7 +165,7 @@ namespace {
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
-  constexpr Score SliderOnQueen2     = S( 10,  4);
+  constexpr Score SliderOnQueen2     = S(  6,  3);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
   constexpr Score ThreatByRank       = S( 14,  3);
@@ -602,7 +602,7 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-        score += SliderOnQueen2 * popcount(b & (~safe | ~attackedBy2[Us]));
+        score += SliderOnQueen2 * popcount(b & ~safe);
     }
 
     if (T)
