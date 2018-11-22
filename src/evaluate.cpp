@@ -164,7 +164,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
-  constexpr Score SelfRestricted     = S(  5,  3);
+  constexpr Score SelfRestricted     = S( 15, 13);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
@@ -291,12 +291,13 @@ namespace {
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
-    Bitboard b, bb, blockedByPawn;
+    Bitboard b, bb;
     Square s;
     Score score = SCORE_ZERO;
 
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
     attackedBy[Us][Pt] = 0;
-    blockedByPawn = pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them,PAWN));
 
     while ((s = *pl++) != SQ_NONE)
     {
@@ -318,8 +319,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        Bitboard blockedAttacks = blockedByPawn & b & ~attackedBy[Them][PAWN];
-        score -= SelfRestricted * (bool (blockedAttacks) + more_than_one (blockedAttacks));
+        Bitboard blockedAttacks = blocked & b & ~attackedBy[Them][PAWN];
+        score -= SelfRestricted * more_than_one (blockedAttacks);
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
@@ -345,8 +346,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-
+                
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
