@@ -604,7 +604,7 @@ namespace {
 
         bb = pos.attacks_from<QUEEN>(s) & pos.pieces(Us, ALL_PIECES) & ~attackedBy[Us][ALL_PIECES];
         if (!(attackedBy[Us][ALL_PIECES] & s) && more_than_one(bb))
-              score -= Fork * popcount(bb);
+              score -= Fork * (popcount(bb) - 1);
     }
 
     if (T)
