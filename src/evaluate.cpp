@@ -155,9 +155,9 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
+  constexpr Score Fork               = S( 10, 10);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
-  constexpr Score KnightFork         = S(  7,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
   constexpr Score MinorBehindPawn    = S( 16,  0);
@@ -510,7 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, bb, bbb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, bb, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -593,22 +593,21 @@ namespace {
     {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
+        Square s1 = pos.square<KING>(Them);
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
+        bb = b & pos.attacks_from<KNIGHT>(s1);
         score += KnightOnQueen * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
+        bb |= (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s) & pos.attacks_from<BISHOP>(s1));
+        bb |= (attackedBy[Us][ROOK] & pos.attacks_from<ROOK>(s) & pos.attacks_from<ROOK>(s1));
+
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        Square s1 = pos.square<KING>(Them);
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(s1);
-        bb = b & ~attackedBy[Them][PAWN];
-        bbb = b & ~attackedBy2[Them];
-        score += KnightFork * 
-            ((1 + bool(b)) * (1 + bool(bb)) * (1 + bool(bbb)) - 1);
+        score += Fork * popcount(bb);
     }
 
     if (T)
