@@ -428,7 +428,7 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
-        Bitboard b3 = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | attackedBy[Us][KING])) & kingFlank & Camp;
+        Bitboard b3 = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | ~attackedBy[Us][KING])) & kingFlank & Camp;
         int defensiveTropism = popcount(b3);
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
