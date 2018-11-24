@@ -326,7 +326,7 @@ namespace {
 
         Bitboard kingFlank = KingFlank[file_of(pos.square<KING>(Us))];
         if ((kingFlank & Camp & s) && mob < 3)
-            score -= ImmobileDefender * mob;
+            score -= ImmobileDefender * (3 - mob);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
