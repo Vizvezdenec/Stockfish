@@ -325,8 +325,8 @@ namespace {
         Bitboard blockedPawn = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
         if ((mob < 1) 
            && !(pos.attacks_from<Pt>(s) 
-           & ((pos.pieces() & ~blockedPawn) 
-           | (~pos.pieces() & attackedBy[Them][PAWN]))))
+           & ~((pos.pieces() & blockedPawn) 
+           | attackedBy[Them][PAWN])))
             score -= ImmobilePiece;
         
         if (Pt == BISHOP || Pt == KNIGHT)
