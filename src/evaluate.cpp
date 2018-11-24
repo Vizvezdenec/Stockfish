@@ -406,8 +406,13 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    //constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-    //                                       : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard Camp [RANK_NB] = 
+    {
+     AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, 
+     AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank1BB ^ Rank7BB ^ Rank8BB, 
+     AllSquares ^ Rank1BB ^ Rank2BB ^ Rank8BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB,
+     AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
+     };
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, tropismBB, weak, b, b1, b2, safe, unsafeChecks;
@@ -419,8 +424,8 @@ namespace {
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
 
-    tropismBB = kingRing[Us] | shift<SOUTH>(kingRing[Us]) | shift<NORTH>(kingRing[Us])
-                             | shift<EAST>(kingRing[Us])  | shift<WEST>(kingRing[Us]);
+    tropismBB = kingFlank & Camp[rank_of(ksq)];
+    
 
     b1 = attackedBy[Them][ALL_PIECES] & tropismBB;
     b2 = b1 & attackedBy2[Them];
