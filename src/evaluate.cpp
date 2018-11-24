@@ -787,7 +787,15 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            {
+            Bitboard blocked;
+            if (strongSide == WHITE) 
+                 blocked = pos.pieces(strongSide,PAWN) & shift<SOUTH>(pos.pieces(~strongSide));
+            else 
+                 blocked = pos.pieces(strongSide,PAWN) & shift<NORTH>(pos.pieces(~strongSide));
+            bool blockedEndgame = !(pos.pieces(strongSide,PAWN) & ~blocked);
+            sf = std::min(40 - 20 * blockedEndgame + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            }
 
     }
 
