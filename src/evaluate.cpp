@@ -156,6 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
+  constexpr Score ImmobilePiece      = S( 30, 30);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -320,7 +321,14 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-
+        
+        Bitboard blockedPawn = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
+        if ((mob < 1) 
+           && !(pos.attacks_from<Pt>(s) 
+           & ((pos.pieces() & ~blockedPawn) 
+           | (~pos.pieces() & attackedBy[Them][PAWN]))))
+            score -= ImmobilePiece;
+        
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
