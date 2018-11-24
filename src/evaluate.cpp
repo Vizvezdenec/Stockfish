@@ -287,8 +287,10 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction Up = (Us == BLACK ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -322,13 +324,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         
-        Bitboard blockedPawn = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
-        if ((mob < 1) 
-           && !(pos.attacks_from<Pt>(s) 
-           & ~((pos.pieces() & blockedPawn) 
-           | attackedBy[Them][PAWN])))
+        Bitboard blockedPawn = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)) & ~attackedBy[Them][PAWN];
+        Bitboard unsafeSquares = attackedBy[Them][PAWN] & LowRanks & ~pos.pieces() 
+                                & ~shift<Up>(pos.pieces(Us,PAWN));
+        if (!(pos.attacks_from<Pt>(s) 
+           & ~(blockedPawn | unsafeSquares)))
             score -= ImmobilePiece;
-        
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
