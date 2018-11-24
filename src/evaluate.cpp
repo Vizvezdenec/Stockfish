@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobileDefender   = S(  5,  0);
+  constexpr Score ImmobileDefender   = S(  4,  0);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -325,8 +325,8 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         Bitboard kingFlank = KingFlank[file_of(pos.square<KING>(Us))];
-        if ((kingFlank & Camp & s) && mob < 3)
-            score -= ImmobileDefender * (3 - mob) * (Pt - 1);
+        if ((kingFlank & Camp & s) && mob < 2)
+            score -= ImmobileDefender * (2 - mob);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
