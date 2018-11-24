@@ -406,15 +406,11 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard TropismFlank[FILE_NB] = {
-    QueenSide ^ FileDBB, QueenSide, QueenSide | FileEBB,
-    CenterFiles | FileBBB, CenterFiles | FileGBB,
-    KingSide | FileDBB, KingSide, KingSide ^ FileEBB };
+    //constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+    //                                       : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, tropismFlank, weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard kingFlank, tropismBB, weak, b, b1, b2, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -422,9 +418,11 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
-    tropismFlank = TropismFlank[file_of(ksq)];
 
-    b1 = attackedBy[Them][ALL_PIECES] & tropismFlank & Camp;
+    tropismBB = kingRing[Us] | shift<SOUTH>(kingRing[Us]) | shift<NORTH>(kingRing[Us])
+                             | shift<EAST>(kingRing[Us])  | shift<WEST>(kingRing[Us]);
+
+    b1 = attackedBy[Them][ALL_PIECES] & tropismBB;
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
