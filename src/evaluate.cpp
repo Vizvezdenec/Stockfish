@@ -326,7 +326,7 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        if (!(pos.attacks_from<Pt>(s) & KingAdjacentFiles[file_of(pos.square<KING>(Them))]))
+        if (!(pos.attacks_from<Pt>(s) & KingAdjacentFiles[file_of(pos.square<KING>(Them))]) && (mob < 3))
            notAttackingPiece[Us]++;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -486,7 +486,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     -   20*  notAttackingPiece[Them]
+                     -   30*  notAttackingPiece[Them]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
