@@ -322,7 +322,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob < 2)
+        if (mob < 1)
             lowMobilityPieces[Us]|=s;
 
         if (Pt == BISHOP || Pt == KNIGHT)
