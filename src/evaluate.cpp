@@ -83,7 +83,12 @@ namespace {
     CenterFiles, CenterFiles,
     KingSide, KingSide, KingSide ^ FileEBB
   };
-
+  
+  constexpr Bitboard KingAdjacentFiles[FILE_NB] = {
+    FileABB | FileBBB, QueenSide ^ FileDBB, QueenSide ^ FileABB,
+    CenterFiles ^ FileFBB, CenterFiles ^ FileCBB,
+    KingSide ^ FileHBB, KingSide ^ FileEBB, FileGBB | FileHBB
+  };
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
   constexpr Value SpaceThreshold = Value(12222);
@@ -233,6 +238,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int notAttackingPiece[COLOR_NB];
   };
 
 
@@ -260,7 +266,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
-
+    notAttackingPiece[Us] = 0;
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
@@ -320,7 +326,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-
+        if (!(pos.attacks_from<Pt>(s) & KingAdjacentFiles[file_of(pos.square<KING>(Them))]))
+           notAttackingPiece[Us]++;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -479,6 +486,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     -  20 *  notAttackingPiece[Us]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
