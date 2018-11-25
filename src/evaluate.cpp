@@ -102,8 +102,8 @@ namespace {
   // MobilityBonus[PieceType-2][attacked] contains bonuses for middle and end game,
   // indexed by piece type and number of attacked squares in the mobility area.
   constexpr Score MobilityBonus[][32] = {
-    { S(-62,-81), S(-53,-56), S(-12,-30), S( -4,-14), S(  3,  8), S( 13, 15), // Knights
-      S( 22, 23), S( 28, 27), S( 33, 33) },
+    { S(-61,-80), S(-55,-51), S(-11,-32), S( -4,-17), S(  3,  5), S( 14, 14), // Knights
+      S( 23, 26), S( 27, 25), S( 34, 29) },
     { S(-48,-59), S(-20,-23), S( 16, -3), S( 26, 13), S( 38, 24), S( 51, 42), // Bishops
       S( 55, 54), S( 63, 57), S( 63, 65), S( 68, 73), S( 81, 78), S( 81, 86),
       S( 91, 88), S( 98, 97) },
@@ -428,8 +428,6 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
-        Bitboard b3 = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | ~attackedBy[Us][KING])) & kingFlank & Camp;
-        int tropismDifference = tropism - popcount(b3);
 
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
@@ -478,7 +476,6 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
-                     +       tropismDifference * abs (tropismDifference) * 7/8
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
