@@ -429,6 +429,11 @@ namespace {
         int kingDanger = 0;
         unsafeChecks = 0;
 
+        Bitboard restricted =   attackedBy[Us][ALL_PIECES]
+                & ~attackedBy[Us][PAWN]
+                & ~attackedBy2[Us]
+                &  attackedBy2[Them]
+                & kingFlank & Camp;
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
@@ -476,6 +481,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
+                     +   8 * popcount(restricted)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
