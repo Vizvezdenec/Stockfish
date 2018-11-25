@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobilePiece      = S( 30, 30);
+  constexpr Score ImmobilePiece      = S( 10, 10);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -327,7 +327,7 @@ namespace {
             Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
 
             if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
-              score -= ImmobilePiece;
+              mobility[Us] -= ImmobilePiece;
 
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
