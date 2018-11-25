@@ -322,13 +322,13 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
     
-        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
-
-        if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
-              score -= ImmobilePiece;
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
+
+            if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
+              score -= ImmobilePiece;
+
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
