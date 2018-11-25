@@ -233,6 +233,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    Bitboard lowMobilityPieces[COLOR_NB];
   };
 
 
@@ -259,7 +260,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = lowMobilityPieces[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -317,9 +318,12 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = popcount(b & mobilityArea[Us] & ~lowMobilityPieces[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (mob < 2)
+            lowMobilityPieces[Us]|=s;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -832,10 +836,10 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+    score += pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>();
+    score += pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
+    score += pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
+    score += pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
