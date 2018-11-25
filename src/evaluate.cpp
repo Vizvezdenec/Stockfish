@@ -484,7 +484,7 @@ namespace {
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     +       std::min(kingZoneMobility[Us], 0)
+                     -       std::min(kingZoneMobility[Us], 0) * kingZoneMobility[Us] / 5
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
