@@ -156,6 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
+  constexpr Score ImmobileBishop     = S( 30, 30);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -350,6 +351,11 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
+
+                if ((mob==0) && (pos.attacks_from<BISHOP>(s) & blocked))
+                    score -= ImmobileBishop;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -382,12 +388,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    {
-                    Bitboard attackedMobility = b & mobilityArea[Us] 
-                         & (attackedBy[Them][BISHOP] | attackedBy[Them][KNIGHT]);
-                    mob -= more_than_one(attackedMobility) + bool (attackedMobility);
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
-                    }
             }
         }
 
@@ -838,8 +839,8 @@ namespace {
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
-    score += pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
