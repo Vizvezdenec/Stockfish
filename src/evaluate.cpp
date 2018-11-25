@@ -233,6 +233,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int kingZoneMobility[COLOR_NB];
   };
 
 
@@ -260,7 +261,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
-
+    kingZoneMobility[Us] = 0;
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
@@ -288,6 +289,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Camp[COLOR_NB] = {AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           , AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB};
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -320,6 +323,9 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        if (KingFlank[file_of(pos.square<KING>(Us))] & Camp[Us] & s)
+            kingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -429,11 +435,6 @@ namespace {
         int kingDanger = 0;
         unsafeChecks = 0;
 
-        Bitboard restricted =   attackedBy[Us][ALL_PIECES]
-                & ~attackedBy[Us][PAWN]
-                & ~attackedBy2[Us]
-                &  attackedBy2[Them]
-                & kingFlank & Camp;
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
@@ -481,9 +482,9 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
-                     +  16 * popcount(restricted)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
+                     +       std::min(kingZoneMobility[Us], 0)
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
