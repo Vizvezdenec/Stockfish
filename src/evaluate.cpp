@@ -324,7 +324,7 @@ namespace {
     
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
+            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)) & ~attackedBy[Them][PAWN];
 
             if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
               mobility[Us] -= ImmobilePiece;
