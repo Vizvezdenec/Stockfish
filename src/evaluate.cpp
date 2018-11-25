@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobileBishop     = S( 30, 30);
+  constexpr Score ImmobilePiece      = S( 30, 30);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -296,6 +296,8 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
+    
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
 
     while ((s = *pl++) != SQ_NONE)
     {
@@ -322,6 +324,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
+              score -= ImmobilePiece;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -343,7 +348,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -351,11 +356,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-
-                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN));
-
-                if ((mob==0) && (pos.attacks_from<BISHOP>(s) & blocked))
-                    score -= ImmobileBishop;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
