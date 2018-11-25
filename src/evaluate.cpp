@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobilePiece      = S( 10, 10);
+  constexpr Score ImmobilePiece      = S( 50, 50);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -329,7 +329,7 @@ namespace {
                                 & ~shift<Up>(pos.pieces(Us,PAWN));
         if (!(pos.attacks_from<Pt>(s) 
            & ~(blockedPawn | unsafeSquares)))
-            score -= ImmobilePiece * Pt;
+            score -= ImmobilePiece;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
