@@ -289,6 +289,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -322,7 +323,10 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob < 1)
+        Bitboard blockedPawn = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)) & ~attackedBy[Them][PAWN];
+        Bitboard unsafeSquares = attackedBy[Them][PAWN] & ~pos.pieces(Them);
+        if (!(pos.attacks_from<Pt>(s) 
+           & ~(blockedPawn | unsafeSquares)))
             lowMobilityPieces[Us]|=s;
 
         if (Pt == BISHOP || Pt == KNIGHT)
