@@ -156,7 +156,7 @@ namespace {
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
-  constexpr Score ImmobilePiece      = S( 10, 10);
+  constexpr Score ImmobilePiece      = S(  5,  5);
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
@@ -324,7 +324,7 @@ namespace {
     
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)) & ~attackedBy[Them][PAWN];
+            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
 
             if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
               mobility[Us] -= ImmobilePiece;
