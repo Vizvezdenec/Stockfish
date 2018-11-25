@@ -296,8 +296,6 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
-    
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
 
     while ((s = *pl++) != SQ_NONE)
     {
@@ -323,6 +321,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+    
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN)) & ~attackedBy[Them][PAWN];
 
         if ((mob==0) && (pos.attacks_from<Pt>(s) & blocked))
               score -= ImmobilePiece;
