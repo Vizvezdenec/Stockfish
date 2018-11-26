@@ -471,7 +471,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int mobilityDanger = mg_value(mobility[Them] - mobility[Us]);
+        Score mobilityDanger = (mobility[Them] - mobility[Us]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -480,12 +480,13 @@ namespace {
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     +       mobilityDanger * 7 / 8
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+            score -= make_score((kingDanger + mg_value(mobilityDanger)) 
+                              * (kingDanger + mg_value(mobilityDanger)) / 4096, 
+                                 (kingDanger + eg_value(mobilityDanger)) / 20);
     }
 
     // Penalty when our king is on a pawnless flank
