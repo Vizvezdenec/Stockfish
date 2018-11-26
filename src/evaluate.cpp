@@ -330,10 +330,10 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (KingFlank[file_of(pos.square<KING>(Them))] & CampThem & s)
+        if (KingFlank[file_of(pos.square<KING>(Them))] & CampThem & pos.attacks_from<Pt>(s))
             enemyKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
-        if (KingFlank[file_of(pos.square<KING>(Us))] & CampUs & s)
+        if (KingFlank[file_of(pos.square<KING>(Us))] & CampUs & pos.attacks_from<Pt>(s))
             alliedKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
