@@ -291,6 +291,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Camp = (Them == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -324,7 +326,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (kingRing[Us] & s)
+        if (KingFlank[file_of(pos.square<KING>(Them))] & Camp & s)
             kingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -483,7 +485,7 @@ namespace {
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
-                     -       kingZoneMobility[Us]
+                     +       kingZoneMobility[Them]
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
