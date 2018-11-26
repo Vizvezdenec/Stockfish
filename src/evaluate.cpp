@@ -482,7 +482,9 @@ namespace {
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
-            score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+            score -= make_score((kingDanger + mg_value(mobility[Them] - mobility[Us]))
+                     * (kingDanger + mg_value(mobility[Them] - mobility[Us])) / 4096, 
+                     (kingDanger + eg_value(mobility[Them] - mobility[Us])) / 16);
     }
 
     // Penalty when our king is on a pawnless flank
@@ -836,7 +838,7 @@ namespace {
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
-    score += (mobility[WHITE] - mobility[BLACK]) * 17/16;
+    score += mobility[WHITE] - mobility[BLACK];
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
