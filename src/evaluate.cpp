@@ -289,6 +289,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard SideFilesLeft = (FileABB | FileBBB);
+    constexpr Bitboard SideFilesRight = (FileGBB | FileHBB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -321,8 +323,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        if ((pos.attacks_from<Pt>(s) & KingFlank[file_of(pos.square<KING>(Us))])
-            && (pos.attacks_from<Pt>(s) & KingFlank[file_of(pos.square<KING>(Them))]))
+        if ((pos.attacks_from<Pt>(s) & SideFilesLeft)
+            && (pos.attacks_from<Pt>(s) & SideFilesRight))
             score += AttacksOnKingflank;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
