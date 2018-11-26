@@ -152,7 +152,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score AttacksOnKingflank = S(  6,  0);
+  constexpr Score AttacksOnSideFiles = S(  6,  0);
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
@@ -325,7 +325,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         if ((pos.attacks_from<Pt>(s) & SideFilesLeft)
             && (pos.attacks_from<Pt>(s) & SideFilesRight))
-            score += AttacksOnKingflank;
+            score -= AttacksOnSideFiles;
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
