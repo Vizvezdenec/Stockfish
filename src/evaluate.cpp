@@ -233,7 +233,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int kingZoneMobility[COLOR_NB];
+    int alliedKingZoneMobility[COLOR_NB];
+    int enemyKingZoneMobility[COLOR_NB];
   };
 
 
@@ -262,7 +263,8 @@ namespace {
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
 
-    kingZoneMobility[Us] = 0;
+    alliedKingZoneMobility[Us] = 0;
+    enemyKingZoneMobility[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -291,7 +293,9 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard Camp = (Them == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+    constexpr Bitboard CampThem = (Them == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard CampUs = (Them == BLACK ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
@@ -326,8 +330,11 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (KingFlank[file_of(pos.square<KING>(Them))] & Camp & s)
-            kingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
+        if (KingFlank[file_of(pos.square<KING>(Them))] & CampThem & s)
+            enemyKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
+
+        if (KingFlank[file_of(pos.square<KING>(Us))] & CampUs & s)
+            alliedKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -485,7 +492,7 @@ namespace {
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
-                     +       kingZoneMobility[Them]
+                     +       (enemyKingZoneMobility[Them] - alliedKingZoneMobility[Us])
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
