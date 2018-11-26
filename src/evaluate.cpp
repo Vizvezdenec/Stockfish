@@ -492,9 +492,9 @@ namespace {
     if (kingDanger <= 0)
          {
          if (KingSide & ksq)
-            score += AttacksOnOppside * popcount(QueenSide & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
+            score += AttacksOnOppside * popcount(QueenSide & ~Camp & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
          else 
-            score += AttacksOnOppside * popcount(KingSide & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
+            score += AttacksOnOppside * popcount(KingSide & ~Camp & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
          }
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
