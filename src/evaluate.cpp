@@ -326,10 +326,10 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (kingRing[Them] & pos.attacks_from<Pt>(s))
+        if ((kingRing[Them] | pos.pieces(Them, KING)) & pos.attacks_from<Pt>(s))
             enemyKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
-        if (kingRing[Us] & pos.attacks_from<Pt>(s))
+        if ((kingRing[Us] | pos.pieces(Us, KING))  & pos.attacks_from<Pt>(s))
             alliedKingZoneMobility[Us] += mg_value(MobilityBonus[Pt - 2][mob]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
