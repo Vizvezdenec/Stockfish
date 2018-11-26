@@ -483,7 +483,7 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score((kingDanger + mg_value(mobility[Them] - mobility[Us]))
-                     * (kingDanger + mg_value(mobility[Them] - mobility[Us])) / 4096, 
+                     * (kingDanger + eg_value(mobility[Them] - mobility[Us])) / 4096, 
                      (kingDanger + eg_value(mobility[Them] - mobility[Us])) / 16);
     }
 
