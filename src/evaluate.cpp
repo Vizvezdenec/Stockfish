@@ -429,10 +429,11 @@ namespace {
         int kingDanger = 0;
         unsafeChecks = 0;
 
-        Bitboard restricted =   attackedBy[Us][ALL_PIECES]
+        Bitboard restricted =   ((attackedBy[Us][ALL_PIECES]
                 & ~attackedBy[Us][PAWN]
                 & ~attackedBy2[Us]
-                &  attackedBy2[Them]
+                &  attackedBy2[Them])
+                | (~attackedBy[Us][ALL_PIECES] & attackedBy[Them][ALL_PIECES]))
                 & kingFlank & Camp;
 
         // Attacked squares defended at most once by our queen or king
