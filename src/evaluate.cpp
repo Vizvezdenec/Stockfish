@@ -152,7 +152,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score AttacksOnSideFiles = S(  6,  0);
+  constexpr Score AttacksOnOppside   = S(  3,  0);
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
@@ -289,8 +289,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard SideFilesLeft = (FileABB | FileBBB);
-    constexpr Bitboard SideFilesRight = (FileGBB | FileHBB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -323,9 +321,7 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        if ((pos.attacks_from<Pt>(s) & SideFilesLeft)
-            && (pos.attacks_from<Pt>(s) & SideFilesRight))
-            score -= AttacksOnSideFiles;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -427,11 +423,10 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
-
+    int kingDanger = 0;
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
-        int kingDanger = 0;
         unsafeChecks = 0;
 
         // Attacked squares defended at most once by our queen or king
@@ -494,7 +489,13 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
-
+    if (kingDanger <= 0)
+         {
+         if (KingSide & ksq)
+            score += AttacksOnOppside * popcount(QueenSide & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
+         else 
+            score += AttacksOnOppside * popcount(KingSide & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
+         }
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
