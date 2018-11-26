@@ -66,11 +66,14 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down   = (Us == BLACK ? NORTH : SOUTH);
+    constexpr Direction DownRight = (Us == WHITE ? SOUTH_EAST : NORTH_WEST);
+    constexpr Direction DownLeft = (Us == WHITE ? SOUTH_WEST : NORTH_EAST);
 
-    Bitboard b, neighbours, stoppers, doubled, supported, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, supported, phalanx, blocked;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, potentiallyBlocked;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -83,6 +86,7 @@ namespace {
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->blockedStructure[Us] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -103,6 +107,13 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         supported  = neighbours & rank_bb(s - Up);
+
+
+        blocked    = ourPawns   & shift<Down>(theirPawns);
+        potentiallyBlocked = (forward_file_bb(Us, s) & shift<DownRight>(theirPawns) & shift<DownLeft>(theirPawns))
+                     && ((more_than_one(neighbours) && more_than_one(neighbours & blocked)) 
+                     || (!more_than_one(neighbours) && neighbours && (neighbours & blocked))
+                     || (!neighbours));
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
@@ -139,6 +150,9 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+
+        if (potentiallyBlocked || (blocked & s))
+            e->blockedStructure[Us]++;
     }
 
     return score;
