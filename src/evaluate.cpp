@@ -162,6 +162,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
+  constexpr Score QueenKingAlign     = S(  0, 25);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -601,6 +602,13 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        if (
+                pos.count<ROOK>(Us) > 0 
+                && (pos.attacks_from<ROOK>(s) & pos.square<KING>(Them)) 
+                && ((pos.attacks_from<ROOK>(s) & PseudoAttacks[ROOK][pos.square<KING>(Them)] & attackedBy[Us][ROOK])
+                || (pos.attacks_from<ROOK>(pos.square<KING>(Them)) & PseudoAttacks[ROOK][s] & attackedBy[Us][ROOK]))
+               )
+                score += QueenKingAlign;
     }
 
     if (T)
@@ -832,6 +840,7 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
+
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
             + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
