@@ -162,7 +162,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
-  constexpr Score QueenKingAlign     = S(  2, 14);
+  constexpr Score QueenKingAlign     = S(  0, 25);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -395,10 +395,11 @@ namespace {
                 score -= WeakQueen;
 
             if (
-                (pos.attacks_from<QUEEN>(s) & pos.square<KING>(Us)) 
+                    pos.count<ROOK>(Them) > 0 
+                && (pos.attacks_from<QUEEN>(s) & pos.square<KING>(Us)) 
                 && (file_of(s) == file_of(pos.square<KING>(Us)) || rank_of(s) == rank_of(pos.square<KING>(Us)))
                )
-                score -= QueenKingAlign * pos.count<ROOK>(Them);
+                score -= QueenKingAlign;
         }
     }
     if (T)
