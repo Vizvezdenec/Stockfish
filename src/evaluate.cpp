@@ -605,7 +605,7 @@ namespace {
 
         if (
                 pos.count<BISHOP>(Us) > 0 
-                && (pos.attacks_from<BISHOP>(s) & pos.square<BISHOP>(Them)) 
+                && (pos.attacks_from<BISHOP>(s) & pos.square<KING>(Them)) 
                 && ((pos.attacks_from<BISHOP>(s) & PseudoAttacks[BISHOP][pos.square<KING>(Them)] & attackedBy[Us][BISHOP])
                 || (pos.attacks_from<BISHOP>(pos.square<KING>(Them)) & PseudoAttacks[BISHOP][s] & attackedBy[Us][BISHOP]))
             )
