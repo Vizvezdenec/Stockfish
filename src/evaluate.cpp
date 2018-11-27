@@ -152,7 +152,6 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score AttacksOnOppside   = S(  9,  0);
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
@@ -411,7 +410,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     const Square ksq = pos.square<KING>(Us);
-    Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
+    Bitboard kingFlank, weak, b, b1, b2, b3, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -423,11 +422,14 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
-    int kingDanger = 0;
+    
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
+        int kingDanger = 0;
         unsafeChecks = 0;
+
+        b3 = b2 & attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN] & ~attackedBy2[Us];
 
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
@@ -476,6 +478,7 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
+                     +   8 * popcount(b3)
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -489,13 +492,7 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
-    if (kingDanger <= 0)
-         {
-         if (KingSide & ksq)
-            score += AttacksOnOppside * popcount(QueenSide & ~Camp & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
-         else 
-            score += AttacksOnOppside * popcount(KingSide & ~Camp & attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
-         }
+
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
