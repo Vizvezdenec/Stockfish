@@ -162,7 +162,6 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
-  constexpr Score QueenKingAlign     = S(  5, 20);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -393,13 +392,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-            if (
-                    pos.count<ROOK>(Them) > 0 
-                && (pos.attacks_from<QUEEN>(s) & pos.square<KING>(Us)) 
-                && (file_of(s) == file_of(pos.square<KING>(Us)) || rank_of(s) == rank_of(pos.square<KING>(Us)))
-               )
-                score -= QueenKingAlign;
         }
     }
     if (T)
@@ -441,7 +433,8 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-
+        int wk = popcount(weak & kingRing[Us]);
+        score -= make_score(15,0) * wk;
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
@@ -481,7 +474,7 @@ namespace {
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
-                     + 185 * popcount(kingRing[Us] & weak)
+                     + 175 * wk
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
