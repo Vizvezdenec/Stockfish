@@ -604,10 +604,10 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
         if (
-                pos.count<ROOK>(Us) > 0 
-                && (pos.attacks_from<ROOK>(s) & pos.square<KING>(Them)) 
-                && ((pos.attacks_from<ROOK>(s) & PseudoAttacks[ROOK][pos.square<KING>(Them)] & attackedBy[Us][ROOK])
-                || (pos.attacks_from<ROOK>(pos.square<KING>(Them)) & PseudoAttacks[ROOK][s] & attackedBy[Us][ROOK]))
+                pos.count<BISHOP>(Us) > 0 
+                && (pos.attacks_from<BISHOP>(s) & pos.square<BISHOP>(Them)) 
+                && ((pos.attacks_from<BISHOP>(s) & PseudoAttacks[BISHOP][pos.square<KING>(Them)] & attackedBy[Us][BISHOP])
+                || (pos.attacks_from<BISHOP>(pos.square<KING>(Them)) & PseudoAttacks[BISHOP][s] & attackedBy[Us][BISHOP]))
             )
                 score += QueenKingAlign;
     }
