@@ -606,7 +606,7 @@ namespace {
         if (
                 pos.count<ROOK>(Us) > 0 
                 && (PseudoAttacks[ROOK][s] & pos.square<KING>(Them)) 
-                && (pos.attacks_from<ROOK>(s) & attackedBy[Us][ROOK] & PseudoAttacks[ROOK][pos.square<KING>(Them)])
+                && (pos.attacks_from<ROOK>(s) & attackedBy[Us][ROOK] & PseudoAttacks[ROOK][pos.square<KING>(Them)] & attackedBy2[Us])
             )
                 score += QueenKingAlign;
     }
