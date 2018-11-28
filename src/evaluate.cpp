@@ -153,6 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
+  constexpr Score BonusSliders       = S(  4,  2);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -589,18 +590,24 @@ namespace {
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
-    {
+    {   
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += KnightOnQueen * popcount(b & safe);
+        int knightSliderCount = popcount(b & safe);
+
+        score += KnightOnQueen * knightSliderCount;
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        int notKnightSliderCount = popcount(b & safe & attackedBy2[Us]);
+
+        score += SliderOnQueen * notKnightSliderCount;
+        
+        score += BonusSliders * ((knightSliderCount + notKnightSliderCount) * (knightSliderCount + notKnightSliderCount) - 1);
     }
 
     if (T)
