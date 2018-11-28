@@ -153,7 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score BonusSliders       = S(  8,  4);
+  constexpr Score BonusSliders       = S(  6,  3);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -510,7 +510,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, b1, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -596,18 +596,25 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        int knightSliderCount = popcount(b & safe);
+        score += KnightOnQueen * popcount(b & safe);
 
-        score += KnightOnQueen * knightSliderCount;
+        bool knightSlider = b & safe;
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
+        
+        bool bishopSlider = b & safe & attackedBy2[Us];
 
-        int notKnightSliderCount = popcount(b & safe & attackedBy2[Us]);
+        b1 = (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        
+        bool rookSlider = b1 & safe & attackedBy2[Us];
 
-        score += SliderOnQueen * notKnightSliderCount;
-        if (knightSliderCount + notKnightSliderCount > 1)
-        score += BonusSliders * (knightSliderCount + notKnightSliderCount - 1);
+        score += SliderOnQueen * popcount((b | b1) & safe & attackedBy2[Us]);
+        
+        if (knightSlider || bishopSlider || rookSlider)
+        score += BonusSliders 
+                 * ((knightSlider + 1)
+                 * (bishopSlider + 1)
+                 * (rookSlider + 1) - 2);
     }
 
     if (T)
