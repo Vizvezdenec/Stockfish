@@ -450,7 +450,7 @@ namespace {
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck;
+            kingDanger += RookSafeCheck * (1 + more_than_one(b1 & safe));
         else
             unsafeChecks |= b1;
 
