@@ -165,7 +165,7 @@ namespace {
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
-  constexpr Score ThreatByKing       = S(  7, 28);
+  constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
   constexpr Score ThreatByRank       = S( 14,  3);
   constexpr Score ThreatBySafePawn   = S(169, 99);
@@ -553,11 +553,8 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        if (weak & attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES])
-            score += ThreatByKing;
-
         if (weak & attackedBy[Us][KING] & ~attackedBy2[Them])
-            score += ThreatByKing;
+            score += make_score(7,28);
 
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
 
