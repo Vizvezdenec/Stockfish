@@ -153,7 +153,6 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score BonusSliders       = S( 10,  5);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -166,7 +165,7 @@ namespace {
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
-  constexpr Score ThreatByKing       = S( 21, 84);
+  constexpr Score ThreatByKing       = S(  7, 28);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
   constexpr Score ThreatByRank       = S( 14,  3);
   constexpr Score ThreatBySafePawn   = S(169, 99);
@@ -510,7 +509,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, b1, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -554,6 +553,12 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
+        if (weak & attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES])
+            score += ThreatByKing;
+
+        if (weak & attackedBy[Us][KING] & ~attackedBy2[Them])
+            score += ThreatByKing;
+
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
 
         b = weak & nonPawnEnemies & attackedBy[Them][ALL_PIECES];
@@ -590,7 +595,7 @@ namespace {
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
-    {   
+    {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
@@ -598,23 +603,10 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
-        bool knightSlider = b & safe;
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
-        
-        bool bishopSlider = b & safe & attackedBy2[Us];
-
-        b1 = (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-        
-        bool rookSlider = b1 & safe & attackedBy2[Us];
-
-        score += SliderOnQueen * popcount((b | b1) & safe & attackedBy2[Us]);
-        
-        if (knightSlider || bishopSlider || rookSlider)
-        score += BonusSliders 
-                 * ((knightSlider + 1)
-                 * (bishopSlider + 1)
-                 * (rookSlider + 1) - 2);
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
