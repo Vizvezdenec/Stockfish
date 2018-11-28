@@ -781,7 +781,7 @@ namespace {
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor)
-        && !(abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us)) > 1000 && abs(eval) < 200))
+        && (pos.non_pawn_material(us) - pos.non_pawn_material(~us) - eval > -500))
     {
         assert(eval - beta >= 0);
 
