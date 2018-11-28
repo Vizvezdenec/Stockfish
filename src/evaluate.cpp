@@ -153,7 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score BonusSliders       = S(  4,  2);
+  constexpr Score BonusSliders       = S(  8,  4);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -606,8 +606,8 @@ namespace {
         int notKnightSliderCount = popcount(b & safe & attackedBy2[Us]);
 
         score += SliderOnQueen * notKnightSliderCount;
-        
-        score += BonusSliders * ((knightSliderCount + notKnightSliderCount) * (knightSliderCount + notKnightSliderCount) - 1);
+        if (knightSliderCount + notKnightSliderCount > 1)
+        score += BonusSliders * (knightSliderCount + notKnightSliderCount - 1);
     }
 
     if (T)
