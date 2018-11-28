@@ -551,10 +551,10 @@ namespace {
         }
 
         if (weak & attackedBy[Us][KING])
-            score += ThreatByKing;
+            score += make_score(7,28);
 
         if (weak & attackedBy[Us][KING] & ~attackedBy2[Them])
-            score += make_score(7,28);
+            score += ThreatByKing;
 
         score += Hanging * popcount(weak & ~attackedBy[Them][ALL_PIECES]);
 
