@@ -153,6 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
+  constexpr Score BlockedDefence     = S(  4,  0);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -321,6 +322,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (pos.attacks_from<Pt>(s) & kingRing[Us] & attackedBy[Them][PAWN])
+            score -= BlockedDefence;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -429,11 +433,6 @@ namespace {
         int kingDanger = 0;
         unsafeChecks = 0;
 
-        b1 = attackedBy[Them][PAWN] & kingRing[Us];
-        b2 = b1 & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN])
-                | attackedBy2[Us]);
-        int restrictedMobility = popcount(b2);
-
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
@@ -484,7 +483,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  30 *  restrictedMobility
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
