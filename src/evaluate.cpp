@@ -441,16 +441,13 @@ namespace {
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-        int queenCheck = 0; 
-        int rookCheck = 0;
-        int bishopCheck = 0;
-        int knightCheck = 0;
+        int multiSafeCheck = 0; 
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             {
             kingDanger += QueenSafeCheck;
-            queenCheck = popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
+            multiSafeCheck += popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
             }
 
         b1 &= attackedBy[Them][ROOK];
@@ -460,7 +457,7 @@ namespace {
         if (b1 & safe)
             {
             kingDanger += RookSafeCheck;
-            rookCheck = popcount(b1 & safe);
+            multiSafeCheck += popcount(b1 & safe);
             }
         else
             unsafeChecks |= b1;
@@ -469,7 +466,7 @@ namespace {
         if (b2 & safe)
             {
             kingDanger += BishopSafeCheck;
-            bishopCheck = popcount(b2 & safe);
+            multiSafeCheck += popcount(b2 & safe);
             }
         else
             unsafeChecks |= b2;
@@ -479,7 +476,7 @@ namespace {
         if (b & safe)
             {
             kingDanger += KnightSafeCheck;
-            knightCheck = popcount(b & safe);
+            multiSafeCheck += popcount(b & safe);
             }
         else
             unsafeChecks |= b;
@@ -487,8 +484,6 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-
-        int multipleChecks = queenCheck + rookCheck + bishopCheck + knightCheck;
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -498,7 +493,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  10 * multipleChecks * multipleChecks
+                     +  10 * multiSafeCheck * multiSafeCheck
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
