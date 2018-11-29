@@ -441,8 +441,8 @@ namespace {
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-        bool queenCheck = 0; 
-        bool rookCheck = 0;
+        int queenCheck = 0; 
+        int rookCheck = 0;
         bool bishopCheck = 0;
         bool knightCheck = 0;
 
@@ -450,7 +450,7 @@ namespace {
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             {
             kingDanger += QueenSafeCheck;
-            queenCheck = 1;
+            queenCheck = popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
             }
 
         b1 &= attackedBy[Them][ROOK];
@@ -460,7 +460,7 @@ namespace {
         if (b1 & safe)
             {
             kingDanger += RookSafeCheck;
-            rookCheck = 1;
+            rookCheck = popcount(b1 & safe);
             }
         else
             unsafeChecks |= b1;
@@ -469,7 +469,7 @@ namespace {
         if (b2 & safe)
             {
             kingDanger += BishopSafeCheck;
-            bishopCheck = 1;
+            bishopCheck = popcount(b2 & safe);
             }
         else
             unsafeChecks |= b2;
@@ -479,7 +479,7 @@ namespace {
         if (b & safe)
             {
             kingDanger += KnightSafeCheck;
-            knightCheck = 1;
+            knightCheck = popcount(b & safe);
             }
         else
             unsafeChecks |= b;
@@ -498,7 +498,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     + 150 * std::max(multipleChecks - 1, 0)
+                     +  10 * multipleChecks * multipleChecks
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
