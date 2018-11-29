@@ -447,7 +447,7 @@ namespace {
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             {
             kingDanger += QueenSafeCheck;
-            multiSafeCheck += popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
+            multiSafeCheck += 1 + more_than_one((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
             }
 
         b1 &= attackedBy[Them][ROOK];
@@ -457,7 +457,7 @@ namespace {
         if (b1 & safe)
             {
             kingDanger += RookSafeCheck;
-            multiSafeCheck += popcount(b1 & safe);
+            multiSafeCheck += 1 + more_than_one(b1 & safe);
             }
         else
             unsafeChecks |= b1;
@@ -466,7 +466,7 @@ namespace {
         if (b2 & safe)
             {
             kingDanger += BishopSafeCheck;
-            multiSafeCheck += popcount(b2 & safe);
+            multiSafeCheck += 1 + more_than_one(b2 & safe);
             }
         else
             unsafeChecks |= b2;
@@ -476,7 +476,7 @@ namespace {
         if (b & safe)
             {
             kingDanger += KnightSafeCheck;
-            multiSafeCheck += popcount(b & safe);
+            multiSafeCheck += 1 + more_than_one(b & safe);
             }
         else
             unsafeChecks |= b;
@@ -493,7 +493,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   5 * multiSafeCheck * multiSafeCheck
+                     +   15* multiSafeCheck * multiSafeCheck
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
