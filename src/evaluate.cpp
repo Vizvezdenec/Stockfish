@@ -456,7 +456,7 @@ namespace {
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck + more_than_one (b2 & safe) * 145;
+            kingDanger += BishopSafeCheck + more_than_one (b2 & safe) * 290;
         else
             unsafeChecks |= b2;
 
