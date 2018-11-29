@@ -441,35 +441,54 @@ namespace {
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
+        bool queenCheck = 0; 
+        bool rookCheck = 0;
+        bool bishopCheck = 0;
+        bool knightCheck = 0;
+
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
+            {
             kingDanger += QueenSafeCheck;
+            queenCheck = 1;
+            }
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
         // Enemy rooks checks
         if (b1 & safe)
+            {
             kingDanger += RookSafeCheck;
+            rookCheck = 1;
+            }
         else
             unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
-            kingDanger += BishopSafeCheck + more_than_one (b2 & safe) * 290;
+            {
+            kingDanger += BishopSafeCheck;
+            bishopCheck = 1;
+            }
         else
             unsafeChecks |= b2;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
+            {
             kingDanger += KnightSafeCheck;
+            knightCheck = 1;
+            }
         else
             unsafeChecks |= b;
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+
+        int multipleChecks = queenCheck + rookCheck + bishopCheck + knightCheck;
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -479,6 +498,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  50 * std::max(multipleChecks - 1, 0)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
