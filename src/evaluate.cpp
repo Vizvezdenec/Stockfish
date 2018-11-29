@@ -447,7 +447,7 @@ namespace {
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             {
             kingDanger += QueenSafeCheck;
-            multiSafeCheck += 1 + more_than_one((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
+            multiSafeCheck += popcount((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
             }
 
         b1 &= attackedBy[Them][ROOK];
@@ -457,7 +457,7 @@ namespace {
         if (b1 & safe)
             {
             kingDanger += RookSafeCheck;
-            multiSafeCheck += 1 + more_than_one(b1 & safe);
+            multiSafeCheck += popcount(b1 & safe);
             }
         else
             unsafeChecks |= b1;
@@ -466,7 +466,7 @@ namespace {
         if (b2 & safe)
             {
             kingDanger += BishopSafeCheck;
-            multiSafeCheck += 1 + more_than_one(b2 & safe);
+            multiSafeCheck += popcount(b2 & safe);
             }
         else
             unsafeChecks |= b2;
@@ -476,7 +476,7 @@ namespace {
         if (b & safe)
             {
             kingDanger += KnightSafeCheck;
-            multiSafeCheck += 1 + more_than_one(b & safe);
+            multiSafeCheck += popcount(b & safe);
             }
         else
             unsafeChecks |= b;
