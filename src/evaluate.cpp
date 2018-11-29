@@ -443,8 +443,8 @@ namespace {
 
         int queenCheck = 0; 
         int rookCheck = 0;
-        bool bishopCheck = 0;
-        bool knightCheck = 0;
+        int bishopCheck = 0;
+        int knightCheck = 0;
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
