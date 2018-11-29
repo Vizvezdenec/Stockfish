@@ -153,7 +153,6 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
-  constexpr Score BlockedDefence     = S(  4,  0);
   constexpr Score CloseEnemies       = S(  7,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
@@ -322,9 +321,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (pos.attacks_from<Pt>(s) & kingRing[Us] & attackedBy[Them][PAWN])
-            score -= BlockedDefence * popcount(pos.attacks_from<Pt>(s) & kingRing[Us] & attackedBy[Them][PAWN]);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -454,7 +450,7 @@ namespace {
 
         // Enemy rooks checks
         if (b1 & safe)
-            kingDanger += RookSafeCheck;
+            kingDanger += RookSafeCheck * (1 + more_than_one(b1 & safe));
         else
             unsafeChecks |= b1;
 
