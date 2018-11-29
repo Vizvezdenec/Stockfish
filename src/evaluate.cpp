@@ -429,7 +429,7 @@ namespace {
         int kingDanger = 0;
         unsafeChecks = 0;
 
-        b1 = attackedBy[Them][PAWN] & kingFlank & Camp;
+        b1 = attackedBy[Them][PAWN] & kingRing[Us];
         b2 = b1 & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN])
                 | attackedBy2[Us]);
         int restrictedMobility = popcount(b2);
@@ -484,7 +484,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  20 *  restrictedMobility
+                     +  30 *  restrictedMobility
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
