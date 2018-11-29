@@ -323,7 +323,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (pos.attacks_from<Pt>(s) & kingRing[Us] & attackedBy[Them][PAWN])
-            score -= BlockedDefence;
+            score -= BlockedDefence * popcount(pos.attacks_from<Pt>(s) & kingRing[Us] & attackedBy[Them][PAWN]);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
