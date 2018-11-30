@@ -847,8 +847,12 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
-
-    score += make_score( 1 , 0) * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) / 50;
+    if (maxMobility[BLACK] > 0 && maxMobility[WHITE] > 0)
+             {
+             int maxMobScore = 100 * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) 
+             / (maxMobility[WHITE] * maxMobility[BLACK]);
+             score += make_score( maxMobScore, 0);
+             }
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
