@@ -789,8 +789,11 @@ namespace {
         else
             {
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
-            if (pe->unwinnableStr[strongSide] == pos.count<PAWN>(strongSide)
+            if ( 
+                (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= BishopValueMg - KnightValueMg)
+                && (pe->unwinnableStr[strongSide] == pos.count<PAWN>(strongSide)
                 || pe->unwinnableStr[strongSide] == pos.count<PAWN>(strongSide) + 8)
+                )
             sf -= 10;
             }
 
