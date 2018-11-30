@@ -159,7 +159,7 @@ namespace {
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
-  constexpr Score LowRanksBlocker    = S( 10, 20);
+  constexpr Score LowRanksBlocker    = S(  0, 30);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
@@ -393,6 +393,7 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
             if (shift<Down>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN]) & s)
                 score -= LowRanksBlocker * std::max(3 - int(relative_rank(Us,s)), 0);
         }
