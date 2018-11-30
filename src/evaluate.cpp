@@ -162,6 +162,7 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
+  constexpr Score Rank1Rook          = S( 10, 30);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -384,6 +385,12 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+            if (
+                relative_rank(Us, s) == RANK_1
+                && (shift<Down>(pos.pieces(Them, PAWN)) & s)
+                && mob < 2
+               )
+               score -= Rank1Rook;
         }
 
         if (Pt == QUEEN)
