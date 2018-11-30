@@ -393,9 +393,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-            if (shift<Down>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN]) & s)
-                score -= LowRanksBlocker * std::max(3 - int(relative_rank(Us,s)), 0);
         }
     }
     if (T)
@@ -512,6 +509,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  DistantRanks = (Us == WHITE ? Rank6BB | Rank7BB | Rank8BB : Rank3BB | Rank2BB | Rank1BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -605,6 +603,15 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        safe = attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & ~attackedBy[Them][PAWN];
+
+        Bitboard PassersQueenBlocked = shift<Up>(pos.pieces(Us, PAWN) 
+              & safe
+              & DistantRanks)
+              & ((attackedBy[Them][QUEEN] & ~attackedBy2[Them]) | (~attackedBy[Them][ALL_PIECES] & s));
+
+        score += LowRanksBlocker * popcount(PassersQueenBlocked);
     }
     if (T)
         Trace::add(THREAT, Us, score);
