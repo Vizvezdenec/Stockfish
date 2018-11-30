@@ -91,6 +91,8 @@ namespace {
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
+  constexpr int MaxMobilityValue[PIECE_TYPE_NB] = { 0, 0, 8, 13, 14, 27 };
+
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
   constexpr int RookSafeCheck   = 880;
@@ -233,6 +235,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int totalMobility[COLOR_NB];
+    int maxMobility[COLOR_NB];
   };
 
 
@@ -260,6 +264,8 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
+    totalMobility[Us] = 0;
+    maxMobility[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -320,6 +326,9 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        totalMobility[Us] += mob;
+        maxMobility[Us] += MaxMobilityValue[Pt];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -471,9 +480,6 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int pieceDifference = popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & ~pos.pieces(Them, KING) & kingFlank)
-                             - popcount(pos.pieces(Us) & ~pos.pieces(Us, PAWN) & ~pos.pieces(Us, KING) & kingFlank);
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -482,7 +488,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   5 * pieceDifference
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -842,6 +847,8 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
+
+    score += make_score( 1 , 0) * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) / 10;
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
