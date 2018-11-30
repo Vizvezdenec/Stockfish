@@ -1185,14 +1185,15 @@ moves_loop: // When in check, search starts from here
             update_quiet_stats(pos, ss, bestMove, quietsSearched, quietCount,
                                stat_bonus(depth + (bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
 
-        update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth + ONE_PLY));
-
-        // Extra penalty for a quiet TT move in previous ply when it gets refuted
         if (  (ss-1)->killers[0]
                 && (ss-1)->currentMove == (ss-1)->killers[0]
                 && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
-        else if ((ss-1)->moveCount == 1 && !pos.captured_piece())
+
+        update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth + ONE_PLY));
+
+        // Extra penalty for a quiet TT move in previous ply when it gets refuted
+        if ((ss-1)->moveCount == 1 && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
     }
     // Bonus for prior countermove that caused the fail low
