@@ -486,7 +486,7 @@ namespace {
             {
             int materialDifference = pos.non_pawn_material(Us) - pos.non_pawn_material(Them);
             int totalMaterial = pos.non_pawn_material(Us) + pos.non_pawn_material(Them);
-            kingDanger += std::max(materialDifference, 0) * totalMaterial / MidgameLimit / 4;
+            kingDanger += std::max(materialDifference, 0) * totalMaterial / MidgameLimit;
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
             }
     }
