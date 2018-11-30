@@ -609,9 +609,9 @@ namespace {
         Bitboard PassersQueenBlocked = shift<Up>(pos.pieces(Us, PAWN) 
               & safe
               & DistantRanks)
-              & ((attackedBy[Them][QUEEN] & ~attackedBy2[Them]) | (~attackedBy[Them][ALL_PIECES] & s));
+              & ~attackedBy[Them][ALL_PIECES] & s;
 
-        score += LowRanksBlocker * popcount(PassersQueenBlocked);
+        score += LowRanksBlocker * bool (PassersQueenBlocked);
     }
     if (T)
         Trace::add(THREAT, Us, score);
