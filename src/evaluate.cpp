@@ -159,10 +159,10 @@ namespace {
   constexpr Score KingProtector      = S(  6,  7);
   constexpr Score KnightOnQueen      = S( 20, 12);
   constexpr Score LongDiagonalBishop = S( 44,  0);
+  constexpr Score LowRanksBlocker    = S( 10, 20);
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
-  constexpr Score Rank1Rook          = S( 10, 50);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -385,12 +385,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
-            if (
-                relative_rank(Us, s) == RANK_1
-                && (shift<Down>(pos.pieces(Them, PAWN)) & s)
-                && !(pos.attacks_from<ROOK>(s) & (Rank1BB | Rank8BB) & ~attackedBy[Them][PAWN])
-               )
-               score -= Rank1Rook;
         }
 
         if (Pt == QUEEN)
@@ -400,6 +394,10 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+        if (
+            (pos.pieces(Us,ROOK,QUEEN) & shift<Down>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]) & s)
+        )
+               score -= LowRanksBlocker * std::max(4 - int(relative_rank(Us,s)), 0);
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -609,7 +607,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
     if (T)
         Trace::add(THREAT, Us, score);
 
