@@ -1191,10 +1191,15 @@ moves_loop: // When in check, search starts from here
         if ((ss-1)->moveCount == 1 && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
 
-        if (  (ss-1)->killers[0]
+        else if (  (ss-1)->killers[0]
                 && (ss-1)->currentMove == (ss-1)->killers[0]
                 && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
+        else if   ((ss-1)->killers[1]
+                && (ss-1)->currentMove == (ss-1)->killers[1]
+                && !pos.captured_piece()
+                && depth >= ONE_PLY)
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - ONE_PLY));
     }
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 * ONE_PLY || PvNode)
