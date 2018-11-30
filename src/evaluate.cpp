@@ -388,7 +388,7 @@ namespace {
             if (
                 relative_rank(Us, s) == RANK_1
                 && (shift<Down>(pos.pieces(Them, PAWN)) & s)
-                && mob < 2
+                && !(pos.attacks_from<ROOK>(s) & (Rank1BB | Rank8BB) & ~attackedBy[Them][PAWN])
                )
                score -= Rank1Rook;
         }
