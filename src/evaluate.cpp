@@ -603,10 +603,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        b = pos.pieces(Them) & attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+        b = pos.pieces(Them) & attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & pos.pieces(Them, PAWN);
 
-        if (more_than_one(b)
-            && (b ^ pos.pieces(Them, PAWN)))
+        if (more_than_one(b))
             score += QueenOverload;
     }
 
