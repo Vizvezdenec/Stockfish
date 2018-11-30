@@ -393,11 +393,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            if (shift<Down>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]) & s)
+                score -= LowRanksBlocker * std::max(4 - int(relative_rank(Us,s)), 0);
         }
-        if (
-            (pos.pieces(Us,ROOK,QUEEN) & shift<Down>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]) & s)
-        )
-               score -= LowRanksBlocker * std::max(4 - int(relative_rank(Us,s)), 0);
     }
     if (T)
         Trace::add(Pt, Us, score);
