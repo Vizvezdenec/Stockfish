@@ -485,7 +485,7 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         else 
-            score += make_score(-kingDanger / 100, 0);
+            score -= make_score(kingDanger / 50, 0);
     }
 
     // Penalty when our king is on a pawnless flank
