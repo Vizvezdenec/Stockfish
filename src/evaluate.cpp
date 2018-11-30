@@ -484,13 +484,10 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        else 
-            {
-            int wingDelta = abs( popcount(attackedBy[Them][ALL_PIECES] & KingSide)
+        int wingDelta = abs( popcount(attackedBy[Them][ALL_PIECES] & KingSide)
                        - popcount(attackedBy[Them][ALL_PIECES] & QueenSide));
-            score += make_score(wingDelta * 3, 0);
-            }
-    }
+            score += make_score(std::max(wingDelta * 3 - kingDanger/200, 0), 0);
+     }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
