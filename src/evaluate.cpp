@@ -848,7 +848,7 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score += make_score( 1 , 0) * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) / 10;
+    score += make_score( 1 , 0) * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) / 20;
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
