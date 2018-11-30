@@ -162,7 +162,6 @@ namespace {
   constexpr Score MinorBehindPawn    = S( 16,  0);
   constexpr Score Overload           = S( 12,  6);
   constexpr Score PawnlessFlank      = S( 18, 94);
-  constexpr Score QueenOverload      = S( 40, 40);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
@@ -485,6 +484,8 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+        else 
+            score += make_score(-kingDanger / 100, 0);
     }
 
     // Penalty when our king is on a pawnless flank
@@ -602,10 +603,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        b = attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & pos.pieces(Them, PAWN);
-
-        score +=QueenOverload * more_than_one(b);
     }
 
     if (T)
