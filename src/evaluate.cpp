@@ -484,9 +484,9 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             {
-            int materialDifference = pos.non_pawn_material(Us) - pos.non_pawn_material(Them);
+            int materialDifference = pos.non_pawn_material(Them) - pos.non_pawn_material(Us);
             int totalMaterial = pos.non_pawn_material(Us) + pos.non_pawn_material(Them);
-            kingDanger += std::max(materialDifference, 0) * totalMaterial / MidgameLimit;
+            kingDanger += std::max(materialDifference, 0) * totalMaterial / MidgameLimit /4;
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
             }
     }
