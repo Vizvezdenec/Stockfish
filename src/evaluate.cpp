@@ -849,7 +849,7 @@ namespace {
     score += mobility[WHITE] - mobility[BLACK];
     if (maxMobility[BLACK] > 0 && maxMobility[WHITE] > 0)
              {
-             int maxMobScore = 100 * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) 
+             int maxMobScore = 200 * (totalMobility[WHITE] * maxMobility[BLACK] - totalMobility[BLACK] * maxMobility[WHITE]) 
              / (maxMobility[WHITE] * maxMobility[BLACK]);
              score += make_score( maxMobScore, 0);
              }
