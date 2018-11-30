@@ -611,7 +611,7 @@ namespace {
               & DistantRanks)
               & ~attackedBy[Them][ALL_PIECES] & s;
 
-        score += LowRanksBlocker * bool (PassersQueenBlocked);
+        score += LowRanksBlocker * bool (PassersQueenBlocked) * int(relative_rank(s) - RANK_6);
     }
     if (T)
         Trace::add(THREAT, Us, score);
