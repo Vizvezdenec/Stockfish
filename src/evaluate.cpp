@@ -471,6 +471,9 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        int pieceDifference = popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & ~pos.pieces(Them, KING) & kingFlank)
+                             - popcount(pos.pieces(Us) & ~pos.pieces(Us, PAWN) & ~pos.pieces(Us, KING) & kingFlank);
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -479,16 +482,12 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  15 * pieceDifference
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
-            {
-            int materialDifference = pos.non_pawn_material(Them) - pos.non_pawn_material(Us);
-            int totalMaterial = pos.non_pawn_material(Us) + pos.non_pawn_material(Them);
-            kingDanger += std::max(materialDifference, 0) * totalMaterial / MidgameLimit /4;
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-            }
     }
 
     // Penalty when our king is on a pawnless flank
@@ -507,7 +506,7 @@ namespace {
 
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
-  template<Tracing T> template<Color Us>	
+  template<Tracing T> template<Color Us>
   Score Evaluation<T>::threats() const {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
