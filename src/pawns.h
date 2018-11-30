@@ -38,6 +38,7 @@ struct Entry {
   Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
   Bitboard pawn_attacks_span(Color c) const { return pawnAttacksSpan[c]; }
   int weak_unopposed(Color c) const { return weakUnopposed[c]; }
+  int unwinnable_str(Color c) const { return unwinnableStr[c]; }
   int pawn_asymmetry() const { return asymmetry; }
   int open_files() const { return openFiles; }
 
@@ -72,6 +73,7 @@ struct Entry {
   int castlingRights[COLOR_NB];
   int semiopenFiles[COLOR_NB];
   int pawnsOnSquares[COLOR_NB][COLOR_NB]; // [color][light/dark squares]
+  int unwinnableStr[COLOR_NB];
   int asymmetry;
   int openFiles;
 };

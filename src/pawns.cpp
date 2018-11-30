@@ -78,6 +78,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
+    e->unwinnableStr[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
@@ -139,6 +140,12 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
+        
+        if (opposed)
+            e->unwinnableStr[Us]++;
+        
+        if (neighbours && (forward_file_bb(Us, s) & pawn_attacks_bb<Them>(theirPawns)))
+            e->unwinnableStr[Us]+= 9;
     }
 
     return score;
