@@ -952,6 +952,13 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
+      else if (
+               pos.non_pawn_material(us) == QueenValueMg
+               && pos.non_pawn_material(~us) == QueenValueMg
+               && type_of(movedPiece) == PAWN
+              )
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
