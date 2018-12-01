@@ -785,7 +785,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = ((823 - std::max(int (2 * QueenValueMg - pos.non_pawn_material()), 0) / 10 
+        Depth R = ((823 - std::max(int (2 * QueenValueMg - pos.non_pawn_material()), 0) / 20 
                   + 67 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 200, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
