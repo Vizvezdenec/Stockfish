@@ -794,7 +794,7 @@ namespace {
                 && (pe->unwinnableStr[strongSide] == pos.count<PAWN>(strongSide)
                 || pe->unwinnableStr[strongSide] == pos.count<PAWN>(strongSide) + 8)
                 )
-            sf -= 10;
+            sf -= 5;
             }
 
     }
