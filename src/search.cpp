@@ -786,7 +786,7 @@ namespace {
 
         // Null move dynamic reduction based on depth and value
         Depth R = ((823 + 67 * depth / ONE_PLY) / 256 
-                  + (pos.non_pawn_material() - 2*QueenValueMg) / 2000 + std::min(int(eval - beta) / 200, 3)) * ONE_PLY;
+                  + (pos.non_pawn_material() - 2*QueenValueMg) / 4000 + std::min(int(eval - beta) / 200, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
