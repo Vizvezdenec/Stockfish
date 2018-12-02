@@ -325,12 +325,14 @@ namespace {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] 
-                    * 2 * (1 + bool(double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s));
+                {
+                score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
+                if (Pt == KNIGHT && (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s))
+                     score += make_score(14, 6);
+                }
 
             else if (bb &= b & ~pos.pieces(Us))
-                score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)]
-                    * (1 + bool(double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & bb));
+                score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
