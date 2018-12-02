@@ -139,7 +139,7 @@ namespace {
 
         if (doubled && !supported)
             score -= Doubled;
-        if (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s)
+        if ((double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s) && !lever)
             score += make_score(15,10);
     }
 
