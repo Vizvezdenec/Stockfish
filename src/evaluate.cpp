@@ -328,7 +328,7 @@ namespace {
                 {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
                 if (Pt == KNIGHT && (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s))
-                     score += make_score(14, 6);
+                     score += make_score(28, 12);
                 }
 
             else if (bb &= b & ~pos.pieces(Us))
