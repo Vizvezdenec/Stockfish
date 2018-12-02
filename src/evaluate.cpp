@@ -317,11 +317,6 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (b & kingRing[Them])
-        {
-            kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += KingAttackWeights[Pt];
-        }
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -414,6 +409,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction UpRight = (Us == BLACK ? SOUTH_EAST : NORTH_WEST);
+    constexpr Direction UpLeft = (Us == BLACK ? SOUTH_WEST : NORTH_EAST);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -428,6 +425,8 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
+
+    Bitboard attackedBy2Pawns = shift<UpRight>(pos.pieces(Us,PAWN)) & shift<UpLeft>(pos.pieces(Us,PAWN));
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -475,7 +474,7 @@ namespace {
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
-        unsafeChecks &= mobilityArea[Them];
+        unsafeChecks &= (mobilityArea[Them] | (attackedBy[Us][PAWN] & ~attackedBy2Pawns));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
