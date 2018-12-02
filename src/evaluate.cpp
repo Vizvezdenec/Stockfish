@@ -559,8 +559,8 @@ namespace {
 
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
-                & ((~attackedBy[Them][PAWN]
-                & ~attackedBy2[Them]
+                & ~attackedBy[Them][PAWN]
+                & ((~attackedBy2[Them]
                 &  attackedBy[Us][ALL_PIECES])
                 | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)));
     score += RestrictedPiece * popcount(restricted);
