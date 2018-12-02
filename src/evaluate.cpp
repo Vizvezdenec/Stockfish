@@ -325,11 +325,7 @@ namespace {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
-                {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
-                if (Pt == KNIGHT && (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s))
-                     score += make_score(28, 12);
-                }
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
@@ -512,7 +508,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted, heavilyrestricted;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -567,6 +563,9 @@ namespace {
                 & ~attackedBy2[Them]
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
+
+    heavilyrestricted = double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & attackedBy[Them][ALL_PIECES];
+    score += make_score(10, 8) * popcount(heavilyrestricted);
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
