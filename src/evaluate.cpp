@@ -421,9 +421,9 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
-    b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp
+    b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
+    b2 = b1 & attackedBy2[Them] 
           & ~(shift<UpRight>(pos.pieces(Us,PAWN)) & shift<UpLeft>(pos.pieces(Us,PAWN)) & ~attackedBy[Them][PAWN]);
-    b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
 
