@@ -564,7 +564,9 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
-    heavilyrestricted = double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & attackedBy[Them][ALL_PIECES];
+    heavilyrestricted = double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) 
+                        & attackedBy[Them][ALL_PIECES]
+                        & ~(pos.pieces(Them,PAWN) & attackedBy[Them][PAWN]);
     score += make_score(7, 5) * popcount(heavilyrestricted);
 
     // Bonus for enemy unopposed weak pawns
