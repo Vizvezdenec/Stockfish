@@ -309,7 +309,7 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        if (b & kingRing[Them] & ~(double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)) & pos.pieces(Them,PAWN)))
+        if (b & kingRing[Them] & ~(double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)) & pos.pieces(Them)))
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
