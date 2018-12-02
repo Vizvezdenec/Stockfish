@@ -318,7 +318,10 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
         else if (b & kingRing[Them])
+        {
             kingAttackersCount[Us]++;
+            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+        }
 
         int mob = popcount(b & mobilityArea[Us]);
 
