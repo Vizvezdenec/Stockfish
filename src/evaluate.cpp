@@ -486,7 +486,7 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                     +       wideKingAttackersCount[Them] * wideKingAttackersWeight[Them] / 4
+                     +       wideKingAttackersCount[Them] * wideKingAttackersWeight[Them] / 16
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
