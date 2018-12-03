@@ -80,7 +80,7 @@ namespace {
 
   constexpr Bitboard KingFlank[FILE_NB] = {
     QueenSide ^ FileDBB, QueenSide, QueenSide,
-    CenterFiles, CenterFiles,
+    CenterFiles | FileBBB, CenterFiles | FileGBB,
     KingSide, KingSide, KingSide ^ FileEBB
   };
 
