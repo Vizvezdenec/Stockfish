@@ -80,7 +80,7 @@ namespace {
 
   constexpr Bitboard KingFlank[FILE_NB] = {
     QueenSide ^ FileDBB, QueenSide, QueenSide,
-    CenterFiles | FileBBB, CenterFiles | FileGBB,
+    CenterFiles, CenterFiles,
     KingSide, KingSide, KingSide ^ FileEBB
   };
 
@@ -600,7 +600,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    
+    score += make_score(5,3) * popcount(double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)));
     if (T)
         Trace::add(THREAT, Us, score);
 
