@@ -227,6 +227,7 @@ namespace {
     // The weights of the individual piece types are given by the elements in
     // the KingAttackWeights array.
     int kingAttackersWeight[COLOR_NB];
+    int wideKingAttackersWeight[COLOR_NB];
 
     // kingAttacksCount[color] is the number of attacks by the given color to
     // squares directly adjacent to the enemy king. Pieces which attack more
@@ -262,7 +263,7 @@ namespace {
 
     kingRing[Us] = kingAttackersCount[Them] = wideKingRing[Us] = 0;
     
-    wideKingAttackersCount[Us] = 0;
+    wideKingAttackersCount[Us] = wideKingAttackersWeight[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -326,7 +327,10 @@ namespace {
         }
         
         if (b & wideKingRing[Them])
+            {
             wideKingAttackersCount[Us]++;
+            wideKingAttackersWeight[Us] += KingAttackWeights[Pt];
+            }
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
@@ -482,7 +486,7 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                     +  20 * wideKingAttackersCount[Them]
+                     +       wideKingAttackersCount[Them] * wideKingAttackersWeight[Them] / 4
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
