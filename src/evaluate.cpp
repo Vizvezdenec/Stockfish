@@ -261,6 +261,8 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = wideKingRing[Us] = 0;
+    
+    wideKingAttackersCount[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
