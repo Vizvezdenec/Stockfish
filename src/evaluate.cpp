@@ -600,6 +600,24 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    else if (pos.count<QUEEN>(Them) > 1)
+    {
+    const Square* pl = pos.squares<QUEEN>(Them);
+    Square s;
+    while ((s = *pl++) != SQ_NONE)
+        {
+        safe = mobilityArea[Us] & ~stronglyProtected;
+
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+
+        score += KnightOnQueen * popcount(b & safe);
+
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        }
+    }
 
     if (T)
         Trace::add(THREAT, Us, score);
