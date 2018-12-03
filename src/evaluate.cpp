@@ -215,10 +215,12 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
+    Bitboard wideKingRing[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
+    int wideKingAttackersCount[COLOR_NB];
 
     // kingAttackersWeight[color] is the sum of the "weights" of the pieces of
     // the given color which attack a square in the kingRing of the enemy king.
@@ -258,7 +260,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = wideKingRing[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -272,6 +274,11 @@ namespace {
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
+
+        wideKingRing[Us] = shift<Up>(kingRing[Us]) | shift<WEST>(kingRing[Us]) 
+                          | shift<Down>(kingRing[Us]) | shift<EAST>(kingRing[Us]);
+        
+        wideKingRing[Us] &= ~kingRing[Us];
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -315,7 +322,9 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-
+        
+        if (b & wideKingRing[Them])
+            wideKingAttackersCount[Us]++;
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
@@ -471,6 +480,7 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+                     +  10 * wideKingAttackersCount[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
