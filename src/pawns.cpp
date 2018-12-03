@@ -141,7 +141,7 @@ namespace {
             score -= Doubled;
 
         if (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & s)
-            score += make_score(20, 0);
+            score += make_score(0, 20);
     }
 
     return score;
