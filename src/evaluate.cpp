@@ -163,6 +163,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
+  constexpr Score SliderOnRook       = S( 14,  7);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
@@ -383,6 +384,11 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.can_castle(Us));
             }
+
+            b = (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s))
+                | (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s));
+
+            score += SliderOnRook * popcount(b & mobilityArea[Them]);
         }
 
         if (Pt == QUEEN)
@@ -599,24 +605,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    }
-    else if (pos.count<QUEEN>(Them) > 1)
-    {
-    const Square* pl = pos.squares<QUEEN>(Them);
-    Square s;
-    while ((s = *pl++) != SQ_NONE)
-        {
-        safe = mobilityArea[Us] & ~stronglyProtected;
-
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
-
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-        }
     }
 
     if (T)
@@ -849,8 +837,8 @@ namespace {
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
+    score += pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
