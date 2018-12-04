@@ -474,10 +474,8 @@ namespace {
         Bitboard forwardKingRing = (shift<UpLeft> (kingRing[Us]) | shift<UpRight> (kingRing[Us])) & ~kingRing[Us];
 
         int outerDifference = popcount(forwardKingRing 
-                             & (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) 
-                             & ~(attackedBy2[Them] | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))))
+                             & (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))))
                               - popcount(forwardKingRing 
-                             & ~(attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) 
                              & (attackedBy2[Them] | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
