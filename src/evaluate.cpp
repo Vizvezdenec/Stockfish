@@ -407,8 +407,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction UpRight = (Us == BLACK ? SOUTH_WEST : NORTH_EAST);
-    constexpr Direction UpLeft = (Us == BLACK ? SOUTH_EAST : NORTH_WEST);
+    constexpr Direction Up = (Us == BLACK ? SOUTH : NORTH);
+
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
 
@@ -471,7 +471,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        Bitboard forwardKingRing = (shift<UpLeft> (kingRing[Us]) | shift<UpRight> (kingRing[Us])) & ~kingRing[Us];
+        Bitboard forwardKingRing = DistanceRingBB[ksq][2] & shift<Up>(shift<Up>(RankBB[rank_of(ksq)]));
 
         int outerDifference = popcount(forwardKingRing 
                              & (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))))
