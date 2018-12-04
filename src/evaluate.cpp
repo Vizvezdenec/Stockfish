@@ -479,7 +479,7 @@ namespace {
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
-        kingDanger -= 6 * std::min(int(mg_value(score)), 200 - kingDanger/10) / 8;
+        kingDanger -= 6 * std::min(int(mg_value(score)), 200 - kingDanger/5) / 8;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
