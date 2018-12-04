@@ -388,7 +388,7 @@ namespace {
             b = (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s))
                 | (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s));
 
-            score += SliderOnRook * popcount(b & mobilityArea[Them]);
+            score += SliderOnRook * popcount(b & mobilityArea[Them] & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][BISHOP]);
         }
 
         if (Pt == QUEEN)
