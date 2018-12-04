@@ -594,12 +594,12 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += (KnightOnQueen + make_score(8, 5) * moreQueens) * popcount(b & safe);
+        score += (KnightOnQueen + make_score(5, 3) * moreQueens) * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += (SliderOnQueen + make_score(20, 8) * moreQueens) * popcount(b & safe & attackedBy2[Us]);
+        score += (SliderOnQueen + make_score(10, 2) * moreQueens) * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
