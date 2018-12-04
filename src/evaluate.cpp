@@ -476,7 +476,7 @@ namespace {
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
-                     -   6 * std::min(int(mg_value(score)), 50) / 8
+                     -   6 * std::min(int(mg_value(score)), 200) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
