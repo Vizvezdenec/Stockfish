@@ -469,6 +469,8 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+        
+        b = ~attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -476,10 +478,10 @@ namespace {
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
+                     -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +   4 * (tropism - popcount(b))
                      -   30;
-
-        kingDanger -= 6 * std::min(int(mg_value(score)), 200 - kingDanger/20) / 8;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
