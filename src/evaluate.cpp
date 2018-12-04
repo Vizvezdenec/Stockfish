@@ -163,7 +163,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 18, 94);
   constexpr Score RestrictedPiece    = S(  7,  6);
   constexpr Score RookOnPawn         = S( 10, 28);
-  constexpr Score SliderOnRook       = S(  8,  4);
+  constexpr Score SliderOnRook       = S( 14,  7);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
   constexpr Score ThreatByPawnPush   = S( 48, 42);
