@@ -469,8 +469,12 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-        
-        b = ~attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
+
+        Bitboard outerKingRing = (shift<NORTH_EAST> (kingRing[Us]) | shift<SOUTH_EAST> (kingRing[Us])
+                              | shift<NORTH_WEST> (kingRing[Us]) | shift<SOUTH_WEST> (kingRing[Us])) & ~kingRing[Us];
+
+        int outerDefence = popcount(outerKingRing & (attackedBy2[Us] 
+                          | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) & ~attackedBy2[Them]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -480,7 +484,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   6 * (tropism - popcount(b))
+                     -  10 * outerDefence
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
