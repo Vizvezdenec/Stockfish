@@ -407,7 +407,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-
+    constexpr Direction UpRight = (Us == BLACK ? SOUTH_WEST : NORTH_EAST);
+    constexpr Direction UpLeft = (Us == BLACK ? SOUTH_EAST : NORTH_WEST);
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
 
@@ -470,11 +471,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        Bitboard outerKingRing = (shift<NORTH_EAST> (kingRing[Us]) | shift<SOUTH_EAST> (kingRing[Us])
-                              | shift<NORTH_WEST> (kingRing[Us]) | shift<SOUTH_WEST> (kingRing[Us])) & ~kingRing[Us];
+        Bitboard forwardKingRing = (shift<UpLeft> (kingRing[Us]) | shift<UpRight> (kingRing[Us])) & ~kingRing[Us];
 
-        int outerDefence = popcount(outerKingRing & (attackedBy2[Us] 
-                          | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) & ~attackedBy2[Them]);
+        int outerDifference = popcount(forwardKingRing 
+                             & (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) 
+                             & ~(attackedBy2[Them] | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))))
+                              - popcount(forwardKingRing 
+                             & ~(attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) 
+                             & (attackedBy2[Them] | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -484,7 +488,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     -  10 * outerDefence
+                     -  20 * outerDifference
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
