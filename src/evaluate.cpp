@@ -427,9 +427,7 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
-        
-        Bitboard bigKingRing = shift<NORTH_EAST> (kingRing[Us]) | shift<SOUTH_EAST> (kingRing[Us])
-                              | shift<NORTH_WEST> (kingRing[Us]) | shift<SOUTH_WEST> (kingRing[Us]);
+
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
@@ -467,8 +465,6 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-        
-        int theirPieces = popcount(bigKingRing & pos.pieces(Them));
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
@@ -479,9 +475,8 @@ namespace {
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
-                     +       theirPieces * theirPieces * 3/2
                      - 873 * !pos.count<QUEEN>(Them)
-                     -   6 * mg_value(score) / 8
+                     -   6 * std::min(int(mg_value(score)), 100) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
@@ -495,7 +490,7 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    score -= CloseEnemies  * tropism;
+    score -= CloseEnemies * tropism;
 
     if (T)
         Trace::add(KING, Us, score);
