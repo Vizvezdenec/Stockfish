@@ -427,7 +427,9 @@ namespace {
     {
         int kingDanger = 0;
         unsafeChecks = 0;
-
+        
+        Bitboard bigKingRing = shift<NORTH_EAST> (kingRing[Us]) | shift<SOUTH_EAST> (kingRing[Us])
+                              | shift<NORTH_WEST> (kingRing[Us]) | shift<SOUTH_WEST> (kingRing[Us]);
         // Attacked squares defended at most once by our queen or king
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
@@ -466,8 +468,7 @@ namespace {
         else
             unsafeChecks |= b;
         
-        b = pos.pieces(Them, ALL_PIECES) & kingFlank & Camp;
-        int theirPieces = popcount(b);
+        int theirPieces = popcount(bigKingRing & pos.pieces(Them));
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
