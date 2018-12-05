@@ -470,10 +470,6 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        Bitboard heavyPiecesAtt = attackedBy[Them][ROOK] | attackedBy[Them][QUEEN];
-        bool flankAttack = (heavyPiecesAtt & shift<EAST>(shift<EAST>(kingRing[Us]))) &&
-                           (heavyPiecesAtt & shift<WEST>(shift<WEST>(kingRing[Us])));
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -482,7 +478,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     + 100 * flankAttack
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -598,12 +593,16 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += KnightOnQueen * popcount(b & safe);
+        bool immobileQueen = !(attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ~attackedBy[Us][PAWN]
+                               & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][BISHOP] & ~attackedBy[Us][ROOK]
+                               & ~((attackedBy[Us][KING] | attackedBy[Us][QUEEN]) & ~attackedBy2[Them]));
+
+        score += KnightOnQueen * (1 + 2 * immobileQueen) * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * (1 + 2 * immobileQueen) * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
