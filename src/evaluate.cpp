@@ -323,7 +323,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
            
         if (!(pos.attacks_from<Pt>(s) & ~NoDevRanks & ~pos.pieces(Us) & ~attackedBy[Them][PAWN]))
-              score -= make_score(20,0);
+              score -= make_score(10,20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
