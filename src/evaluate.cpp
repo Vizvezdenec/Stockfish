@@ -83,6 +83,11 @@ namespace {
     CenterFiles, CenterFiles,
     KingSide, KingSide, KingSide ^ FileEBB
   };
+  constexpr Bitboard KingDefenceZone[FILE_NB] = {
+    QueenSide ^ FileDBB, QueenSide ^ FileDBB, QueenSide ^ FileDBB,
+    FileDBB|FileEBB, FileDBB|FileEBB,
+    KingSide ^ FileEBB, KingSide ^ FileEBB, KingSide ^ FileEBB
+  };
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
@@ -215,7 +220,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
-    Bitboard kingDefenceZone[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -260,7 +264,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = kingDefenceZone[Us] = noDefender[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = noDefender[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -277,9 +281,6 @@ namespace {
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-        
-        kingDefenceZone[Us] = kingRing[Us] | pos.square<KING>(Us);
-        kingDefenceZone[Us] |= shift<Up>(shift<Up>(kingDefenceZone[Us]));
     }
   }
 
@@ -321,15 +322,14 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        if (!(b & kingDefenceZone[Us] & ~double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))))
-        noDefender[Us]++;
-
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+             if (!(b & KingDefenceZone[file_of(pos.square<KING>(Us))]))
+             noDefender[Us]++;
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -486,7 +486,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   4 * noDefender[Us] * noDefender[Us]
+                     +   15 * noDefender[Us]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
