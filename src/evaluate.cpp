@@ -321,7 +321,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        if (!(b & kingDefenceZone[Us]))
+        if (!(b & kingDefenceZone[Us] & ~double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))))
         noDefender[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
