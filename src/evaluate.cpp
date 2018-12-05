@@ -593,7 +593,8 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        bool immobileQueen = !(attackedBy[Them][QUEEN] & mobilityArea[Them]);
+        bool immobileQueen = !(attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ~attackedBy[Us][PAWN]
+                               & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][BISHOP] & ~~attackedBy[Us][ROOK]);
 
         score += KnightOnQueen * (1 + immobileQueen) * popcount(b & safe);
 
