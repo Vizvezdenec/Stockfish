@@ -453,6 +453,10 @@ namespace {
         else
             unsafeChecks |= b1;
 
+        safe |=   pos.pieces(Us)
+               &  attackedBy2[Them] & ~attackedBy[Them][QUEEN]
+               & ~attackedBy2[Us];
+
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
@@ -593,16 +597,12 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        bool immobileQueen = !(attackedBy[Them][QUEEN] & ~pos.pieces(Them) & ~attackedBy[Us][PAWN]
-                               & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][BISHOP] & ~attackedBy[Us][ROOK]
-                               & ~((attackedBy[Us][KING] | attackedBy[Us][QUEEN]) & ~attackedBy2[Them]));
-
-        score += KnightOnQueen * (2 + immobileQueen) / 2 * popcount(b & safe);
+        score += KnightOnQueen * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * (2 + immobileQueen) / 2 * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
