@@ -287,6 +287,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard NoDevRanks = (Us == WHITE ? Rank1BB | Rank2BB
+                                                   : Rank7BB | Rank8BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -319,6 +321,9 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+           
+        if (!(pos.attacks_from<Pt>(s) & ~NoDevRanks & ~pos.pieces(Us) & ~attackedBy[Them][PAWN]))
+              score -= make_score(20,0);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
