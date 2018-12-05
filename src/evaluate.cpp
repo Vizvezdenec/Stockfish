@@ -597,12 +597,12 @@ namespace {
                                & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][BISHOP] & ~attackedBy[Us][ROOK]
                                & ~((attackedBy[Us][KING] | attackedBy[Us][QUEEN]) & ~attackedBy2[Them]));
 
-        score += KnightOnQueen * (1 + 2 * immobileQueen) * popcount(b & safe);
+        score += KnightOnQueen * (2 + immobileQueen) / 2 * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * (1 + 2 * immobileQueen) * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * (2 + immobileQueen) / 2 * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
