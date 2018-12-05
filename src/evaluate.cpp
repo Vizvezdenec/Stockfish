@@ -287,8 +287,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard NoDevRanks = (Us == WHITE ? Rank1BB | Rank2BB
-                                                   : Rank7BB | Rank8BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -321,9 +319,6 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-           
-        if (!(pos.attacks_from<Pt>(s) & ~NoDevRanks & ~pos.pieces(Us) & ~attackedBy[Them][PAWN]))
-              score -= make_score(10,20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -475,6 +470,10 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        Bitboard heavyPiecesAtt = attackedBy[Them][ROOK] | attackedBy[Them][QUEEN];
+        bool flankAttack = (heavyPiecesAtt & shift<EAST>(shift<EAST>(kingRing[Us]))) &&
+                           (heavyPiecesAtt & shift<WEST>(shift<WEST>(kingRing[Us])));
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -483,6 +482,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  50 * flankAttack
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
