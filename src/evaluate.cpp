@@ -594,14 +594,14 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        int mobConst = (3 - std::min(queenMobility[Them], 3) + 20);
+        int mobConst = (3 - std::min(queenMobility[Them], 3) + 10);
 
-        score += KnightOnQueen * mobConst * mobConst / 400 * popcount(b & safe);
+        score += KnightOnQueen * mobConst * mobConst / 100 * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * mobConst * mobConst / 400 * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * mobConst * mobConst / 100 * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
