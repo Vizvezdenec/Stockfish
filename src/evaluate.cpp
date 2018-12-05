@@ -215,6 +215,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
+    Bitboard kingDefenceZone[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -232,6 +233,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int noDefender[COLOR_NB];
   };
 
 
@@ -258,7 +260,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = kingDefenceZone[Us] = noDefender[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -275,6 +277,9 @@ namespace {
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+        
+        kingDefenceZone[Us] = kingRing[Us] | pos.square<KING>(Us);
+        kingDefenceZone[Us] |= shift<Up>(shift<Up>(kingDefenceZone[Us]));
     }
   }
 
@@ -315,6 +320,9 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+
+        if (!(b & kingDefenceZone[Us]))
+        noDefender[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -478,6 +486,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +   4 * noDefender[Us] * noDefender[Us]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
