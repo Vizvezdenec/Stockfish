@@ -453,12 +453,6 @@ namespace {
         else
             unsafeChecks |= b1;
 
-        safe |=   pos.pieces(Us) & ~pos.pieces(Us,PAWN) 
-               & attackedBy2[Them] & ~attackedBy2[Us];
-        
-        safe |=   pos.pieces(Us,PAWN) & ~attackedBy[Us][PAWN]
-                 & attackedBy2[Them] & ~attackedBy2[Us];
-
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
@@ -497,6 +491,9 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+
+    b = attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES] & ~pos.pieces(Us);
+    score += make_score(0, (popcount(b) - 3) * 3);
 
     if (T)
         Trace::add(KING, Us, score);
