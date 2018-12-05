@@ -471,7 +471,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        b = pos.pieces(Us, PAWN) & ~kingFlank & ~shift<Down>(pos.pieces());
+        b = pos.pieces(Us, PAWN) & ~kingFlank & shift<Down>(pos.pieces());
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -481,7 +481,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  25 * (2 - popcount(b))
+                     +  25 * (popcount(b) - 2)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
