@@ -495,7 +495,7 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    if (rank_of(ksq) == 1)
+    if (relative_rank(Us, ksq) == RANK_1)
         {
         if ((KingSide & ksq) && !((shift<Up>(ksq) | shift<Left>(ksq) | shift<Up>(shift<Left>(ksq))) 
              & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]))
