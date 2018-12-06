@@ -321,9 +321,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        Bitboard b1 = pos.attacks_from<Pt>(s) & pos.pieces(Us);
-        score += Connectivity * (bool (b1) + more_than_one(b1));
-  
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -604,6 +601,11 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    b = pos.pieces(Us) & attackedBy[Us][ALL_PIECES];
+    Bitboard b1 = pos.pieces(Us) & attackedBy2[Us];
+
+    score += Connectivity * (popcount(b) + popcount(b1));
 
     if (T)
         Trace::add(THREAT, Us, score);
