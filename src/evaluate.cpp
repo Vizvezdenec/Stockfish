@@ -601,7 +601,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
     b = pos.pieces(Us, KNIGHT, BISHOP) & kingRing[Them] & ~attackedBy[Them][ALL_PIECES];
-        score += make_score(0, 10) * popcount(b);
+        score += make_score(0, 20) * popcount(b);
     if (T)
         Trace::add(THREAT, Us, score);
 
