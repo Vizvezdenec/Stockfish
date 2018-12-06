@@ -323,7 +323,7 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             if (kingRing[Them] & ~attackedBy[Them][KING] & s)
-                score += make_score(0, 10);
+                score += make_score(0, 20);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
