@@ -603,7 +603,7 @@ namespace {
     }
 
     b = pos.pieces(Us) & attackedBy[Us][ALL_PIECES];
-    Bitboard b1 = pos.pieces(Us) & attackedBy2[Us];
+    Bitboard b1 = pos.pieces(Us) & (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)));
 
     score += Connectivity * (popcount(b) + popcount(b1));
 
