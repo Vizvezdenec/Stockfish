@@ -321,7 +321,8 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        score += Connectivity * popcount(pos.attacks_from<Pt>(s) & pos.pieces(Us));
+        Bitboard b1 = pos.attacks_from<Pt>(s) & pos.pieces(Us);
+        score += Connectivity * (bool (b1) + more_than_one(b1));
   
         if (Pt == BISHOP || Pt == KNIGHT)
         {
