@@ -320,6 +320,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (kingRing[Them] & ~attackedBy[Them][KING] & s)
+            score += make_score(0, 10);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
