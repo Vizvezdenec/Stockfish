@@ -154,7 +154,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
-  constexpr Score Connectivity       = S(  1,  2);
+  constexpr Score Connectivity       = S(  0,  2);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
@@ -603,9 +603,8 @@ namespace {
     }
 
     b = pos.pieces(Us) & attackedBy[Us][ALL_PIECES];
-    Bitboard b1 = pos.pieces(Us) & attackedBy2[Us];
 
-    score += Connectivity * (popcount(b) + popcount(b1));
+    score += Connectivity * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
