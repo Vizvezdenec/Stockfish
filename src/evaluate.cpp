@@ -322,8 +322,6 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            if (kingRing[Them] & ~attackedBy[Them][KING] & s)
-                score += make_score(0, 20);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -602,7 +600,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    b = pos.pieces(Us, KNIGHT, BISHOP) & kingRing[Them] & ~attackedBy[Them][ALL_PIECES];
+        score += make_score(0, 10) * popcount(b);
     if (T)
         Trace::add(THREAT, Us, score);
 
