@@ -154,6 +154,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  8);
   constexpr Score CloseEnemies       = S(  7,  0);
+  constexpr Score Connectivity       = S(  2,  2);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 62, 34);
   constexpr Score KingProtector      = S(  6,  7);
@@ -600,6 +601,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    b = pos.pieces(Us) & attackedBy[Us][ALL_PIECES];
+    score += Connectivity * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
