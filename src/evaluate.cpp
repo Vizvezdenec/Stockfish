@@ -425,14 +425,6 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
-        constexpr Bitboard KingDefenceZone[FILE_NB] = {
-         QueenSide ^ FileDBB, QueenSide ^ FileDBB, QueenSide ^ FileDBB,
-         FileDBB|FileEBB, FileDBB|FileEBB,
-         KingSide ^ FileEBB, KingSide ^ FileEBB, KingSide ^ FileEBB
-         };
-
-        int noDefender = !(KingDefenceZone[file_of(pos.square<KING>(Us))] & attackedBy[Us][KNIGHT]) + 
-                         !(KingDefenceZone[file_of(pos.square<KING>(Us))] & attackedBy[Us][BISHOP]);
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -486,7 +478,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   30 * (noDefender * noDefender - 1)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
