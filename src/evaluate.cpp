@@ -83,11 +83,6 @@ namespace {
     CenterFiles, CenterFiles,
     KingSide, KingSide, KingSide ^ FileEBB
   };
-  constexpr Bitboard KingDefenceZone[FILE_NB] = {
-    QueenSide ^ FileDBB, QueenSide ^ FileDBB, QueenSide ^ FileDBB,
-    FileDBB|FileEBB, FileDBB|FileEBB,
-    KingSide ^ FileEBB, KingSide ^ FileEBB, KingSide ^ FileEBB
-  };
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
@@ -237,7 +232,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int noDefender[COLOR_NB];
   };
 
 
@@ -264,7 +258,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = noDefender[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -328,8 +322,6 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-             if (!(b & KingDefenceZone[file_of(pos.square<KING>(Us))]))
-             noDefender[Us]++;
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -433,6 +425,14 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
+        constexpr Bitboard KingDefenceZone[FILE_NB] = {
+         QueenSide ^ FileDBB, QueenSide ^ FileDBB, QueenSide ^ FileDBB,
+         FileDBB|FileEBB, FileDBB|FileEBB,
+         KingSide ^ FileEBB, KingSide ^ FileEBB, KingSide ^ FileEBB
+         };
+
+        int noDefender = !(KingDefenceZone[file_of(pos.square<KING>(Us))] & attackedBy[Us][KNIGHT]) + 
+                         !(KingDefenceZone[file_of(pos.square<KING>(Us))] & attackedBy[Us][BISHOP]);
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -486,7 +486,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   45 * noDefender[Us]
+                     +   30 * noDefender
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
