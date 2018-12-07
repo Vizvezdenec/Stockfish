@@ -434,7 +434,7 @@ namespace {
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
         Bitboard safePawnpush = weak & shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces();
         if (safePawnpush)
-            kingDanger += 400;
+            kingDanger += 600;
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
