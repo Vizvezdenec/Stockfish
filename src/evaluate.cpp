@@ -215,11 +215,11 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
-    Bitboard immobilePieces[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
+    int badPieces[COLOR_NB];
 
     // kingAttackersWeight[color] is the sum of the "weights" of the pieces of
     // the given color which attack a square in the kingRing of the enemy king.
@@ -259,7 +259,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = immobilePieces[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = badPieces[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -317,12 +317,12 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        if (!(b & mobilityArea[Us] & ~immobilePieces[Us]))
-              immobilePieces[Us] |= s;
+        int mob = popcount(b & mobilityArea[Us]);
 
-        int mob = popcount(b & mobilityArea[Us] & ~immobilePieces[Us]);
+        mobility[Us] += MobilityBonus[Pt - 2][mob]; 
 
-        mobility[Us] += MobilityBonus[Pt - 2][mob];
+        if (mg_value(MobilityBonus[Pt - 2][mob]) <= 0)
+             badPieces[Us]++;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -605,6 +605,10 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    int pieceBadness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
+    if (pieceBadness < 0)
+        score -= make_score(10, 0) * pieceBadness * pieceBadness;
+
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -834,10 +838,10 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
-    score += pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>();
-    score += pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
-    score += pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
-    score += pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
