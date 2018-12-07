@@ -317,7 +317,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        if (!(b & mobilityArea[Us]))
+        if (!(b & mobilityArea[Us] & ~immobilePieces[Us]))
               immobilePieces[Us] |= s;
 
         int mob = popcount(b & mobilityArea[Us] & ~immobilePieces[Us]);
