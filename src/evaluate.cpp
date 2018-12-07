@@ -165,7 +165,7 @@ namespace {
   constexpr Score RookOnPawn         = S( 10, 28);
   constexpr Score SliderOnQueen      = S( 49, 21);
   constexpr Score ThreatByKing       = S( 21, 84);
-  constexpr Score ThreatByPawnPush   = S( 48, 42);
+  constexpr Score ThreatByPawnPush   = S( 40, 35);
   constexpr Score ThreatByRank       = S( 14,  3);
   constexpr Score ThreatBySafePawn   = S(169, 99);
   constexpr Score TrappedRook        = S( 98,  5);
@@ -576,15 +576,16 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
+    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & b;
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
-    score += ThreatByPawnPush * popcount(b);
+    score += ThreatByPawnPush * (popcount(b) + popcount(b1));
+
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & pos.pieces(Us, PAWN) & safe;
-    score += ThreatBySafePawn * (popcount(b) + popcount(b1));
+    score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
