@@ -438,7 +438,7 @@ namespace {
                                 & (shift<UpRight>(ksq) | shift<UpLeft>(ksq))
                                 & (weak | (~attackedBy[Us][PAWN] & attackedBy[Them][PAWN]));
         if (safePawnpush)
-            kingDanger += 600;
+            kingDanger += 200;
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
