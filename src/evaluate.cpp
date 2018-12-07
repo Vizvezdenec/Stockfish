@@ -473,6 +473,17 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+        
+        int mobilityDiff = 0;
+
+        if (mg_value(mobility[Them]) > mg_value(mobility[Us]))
+             {
+             mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
+             int pieceGoodness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
+             mobilityDiff *= (5 - std::min(0, pieceGoodness)) / 5;
+             }
+        else  
+             mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -481,7 +492,7 @@ namespace {
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     +       mg_value(mobility[Them] - mobility[Us])
+                     +       mobilityDiff
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -604,10 +615,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
-    int pieceBadness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
-    if (pieceBadness < 0)
-        score -= make_score(20, 0) * pieceBadness * pieceBadness;
 
     if (T)
         Trace::add(THREAT, Us, score);
