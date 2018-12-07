@@ -219,7 +219,6 @@ namespace {
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
-    int badPieces[COLOR_NB];
 
     // kingAttackersWeight[color] is the sum of the "weights" of the pieces of
     // the given color which attack a square in the kingRing of the enemy king.
@@ -259,7 +258,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = badPieces[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -319,10 +318,7 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt - 2][mob]; 
-
-        if (mg_value(MobilityBonus[Pt - 2][mob]) <= 0)
-             badPieces[Us]++;
+        mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -473,18 +469,6 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-        
-        int mobilityDiff = 0;
-
-        if (mg_value(mobility[Them]) > mg_value(mobility[Us]))
-             {
-             mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
-             int pieceGoodness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
-             mobilityDiff *= (10 - std::min(0, pieceGoodness));
-             mobilityDiff /= 10;
-             }
-        else  
-             mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -493,7 +477,7 @@ namespace {
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
-                     +       mobilityDiff
+                     +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -616,6 +600,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    b = double_pawn_attacks_bb<Them>(pos.pieces(Them) & ~pos.pieces(Them, PAWN)) & shift<Up>(pos.pieces(Us,PAWN));
+    score += make_score(20, 20) * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
