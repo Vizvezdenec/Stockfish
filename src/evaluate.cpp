@@ -275,7 +275,7 @@ namespace {
         int pawnAttacks = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttackersCount[Them] = pawnAttacks;
         kingAttacksCount[Them] = 0;
-        kingAttackersWeight[Them] = 10 * pawnAttacks;
+        kingAttackersWeight[Them] = 3 * pawnAttacks;
     }
   }
 
