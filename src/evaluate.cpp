@@ -601,7 +601,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    b = double_pawn_attacks_bb<Them>(nonPawnEnemies) & shift<Up>(pos.pieces(Us,PAWN)) & ~attackedBy[Them][ALL_PIECES];
+    b = double_pawn_attacks_bb<Them>(nonPawnEnemies) & shift<Up>(pos.pieces(Us,PAWN)) 
+          & (~attackedBy[Them][ALL_PIECES] | (~attackedBy[Them][PAWN] & attackedBy[Us][PAWN]));
     score += make_score(40, 30) * popcount(b);
 
     if (T)
