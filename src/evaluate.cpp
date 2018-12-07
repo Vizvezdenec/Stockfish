@@ -275,6 +275,14 @@ namespace {
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+        
+        int pawnAttacks = 0;
+        if (attackedBy[Them][PAWN] & kingRing[Us])
+        {
+            pawnAttacks = popcount(attackedBy[Them][PAWN] & kingRing[Us]);
+            kingAttackersCount[Them]+= pawnAttacks + popcount(kingRing[Us] & double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)));
+            kingAttacksCount[Them] += pawnAttacks;
+        }
     }
   }
 
@@ -403,9 +411,7 @@ namespace {
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::king() const {
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Direction UpLeft = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
-    constexpr Direction UpRight = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
+
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
@@ -434,11 +440,7 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-        Bitboard safePawnpush = shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces() 
-                                & (shift<UpRight>(ksq) | shift<UpLeft>(ksq))
-                                & (weak | (~attackedBy[Us][PAWN] & attackedBy[Them][PAWN]));
-        if (safePawnpush)
-            kingDanger += 800;
+
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
