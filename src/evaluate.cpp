@@ -572,6 +572,8 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
+    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & b & attackedBy[Us][PAWN];
+    score += make_score(60, 48) * popcount(b1);
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
