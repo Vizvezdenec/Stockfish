@@ -274,8 +274,8 @@ namespace {
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
         int pawnAttacks = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttackersCount[Them] = pawnAttacks;
-        kingAttacksCount[Them] = pawnAttacks;
-        kingAttackersWeight[Them] = 0;
+        kingAttacksCount[Them] = 0;
+        kingAttackersWeight[Them] = pawnAttacks * 50;
     }
   }
 
