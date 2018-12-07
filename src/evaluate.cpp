@@ -583,7 +583,8 @@ namespace {
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
+    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & pos.pieces(Us, PAWN) & safe;
+    score += ThreatBySafePawn * (popcount(b) + popcount(b1));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
