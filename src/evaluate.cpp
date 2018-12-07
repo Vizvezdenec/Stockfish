@@ -403,7 +403,7 @@ namespace {
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::king() const {
-
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
@@ -432,7 +432,9 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-
+        Bitboard safePawnpush = weak & shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces();
+        if (safePawnpush)
+            kingDanger += 200;
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
@@ -572,8 +574,6 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & b & attackedBy[Us][PAWN];
-    score += make_score(120, 96) * popcount(b1);
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
