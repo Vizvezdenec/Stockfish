@@ -361,7 +361,7 @@ namespace {
                 }
                 int realMobility = popcount(bishopArea);
                 if (realMobility < 7)
-                   score -= make_score(20, 20) * (7 - realMobility);
+                   score -= make_score(40, 40) * (7 - realMobility);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
