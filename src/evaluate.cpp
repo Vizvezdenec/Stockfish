@@ -349,6 +349,19 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~attackedBy[Us][PAWN]);
+                blocked |= shift<Down>(blocked) & pos.pieces(Us, PAWN) & ~attackedBy[Them][PAWN];
+                Bitboard bishopArea = 0;
+                bishopArea |= s;
+                for (int i = 1; i < 4; i++)
+                {
+                bishopArea |= (shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
+                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked;
+                }
+                int realMobility = popcount(bishopArea);
+                if (realMobility < 7)
+                   score -= make_score(20, 20) * (7 - realMobility);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -572,13 +585,10 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    Bitboard b1 = double_pawn_attacks_bb<Them>(nonPawnEnemies) & b & attackedBy[Us][PAWN];
-    score += make_score(90, 72) * popcount(b1);
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
-
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
