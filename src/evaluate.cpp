@@ -480,7 +480,8 @@ namespace {
              {
              mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
              int pieceGoodness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
-             mobilityDiff *= (10 - std::min(0, pieceGoodness)) / 10;
+             mobilityDiff *= (5 - std::min(0, pieceGoodness));
+             mobilityDiff /= 5;
              }
         else  
              mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
