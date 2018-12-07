@@ -275,7 +275,7 @@ namespace {
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = 0;
-        kingAttackersWeight[Them] = 20 * popcount(shift<Up>(kingRing[Us]) & pos.pieces(Them,PAWN));
+        kingAttackersWeight[Them] = 15 * popcount(shift<Up>(kingRing[Us]) & pos.pieces(Them,PAWN));
     }
   }
 
