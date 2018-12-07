@@ -607,7 +607,7 @@ namespace {
 
     int pieceBadness = pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1 - badPieces[Us] - badPieces[Us];
     if (pieceBadness < 0)
-        score -= make_score(10, 0) * pieceBadness * pieceBadness;
+        score -= make_score(20, 0) * pieceBadness * pieceBadness;
 
     if (T)
         Trace::add(THREAT, Us, score);
