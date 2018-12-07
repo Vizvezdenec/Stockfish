@@ -404,6 +404,8 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::king() const {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction UpLeft = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    constexpr Direction UpRight = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
@@ -432,8 +434,9 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-        Bitboard safePawnpush = weak & shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces();
-        safePawnpush |= shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces() & ~attackedBy[Us][PAWN] & attackedBy[Them][PAWN];
+        Bitboard safePawnpush = shift<Down>(pos.pieces(Them,PAWN)) & ~pos.pieces() 
+                                & (shift<UpRight>(ksq) | shift<UpLeft>(ksq))
+                                & (weak | (~attackedBy[Us][PAWN] & attackedBy[Them][PAWN]));
         if (safePawnpush)
             kingDanger += 400;
         // Analyse the safe enemy's checks which are possible on next move
