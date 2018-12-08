@@ -315,22 +315,23 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        
-        bb = b & mobilityArea[Us];
 
-        int mob = popcount(bb);
+        int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         
+        bb = pos.attacks_from<Pt>(s) & ~attackedBy[Them][PAWN];
+        if (mob < 3)
+        {
         Bitboard bbb = 0;
         while (bb)
         {
         Square s1 = pop_lsb(&bb);
-        bbb |= pos.attacks_from<Pt>(s1) & mobilityArea[Us];
+        bbb |= pos.attacks_from<Pt>(s1) & ~pos.pieces(Us,PAWN) & ~attackedBy[Them][PAWN];
         }
         if (!(bbb & ~s))
              score -= make_score(50, 50);
-
+        }
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
