@@ -320,14 +320,17 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         
-        bb = pos.attacks_from<Pt>(s) & ~attackedBy[Them][PAWN];
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~attackedBy[Us][PAWN]);
+
+        bb = pos.attacks_from<Pt>(s) & ~attackedBy[Them][PAWN] & ~blocked;
+        
         if (mob < 3)
         {
         Bitboard bbb = 0;
         while (bb)
         {
         Square s1 = pop_lsb(&bb);
-        bbb |= pos.attacks_from<Pt>(s1) & ~pos.pieces(Us,PAWN) & ~attackedBy[Them][PAWN];
+        bbb |= pos.attacks_from<Pt>(s1) & ~blocked & ~attackedBy[Them][PAWN];
         }
         if (!(bbb & ~s))
              score -= make_score(50, 50);
@@ -353,7 +356,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
