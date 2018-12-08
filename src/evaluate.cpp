@@ -413,7 +413,7 @@ namespace {
 
     // King shelter and enemy pawns storm
     kingFlank = KingFlank[file_of(ksq)];
-    Score score = pe->king_safety<Us>(pos) * (1 + !(kingFlank & pos.pieces(Them, KING)));
+    Score score = pe->king_safety<Us>(pos) * (8 + distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))) / 8;
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
