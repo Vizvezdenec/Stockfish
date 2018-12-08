@@ -272,11 +272,8 @@ namespace {
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
-        Bitboard wideKingRing = shift<Up>(kingRing[Us]);
-        wideKingRing|= shift<EAST>(wideKingRing);
-        wideKingRing|= shift<WEST>(wideKingRing);
-        wideKingRing&= ~forward_file_bb(Us, pos.square<KING>(Us)) & forward_ranks_bb(Us, pos.square<KING>(Us));
-        kingAttackersCount[Them] = popcount(wideKingRing & pos.pieces(Them,PAWN));
+
+        kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them) & forward_file_bb(Us,pos.square<KING>(Us)));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
   }
