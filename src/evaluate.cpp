@@ -319,21 +319,7 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        
-        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~attackedBy[Us][PAWN]);
 
-        if (mob < 2)
-        {
-        bb = pos.attacks_from<Pt>(s) & ~attackedBy[Them][PAWN] & ~blocked;
-        Bitboard bbb = 0;
-        while (bb)
-        {
-        Square s1 = pop_lsb(&bb);
-        bbb |= pos.attacks_from<Pt>(s1) & ~blocked & ~attackedBy[Them][PAWN];
-        }
-        if (!(bbb & ~s))
-             score -= make_score(40, 40);
-        }
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -355,7 +341,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -453,30 +439,42 @@ namespace {
 
         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-
+        
+        Bitboard bb = 0;
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-            kingDanger += QueenSafeCheck;
-
+             {
+             kingDanger += QueenSafeCheck;
+             bb |= (b1 | b2) & attackedBy[Them][QUEEN] & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq);
+             }
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
         // Enemy rooks checks
         if (b1 & safe)
+            {
             kingDanger += RookSafeCheck;
+            bb |= b1 & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq);
+            }
         else
             unsafeChecks |= b1;
 
         // Enemy bishops checks
         if (b2 & safe)
+            {
             kingDanger += BishopSafeCheck;
+            bb |= b2 & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq);
+            }
         else
             unsafeChecks |= b2;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
+            {
             kingDanger += KnightSafeCheck;
+            bb |= b & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq);
+            }
         else
             unsafeChecks |= b;
 
@@ -492,6 +490,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  50 * popcount(bb)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
