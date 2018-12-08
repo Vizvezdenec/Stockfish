@@ -422,6 +422,13 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
+    if (pos.count<BISHOP>(Us) == 1)
+         {
+         if (DarkSquares & pos.pieces(Us, BISHOP))
+             tropism += popcount(attackedBy[Them][ALL_PIECES] & kingFlank & Camp & ~DarkSquares);
+         else 
+             tropism += popcount(attackedBy[Them][ALL_PIECES] & kingFlank & Camp & DarkSquares);
+         }
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
@@ -821,7 +828,7 @@ namespace {
 
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
-    if (abs(v) > LazyThreshold &&  pos.captured_piece() )
+    if (abs(v) > LazyThreshold)
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
