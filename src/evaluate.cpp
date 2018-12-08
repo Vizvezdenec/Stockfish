@@ -435,10 +435,10 @@ namespace {
          if (pos.count<BISHOP>(Us) == 1)
          {
          if (DarkSquares & pos.pieces(Us, BISHOP))
-             weak |= attackedBy[Them][ALL_PIECES]
+             weak |= (attackedBy[Them][KNIGHT] | attackedBy[Them][PAWN] | attackedBy[Them][BISHOP])
               & ~attackedBy2[Us] & ~DarkSquares;
          else 
-             weak |= attackedBy[Them][ALL_PIECES]
+             weak |= (attackedBy[Them][KNIGHT] | attackedBy[Them][PAWN] | attackedBy[Them][BISHOP])
               & ~attackedBy2[Us] & DarkSquares;
          }
         // Analyse the safe enemy's checks which are possible on next move
