@@ -275,6 +275,7 @@ namespace {
         Bitboard wideKingRing = shift<Up>(kingRing[Us]);
         wideKingRing|= shift<EAST>(wideKingRing);
         wideKingRing|= shift<WEST>(wideKingRing);
+        wideKingRing&= ~forward_file_bb(Us, pos.square<KING>(Us)) & forward_ranks_bb(Us, pos.square<KING>(Us));
         kingAttackersCount[Them] = popcount(wideKingRing & pos.pieces(Them,PAWN));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
