@@ -470,7 +470,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        bool oppCastling = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK)) > 3;
+        bool oppCastling = !(kingFlank & pos.pieces(Them, KING));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
