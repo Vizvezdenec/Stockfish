@@ -470,6 +470,8 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        bool oppCastling = distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK)) > 3;
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -478,6 +480,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  50 * oppCastling
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -491,13 +494,7 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-    if (pos.count<BISHOP>(Us) == 1)
-    {
-         if (DarkSquares & pos.pieces(Us, BISHOP))
-              score -= make_score(2, 0) * popcount(attackedBy[Them][ALL_PIECES] & ~DarkSquares & kingFlank & Camp);
-         else 
-              score -= make_score(2, 0) * popcount(attackedBy[Them][ALL_PIECES] & DarkSquares & kingFlank & Camp);
-    }
+
     if (T)
         Trace::add(KING, Us, score);
 
