@@ -272,9 +272,6 @@ namespace {
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
-        else if (relative_rank(Us, pos.square<KING>(Us)) != RANK_1)
-            kingRing[Us] |= shift<Up>(shift<Up>(pos.pieces(Us,KING))) | shift<Down>(shift<Down>(pos.pieces(Us,KING))) |
-                            shift<WEST>(shift<WEST>(pos.pieces(Us,KING))) | shift<EAST>(shift<EAST>(pos.pieces(Us,KING)));
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -318,7 +315,13 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-
+        
+        if (kingRing[Them] & s)
+        {
+            kingAttackersCount[Us]++;
+            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            kingAttacksCount[Us] ++;
+        }
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
