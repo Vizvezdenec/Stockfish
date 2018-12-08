@@ -315,10 +315,21 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+        
+        bb = b & mobilityArea[Us];
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = popcount(bb);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        Bitboard bbb = 0;
+        while (bb)
+        {
+        Square s1 = pop_lsb(&bb);
+        bbb |= pos.attacks_from<Pt>(s1) & mobilityArea[Us];
+        }
+        if (!(bbb & ~s))
+             score -= make_score(50, 50);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -412,12 +423,11 @@ namespace {
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
-    kingFlank = KingFlank[file_of(ksq)];
-    Score score = pe->king_safety<Us>(pos) * (8 + distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))) / 8;
+    Score score = pe->king_safety<Us>(pos);
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    
+    kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
