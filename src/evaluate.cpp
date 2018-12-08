@@ -272,8 +272,10 @@ namespace {
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
-
-        kingAttackersCount[Them] = 0;
+        Bitboard wideKingRing = shift<Up>(kingRing[Us]);
+        wideKingRing|= shift<EAST>(wideKingRing);
+        wideKingRing|= shift<WEST>(wideKingRing);
+        kingAttackersCount[Them] = popcount(wideKingRing & pos.pieces(Them,PAWN));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
   }
