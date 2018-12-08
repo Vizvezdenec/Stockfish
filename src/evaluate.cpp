@@ -443,7 +443,8 @@ namespace {
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
-
+        if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
+        kingDanger += 100;
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
@@ -453,13 +454,15 @@ namespace {
         else
             unsafeChecks |= b1;
         if (b1 & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
-            kingDanger += RookSafeCheck;
+            kingDanger += 100;
 
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
         else
             unsafeChecks |= b2;
+        if (b2 & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
+           kingDanger += 100;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
@@ -467,6 +470,8 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
+        if (b & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
+           kingDanger += 100;
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
