@@ -422,13 +422,6 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
-    if (pos.count<BISHOP>(Us) == 1)
-         {
-         if (DarkSquares & pos.pieces(Us, BISHOP))
-             tropism += popcount(attackedBy[Them][ALL_PIECES] & kingFlank & Camp & ~DarkSquares);
-         else 
-             tropism += popcount(attackedBy[Them][ALL_PIECES] & kingFlank & Camp & DarkSquares);
-         }
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
@@ -439,7 +432,15 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-
+         if (pos.count<BISHOP>(Us) == 1)
+         {
+         if (DarkSquares & pos.pieces(Us, BISHOP))
+             weak |= attackedBy[Them][ALL_PIECES]
+              & ~attackedBy2[Us] & ~DarkSquares;
+         else 
+             weak |= attackedBy[Them][ALL_PIECES]
+              & ~attackedBy2[Us] & DarkSquares;
+         }
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
