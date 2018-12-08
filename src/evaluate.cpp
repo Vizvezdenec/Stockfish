@@ -272,10 +272,9 @@ namespace {
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
-        int pawnAttacks = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-        kingAttackersCount[Them] = pawnAttacks;
-        kingAttacksCount[Them] = 0;
-        kingAttackersWeight[Them] = 3 * pawnAttacks;
+
+        kingAttackersCount[Them] = 0;
+        kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
   }
 
