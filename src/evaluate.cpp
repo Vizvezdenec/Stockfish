@@ -432,15 +432,7 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-         if (pos.count<BISHOP>(Us) == 1)
-         {
-         if (DarkSquares & pos.pieces(Us, BISHOP))
-             weak |= (attackedBy[Them][KNIGHT] | attackedBy[Them][PAWN] | attackedBy[Them][BISHOP])
-              & ~attackedBy2[Us] & ~DarkSquares;
-         else 
-             weak |= (attackedBy[Them][KNIGHT] | attackedBy[Them][PAWN] | attackedBy[Them][BISHOP])
-              & ~attackedBy2[Us] & DarkSquares;
-         }
+
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
@@ -499,7 +491,13 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-
+    if (pos.count<BISHOP>(Us) == 1)
+    {
+         if (DarkSquares & pos.pieces(Us, BISHOP))
+              score -= make_score(2, 0) * popcount(attackedBy[Them][ALL_PIECES] & ~DarkSquares & kingFlank & Camp);
+         else 
+              score -= make_score(2, 0) * popcount(attackedBy[Them][ALL_PIECES] & DarkSquares & kingFlank & Camp);
+    }
     if (T)
         Trace::add(KING, Us, score);
 
