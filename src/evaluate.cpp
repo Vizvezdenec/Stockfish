@@ -443,8 +443,7 @@ namespace {
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
-        if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN] & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
-            kingDanger += QueenSafeCheck;
+
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
 
@@ -453,6 +452,8 @@ namespace {
             kingDanger += RookSafeCheck;
         else
             unsafeChecks |= b1;
+        if (b1 & safe & ~forward_ranks_bb(Us, ksq) & ~rank_bb(ksq))
+            kingDanger += RookSafeCheck;
 
         // Enemy bishops checks
         if (b2 & safe)
