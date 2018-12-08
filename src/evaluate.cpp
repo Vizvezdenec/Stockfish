@@ -332,7 +332,7 @@ namespace {
         bbb |= pos.attacks_from<Pt>(s1) & ~blocked & ~attackedBy[Them][PAWN];
         }
         if (!(bbb & ~s))
-             score -= make_score(20, 20) * Pt;
+             score -= make_score(40, 40);
         }
         if (Pt == BISHOP || Pt == KNIGHT)
         {
