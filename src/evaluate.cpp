@@ -472,7 +472,7 @@ namespace {
 
         weak |= attackedBy2[Them] & 
                 ((attackedBy[Us][ALL_PIECES] & ~attackedBy2[Us]) 
-                 | (attackedBy2[Us] & (attackedBy[Us][KING] | attackedBy[Us][QUEEN])));
+                 | (attackedBy2[Us] & attackedBy[Us][KING]));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
