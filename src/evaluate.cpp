@@ -452,7 +452,8 @@ namespace {
             kingDanger += RookSafeCheck;
         else
             unsafeChecks |= b1;
-
+        
+        safe |= attackedBy2[Them] & attackedBy[Us][ROOK] & ~attackedBy2[Us];
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
@@ -469,10 +470,6 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-
-        weak |= attackedBy2[Them] & 
-                ((attackedBy[Us][ALL_PIECES] & ~attackedBy2[Us]) 
-                 | (attackedBy2[Us] & attackedBy[Us][KING]));
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
