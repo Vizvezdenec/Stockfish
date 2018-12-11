@@ -626,8 +626,8 @@ namespace {
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
     (ss+2)->statScore = 0;
-    if (rootNode)
-         (ss+1)->statScore = 0;
+    if (!rootNode)
+         ss->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
