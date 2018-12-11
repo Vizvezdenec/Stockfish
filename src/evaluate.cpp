@@ -450,9 +450,9 @@ namespace {
         // Enemy rooks checks
         if (b1 & safe)
             kingDanger += RookSafeCheck;
-        else
-            unsafeChecks |= b1;
-        safe |= attackedBy2[Them] & attackedBy[Us][ROOK] & ~attackedBy2[Us];
+
+        unsafeChecks |= b1 & ~safe;
+
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
