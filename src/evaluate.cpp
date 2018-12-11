@@ -457,20 +457,19 @@ namespace {
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
-        else
-            {
+        else if (b2 & safe1)
             kingDanger += bool(b2 & safe1) * BishopSafeCheck / 2;
+        else
             unsafeChecks |= b2;
-            }
+
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
             kingDanger += KnightSafeCheck;
-        else
-            {
+        else if (b & safe1)
             kingDanger += bool(b & safe1) * KnightSafeCheck / 2;
+        else
             unsafeChecks |= b;
-            }
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
