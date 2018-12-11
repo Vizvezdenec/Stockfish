@@ -778,6 +778,7 @@ namespace {
         &&  pureStaticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
         &&  pos.non_pawn_material(us)
+        && (improving || pos.rule50_count() < 25)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
