@@ -452,24 +452,19 @@ namespace {
             kingDanger += RookSafeCheck;
         else
             unsafeChecks |= b1;
-
-        Bitboard safe1 = safe | (attackedBy2[Them] & attackedBy[Us][ROOK] & ~attackedBy2[Us]);
+        safe |= attackedBy2[Them] & attackedBy[Us][ROOK] & ~attackedBy2[Us];
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
-        else if (b2 & safe1)
-            kingDanger += bool(b2 & safe1) * BishopSafeCheck / 2;
-        else
-            unsafeChecks |= b2;
+
+        unsafeChecks |= b2 & ~safe;
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
             kingDanger += KnightSafeCheck;
-        else if (b & safe1)
-            kingDanger += bool(b & safe1) * KnightSafeCheck / 2;
-        else
-            unsafeChecks |= b;
+
+        unsafeChecks |= b & ~safe;
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
