@@ -450,21 +450,24 @@ namespace {
         // Enemy rooks checks
         if (b1 & safe)
             kingDanger += RookSafeCheck;
-        else
-            unsafeChecks |= b1;
+
+        unsafeChecks |= b1 & ~safe;
+
 
         // Enemy bishops checks
         if (b2 & safe)
             kingDanger += BishopSafeCheck;
-        else
-            unsafeChecks |= b2;
+
+        unsafeChecks |= b2 & ~safe;
+
 
         // Enemy knights checks
         b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
         if (b & safe)
             kingDanger += KnightSafeCheck;
-        else
-            unsafeChecks |= b;
+
+        unsafeChecks |= b & ~safe;
+
 
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
@@ -473,7 +476,7 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
-                     + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                     + 130 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
