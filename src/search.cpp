@@ -626,8 +626,6 @@ namespace {
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
     (ss+2)->statScore = 0;
-    if (!PvNode)
-         ss->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -775,7 +773,7 @@ namespace {
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 23200
+        && ((ss-1)->statScore < 23200 - 30000 * ((pos.rule50_count() > 10) && !improving))
         &&  eval >= beta
         &&  pureStaticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
