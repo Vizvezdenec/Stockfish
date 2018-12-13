@@ -603,7 +603,7 @@ namespace {
         if (pos.count<QUEEN>(Us) == 0)
             {
             b = attackedBy[Us][ALL_PIECES] & attackedBy[Them][QUEEN] & ~attackedBy2[Them];
-            score += make_score(10, 20) * popcount(b);
+            score += make_score(20, 40) * popcount(b);
             }
     }
 
