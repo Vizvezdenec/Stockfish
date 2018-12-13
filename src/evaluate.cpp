@@ -602,7 +602,7 @@ namespace {
         if (pos.count<QUEEN>(Us) == 0)
             {
             b = attackedBy[Us][ALL_PIECES] & attackedBy[Them][QUEEN] & ~attackedBy2[Them] & pos.pieces(Them);
-            score += make_score(20, 60) * more_than_one(b);
+            score += make_score(20, 20) * more_than_one(b);
             }
     }
 
