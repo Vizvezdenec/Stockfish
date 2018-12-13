@@ -602,8 +602,8 @@ namespace {
         
         if (pos.count<QUEEN>(Us) == 0)
             {
-            b = attackedBy[Us][ALL_PIECES] & attackedBy[Them][QUEEN] & ~attackedBy2[Them];
-            score += make_score(3, 2) * popcount(b);
+            b = attackedBy[Us][ALL_PIECES] & attackedBy[Them][QUEEN] & ~attackedBy2[Them] & pos.pieces(Them);
+            score += make_score(10, 20) * popcount(b);
             }
     }
 
