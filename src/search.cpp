@@ -72,7 +72,7 @@ namespace {
   }
 
   // Futility and reductions lookup tables, initialized at startup
-  int FutilityMoveCounts[2][16]; // [improving][depth]
+  int FutilityMoveCounts[2][20]; // [improving][depth]
   int Reductions[2][2][64][64];  // [pv][improving][depth][moveNumber]
 
   template <bool PvNode> Depth reduction(bool i, Depth d, int mn) {
@@ -170,7 +170,7 @@ void Search::init() {
                 Reductions[NonPV][imp][d][mc]++;
           }
 
-  for (int d = 0; d < 16; ++d)
+  for (int d = 0; d < 20; ++d)
   {
       FutilityMoveCounts[0][d] = int(2.4 + 0.74 * pow(d, 1.78));
       FutilityMoveCounts[1][d] = int(5.0 + 1.00 * pow(d, 2.00));
@@ -915,7 +915,7 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = gives_check(pos, move);
 
-      moveCountPruning =   depth < 16 * ONE_PLY
+      moveCountPruning =   depth < 20 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
 
       // Step 13. Extensions (~70 Elo)
@@ -963,7 +963,7 @@ moves_loop: // When in check, search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() >= Value(5000)))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCountPruning || ((ss-2)->statScore > 30000))
+              if (moveCountPruning)
               {
                   skipQuiets = true;
                   continue;
