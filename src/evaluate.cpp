@@ -90,6 +90,7 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int TropismDefWeights[PIECE_TYPE_NB] = { 0, 0, 3, 3, 5, 10 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -324,7 +325,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (!(b & mobilityArea[Us] & ~pos.pieces(Us) & KingFlank[file_of(pos.square<KING>(Us))] & Camp))
-            notTropismDefenders[Us]++;
+            notTropismDefenders[Us]+= TropismDefWeights[Pt];
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
