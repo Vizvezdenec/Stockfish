@@ -476,17 +476,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int tropismAttackers = popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & ~pos.pieces(Them, KING) & kingFlank);
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +       tropism * tropism / 4
+                     +       (tropism + 2 * notTropismDefenders[Us]) * (tropism + 2 * notTropismDefenders[Us]) / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  10 * notTropismDefenders[Us] * tropismAttackers
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
