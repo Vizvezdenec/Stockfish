@@ -470,9 +470,12 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        safe = (attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) & ~attackedBy[Them][ALL_PIECES];
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
+                     -  10 * popcount(kingRing[Us] & safe)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
