@@ -425,7 +425,7 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
-        constexpr int fileDanger[FILE_NB] = {0, 0, 60, 80, 80, 150, 0, 0};
+        constexpr int fileDanger[FILE_NB] = {0, 0, 0, 40, 40, 80, 0, 0};
         int kingDanger = 0;
         unsafeChecks = 0;
 
