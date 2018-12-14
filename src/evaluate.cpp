@@ -425,6 +425,7 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
+        constexpr int fileDanger[FILE_NB] = {0, 0, 50, 80, 80, 100, 0, 0};
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -478,6 +479,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +       fileDanger[file_of(ksq)]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
