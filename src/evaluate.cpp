@@ -216,6 +216,7 @@ namespace {
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
 
+
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
@@ -506,7 +507,6 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
-    constexpr Direction Down     = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -591,7 +591,7 @@ namespace {
     {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected 
-                & ~(pos.pieces(Us, PAWN) & shift<Down>(double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))));
+                & ~pos.pieces(Us);
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
