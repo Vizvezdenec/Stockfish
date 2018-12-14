@@ -215,7 +215,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
-    Bitboard kingAttackZone[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -233,6 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int notTropismDefenders[COLOR_NB];
   };
 
 
@@ -259,30 +259,20 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = notTropismDefenders[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         kingRing[Us] = attackedBy[Us][KING];
-        kingAttackZone[Us] = kingRing[Us];
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
-            {
             kingRing[Us] |= shift<Up>(kingRing[Us]);
-            kingAttackZone[Us] |= shift<Up>(shift<Up>(pos.pieces(Us, KING)));
-            }
 
         if (file_of(pos.square<KING>(Us)) == FILE_H)
-            {
             kingRing[Us] |= shift<WEST>(kingRing[Us]);
-            kingAttackZone[Us] |= shift<WEST>(shift<WEST>(pos.pieces(Us, KING)));
-            }
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
-            {
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
-            kingAttackZone[Us] |= shift<EAST>(shift<EAST>(pos.pieces(Us, KING)));
-            }
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -298,6 +288,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -324,12 +316,15 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & kingAttackZone[Them]);
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (!(b & mobilityArea[Us] & ~pos.pieces(Us) & KingFlank[file_of(pos.square<KING>(Us))] & Camp))
+            notTropismDefenders[Us]++;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -485,7 +480,7 @@ namespace {
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +       tropism * tropism / 4
+                     +       (tropism + notTropismDefenders[Us]) * (tropism + notTropismDefenders[Us]) / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
