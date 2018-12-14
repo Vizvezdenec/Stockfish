@@ -425,7 +425,7 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
-        constexpr int fileDanger[FILE_NB] = {0, 0, 0, 40, 40, 80, 0, 0};
+        constexpr int fileDanger[FILE_NB] = {0, 0, 0, 120, 40, 80, 0, 0};
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -470,6 +470,8 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
+        if (relative_rank(Us,ksq) < RANK_3)
+            kingDanger += fileDanger[file_of(ksq)];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
@@ -479,7 +481,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +       fileDanger[file_of(ksq)]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
