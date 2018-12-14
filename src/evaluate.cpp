@@ -215,6 +215,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
+    Bitboard kingAttackZone[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -264,14 +265,24 @@ namespace {
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
         kingRing[Us] = attackedBy[Us][KING];
+        kingAttackZone[Us] = kingRing[Us];
         if (relative_rank(Us, pos.square<KING>(Us)) == RANK_1)
+            {
             kingRing[Us] |= shift<Up>(kingRing[Us]);
+            kingAttackZone[Us] |= shift<Up>(shift<Up>(pos.pieces(Us, KING)));
+            }
 
         if (file_of(pos.square<KING>(Us)) == FILE_H)
+            {
             kingRing[Us] |= shift<WEST>(kingRing[Us]);
+            kingAttackZone[Us] |= shift<WEST>(shift<WEST>(pos.pieces(Us, KING)));
+            }
 
         else if (file_of(pos.square<KING>(Us)) == FILE_A)
+            {
             kingRing[Us] |= shift<EAST>(kingRing[Us]);
+            kingAttackZone[Us] |= shift<EAST>(shift<EAST>(pos.pieces(Us, KING)));
+            }
 
         kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -313,7 +324,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            kingAttacksCount[Us] += popcount(b & kingAttackZone[Them]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -425,7 +436,6 @@ namespace {
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
     {
-        constexpr int fileDanger[FILE_NB] = {0, 0, 0, 100, 100, 100, 0, 0};
         int kingDanger = 0;
         unsafeChecks = 0;
 
@@ -470,8 +480,6 @@ namespace {
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
-        if (relative_rank(Us,ksq) < RANK_3 && !pos.castling_rights(Us))
-            kingDanger += fileDanger[file_of(ksq)];
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
