@@ -421,7 +421,7 @@ namespace {
     b2 = b1 & attackedBy2[Them];
     Bitboard b3 = pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp;
 
-    int tropism = popcount(b1) + popcount(b2) + popcount(b3);
+    int tropism = popcount(b1) + popcount(b2) + 2 * popcount(b3);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
