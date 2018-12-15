@@ -419,8 +419,9 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
+    Bitboard b3 = pos.pieces(Them) & kingFlank & Camp;
 
-    int tropism = popcount(b1) + popcount(b2);
+    int tropism = popcount(b1) + popcount(b2) + popcount(b3);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
