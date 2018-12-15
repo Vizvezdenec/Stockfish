@@ -470,7 +470,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int pieceTropism = popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp);
+        int pieceTropism = 2 * popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
