@@ -419,9 +419,8 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-    Bitboard b3 = pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp;
 
-    int tropism = popcount(b1) + popcount(b2) + 2 * popcount(b3);
+    int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
     if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
@@ -471,11 +470,13 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        Bitboard b3 = pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp;
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +       tropism * tropism / 4
+                     +       (tropism  + popcount(b3)) * (tropism  + popcount(b3)) / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
