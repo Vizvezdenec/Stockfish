@@ -592,13 +592,17 @@ namespace {
         safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        
+        Bitboard b1 = b;
 
         score += KnightOnQueen * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
+        b1|= b;
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += make_score(5, 2) * popcount(b1 & ~safe);
     }
 
     if (T)
