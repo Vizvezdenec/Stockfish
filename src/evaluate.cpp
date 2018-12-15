@@ -589,16 +589,20 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected & ~pos.pieces(Us, PAWN);
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        safe &= ~pos.pieces(Us, KNIGHT);
+
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+
+        score += KnightOnQueen * popcount(b & safe);
+
     }
 
     if (T)
