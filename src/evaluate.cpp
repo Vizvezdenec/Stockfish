@@ -597,7 +597,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        safe &= ~pos.pieces(Us, KNIGHT);
+        safe |= pos.pieces(Us, QUEEN) & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
