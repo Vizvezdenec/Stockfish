@@ -209,6 +209,7 @@ namespace {
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
+    Bitboard attackedBy3[COLOR_NB];
 
     // kingRing[color] are the squares adjacent to the king, plus (only for a
     // king on its first rank) the squares two ranks in front. For instance,
@@ -257,6 +258,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    attackedBy3[Us]            = attackedBy[Us][KING] & double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
 
@@ -306,6 +308,7 @@ namespace {
             b &= LineBB[pos.square<KING>(Us)][s];
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
+        attackedBy3[Us] |= attackedBy2[Us] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
@@ -517,7 +520,8 @@ namespace {
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
-                       | (attackedBy2[Them] & ~attackedBy2[Us]);
+                       | (attackedBy2[Them] & ~attackedBy2[Us])
+                       | (attackedBy3[Them] & ~attackedBy3[Us]);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
@@ -589,7 +593,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = (mobilityArea[Us] | pos.pieces(Us, QUEEN)) & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
