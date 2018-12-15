@@ -97,7 +97,7 @@ namespace {
 	{
 	        int summ_pawns = 0;
 		summ_pawns = (pieceCount[Us][PAWN] - pieceCount[Them][PAWN])*(PawnValueEg + PawnValueMg) / 2;
-		bonus = -200 + summ_pawns / 3;
+		bonus = -550 + summ_pawns / 3;
 	}
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
