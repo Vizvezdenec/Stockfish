@@ -594,7 +594,9 @@ namespace {
         safe = mobilityArea[Us] & ~stronglyProtected;
         safe |= pos.pieces(Us, PAWN) 
                 & ((shift<DownLeft>(pos.pieces(Them) & ~attackedBy[Them][PAWN]))
-                | (shift<DownRight>(pos.pieces(Them) & ~attackedBy[Them][PAWN]))) & ~attackedBy2[Them];
+                | (shift<DownRight>(pos.pieces(Them) & ~attackedBy[Them][PAWN]))) 
+                & ((attackedBy[Them][PAWN] & ~attackedBy2[Them] & ~double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))
+                | ~attackedBy[Them][ALL_PIECES]);
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
