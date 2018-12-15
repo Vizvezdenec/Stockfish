@@ -600,7 +600,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        score += make_score(5, 2) * popcount(b & (~safe | ~attackedBy2[Us]));
+        score += make_score(5, 2) * popcount(b & safe & ~attackedBy2[Us]);
     }
 
     if (T)
