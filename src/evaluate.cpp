@@ -417,6 +417,14 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
+
+    // Penalty when our king is on a pawnless flank
+    if (!(pos.pieces(PAWN) & kingFlank))
+        score -= PawnlessFlank;
+
+    if (file_of(ksq) == FILE_F)
+        kingFlank |= FileCBB;
+
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
@@ -470,13 +478,11 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int pieceTropism = 2 * popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & kingFlank & Camp);
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +       (tropism  + pieceTropism) * (tropism  + pieceTropism) / 4
+                     +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -486,10 +492,6 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
-
-    // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & kingFlank))
-        score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
