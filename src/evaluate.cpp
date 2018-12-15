@@ -506,6 +506,8 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction DownLeft = (Us == BLACK ? NORTH_EAST   : SOUTH_WEST);
+    constexpr Direction DownRight = (Us == BLACK ? NORTH_WEST   : SOUTH_EAST);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -589,7 +591,10 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = (mobilityArea[Us] | pos.pieces(Us, PAWN)) & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe |= pos.pieces(Us, PAWN) 
+                & ((shift<DownLeft>(pos.pieces(Them) & ~attackedBy[Them][PAWN]))
+                | (shift<DownRight>(pos.pieces(Them) & ~attackedBy[Them][PAWN])));
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
