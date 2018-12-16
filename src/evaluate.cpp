@@ -486,7 +486,11 @@ namespace {
     }
 
     // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & kingFlank))
+
+    Bitboard kingFlank1 = file_bb(ksq);
+    kingFlank1 |= shift<WEST>(kingFlank1) | shift<EAST>(kingFlank1);
+
+    if (!(pos.pieces(PAWN) & kingFlank1))
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
@@ -649,7 +653,7 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq) || (pos.pieces(Them, QUEEN) & blockSq & ~attackedBy[Them][ALL_PIECES]))
+            if (pos.empty(blockSq))
             {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
