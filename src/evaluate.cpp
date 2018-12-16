@@ -321,7 +321,7 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        
+
         absoluteMobility[Us] += mob;
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -482,7 +482,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +   5 * (absoluteMobility[Them] - absoluteMobility[Us])
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -759,6 +758,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
+                    +  4 * abs(absoluteMobility[WHITE] - absoluteMobility[BLACK])
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
