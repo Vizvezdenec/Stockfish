@@ -471,7 +471,8 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
         
-        int pawnAttackers = popcount(pawn_attacks_bb<Us>(kingRing[Us]) & pos.pieces(Them));
+        safe = ~attackedBy[Us][ALL_PIECES] | attackedBy2[Them] | attackedBy[Them][PAWN];
+        int pawnAttackers = popcount(pawn_attacks_bb<Us>(kingRing[Us]) & pos.pieces(Them) & safe);
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
