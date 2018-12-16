@@ -318,7 +318,7 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (attacks_bb<Pt>(s, blocked | (pos.pieces(Them) & attackedBy[Them][PAWN])) & kingRing[Them])
+        else if (attacks_bb<Pt>(s, blocked | pos.pieces(Them)) & kingRing[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
