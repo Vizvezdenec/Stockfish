@@ -301,6 +301,7 @@ namespace {
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
+          : Pt == QUEEN ? attacks_bb<QUEEN>(s, pos.pieces() ^ (pos.pieces(Us, BISHOP) & ~file_bb(s) & ~rank_bb(s)))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
@@ -310,18 +311,13 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-                else if (attacks_bb<Pt>(s, blocked | pos.pieces(Them)) & attackedBy[Them][KING])
-        {
-            kingAttackersCount[Us]++;
-        }
+
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
@@ -347,6 +343,8 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
