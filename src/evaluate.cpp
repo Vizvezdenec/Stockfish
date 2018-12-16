@@ -232,6 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int absoluteMobility[COLOR_NB];
   };
 
 
@@ -258,7 +259,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = absoluteMobility[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -320,6 +321,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        absoluteMobility[Us] += mob;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -836,6 +839,8 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
+    
+    score += make_score(2, 2) * (absoluteMobility[WHITE] - absoluteMobility[BLACK]);
 
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
