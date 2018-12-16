@@ -81,7 +81,7 @@ namespace {
   constexpr Bitboard KingFlank[FILE_NB] = {
     QueenSide ^ FileDBB, QueenSide, QueenSide,
     CenterFiles, CenterFiles,
-    KingSide, KingSide, KingSide ^ FileEBB
+    KingSide | FileCBB , KingSide, KingSide ^ FileEBB
   };
 
   // Threshold for lazy and space evaluation
@@ -470,13 +470,11 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int pieceTropism = popcount(pos.pieces(Them) & kingFlank & Camp);
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                     +       (tropism  + pieceTropism) * (tropism  + pieceTropism) / 4
+                     +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
