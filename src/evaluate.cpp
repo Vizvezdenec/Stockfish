@@ -472,7 +472,7 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
         
         safe = ~attackedBy[Us][ALL_PIECES] | attackedBy2[Them] | attackedBy[Them][PAWN];
-        int pawnAttackers = popcount(pawn_attacks_bb<Us>(kingRing[Us]) & pos.pieces(Them) & safe);
+        int pawnAttackers = popcount(pawn_attacks_bb<Us>(kingRing[Us]) & pos.pieces(Them, PAWN) & safe);
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
