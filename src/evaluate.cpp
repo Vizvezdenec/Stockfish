@@ -615,6 +615,8 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction UpRight   = (Us == WHITE ? NORTH_WEST : SOUTH_EAST);
+    constexpr Direction UpLeft   = (Us == WHITE ? NORTH_EAST : SOUTH_WEST);
 
     auto king_proximity = [&](Color c, Square s) {
       return std::min(distance(pos.square<KING>(c), s), 5);
@@ -649,8 +651,9 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq) ||
-                (pos.pieces(Them, ROOK, QUEEN) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]) & blockSq))
+            if (pos.empty(blockSq) 
+                || (pos.pieces(Them) & (shift<UpLeft>(pos.pieces(Us,PAWN) & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][PAWN]))
+                 | shift<UpRight>(pos.pieces(Us,PAWN) & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][PAWN]))) & blockSq))
             {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
