@@ -321,6 +321,7 @@ namespace {
         else if (attacks_bb<Pt>(s, blocked | (pos.pieces(Them) & attackedBy[Them][PAWN])) & kingRing[Them])
         {
             kingAttackersCount[Us]++;
+            kingAttackersWeight[Us] += KingAttackWeights[Pt];
         }
 
         int mob = popcount(b & mobilityArea[Us]);
