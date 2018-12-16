@@ -489,6 +489,8 @@ namespace {
 
     Bitboard kingFlank1 = file_bb(ksq);
     kingFlank1 |= shift<WEST>(kingFlank1) | shift<EAST>(kingFlank1);
+    if (file_of(ksq) == FILE_A || file_of(ksq) == FILE_H)
+        kingFlank1 |= shift<WEST>(kingFlank1) | shift<EAST>(kingFlank1);         
 
     if (!(pos.pieces(PAWN) & kingFlank1))
         score -= PawnlessFlank;
