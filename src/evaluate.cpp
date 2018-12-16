@@ -599,6 +599,9 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += make_score(5,5) * popcount(attackedBy[Them][QUEEN]
+                & ~attackedBy2[Them]
+                &  (attackedBy2[Us] | attackedBy[Us][PAWN]));
     }
 
     if (T)
@@ -677,14 +680,6 @@ namespace {
                     k += 4;
 
                 bonus += make_score(k * w, k * w);
-            }
-            else 
-            {
-            int k = popcount((attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(blockSq))
-                             | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(blockSq))
-                             | (attackedBy[Us][ROOK] & pos.attacks_from<ROOK>(blockSq))
-                             | (attackedBy[Us][QUEEN] & pos.attacks_from<QUEEN>(blockSq)));
-            bonus += make_score(k * w, k * w);
             }
         } // rank > RANK_3
 
