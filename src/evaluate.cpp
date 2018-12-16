@@ -232,7 +232,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int absoluteMobility[COLOR_NB];
+    int attackingMobility[COLOR_NB];
+    int defendingMobility[COLOR_NB];
   };
 
 
@@ -259,7 +260,8 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = absoluteMobility[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = 0;
+    attackingMobility[Us] = defendingMobility[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -322,7 +324,10 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        absoluteMobility[Us] += mob;
+        if (b & KingFlank[file_of(pos.square<KING>(Us))])
+              defendingMobility[Us] += mob;
+        if (b & KingFlank[file_of(pos.square<KING>(Them))])
+              attackingMobility[Us] += mob;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -482,6 +487,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  10 * (attackingMobility[Them] - defendingMobility[Us])
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -758,7 +764,6 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +      abs(absoluteMobility[WHITE] - absoluteMobility[BLACK])
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
