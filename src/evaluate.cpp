@@ -599,7 +599,7 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-        score += make_score(5,5) * popcount(attackedBy[Them][QUEEN]
+        score += make_score(2,2) * popcount(attackedBy[Them][QUEEN]
                 & ~attackedBy2[Them]
                 &  (attackedBy2[Us] | attackedBy[Us][PAWN]));
     }
