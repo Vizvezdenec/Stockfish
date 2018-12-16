@@ -81,7 +81,7 @@ namespace {
   constexpr Bitboard KingFlank[FILE_NB] = {
     QueenSide ^ FileDBB, QueenSide, QueenSide,
     CenterFiles, CenterFiles,
-    KingSide| FileDBB, KingSide, KingSide ^ FileEBB
+    KingSide, KingSide, KingSide ^ FileEBB
   };
 
   // Threshold for lazy and space evaluation
@@ -417,6 +417,13 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
+
+    // Penalty when our king is on a pawnless flank
+    if (!(pos.pieces(PAWN) & kingFlank))
+        score -= PawnlessFlank;
+    
+    if (file_of(ksq) == FILE_F)
+         kingFlank|= FileDBB;
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
@@ -484,10 +491,6 @@ namespace {
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     }
-
-    // Penalty when our king is on a pawnless flank
-    if (!(pos.pieces(PAWN) & kingFlank))
-        score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
