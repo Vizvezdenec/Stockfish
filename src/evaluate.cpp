@@ -678,6 +678,14 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
+            else 
+            {
+            int k = popcount((attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(blockSq))
+                             | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(blockSq))
+                             | (attackedBy[Us][ROOK] & pos.attacks_from<ROOK>(blockSq))
+                             | (attackedBy[Us][QUEEN] & pos.attacks_from<QUEEN>(blockSq)));
+            bonus += make_score(k * w, k * w);
+            }
         } // rank > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
