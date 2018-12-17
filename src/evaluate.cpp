@@ -601,6 +601,9 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    int weakpieces = popcount(weak);
+    score += make_score(1, 1) * weakpieces * weakpieces;
+
     if (T)
         Trace::add(THREAT, Us, score);
 
