@@ -319,7 +319,7 @@ namespace {
         }
         
         if (Pt==ROOK)
-            b &= ~(LowRanks & shift<Down>(pos.pieces(Us, PAWN)) & (FileABB | FileHBB));
+            b &= ~(LowRanks & shift<Down>(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())) & (FileABB | FileHBB));
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
