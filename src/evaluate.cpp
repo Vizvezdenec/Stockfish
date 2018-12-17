@@ -604,8 +604,7 @@ namespace {
 
     b = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)));
 
-    if (pos.count<QUEEN>(Us) > pos.count<QUEEN>(Them))
-        score -= make_score(5, 2) * popcount(b);
+    score -= make_score(5, 2) * popcount(b) * pos.count<QUEEN>(Us);
 
     if (T)
         Trace::add(THREAT, Us, score);
