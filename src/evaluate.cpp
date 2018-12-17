@@ -572,9 +572,9 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    if (!(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]) & ~(attackedBy[Them][PAWN] & ~b)
+    if (!(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]) & ~(attackedBy[Them][PAWN] & ~pos.pieces(Us,PAWN) & ~b)
           & ~(pos.pieces(Us,PAWN) & shift<Down>(pos.pieces(Them)))))
-         score -= make_score(0, 50);
+         score -= make_score(0, 25);
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
