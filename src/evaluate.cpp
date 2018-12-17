@@ -507,6 +507,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -600,6 +601,11 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    b = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)));
+
+    if (pos.count<QUEEN>(Us) > pos.count<QUEEN>(Them))
+        score -= make_score(3, 3) * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
@@ -749,16 +755,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int minorImbalance = abs(pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) + 
-                         abs(pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    +  3 * minorImbalance
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
