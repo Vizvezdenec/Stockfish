@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
         if (   (ss-1)->moveCount == 1
             || ((ss-1)->currentMove == (ss-1)->killers[0] && (ss-1)->killers[0]))
             if (!pos.captured_piece())
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
 
     }
     // Bonus for prior countermove that caused the fail low
