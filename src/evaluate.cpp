@@ -601,7 +601,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    int weakpieces = popcount(weak);
+    int weakpieces = popcount(weak & pos.pieces(Them, PAWN));
     score += make_score(3, 3) * weakpieces * weakpieces;
 
     if (T)
