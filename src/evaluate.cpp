@@ -602,7 +602,7 @@ namespace {
     }
 
     int weakpieces = popcount(weak);
-    score += make_score(2, 0) * weakpieces * weakpieces;
+    score += make_score(0, 2) * weakpieces * weakpieces;
 
     if (T)
         Trace::add(THREAT, Us, score);
