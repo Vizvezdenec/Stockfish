@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts from here
 
     }
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 * ONE_PLY || PvNode || (ss->moveCount == 1))
+    else if (   (depth >= 3 * ONE_PLY || PvNode || ((ss-1)->moveCount == 1))
              && !pos.captured_piece()
              && is_ok((ss-1)->currentMove))
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
