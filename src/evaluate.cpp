@@ -494,7 +494,7 @@ namespace {
     score -= CloseEnemies * tropism;
 
     if ((pos.count<QUEEN>(Us) > 0) && !(attackedBy[Us][QUEEN] & (kingFlank | KingFlank[pos.square<KING>(Them)] | ~Camp)))
-         score -= make_score(20,20);
+         score -= make_score(10,30);
     if (T)
         Trace::add(KING, Us, score);
 
