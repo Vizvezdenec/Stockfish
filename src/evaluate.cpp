@@ -413,7 +413,8 @@ namespace {
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
 
     // King shelter and enemy pawns storm
-    Score score = pe->king_safety<Us>(pos);
+    Score pawnScore = pe->king_safety<Us>(pos);
+    Score score = pawnScore;
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -479,6 +480,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     -       mg_value(pawnScore)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -489,11 +491,6 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
-
-    if (pos.count<QUEEN>(Us) > 0)
-         score -= make_score(5,5) 
-                 * std::max(4-popcount(attackedBy[Us][QUEEN] 
-                & (kingFlank | KingFlank[file_of(pos.square<KING>(Them))] | ~Camp)), 0);
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
