@@ -490,12 +490,12 @@ namespace {
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
 
+    if ((pos.count<QUEEN>(Us) > 0) && !(attackedBy[Us][QUEEN] & (kingFlank | KingFlank[file_of(pos.square<KING>(Them))] | ~Camp)))
+         score -= make_score(20,20);
+
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    if (pos.count<QUEEN>(Us) > 0)
-         score -= make_score(5,5) 
-                 * std::max(4-popcount(attackedBy[Us][QUEEN] & (kingFlank | KingFlank[pos.square<KING>(Them)] | ~Camp)), 0);
     if (T)
         Trace::add(KING, Us, score);
 
