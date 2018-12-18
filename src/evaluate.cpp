@@ -491,7 +491,7 @@ namespace {
         score -= PawnlessFlank;
 
     if ((pos.count<QUEEN>(Us) > 0) && !(attackedBy[Us][QUEEN] & (kingFlank | KingFlank[file_of(pos.square<KING>(Them))] | ~Camp)))
-         score -= make_score(10,30);
+         score -= make_score(30,10);
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
