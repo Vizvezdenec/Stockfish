@@ -493,6 +493,8 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
+    if ((pos.count<QUEEN>(Us) > 0) && !(attackedBy[Us][QUEEN] & (kingFlank | KingFlank[pos.square<KING>(Them)] | ~Camp)))
+         score -= make_score(20,20);
     if (T)
         Trace::add(KING, Us, score);
 
