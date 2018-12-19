@@ -576,7 +576,7 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     Bitboard b1 = pawn_attacks_bb<Us>(b) & attackedBy2[Them] & ~attackedBy[Them][PAWN];
-    score += make_score(4 ,4) * popcount(b1);
+    score += make_score(2, 0) * popcount(b1);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
