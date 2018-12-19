@@ -564,7 +564,7 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
-    score += make_score(4,4) * popcount(attackedBy2[Them] & attackedBy[Us][PAWN] & ~pos.pieces(Them, PAWN));
+    score += make_score(10,10) * popcount(attackedBy2[Them] & attackedBy[Us][PAWN] & ~pos.pieces(Them, PAWN));
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
