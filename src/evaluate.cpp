@@ -327,7 +327,7 @@ namespace {
         if (!(more_than_one(pos.pieces(Us,PAWN) & ~LowRanksUs)) 
            && !(more_than_one(pos.pieces(Them, PAWN) & ~LowRanksThem))
            && !(pos.attacks_from<Pt>(s) & Center) && (pos.count<PAWN>(Us) + pos.count<PAWN>(Them) > 12))
-             score -= make_score(20, 0);
+             score -= make_score(10, 0);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
