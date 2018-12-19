@@ -564,6 +564,8 @@ namespace {
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
+    score += RestrictedPiece * popcount(attackedBy2[Them] & attackedBy[Us][PAWN]);
+
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
@@ -575,8 +577,6 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    Bitboard b1 = pawn_attacks_bb<Us>(b) & attackedBy2[Them] & ~attackedBy[Them][PAWN];
-    score += make_score(2 ,2) * popcount(b1);
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
