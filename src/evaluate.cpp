@@ -330,18 +330,13 @@ namespace {
             if (bb & s)
                 {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
-                if (((KingSide & pos.square<KING>(Us)) && (QueenSide & s))
-                    || ((QueenSide & pos.square<KING>(Us)) && (KingSide & s)))
-                outpostScore[Us] += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
+                if ((Pt == KNIGHT) && (((KingSide & pos.square<KING>(Us)) && (QueenSide & s))
+                    || ((QueenSide & pos.square<KING>(Us)) && (KingSide & s))))
+                outpostScore[Us] += Outpost[0][bool(attackedBy[Us][PAWN] & s)] * 2;
                 }
 
             else if (bb &= b & ~pos.pieces(Us))
-                {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
-                if (((KingSide & pos.square<KING>(Us)) && (QueenSide & s))
-                    || ((QueenSide & pos.square<KING>(Us)) && (KingSide & s)))
-                outpostScore[Us] += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
-                }
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
