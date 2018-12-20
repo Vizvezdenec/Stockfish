@@ -330,12 +330,16 @@ namespace {
             if (bb & s)
                 {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
+                if (((KingSide & pos.square<KING>(Us)) && (QueenSide & s))
+                    || ((QueenSide & pos.square<KING>(Us)) && (KingSide & s)))
                 outpostScore[Us] += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
                 }
 
             else if (bb &= b & ~pos.pieces(Us))
                 {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
+                if (((KingSide & pos.square<KING>(Us)) && (QueenSide & s))
+                    || ((QueenSide & pos.square<KING>(Us)) && (KingSide & s)))
                 outpostScore[Us] += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
                 }
 
@@ -492,8 +496,8 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        if (kingDanger > 1000)
-            score -= outpostScore[Us];
+        if (kingDanger > 500)
+            score -= outpostScore[Us] * (kingDanger - 500) / 500;
     }
 
     // Penalty when our king is on a pawnless flank
