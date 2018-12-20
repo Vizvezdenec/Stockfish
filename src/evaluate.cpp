@@ -496,8 +496,8 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        if (kingDanger > 500)
-            score -= outpostScore[Us] * (kingDanger - 500) / 500;
+        if (kingDanger > 1000)
+            score -= outpostScore[Us] * (kingDanger - 1000) / 1000;
     }
 
     // Penalty when our king is on a pawnless flank
