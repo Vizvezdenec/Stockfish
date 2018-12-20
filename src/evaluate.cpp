@@ -492,7 +492,7 @@ namespace {
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        if (kingDanger > 500)
+        if (kingDanger > 1000)
             score -= outpostScore[Us];
     }
 
