@@ -232,7 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    Score outpostScore[COLOR_NB];
+    int uselessOutpost[COLOR_NB];
   };
 
 
@@ -260,7 +260,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
-    outpostScore[Us] = make_score(0, 0);
+    uselessOutpost[Us] = 0;
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
     {
@@ -330,7 +330,7 @@ namespace {
             {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
                 if ((Pt == KNIGHT) && (distance<File>(pos.square<KING>(Us), s) > 4))
-                outpostScore[Us] += Outpost[0][bool(attackedBy[Us][PAWN] & s)] * 2;
+                uselessOutpost[Us]++;
             }
 
             else if (bb &= b & ~pos.pieces(Us))
@@ -484,13 +484,12 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  25 * uselessOutpost[Us] * uselessOutpost[Us]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
         if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        if (kingDanger > 500)
-            score -= outpostScore[Us] * (kingDanger - 500) / 500;
     }
 
     // Penalty when our king is on a pawnless flank
