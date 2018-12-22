@@ -433,12 +433,11 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+        Bitboard weakColor = 0;
         if ((pos.pieces(Them, BISHOP) & DarkSquares) && ~(pos.pieces(Us, BISHOP) & DarkSquares))
-              kingDanger += 15 * popcount(attackedBy[Them][BISHOP] & DarkSquares
-                            & kingRing[Us] & ~weak);
+              weakColor |= attackedBy[Them][BISHOP] & DarkSquares & kingRing[Us];
         if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && ~(pos.pieces(Us, BISHOP) & ~DarkSquares))
-              kingDanger += 15 * popcount(attackedBy[Them][BISHOP] & ~DarkSquares 
-                            & kingRing[Us] & ~weak);
+              weakColor |= attackedBy[Them][BISHOP] & ~DarkSquares & kingRing[Us];
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -485,6 +484,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  15 * popcount(weakColor)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
