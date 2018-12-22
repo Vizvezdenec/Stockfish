@@ -434,9 +434,11 @@ namespace {
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
         if ((pos.pieces(Them, BISHOP) & DarkSquares) && ~(pos.pieces(Us, BISHOP) & DarkSquares))
-              weak |= attackedBy[Them][BISHOP] & DarkSquares & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][PAWN];
+              kingDanger += 40 * popcount(attackedBy[Them][BISHOP] & DarkSquares & ~attackedBy[Us][KNIGHT] 
+                            & ~attackedBy[Us][PAWN] & kingRing[Us]);
         if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && ~(pos.pieces(Us, BISHOP) & ~DarkSquares))
-              weak |= attackedBy[Them][BISHOP] & ~DarkSquares & ~attackedBy[Us][KNIGHT] & ~attackedBy[Us][PAWN];
+              kingDanger += 40 * popcount(attackedBy[Them][BISHOP] & ~DarkSquares & ~attackedBy[Us][KNIGHT] 
+                            & ~attackedBy[Us][PAWN] & kingRing[Us]);
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
