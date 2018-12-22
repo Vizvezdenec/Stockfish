@@ -329,7 +329,7 @@ namespace {
             if (bb & s)
             {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
-                if ((Pt == KNIGHT) && (distance<File>(pos.square<KING>(WHITE), s) > 4))
+                if ((Pt == KNIGHT) && (distance<File>(pos.square<KING>(Us), s) > 4))
                 outpostScore[Us] += Outpost[0][bool(attackedBy[Us][PAWN] & s)] * 2;
             }
 
