@@ -484,7 +484,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  25 * uselessOutpost[Us] * uselessOutpost[Us]
+                     +  50 * uselessOutpost[Us] * uselessOutpost[Us]
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
