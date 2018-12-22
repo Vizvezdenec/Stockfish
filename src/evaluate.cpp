@@ -433,12 +433,7 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-        Bitboard weakColor = 0;
-        if ((pos.pieces(Them, BISHOP) & DarkSquares) && ~(pos.pieces(Us, BISHOP) & DarkSquares))
-              weakColor |= attackedBy[Them][BISHOP] & DarkSquares & kingRing[Us];
-        if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && ~(pos.pieces(Us, BISHOP) & ~DarkSquares))
-              weakColor |= attackedBy[Them][BISHOP] & ~DarkSquares & kingRing[Us];
-
+        
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
         safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
@@ -484,7 +479,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  15 * popcount(weakColor)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -606,7 +600,13 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    if (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them) == 1)
+    {
+    if ((pos.pieces(Us, BISHOP) & DarkSquares) && ~(pos.pieces(Them, BISHOP) & DarkSquares))
+        score += make_score(2,4) * popcount(attackedBy[Us][BISHOP] & DarkSquares & pos.pieces(Them));
+    else 
+        score += make_score(2,4) * popcount(attackedBy[Us][BISHOP] & ~DarkSquares & pos.pieces(Them));
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
