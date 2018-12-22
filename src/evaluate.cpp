@@ -471,7 +471,7 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        int fileDanger[FILE_NB] = { -12, 8, 13, 15, 29, 11, -9, 9 };
+        int fileDanger[FILE_NB] = { -12, 8, 13, -15, 29, 11, -9, 9 };
 	if (!pos.castling_rights(Us))
 		kingDanger += fileDanger[file_of(ksq)];
 
