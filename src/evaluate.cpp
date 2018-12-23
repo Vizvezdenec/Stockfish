@@ -466,7 +466,7 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-        weak |= attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
+        weak |= double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)) & ~attackedBy[Us][PAWN];
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
