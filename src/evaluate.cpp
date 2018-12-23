@@ -408,7 +408,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -467,7 +466,7 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-        Bitboard semiWeak = attackedBy[Them][PAWN] & shift<Down>(pos.pieces(Them,PAWN)) & ~attackedBy2[Us] & ~weak;
+        Bitboard semiWeak = double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)) & ~attackedBy[Us][PAWN];
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
