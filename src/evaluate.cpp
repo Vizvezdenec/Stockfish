@@ -600,9 +600,14 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    if ((pos.non_pawn_material(Them) == KnightValueMg) 
-         && !(attackedBy[Them][KNIGHT] & ~attackedBy[Us][PAWN] & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
+    if ((pos.non_pawn_material(Them) == KnightValueMg) || (pos.non_pawn_material(Them) == BishopValueMg)
+        || (pos.non_pawn_material(Them) == RookValueMg) || (pos.non_pawn_material(Them) == QueenValueMg))
+    {
+         if (!((attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK]
+               | attackedBy[Them][QUEEN]) & ~attackedBy[Us][PAWN] 
+             & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
         score += make_score(0, 30);
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
