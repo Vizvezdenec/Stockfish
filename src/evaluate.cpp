@@ -603,8 +603,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    if (!(attackedByPieces[Them] & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
-        score += make_score(50,50);
+    int theirPieceAttacks = popcount(attackedByPieces[Them]); 
+    int ourPieceAttacks = popcount(attackedByPieces[Us]); 
+        score += make_score(1,1) * (ourPieceAttacks - theirPieceAttacks) * abs(ourPieceAttacks - theirPieceAttacks);
     if (T)
         Trace::add(THREAT, Us, score);
 
