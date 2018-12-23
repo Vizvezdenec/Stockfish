@@ -471,23 +471,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
-        Bitboard weakColor = 0;
-        if ((pos.pieces(Them, BISHOP) & DarkSquares) && !(pos.pieces(Us, BISHOP) & DarkSquares))
-              weakColor |= (attackedBy[Them][BISHOP] | attackedBy[Them][PAWN])
-                           & DarkSquares & kingRing[Us] & ~attackedBy[Us][PAWN];
-        if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && !(pos.pieces(Us, BISHOP) & ~DarkSquares))
-              weakColor |= (attackedBy[Them][BISHOP] | attackedBy[Them][PAWN]) 
-                           & ~DarkSquares & kingRing[Us] & ~attackedBy[Us][PAWN];
-
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
-                     + 185 * popcount(kingRing[Us] & weak)
+                     + 185 * popcount(attackedBy[Us][KING] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +  30 * popcount(weakColor)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
