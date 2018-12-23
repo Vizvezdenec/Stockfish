@@ -406,12 +406,14 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+
+    constexpr Direction Up   = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
-    Bitboard kingAttacks = attackedBy[Us][KING] | pos.pieces(Us, KING);
-    Bitboard Camp = kingAttacks | shift<Up>(shift<Up>(shift<Up>(kingAttacks))) 
-                   | shift<Down>(shift<Down>(shift<Down>(kingAttacks)));
+    Bitboard kingRank = rank_bb(rank_of(pos.square<KING>(Us)));
+    kingRank |= shift<Up>(kingRank) | shift<Down>(kingRank);
+    Bitboard Camp = kingRank | shift<Up>(shift<Up>(shift<Up>(kingRank))) 
+                   | shift<Down>(shift<Down>(shift<Down>(kingRank)));
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -477,7 +479,7 @@ namespace {
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
-                     + 185 * popcount(attackedBy[Us][KING] & weak)
+                     + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
