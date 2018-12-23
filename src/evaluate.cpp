@@ -232,6 +232,8 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int minorAttackers[COLOR_NB];
+    int minorDefenders[COLOR_NB];
   };
 
 
@@ -259,6 +261,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
+    minorAttackers[Us] = minorDefenders[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -288,6 +291,10 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard CampUs = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard CampThem = (Us == BLACK ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -323,6 +330,10 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (b & mobilityArea[Us] & CampThem & KingFlank[file_of(pos.square<KING>(Them))])
+                 minorAttackers[Us]++;
+            if (b & mobilityArea[Us] & CampUs & KingFlank[file_of(pos.square<KING>(Us))])
+                 minorDefenders[Us]++;
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -479,6 +490,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  10 * (minorAttackers[Them] - minorDefenders[Us]) * abs(minorAttackers[Them] - minorDefenders[Us])
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
