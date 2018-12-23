@@ -433,7 +433,6 @@ namespace {
         weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-        weak |= attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
 
         // Analyse the safe enemy's checks which are possible on next move
         safe  = ~pos.pieces(Them);
@@ -467,7 +466,7 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-
+        weak |= attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
