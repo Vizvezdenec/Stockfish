@@ -204,6 +204,7 @@ namespace {
     // attacked by a given color and piece type. Special "piece types" which
     // is also calculated is ALL_PIECES.
     Bitboard attackedBy[COLOR_NB][PIECE_TYPE_NB];
+    Bitboard attackedByPieces[COLOR_NB];    
 
     // attackedBy2[color] are the squares attacked by 2 pieces of a given color,
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
@@ -259,6 +260,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     kingRing[Us] = kingAttackersCount[Them] = 0;
+    attackedByPieces[Us] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -309,6 +311,7 @@ namespace {
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
+        attackedByPieces[Us] |= b;
 
         if (b & kingRing[Them])
         {
@@ -600,15 +603,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    if ((pos.non_pawn_material(Them) == KnightValueMg) || (pos.non_pawn_material(Them) == BishopValueMg)
-        || (pos.non_pawn_material(Them) == RookValueMg) || (pos.non_pawn_material(Them) == QueenValueMg))
-    {
-    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us));
-         if (!((attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK]
-               | attackedBy[Them][QUEEN]) & ~attackedBy[Us][PAWN] 
-             & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) & ~blocked))
-        score += make_score(0, 60);
-    }
+    if (!(attackedByPieces[Them] & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
+        score += make_score(50,50);
     if (T)
         Trace::add(THREAT, Us, score);
 
