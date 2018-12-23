@@ -606,7 +606,7 @@ namespace {
          if (!((attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK]
                | attackedBy[Them][QUEEN]) & ~attackedBy[Us][PAWN] 
              & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
-        score += make_score(0, 30);
+        score += make_score(0, 60);
     }
     if (T)
         Trace::add(THREAT, Us, score);
