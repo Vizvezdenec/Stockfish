@@ -605,7 +605,7 @@ namespace {
     }
     int theirPieceAttacks = popcount(attackedByPieces[Them]); 
     int ourPieceAttacks = popcount(attackedByPieces[Us]); 
-        score += make_score(1,1) * (ourPieceAttacks - theirPieceAttacks) * abs(ourPieceAttacks - theirPieceAttacks);
+        score += make_score(3,3) * (ourPieceAttacks - theirPieceAttacks);
     if (T)
         Trace::add(THREAT, Us, score);
 
