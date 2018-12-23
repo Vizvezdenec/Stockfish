@@ -471,6 +471,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        Bitboard weakColor = 0;
+        if ((pos.pieces(Them, BISHOP) & DarkSquares) && !(pos.pieces(Us, BISHOP) & DarkSquares))
+              weakColor |= (attackedBy[Them][BISHOP] | attackedBy[Them][PAWN])
+                           & DarkSquares & kingRing[Us] & ~attackedBy[Us][PAWN];
+        if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && !(pos.pieces(Us, BISHOP) & ~DarkSquares))
+              weakColor |= (attackedBy[Them][BISHOP] | attackedBy[Them][PAWN]) 
+                           & ~DarkSquares & kingRing[Us] & ~attackedBy[Us][PAWN];
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
@@ -479,6 +487,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
+                     +  15 * popcount(weakColor)
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -507,7 +516,6 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
-    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -602,12 +610,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if ((pos.pieces(Us, BISHOP) & DarkSquares) && !(pos.pieces(Them, BISHOP) & DarkSquares))
-        score += make_score(0, 10) * popcount(DarkSquares 
-                 & pos.pieces(Them, PAWN) & shift<Down>(pos.pieces()) & ~attackedBy[Them][PAWN]);
-    if ((pos.pieces(Us, BISHOP) & ~DarkSquares) && !(pos.pieces(Them, BISHOP) & ~DarkSquares))
-        score += make_score(0, 10) * popcount(~DarkSquares 
-                 & pos.pieces(Them, PAWN) & shift<Down>(pos.pieces()) & ~attackedBy[Them][PAWN]);
     if (T)
         Trace::add(THREAT, Us, score);
 
