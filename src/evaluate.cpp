@@ -603,9 +603,9 @@ namespace {
     if (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them) == 1)
     {
     if ((pos.pieces(Us, BISHOP) & DarkSquares) && !(pos.pieces(Them, BISHOP) & DarkSquares))
-        score += make_score(5, 5) * popcount(DarkSquares & pos.pieces(Them, PAWN) & ~stronglyProtected);
+        score += make_score(5, 0) * popcount(DarkSquares & pos.pieces(Them, PAWN) & ~stronglyProtected);
     else 
-        score += make_score(5, 5) * popcount(~DarkSquares & pos.pieces(Them, PAWN) & ~stronglyProtected);
+        score += make_score(5, 0) * popcount(~DarkSquares & pos.pieces(Them, PAWN) & ~stronglyProtected);
     }
     if (T)
         Trace::add(THREAT, Us, score);
