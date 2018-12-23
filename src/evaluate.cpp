@@ -406,7 +406,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -467,7 +466,8 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-        weak |= attackedBy[Them][PAWN] & shift<Down>(pos.pieces(Them,PAWN)) & ~attackedBy2[Us];
+        weak |= (attackedBy[Them][PAWN] | pos.pieces(Them, PAWN)) 
+                & (~attackedBy[Us][ALL_PIECES] | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]));
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
