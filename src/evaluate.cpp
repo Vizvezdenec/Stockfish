@@ -406,8 +406,12 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+
+    Bitboard kingAttacks = attackedBy[Us][KING] | pos.pieces(Us, KING);
+    Bitboard Camp = kingAttacks | shift<Up>(shift<Up>(shift<Up>(kingAttacks))) 
+                   | shift<Down>(shift<Down>(shift<Down>(kingAttacks)));
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
