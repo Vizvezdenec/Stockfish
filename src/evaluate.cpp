@@ -601,15 +601,13 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    if (pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them) == 1)
-    {
+
     if ((pos.pieces(Us, BISHOP) & DarkSquares) && !(pos.pieces(Them, BISHOP) & DarkSquares))
-        score += make_score(0, 20) * popcount(DarkSquares 
+        score += make_score(0, 10) * popcount(DarkSquares 
                  & pos.pieces(Them, PAWN) & shift<Down>(pos.pieces()) & ~attackedBy[Them][PAWN]);
-    else 
-        score += make_score(0, 20) * popcount(~DarkSquares 
+    if ((pos.pieces(Us, BISHOP) & ~DarkSquares) && !(pos.pieces(Them, BISHOP) & ~DarkSquares))
+        score += make_score(0, 10) * popcount(~DarkSquares 
                  & pos.pieces(Them, PAWN) & shift<Down>(pos.pieces()) & ~attackedBy[Them][PAWN]);
-    }
     if (T)
         Trace::add(THREAT, Us, score);
 
