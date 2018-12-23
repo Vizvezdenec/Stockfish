@@ -408,6 +408,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -466,8 +467,7 @@ namespace {
             kingDanger += KnightSafeCheck;
         else
             unsafeChecks |= b;
-        weak |= (attackedBy[Them][PAWN] | pos.pieces(Them, PAWN)) 
-                & (~attackedBy[Us][ALL_PIECES] | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]));
+        Bitboard semiWeak = attackedBy[Them][PAWN] & shift<Down>(pos.pieces(Them,PAWN)) & ~attackedBy2[Us] & ~weak;
         // Unsafe or occupied checking squares will also be considered, as long as
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
@@ -475,6 +475,7 @@ namespace {
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
+                     +  75 * popcount(kingRing[Us] & semiWeak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
