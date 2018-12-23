@@ -603,9 +603,10 @@ namespace {
     if ((pos.non_pawn_material(Them) == KnightValueMg) || (pos.non_pawn_material(Them) == BishopValueMg)
         || (pos.non_pawn_material(Them) == RookValueMg) || (pos.non_pawn_material(Them) == QueenValueMg))
     {
+    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us));
          if (!((attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP] | attackedBy[Them][ROOK]
                | attackedBy[Them][QUEEN]) & ~attackedBy[Us][PAWN] 
-             & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them])))
+             & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) & ~blocked))
         score += make_score(0, 60);
     }
     if (T)
