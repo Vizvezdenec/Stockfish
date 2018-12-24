@@ -92,10 +92,11 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
+  constexpr int QueenSafeCheck  = 480;
   constexpr int RookSafeCheck   = 880;
   constexpr int BishopSafeCheck = 435;
   constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck2 = 150;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -443,7 +444,8 @@ namespace {
 
         // Enemy queen safe checks
         if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-            kingDanger += QueenSafeCheck;
+            kingDanger += QueenSafeCheck + QueenSafeCheck2 * popcount((b1 | b2) 
+                          & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN]);
 
         b1 &= attackedBy[Them][ROOK];
         b2 &= attackedBy[Them][BISHOP];
@@ -567,8 +569,6 @@ namespace {
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
-    else if (pos.pieces(Us, KNIGHT))
-        score += make_score(4, 8) * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
