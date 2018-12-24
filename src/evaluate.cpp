@@ -474,7 +474,7 @@ namespace {
         unsafeChecks &= mobilityArea[Them];
         
         Bitboard semiweak = attackedBy2[Them]
-              & ~attackedBy3[Us]
+              & ~attackedBy3[Us] & ~attackedBy[Us][PAWN]
               & (~attackedBy2[Us] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
