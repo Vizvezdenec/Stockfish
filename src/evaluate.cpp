@@ -420,12 +420,12 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-
-    int tropism = popcount(b1) + popcount(b2);
+    int singleAttacks = popcount(b1);
+    int tropism = singleAttacks + popcount(b2);
 
     // Main king safety evaluation
     if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
-          || (tropism > 17 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
+          || (singleAttacks > 11 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
