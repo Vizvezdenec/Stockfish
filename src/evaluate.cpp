@@ -560,12 +560,12 @@ namespace {
 
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
-                & (~stronglyProtected | attackedBy[Us][PAWN])
+                & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
     // Bonus for enemy unopposed weak pawns
-    if (pos.pieces(Us, ROOK, QUEEN))
+    if (pos.non_pawn_material(Us))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
