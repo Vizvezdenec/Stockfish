@@ -600,7 +600,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-        if (more_than_one(pos.pieces(Them) & attackedBy[Them][QUEEN] 
+        if (more_than_one(pos.pieces(Them) & ~pos.pieces(Them,PAWN) & attackedBy[Them][QUEEN]
              & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]))
             score += make_score(40,40);
     }
