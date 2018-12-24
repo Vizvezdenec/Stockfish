@@ -562,9 +562,10 @@ namespace {
     restricted =   attackedBy[Them][ALL_PIECES]
                 & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
-    int mobilityRest = popcount(restricted);
-    score += RestrictedPiece * mobilityRest;
-    score += make_score(1, 1) * mobilityRest * mobilityRest;
+    score += RestrictedPiece * popcount(restricted);
+    restricted &= attackedBy2[Us];
+    int restrMob = popcount(restricted);
+    score += make_score(1, 1) * restrMob * restrMob;
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
