@@ -425,7 +425,7 @@ namespace {
 
     // Main king safety evaluation
     if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
-          || (tropism > 11 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
+          || (tropism > 17 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
