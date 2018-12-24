@@ -318,9 +318,7 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-        
-        if (b & pos.pieces(Us, Pt))
-            score += make_score(5, 5);
+
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -473,9 +471,14 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        Bitboard ultraweak =  attackedBy2[Them]
+              & ~attackedBy2[Us]
+              & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING]);
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
+                     + 185 * popcount(kingRing[Us] & ultraweak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
