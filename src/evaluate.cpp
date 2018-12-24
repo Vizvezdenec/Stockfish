@@ -471,11 +471,15 @@ namespace {
         // the square is in the attacker's mobility area.
         unsafeChecks &= mobilityArea[Them];
 
+        Bitboard b3 = (attackedBy[Us][ALL_PIECES] & 
+                      ~(~attackedBy2[Us] & attackedBy[Us][KING])) & kingFlank & Camp;
+
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
                      + 185 * popcount(kingRing[Us] & weak)
                      + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                      +       tropism * tropism / 4
+                     +   8 * (tropism - popcount(b3))
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
@@ -599,10 +603,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        if (more_than_one(pos.pieces(Them) & ~pos.pieces(Them,PAWN) & attackedBy[Them][QUEEN]
-             & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]))
-            score += make_score(40,40);
     }
 
     if (T)
