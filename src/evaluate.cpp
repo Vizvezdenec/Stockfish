@@ -473,7 +473,7 @@ namespace {
 
         Bitboard ultraweak =  attackedBy2[Them]
               & ~attackedBy2[Us]
-              & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+              & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING]);
 
         kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                      +  69 * kingAttacksCount[Them]
