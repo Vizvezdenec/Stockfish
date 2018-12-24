@@ -599,6 +599,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        if (more_than_one(pos.pieces(Them) & attackedBy[Them][QUEEN] 
+             & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]))
+            score += make_score(40,40);
     }
 
     if (T)
