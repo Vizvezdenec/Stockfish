@@ -567,8 +567,8 @@ namespace {
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
-    else if (pos.non_pawn_material(Us))
-        score += make_score(4, 8) * pe->weak_unopposed(Them);
+    else if (pos.pieces(Us, KNIGHT))
+        score += make_score(6, 12) * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
