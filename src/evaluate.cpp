@@ -424,7 +424,8 @@ namespace {
     int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
-    if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) || (tropism > 14))
+    if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
+          || (tropism > 14 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
