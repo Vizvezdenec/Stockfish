@@ -567,8 +567,6 @@ namespace {
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
-    else if (pos.pieces(Us, KNIGHT))
-        score += make_score(6, 12) * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
@@ -751,12 +749,17 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK)))
+                       | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE)));
+    bool pawnStructureBlock = (pos.count<PAWN>() - popcount(blocked) < 2);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
+                    - 60 * pawnStructureBlock
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
