@@ -565,8 +565,10 @@ namespace {
     score += RestrictedPiece * popcount(restricted);
 
     // Bonus for enemy unopposed weak pawns
-    if (pos.non_pawn_material(Us))
+    if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+    else if (pos.non_pawn_material(Us))
+        score += make_score(4, 8) * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
