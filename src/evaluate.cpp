@@ -422,9 +422,11 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
-
+    
+    b1 = (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us];
     // Main king safety evaluation
-    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
+    if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
+          || ((tropism - popcount(b1) > 0) && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
@@ -749,15 +751,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK, PAWN)));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    + 16 * more_than_one(blocked & (FileDBB | FileEBB))
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
