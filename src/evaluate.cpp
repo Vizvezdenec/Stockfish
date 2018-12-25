@@ -320,7 +320,9 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-
+        
+        if (Pt != KNIGHT && (PseudoAttacks[Pt][s] & pos.pieces(Them) & ~pos.pieces(Them, PAWN) & b))
+             score += make_score(5, 5);
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -479,7 +481,6 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +       (pos.non_pawn_material(Them) - QueenValueMg - RookValueMg) / 100
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
