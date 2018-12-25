@@ -604,7 +604,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    score += make_score(5,5) * popcount(xraypiece[Them]);
+    score += make_score(5,5) * popcount(xraypiece[Them] & ~attackedBy[Them][ALL_PIECES]);
 
     if (T)
         Trace::add(THREAT, Us, score);
