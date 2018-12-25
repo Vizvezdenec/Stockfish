@@ -215,7 +215,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6. It is set to 0 when king safety evaluation is skipped.
     Bitboard kingRing[COLOR_NB];
-    Bitboard xraypiece[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -259,7 +258,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    kingRing[Us] = kingAttackersCount[Them] = xraypiece[Us] = 0;
+    kingRing[Us] = kingAttackersCount[Them] = 0;
 
     // Init our king safety tables only if we are going to use them
     if (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)
@@ -321,9 +320,6 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-
-        if (Pt != KNIGHT)
-             xraypiece[Them] |= PseudoAttacks[Pt][s] & pos.pieces(Them) & ~pos.pieces(Them, PAWN) & ~b;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -428,7 +424,8 @@ namespace {
     int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
-    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
+    if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
+          || (tropism > 13 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
@@ -604,7 +601,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    score += make_score(5,5) * popcount(xraypiece[Them] & ~attackedBy[Them][ALL_PIECES]);
 
     if (T)
         Trace::add(THREAT, Us, score);
