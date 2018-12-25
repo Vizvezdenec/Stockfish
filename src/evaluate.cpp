@@ -757,7 +757,7 @@ namespace {
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    + 16 * popcount(blocked & (FileDBB | FileEBB))
+                    + 32 * more_than_one(blocked & (FileDBB | FileEBB))
                     -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
