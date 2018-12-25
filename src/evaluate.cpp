@@ -320,9 +320,10 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-        
-        if (Pt != KNIGHT && (PseudoAttacks[Pt][s] & pos.pieces(Them) & ~pos.pieces(Them, PAWN) & b))
+
+        if (Pt != KNIGHT && (PseudoAttacks[Pt][s] & pos.pieces(Them) & ~pos.pieces(Them, PAWN) & ~b))
              score += make_score(5, 5);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
