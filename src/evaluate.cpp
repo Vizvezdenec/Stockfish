@@ -423,68 +423,67 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
-    int kingDanger = 0;
-    unsafeChecks = 0;
+    // Main king safety evaluation
+    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
+    {
+        int kingDanger = 0;
+        unsafeChecks = 0;
 
-    // Attacked squares defended at most once by our queen or king
-    weak =  attackedBy[Them][ALL_PIECES]
+        // Attacked squares defended at most once by our queen or king
+        weak =  attackedBy[Them][ALL_PIECES]
               & ~attackedBy2[Us]
               & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
-    // Analyse the safe enemy's checks which are possible on next move
-    safe  = ~pos.pieces(Them);
-    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
+        // Analyse the safe enemy's checks which are possible on next move
+        safe  = ~pos.pieces(Them);
+        safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
-    b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
+        b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
+        b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-    // Enemy queen safe checks
-    if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
+        // Enemy queen safe checks
+        if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
             kingDanger += QueenSafeCheck;
 
-    b1 &= attackedBy[Them][ROOK];
-    b2 &= attackedBy[Them][BISHOP];
+        b1 &= attackedBy[Them][ROOK];
+        b2 &= attackedBy[Them][BISHOP];
 
-    // Enemy rooks checks
-    if (b1 & safe)
+        // Enemy rooks checks
+        if (b1 & safe)
             kingDanger += RookSafeCheck;
-    else
+        else
             unsafeChecks |= b1;
 
-    // Enemy bishops checks
-    if (b2 & safe)
+        // Enemy bishops checks
+        if (b2 & safe)
             kingDanger += BishopSafeCheck;
-    else
+        else
             unsafeChecks |= b2;
 
-    // Enemy knights checks
-    b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
-    if (b & safe)
+        // Enemy knights checks
+        b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
+        if (b & safe)
             kingDanger += KnightSafeCheck;
-    else
+        else
             unsafeChecks |= b;
 
-    // Unsafe or occupied checking squares will also be considered, as long as
-    // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+        // Unsafe or occupied checking squares will also be considered, as long as
+        // the square is in the attacker's mobility area.
+        unsafeChecks &= mobilityArea[Them];
 
-    kingDanger += 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+        kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+                     +  69 * kingAttacksCount[Them]
+                     + 185 * popcount(pos.blockers_for_king(Us) | unsafeChecks | (kingRing[Us] & weak))
                      +       tropism * tropism / 4
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
                      -   30;
 
-    // Main king safety evaluation
-    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them))
-    {
-        kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                     +  69 * kingAttacksCount[Them]
-                     + 185 * popcount(kingRing[Us] & weak);
-    }
-    // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 0)
+        // Transform the kingDanger units into a Score, and subtract it from the evaluation
+        if (kingDanger > 0)
             score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
