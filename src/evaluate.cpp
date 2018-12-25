@@ -479,7 +479,7 @@ namespace {
                      - 873 * !pos.count<QUEEN>(Them)
                      -   6 * mg_value(score) / 8
                      +       mg_value(mobility[Them] - mobility[Us])
-                     +       (pos.non_pawn_material(Them) - QueenValueMg - RookValueMg) / 60
+                     +       (pos.non_pawn_material(Them) - QueenValueMg - RookValueMg) / 100
                      -   30;
 
         // Transform the kingDanger units into a Score, and subtract it from the evaluation
