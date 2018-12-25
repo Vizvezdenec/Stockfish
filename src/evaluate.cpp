@@ -423,10 +423,10 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
     
-    b1 = (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us];
+    b1 = ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us]) & kingFlank & Camp;
     // Main king safety evaluation
     if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
-          || ((tropism - popcount(b1) > 4) && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
+          || ((tropism - popcount(b1) > 0) && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
