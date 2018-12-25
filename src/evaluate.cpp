@@ -232,6 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int tropismCount[COLOR_NB];
   };
 
 
@@ -277,7 +278,10 @@ namespace {
         kingRing[Us] &= ~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
         kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     }
+    if (pos.non_pawn_material(Us) >= RookValueMg + KnightValueMg)
+        tropismCount[Us] = 0;
   }
+
 
 
   // Evaluation::pieces() scores pieces of a given color and type
@@ -288,6 +292,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Camp = (Us == BLACK ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -320,6 +326,10 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        if (pos.non_pawn_material(Us) >= RookValueMg + KnightValueMg
+            && (pos.attacks_from<Pt>(s) & Camp & KingFlank[file_of(pos.square<KING>(Them))]))
+            tropismCount[Us]++;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -420,12 +430,12 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-    int singleAttacks = popcount(b1);
-    int tropism = singleAttacks + popcount(b2);
+
+    int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
-    if ((kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)) 
-          || (singleAttacks > 11 && (pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg)))
+    if (kingAttackersCount[Them] > 1 - pos.count<QUEEN>(Them)
+        || (tropismCount[Them] > 4 && pos.non_pawn_material(Them) >= RookValueMg + KnightValueMg))
     {
         int kingDanger = 0;
         unsafeChecks = 0;
