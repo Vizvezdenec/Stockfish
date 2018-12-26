@@ -69,7 +69,6 @@ namespace {
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
-    int allDoubled;
     Square s;
     bool opposed, backward;
     Score score = SCORE_ZERO;
@@ -85,7 +84,6 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    allDoubled = 0;
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -143,10 +141,9 @@ namespace {
             {
             score -= Doubled;
             if (!neighbours)
-                 allDoubled++;
+                score -= make_score(10,0);
             }
     }
-    score -= make_score(10,0) * allDoubled * allDoubled;
 
     return score;
   }
