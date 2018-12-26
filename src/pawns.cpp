@@ -141,7 +141,7 @@ namespace {
             {
             score -= Doubled;
             if (!neighbours && opposed && !lever)
-                score -= make_score(20,20);
+                score -= make_score(40, 0);
             }
     }
 
