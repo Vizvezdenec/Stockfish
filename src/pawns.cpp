@@ -131,14 +131,18 @@ namespace {
         if (support | phalanx)
             score += Connected[opposed][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
 
-        else if (!neighbours && !lever)
+        else if (!neighbours)
             score -= Isolated, e->weakUnopposed[Us] += !opposed;
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         if (doubled && !support)
+            {
             score -= Doubled;
+            if (!neighbours && opposed && !lever)
+                score -= make_score(20,20);
+            }
     }
 
     return score;
