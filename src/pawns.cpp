@@ -33,7 +33,7 @@ namespace {
 
   // Pawn penalties
   constexpr Score Backward = S( 9, 24);
-  constexpr Score Doubled  = S(11, 56);
+  constexpr Score Doubled  = S( 6, 56);
   constexpr Score Isolated = S( 5, 15);
 
   // Connected pawn bonus by opposed, phalanx, #support and rank
@@ -69,6 +69,7 @@ namespace {
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
+    int allDoubled;
     Square s;
     bool opposed, backward;
     Score score = SCORE_ZERO;
@@ -84,6 +85,7 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
+    allDoubled = 0;
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -140,10 +142,10 @@ namespace {
         if (doubled && !support)
             {
             score -= Doubled;
-            if (!neighbours)
-                 score -= make_score(20,0);
+            allDoubled++;
             }
     }
+    score -= make_score(5,0) * allDoubled * allDoubled * allDoubled;
 
     return score;
   }
