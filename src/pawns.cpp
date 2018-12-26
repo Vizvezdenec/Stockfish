@@ -140,8 +140,8 @@ namespace {
         if (doubled && !support)
             {
             score -= Doubled;
-            if (!neighbours)
-                score -= make_score(10,0);
+            if (!neighbours && opposed && !lever)
+                score -= make_score(20,0);
             }
     }
 
