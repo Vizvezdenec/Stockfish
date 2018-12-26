@@ -143,9 +143,11 @@ namespace {
             {
             score -= Doubled;
             allDoubled++;
+            if (!neighbours)
+                 allDoubled++;
             }
     }
-    score -= make_score(5,0) * allDoubled * allDoubled * allDoubled;
+    score -= make_score(5,0) * allDoubled * allDoubled;
 
     return score;
   }
