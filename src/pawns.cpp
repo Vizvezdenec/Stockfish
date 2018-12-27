@@ -141,7 +141,7 @@ namespace {
             score -= Doubled;
         else if ((ourPawns & forward_file_bb(Us, s)) && !neighbours && opposed 
             && !(attacks_bb<ROOK>(s,theirPawns) & forward_file_bb(Us, s) & pawn_attacks_bb<Them>(theirPawns)))
-            score -= Doubled;
+            score -= make_score(20, 20);
     }
 
     return score;
