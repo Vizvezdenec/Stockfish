@@ -832,7 +832,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  (depth >= 5 * ONE_PLY || (ss-1)->statScore < -25000)
+        &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value raisedBeta = std::min(beta + 216 - 48 * improving, VALUE_INFINITE);
