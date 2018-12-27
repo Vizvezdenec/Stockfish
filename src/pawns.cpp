@@ -149,6 +149,8 @@ namespace {
             weaknessCount++;
             score -= Doubled;
             }
+        else if (ourPawns & forward_file_bb(Them, s))
+            weaknessCount++;
     }
     score -= make_score(1, 2) * weaknessCount * weaknessCount;
 
