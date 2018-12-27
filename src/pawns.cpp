@@ -139,7 +139,8 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-        else if ((ourPawns & forward_file_bb(Us, s)) && !neighbours && !lever && opposed)
+        else if ((ourPawns & forward_file_bb(Us, s)) && !neighbours && opposed 
+            && !(attacks_bb<ROOK>(s,theirPawns) & forward_file_bb(Us, s) & pawn_attacks_bb<Them>(theirPawns)))
             score -= Doubled;
     }
 
