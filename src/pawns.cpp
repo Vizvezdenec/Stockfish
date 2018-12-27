@@ -84,6 +84,7 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
+    int weakStructure = 0;
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -132,14 +133,16 @@ namespace {
             score += Connected[opposed][bool(phalanx)][popcount(support)][relative_rank(Us, s)];
 
         else if (!neighbours)
-            score -= Isolated, e->weakUnopposed[Us] += !opposed;
+            score -= Isolated, e->weakUnopposed[Us] += !opposed, weakStructure++;
 
         else if (backward)
-            score -= Backward, e->weakUnopposed[Us] += !opposed;
+            score -= Backward, e->weakUnopposed[Us] += !opposed, weakStructure++;
 
         if (doubled && !support)
             score -= Doubled;
     }
+    if (weakStructure > 1)
+        score -= make_score(0, 20);
 
     return score;
   }
