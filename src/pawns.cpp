@@ -139,7 +139,7 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-        else if ((ourPawns & forward_file_bb(Us, s)) && !neighbours && !lever)
+        else if ((ourPawns & forward_file_bb(Us, s)) && !neighbours && !lever && opposed)
             score -= Doubled;
     }
 
