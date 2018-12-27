@@ -142,7 +142,7 @@ namespace {
             score -= Doubled;
     }
     if (weakStructure > 1)
-        score -= make_score(0, 20);
+        score -= make_score(0, 20) * (weakStructure - 1);
 
     return score;
   }
