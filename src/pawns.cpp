@@ -139,6 +139,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+        else if ((ourPawns & forward_file_bb(Them, s)) && !(pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Them, s))
+                 && !neighbours && opposed )
+            score -= make_score(20, 30);
     }
 
     return score;
