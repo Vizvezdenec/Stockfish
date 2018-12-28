@@ -349,8 +349,7 @@ void Thread::search() {
           : ct;
 
   // In evaluate.cpp the evaluation is from the white point of view
-  contempt = (us == WHITE ?  make_score(ct, ct / 2)
-                          : -make_score(ct, ct / 2));
+
   if (Limits.use_time_management() && std::min(Limits.time[us], Limits.time[~us]) > 100){
                   int ourTime   = Limits.time[us]  + int(rootPos.non_pawn_material()) * Limits.inc[us]  / 300;
                   int theirTime = Limits.time[~us] + int(rootPos.non_pawn_material()) * Limits.inc[~us] / 300;
