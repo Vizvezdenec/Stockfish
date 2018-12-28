@@ -349,15 +349,8 @@ void Thread::search() {
           : ct;
 
   // In evaluate.cpp the evaluation is from the white point of view
-
-  if (Limits.use_time_management() && std::min(Limits.time[us], Limits.time[~us]) > 100){
-                  int ourTime   = Limits.time[us]  + int(rootPos.non_pawn_material()) * Limits.inc[us]  / 300;
-                  int theirTime = Limits.time[~us] + int(rootPos.non_pawn_material()) * Limits.inc[~us] / 300;
-                  double timeFactor = double(ourTime) / double(theirTime);
-                  ct += std::min(4, int(std::round(5*log(timeFactor))));
-              }
-              contempt = (rootPos.side_to_move() == WHITE ?  make_score(ct, ct / 2)
-                                                          : -make_score(ct, ct / 2));
+  contempt = (us == WHITE ?  make_score(ct, ct / 2)
+                          : -make_score(ct, ct / 2));
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   (rootDepth += ONE_PLY) < DEPTH_MAX
@@ -933,7 +926,8 @@ moves_loop: // When in check, search starts from here
 
       moveCountPruning =   depth < 16 * ONE_PLY
                         && moveCount >= FutilityMoveCounts[improving][depth / ONE_PLY];
-
+      bool moveCountPruning2 = depth < 16 * ONE_PLY
+		  && moveCount >= FutilityMoveCounts[false][depth / ONE_PLY];
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -1030,7 +1024,7 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1
-          && (!captureOrPromotion || moveCountPruning))
+          && (!captureOrPromotion || moveCountPruning2))
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
