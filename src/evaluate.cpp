@@ -479,8 +479,10 @@ namespace {
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
-    if (!more_than_one(pos.pieces(PAWN) & kingFlank))
+    if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
+    else if (!more_than_one(pos.pieces(PAWN) & kingFlank))
+        score -= PawnlessFlank / 2;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
