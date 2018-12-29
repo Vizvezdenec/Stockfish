@@ -153,7 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score CloseEnemies       = S(  8,  0);
+  constexpr Score CloseEnemies       = S( 11,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
@@ -412,8 +412,10 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
+    Bitboard stronglyProtected =  attackedBy[Us][PAWN]
+                       | (attackedBy2[Us] & ~attackedBy2[Them]);
     kingFlank = KingFlank[file_of(ksq)];
-    b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
+    b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp & ~stronglyProtected;
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
@@ -466,9 +468,9 @@ namespace {
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 185 * popcount(kingRing[Us] & (weak | unsafeChecks))
-                 + 150 * popcount(pos.blockers_for_king(Us) | (unsafeChecks & ~kingRing[Us]))
-                 +       tropism * tropism / 4
+                 + 185 * popcount(kingRing[Us] & weak)
+                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 +       tropism * tropism / 2
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
