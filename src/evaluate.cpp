@@ -403,8 +403,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -465,10 +463,6 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
-
-    if (more_than_one(pos.pieces(Us, PAWN) & (FileDBB | FileEBB)) 
-        && !(pos.pieces(Us, PAWN) & (FileDBB | FileEBB) & ~shift<Down>(pos.pieces(Them,PAWN))))
-        kingDanger += popcount(pos.pieces(Us, PAWN) & (FileDBB | FileEBB) & LowRanks) * 30;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -572,6 +566,8 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
+
+    score += make_score(10, 10) * popcount(double_pawn_attacks_bb<Them>(pos.pieces(Them) & ~pos.pieces(Them,PAWN)) & b);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
