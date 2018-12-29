@@ -403,8 +403,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard AntiCamp = (Us == WHITE ? Rank2BB | Rank3BB | Rank4BB | Rank5BB
-                                           : Rank4BB | Rank5BB | Rank6BB | Rank7BB);
+    constexpr Bitboard AntiCamp = (Rank6BB | Rank3BB | Rank4BB | Rank5BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -466,7 +465,7 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    int defensiveAttacks = popcount(((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us]) & kingFlank & AntiCamp);
+    int defensiveAttacks = popcount(attackedBy[Us][ALL_PIECES]  & kingFlank & AntiCamp);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
