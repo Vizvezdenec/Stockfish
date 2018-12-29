@@ -594,7 +594,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    score += make_score(8, 0) * popcount(attackedBy[Us][PAWN] & HighRanks & CenterFiles); 
+    score += make_score(8, 0) * popcount(attackedBy[Us][PAWN] & HighRanks & (FileDBB | FileEBB)); 
     if (T)
         Trace::add(THREAT, Us, score);
 
