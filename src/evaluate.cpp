@@ -76,7 +76,7 @@ namespace {
   constexpr Bitboard QueenSide   = FileABB | FileBBB | FileCBB | FileDBB;
   constexpr Bitboard CenterFiles = FileCBB | FileDBB | FileEBB | FileFBB;
   constexpr Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
-  constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB | Rank3BB | Rank6BB);
+  constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 
   constexpr Bitboard KingFlank[FILE_NB] = {
     QueenSide ^ FileDBB, QueenSide, QueenSide,
@@ -343,7 +343,7 @@ namespace {
                                      * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
-                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
+                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(Us, PAWN) | (pos.pieces(Them, PAWN) & attackedBy[Them][PAWN])) & Center))
                     score += LongDiagonalBishop;
             }
 
