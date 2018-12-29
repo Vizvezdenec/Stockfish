@@ -403,8 +403,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard AntiCamp = (Us == WHITE ? Rank2BB | Rank3BB | Rank4BB | Rank5BB
-                                           : Rank4BB | Rank5BB | Rank6BB | Rank7BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -413,7 +413,7 @@ namespace {
     Score score = pe->king_safety<Us>(pos);
 
     // Find the squares that opponent attacks in our king flank, and the squares
-    // which are attacked twice in that flank.z
+    // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
@@ -466,8 +466,9 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    int defensiveAttacks = popcount(((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) 
-                           | attackedBy2[Us]) & kingFlank & AntiCamp);
+    if (more_than_one(pos.pieces(Us, PAWN) & (FileDBB | FileEBB)) 
+        && !(pos.pieces(Us, PAWN) & (FileDBB | FileEBB) & ~shift<Down>(pos.pieces(Them,PAWN))))
+        kingDanger += popcount(pos.pieces(Us, PAWN) & (FileDBB | FileEBB) & LowRanks) * 30;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -489,8 +490,6 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-
-    score += make_score(2, 0) * defensiveAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
