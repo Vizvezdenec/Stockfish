@@ -403,7 +403,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard AntiCamp = (Rank6BB | Rank3BB | Rank4BB | Rank5BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -465,8 +464,6 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    int defensiveAttacks = popcount((attackedBy2[Us] | double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN))) & kingFlank & AntiCamp);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -488,8 +485,6 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    score += make_score(7, 0) * defensiveAttacks;
-
     if (T)
         Trace::add(KING, Us, score);
 
@@ -505,6 +500,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  HighRanks = (Us == WHITE ? Rank6BB | Rank7BB |Rank8BB : Rank3BB | Rank2BB |Rank1BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -598,6 +594,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    score += make_score(8, 0) * popcount(pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & (FileDBB | FileEBB)) & HighRanks);
     if (T)
         Trace::add(THREAT, Us, score);
 
