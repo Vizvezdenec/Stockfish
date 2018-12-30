@@ -316,6 +316,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (mg_value(MobilityBonus[Pt - 2][mob]) < 0 && (relative_rank(Us,s) == RANK_1 || ((FileABB | FileHBB) & s)))
+            mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -552,7 +555,7 @@ namespace {
 
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
-                & ~stronglyProtected & ~pos.pieces(Them, PAWN)
+                & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
