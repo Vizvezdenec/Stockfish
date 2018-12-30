@@ -467,7 +467,7 @@ namespace {
 
     Bitboard stronglyProtected =  attackedBy[Us][PAWN] | attackedBy2[Us];
     
-    bool strongDefence = !((kingRing[Us] | shift<Up>(kingRing[Us])) & ~stronglyProtected);
+    bool strongDefence = !((kingRing[Us] | shift<Up>(kingRing[Us])) & ~pos.pieces(Us, KING) & ~stronglyProtected);
     
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
