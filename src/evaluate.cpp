@@ -316,9 +316,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mg_value(MobilityBonus[Pt - 2][mob]) < 0 && (relative_rank(Us,s) == RANK_1 || ((FileABB | FileHBB) & s)))
-            mobility[Us] += MobilityBonus[Pt - 2][mob] / 2;
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -473,6 +470,7 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
+                 + 150 * (pos.count<QUEEN>(Them) < pos.count<QUEEN>(Us))
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  -   30;
