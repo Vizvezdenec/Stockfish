@@ -194,7 +194,7 @@ Entry* probe(const Position& pos) {
   e->openFiles = popcount(e->semiopenFiles[WHITE] & e->semiopenFiles[BLACK]);
   e->asymmetry = popcount(  (e->passedPawns[WHITE]   | e->passedPawns[BLACK])
                           | (e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]));
-  e->flankdifference = abs(e->kingsidePawns[WHITE] + e->queensidePawns[WHITE] - e->kingsidePawns[BLACK] - e->queensidePawns[BLACK]);
+  e->flankdifference = abs(e->kingsidePawns[WHITE] - e->kingsidePawns[BLACK]) + abs(e->queensidePawns[WHITE]  - e->queensidePawns[BLACK]);
 
   return e;
 }
