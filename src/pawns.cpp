@@ -66,6 +66,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Bitboard KingSide    = FileEBB | FileFBB | FileGBB | FileHBB;
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
@@ -78,6 +79,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
+    e->kingsidePawns[Us] = e->queensidePawns[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
@@ -139,6 +141,10 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+        if (KingSide & s)
+            e->kingsidePawns[Us]++;
+        else 
+            e->queensidePawns[Us]++;
     }
 
     return score;
@@ -188,6 +194,7 @@ Entry* probe(const Position& pos) {
   e->openFiles = popcount(e->semiopenFiles[WHITE] & e->semiopenFiles[BLACK]);
   e->asymmetry = popcount(  (e->passedPawns[WHITE]   | e->passedPawns[BLACK])
                           | (e->semiopenFiles[WHITE] ^ e->semiopenFiles[BLACK]));
+  e->flankdifference = abs(e->kingsidePawns[WHITE] + e->queensidePawns[WHITE] - e->kingsidePawns[BLACK] - e->queensidePawns[BLACK]);
 
   return e;
 }
