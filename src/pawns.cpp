@@ -137,10 +137,11 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
-        if ((doubled && !support)
-           || ((ourPawns & forward_file_bb(Them, s)) && !(pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Them, s))
-                 && !neighbours && opposed ))
+        if (doubled && !support)
             score -= Doubled;
+
+        if (more_than_one(forward_file_bb(Us, s) & ourPawns))
+            score -= make_score(10, 100);
     }
 
     return score;
