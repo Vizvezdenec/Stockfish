@@ -490,7 +490,7 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    score += make_score(4,0) * strongDefence;
+    score += make_score(6,0) * strongDefence;
 
     if (T)
         Trace::add(KING, Us, score);
