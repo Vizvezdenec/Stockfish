@@ -387,6 +387,11 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            if (pos.count<BISHOP>(Them) == 1 
+                && (((pos.pieces(Them, BISHOP) & DarkSquares) && (DarkSquares & s))
+                || ((pos.pieces(Them, BISHOP) & ~DarkSquares) && (~DarkSquares & s))))
+                score -= make_score(5,5);
         }
     }
     if (T)
