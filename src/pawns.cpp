@@ -137,7 +137,9 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
-        if (doubled && !support)
+        if ((doubled && !support)
+           || ((ourPawns & forward_file_bb(Them, s)) && !(pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Them, s))
+                 && !neighbours && opposed ))
             score -= Doubled;
     }
 
