@@ -467,7 +467,7 @@ namespace {
 
     Bitboard stronglyProtected =  attackedBy[Us][PAWN] | attackedBy2[Us];
     
-    bool strongDefence = !((kingRing[Us] | shift<Up>(kingRing[Us])) & ~pos.pieces(Us, KING) & ~stronglyProtected);
+    int strongDefence = popcount((kingRing[Us] | shift<Up>(kingRing[Us])) & ~pos.pieces(Us, KING) & stronglyProtected);
     
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -475,7 +475,6 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
-                 - 100 * strongDefence
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  -   30;
@@ -490,6 +489,8 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+
+    score += make_score(4,0) * strongDefence;
 
     if (T)
         Trace::add(KING, Us, score);
