@@ -140,7 +140,7 @@ namespace {
         if (doubled && !support)
             score -= Doubled;
 
-        if (more_than_one(forward_file_bb(Us, s) & ourPawns))
+        else if (more_than_one(forward_file_bb(Us, s) & ourPawns))
             score -= make_score(10, 100);
     }
 
