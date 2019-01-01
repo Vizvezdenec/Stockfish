@@ -403,6 +403,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -484,6 +485,10 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+
+    if (relative_rank(Us, ksq) == RANK_1 
+        && !(attackedBy[Us][KING] & ~(Rank1BB | Rank8BB) & (~pos.pieces(Us,PAWN) & shift<Down>(pos.pieces())) & ~attackedBy[Them][PAWN]))
+        score -= make_score(0, 60);
 
     if (T)
         Trace::add(KING, Us, score);
@@ -591,17 +596,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    }
-    if (pos.count<QUEEN>(Us) == 1)
-    {
-    b = attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & attackedBy[Them][KING];
-    while (b)
-        {
-        Square s1 = pop_lsb(&b);
-        if (((attackedBy2[Us] | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN])) & s1)
-            && !(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
-        score += make_score(20, 20);
-        }
     }
 
     if (T)
