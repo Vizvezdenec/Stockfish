@@ -594,17 +594,13 @@ namespace {
     }
     if (pos.count<QUEEN>(Us) == 1)
     {
-    if (attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & attackedBy[Them][KING])
-    {
-    b = attackedBy[Them][KING];
+    b = attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & attackedBy[Them][KING];
     while (b)
         {
         Square s1 = pop_lsb(&b);
-        if ((attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & s1)
-            &&!(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
+        if (!(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
         score += make_score(20, 20);
         }
-    }
     }
 
     if (T)
