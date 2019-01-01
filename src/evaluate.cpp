@@ -561,10 +561,10 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
     
     if (pos.pieces(Us, BISHOP) & DarkSquares)
-        score += make_score(5,10) * pe->weak_unopposed_light(Them);
+        score += make_score(5,10) * pe->weak_unopposed_dark(Them);
 
     if (pos.pieces(Us, BISHOP) & ~DarkSquares)
-        score += make_score(5,10) * pe->weak_unopposed_dark(Them);
+        score += make_score(5,10) * pe->weak_unopposed_light(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
