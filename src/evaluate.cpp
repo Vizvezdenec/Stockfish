@@ -598,7 +598,8 @@ namespace {
     while (b)
         {
         Square s1 = pop_lsb(&b);
-        if (!(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
+        if (((attackedBy2[Us] | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN])) & s1)
+            && !(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
         score += make_score(20, 20);
         }
     }
