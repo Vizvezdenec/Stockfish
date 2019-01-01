@@ -464,12 +464,10 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    bool immobileKing = !(attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + (150 + 50 * immobileKing) * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -593,6 +591,20 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+    if (pos.count<QUEEN>(Us) == 1)
+    {
+    if (attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & attackedBy[Them][KING])
+    {
+    b = attackedBy[Them][KING];
+    while (b)
+        {
+        Square s1 = pop_lsb(&b);
+        if ((attacks_bb<QUEEN>(pos.square<QUEEN>(Us), pos.pieces(PAWN)) & s1)
+            &&!(b & ~pos.attacks_from<QUEEN>(s1) & ~attackedBy[Us][ALL_PIECES] & ~pos.pieces()))
+        score += make_score(20, 20);
+        }
+    }
     }
 
     if (T)
