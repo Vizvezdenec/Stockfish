@@ -434,31 +434,29 @@ namespace {
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-    int immobileKing = !(attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]) * 100;
-
     // Enemy queen safe checks
     if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-        kingDanger += QueenSafeCheck + immobileKing;
+        kingDanger += QueenSafeCheck;
 
     b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
     // Enemy rooks checks
     if (b1 & safe)
-        kingDanger += RookSafeCheck + immobileKing;
+        kingDanger += RookSafeCheck;
     else
         unsafeChecks |= b1;
 
     // Enemy bishops checks
     if (b2 & safe)
-        kingDanger += BishopSafeCheck + immobileKing;
+        kingDanger += BishopSafeCheck;
     else
         unsafeChecks |= b2;
 
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (b & safe)
-        kingDanger += KnightSafeCheck + immobileKing;
+        kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= b;
 
@@ -502,6 +500,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  TRank7BB = (Us == WHITE ? Rank7BB : Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -594,6 +593,10 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    score += make_score (0, 8) * popcount( TRank7BB &
+                      ((pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us)))
+                     | attackedBy[Us][PAWN]));
 
     if (T)
         Trace::add(THREAT, Us, score);
