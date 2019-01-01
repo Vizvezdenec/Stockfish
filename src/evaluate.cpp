@@ -387,10 +387,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-            if (((pos.pieces(Them, BISHOP) & DarkSquares) && (DarkSquares & s))
-                || ((pos.pieces(Them, BISHOP) & ~DarkSquares) && (~DarkSquares & s)))
-                score -= make_score(5,5);
         }
     }
     if (T)
@@ -596,6 +592,8 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    score += make_score(3,3) * popcount(pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN] & ~attackedBy2[Them] & attackedBy2[Us]);
 
     if (T)
         Trace::add(THREAT, Us, score);
