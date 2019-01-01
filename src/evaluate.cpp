@@ -559,6 +559,12 @@ namespace {
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+    
+    if (pos.pieces(Us, BISHOP) & DarkSquares)
+        score += WeakUnopposedPawn * pe->weak_unopposed_light(Them);
+
+    if (pos.pieces(Us, BISHOP) & ~DarkSquares)
+        score += WeakUnopposedPawn * pe->weak_unopposed_light(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
@@ -592,8 +598,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
-    score += make_score(3,3) * popcount(pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN] & ~attackedBy2[Them] & attackedBy2[Us]);
 
     if (T)
         Trace::add(THREAT, Us, score);
