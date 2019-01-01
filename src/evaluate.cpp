@@ -483,8 +483,8 @@ namespace {
         score -= PawnlessFlank;
 
     if (pos.non_pawn_material()
-        && !(pos.pieces() & ~pos.pieces(PAWN) & ~pos.pieces(KING) & kingFlank))
-        score -= make_score(0, 50);
+        && !(pos.pieces() & ~pos.pieces(KING) & kingFlank))
+        score -= make_score(0, 100);
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
