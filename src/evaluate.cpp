@@ -387,9 +387,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-            if ((attacks_bb<QUEEN>(s, pos.pieces(PAWN)) & attackedBy[Us][PAWN] & shift<Down>(pos.pieces(Them, KING))) 
-                 && relative_rank(Us, pos.square<KING>(Them)) == RANK_8)
-                score += make_score(20, 50);
         }
     }
     if (T)
@@ -467,10 +464,12 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    bool immobileKing = !(attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 + (150 + 50 * immobileKing) * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
