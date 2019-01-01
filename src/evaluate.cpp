@@ -387,6 +387,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            if ((attacks_bb<QUEEN>(s, pos.pieces(PAWN)) & attackedBy[Us][PAWN] & shift<Down>(pos.pieces(Them, KING))) 
+                 && relative_rank(Us, pos.square<KING>(Them)) == RANK_8)
+                score += make_score(30, 30);
         }
     }
     if (T)
