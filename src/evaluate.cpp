@@ -486,7 +486,8 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    if (relative_rank(Us, ksq) == RANK_1 
+    if (relative_rank(Us, ksq) == RANK_1
+        && pos.pieces(Them, ROOK, QUEEN)
         && !(attackedBy[Us][KING] & ~(Rank1BB | Rank8BB) & (~pos.pieces(Us,PAWN) & shift<Down>(pos.pieces())) & ~attackedBy[Them][PAWN]))
         score -= make_score(0, 60);
 
