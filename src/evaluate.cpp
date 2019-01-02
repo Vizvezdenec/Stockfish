@@ -587,16 +587,16 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
-        b &= ~attackedBy[Them][ALL_PIECES];
-        while (b)
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
+        
+        Bitboard b1 = b & ~attackedBy2[Them];
+        while (b1)
         {
-             Square s1 = pop_lsb(&b);
-             if (!(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.attacks_from<KNIGHT>(s1) & ~pos.pieces(Them)))
+             Square s1 = pop_lsb(&b1);
+             if (!(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.attacks_from<BISHOP>(s1) & ~pos.pieces(Them)))
                  score += make_score(100, 50);
         }
-
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        b   |= (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
