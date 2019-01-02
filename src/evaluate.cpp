@@ -593,7 +593,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (pe->pushed_structure(Us) - pe->pushed_structure(Them) > 3)
+    if (abs(pos.count<PAWN>(Us) - pos.count<PAWN>(Them)) < 2 
+        && pe->pushed_structure(Us) - pe->pushed_structure(Them) > 3)
         score += make_score(0,10) * (pe->pushed_structure(Us) - pe->pushed_structure(Them) - 3);
     if (T)
         Trace::add(THREAT, Us, score);
