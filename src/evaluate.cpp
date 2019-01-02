@@ -434,41 +434,42 @@ namespace {
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-    int immobileKing = !(attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]) * 100;
     // Enemy queen safe checks
     if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
-        kingDanger += QueenSafeCheck + immobileKing;
+        kingDanger += QueenSafeCheck;
 
     b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
     // Enemy rooks checks
     if (b1 & safe)
-        kingDanger += RookSafeCheck + immobileKing;
+        kingDanger += RookSafeCheck;
     else
         unsafeChecks |= b1;
 
     // Enemy bishops checks
     if (b2 & safe)
-        kingDanger += BishopSafeCheck + immobileKing;
+        kingDanger += BishopSafeCheck;
     else
         unsafeChecks |= b2;
 
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (b & safe)
-        kingDanger += KnightSafeCheck + immobileKing;
+        kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= b;
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+
+    if ((attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]))
+          unsafeChecks &= mobilityArea[Them];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + (150 + immobileKing) * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
