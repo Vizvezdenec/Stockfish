@@ -463,8 +463,6 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
-    
-    int mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -473,8 +471,7 @@ namespace {
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
-                 +       mobilityDiff
-                 +       mobilityDiff * abs(mobilityDiff) / 80
+                 +       mg_value(mobility[Them] - mobility[Us])
                  -   30;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
