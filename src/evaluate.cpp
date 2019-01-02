@@ -215,6 +215,8 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard badBishop[COLOR_NB];
+
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -257,6 +259,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    badBishop[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -346,21 +349,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
                 
-                if (mob < 3)
-                {
-                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~attackedBy[Us][PAWN]);
-                blocked |= shift<Down>(blocked) & pos.pieces(Us, PAWN) & ~attackedBy[Them][PAWN];
-                Bitboard bishopArea = s;
-                for (int i = 1; i < 3; i++)
-                {
-                bishopArea |= (shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
-                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked;
-                }
-                
-                if (!((shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
-                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked & ~bishopArea))
-                   score -= make_score(150, 150);
-                }
+                if (mob < 2)
+                    badBishop[Us] |= s;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -515,6 +505,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down   = (Us == BLACK ? NORTH : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
@@ -579,6 +570,24 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+
+    if (badBishop[Us])
+        {
+        Bitboard b1 = badBishop[Us];
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~pawn_attacks_bb<Us>(b | pos.pieces(Us, PAWN)));
+        Bitboard badSquares = attackedBy[Them][PAWN] & ~pawn_attacks_bb<Us>(b | pos.pieces(Us, PAWN));
+        while (b1)
+        {
+            Square s1 = pop_lsb(&b1);
+            Bitboard bishopArea = 0;
+            bishopArea |= (shift<NORTH_EAST>(s1) | shift<NORTH_WEST>(s1) | 
+                              shift<SOUTH_EAST>(s1) | shift<SOUTH_WEST>(s1) | s1) & ~blocked & ~badSquares;
+            if (!((shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
+                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked & ~badSquares & ~bishopArea))
+                 score -= make_score(150,150);
+        }
+        }
+    
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
