@@ -463,6 +463,8 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
+    
+    int mobilityDiff = mg_value(mobility[Them] - mobility[Us]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -471,7 +473,8 @@ namespace {
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
-                 +       mg_value(mobility[Them] - mobility[Us])
+                 +       mobilityDiff
+                 +       mobilityDiff * abs(mobilityDiff) / 30
                  -   30;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -587,16 +590,8 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
-        
-        Bitboard b1 = b & ~attackedBy2[Them];
-        while (b1)
-        {
-             Square s1 = pop_lsb(&b1);
-             if (!(attackedBy[Them][QUEEN] & ~attackedBy[Us][ALL_PIECES] & ~pos.attacks_from<BISHOP>(s1) & ~pos.pieces(Them)))
-                 score += make_score(100, 50);
-        }
-        b   |= (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
