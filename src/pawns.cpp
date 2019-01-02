@@ -139,9 +139,6 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-
-        if (more_than_one(forward_file_bb(Us, s) & ourPawns))
-            score -= make_score(8, 70);
     }
 
     return score;
