@@ -345,6 +345,22 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+                
+                if (mob < 3)
+                {
+                blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) & ~attackedBy[Us][PAWN]);
+                blocked |= shift<Down>(blocked) & pos.pieces(Us, PAWN) & ~attackedBy[Them][PAWN];
+                Bitboard bishopArea = s;
+                for (int i = 1; i < 3; i++)
+                {
+                bishopArea |= (shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
+                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked;
+                }
+                
+                if (!((shift<NORTH_EAST>(bishopArea) | shift<NORTH_WEST>(bishopArea) | 
+                              shift<SOUTH_EAST>(bishopArea) | shift<SOUTH_WEST>(bishopArea)) & ~blocked & ~bishopArea))
+                   score -= make_score(150, 150);
+                }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
