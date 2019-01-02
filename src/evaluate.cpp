@@ -464,10 +464,12 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    bool immobileKing = !(attackedBy[Us][KING] & ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES]);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 + (150 + 150 * immobileKing) * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -500,7 +502,6 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  TRank7BB = (Us == WHITE ? Rank7BB : Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -593,10 +594,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
-    score += make_score (0, 8) * popcount( TRank7BB &
-                      ((pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us)))
-                     | attackedBy[Us][PAWN]));
 
     if (T)
         Trace::add(THREAT, Us, score);
