@@ -566,7 +566,7 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
-    score += make_score(2, 3) * popcount(pawn_attacks_bb<Us>(b) 
+    score += make_score(4, 6) * popcount(pawn_attacks_bb<Us>(b) 
              & ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][PAWN]) | attackedBy2[Them]));
 
     // Bonus for safe pawn threats on the next move
