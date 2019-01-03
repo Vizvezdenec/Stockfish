@@ -311,12 +311,13 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (attacks_bb<Pt>(s, pos.pieces(PAWN)) & kingRing[Them])
-            kingAttackersCount[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (mob == 0 && (kingRing[Us] & s))
+            score -= make_score(20,20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
