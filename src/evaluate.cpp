@@ -316,9 +316,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mg_value(MobilityBonus[Pt - 2][mob]) < 0 && (attackedBy[Us][KING] & s))
-              mobility[Us] += MobilityBonus[Pt - 2][mob] / 4;
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -569,6 +566,8 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
+    score += make_score(2, 3) * popcount(pawn_attacks_bb<Us>(b) 
+             & ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][PAWN]) | attackedBy2[Them]));
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
