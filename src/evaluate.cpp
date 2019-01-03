@@ -316,7 +316,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if ((kingRing[Us] & s) && (pos.attacks_from<Pt>(s) & attackedBy[Them][PAWN] & kingRing[Us]))
+        if ((attackedBy[Us][KING] & s) && (pos.attacks_from<Pt>(s) & attackedBy[Them][PAWN] & kingRing[Us]))
               score -= make_score(20, 20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
