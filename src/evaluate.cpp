@@ -319,7 +319,16 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
+            Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
+
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
+
+            if (!more_than_one(nonPawn & KingSide))
+                  bb &= QueenSide;
+
+            if (!more_than_one(nonPawn & QueenSide))
+                  bb &= KingSide;
+
             if (bb & s)
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
 
