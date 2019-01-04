@@ -319,16 +319,7 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
-            Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
-
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
-
-            if (!more_than_one(nonPawn & KingSide))
-                  bb &= ~(FileHBB | FileGBB);
-
-            if (!more_than_one(nonPawn & KingSide))
-                  bb &= ~(FileABB | FileBBB);
-
             if (bb & s)
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
 
@@ -575,6 +566,9 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
+
+    score += make_score(2, 1) * popcount(pawn_attacks_bb<Us>(b) 
+             & ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][PAWN]) | attackedBy2[Them]));
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
