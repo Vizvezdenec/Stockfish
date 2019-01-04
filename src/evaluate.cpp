@@ -324,10 +324,10 @@ namespace {
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
 
             if (!more_than_one(nonPawn & KingSide))
-                  bb &= QueenSide;
+                  bb &= ~(FileGBB | FileHBB);
 
             if (!more_than_one(nonPawn & QueenSide))
-                  bb &= KingSide;
+                  bb &= ~(FileABB | FileBBB);
 
             if (bb & s)
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
