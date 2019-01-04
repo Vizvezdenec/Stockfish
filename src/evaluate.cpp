@@ -215,6 +215,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard bigKingRing[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -269,6 +270,7 @@ namespace {
     else if (file_of(pos.square<KING>(Us)) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
+    bigKingRing[Us] = kingRing[Us] | shift<Up>(kingRing[Us]) | shift<WEST>(kingRing[Us]) | shift<EAST>(kingRing[Us]);
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingRing[Us] &= ~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
@@ -311,6 +313,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+        else if (more_than_one(b & bigKingRing[Them]))
+            kingAttackersCount[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
