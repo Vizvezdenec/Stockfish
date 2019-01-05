@@ -343,10 +343,13 @@ namespace {
                                      * (1 + popcount(blocked & CenterFiles));
 
               if (DarkSquares & s)
-                     score -= BishopPawns * popcount(pos.pieces(Them, PAWN) & DarkSquares & attackedBy[Them][PAWN]);
+                     score -= BishopPawns * popcount(pos.pieces(Them, PAWN) & DarkSquares 
+                            & (double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))
+                            | (attackedBy[Them][PAWN] & pawn_attacks_bb<Us>(pos.pieces(Them, PAWN)))));
                 else 
-                     score -= BishopPawns * popcount(pos.pieces(Them, PAWN) & ~DarkSquares & attackedBy[Them][PAWN]);
-
+                     score -= BishopPawns * popcount(pos.pieces(Them, PAWN) & ~DarkSquares 
+                            & (double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))
+                            | (attackedBy[Them][PAWN] & pawn_attacks_bb<Us>(pos.pieces(Them, PAWN)))));               
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
