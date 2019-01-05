@@ -153,6 +153,7 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BishopPawns1       = S(  1,  3);
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 69, 36);
@@ -342,11 +343,11 @@ namespace {
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
                 if (DarkSquares & s)
-                     score -= BishopPawns
+                     score -= BishopPawns1
                               * (2 * popcount(pos.pieces(Them, PAWN) & DarkSquares & attackedBy[Them][PAWN]) 
                               - pe->pawns_on_same_color_squares(Them, s));
                 else 
-                     score -= BishopPawns
+                     score -= BishopPawns1
                               * (2 * popcount(pos.pieces(Them, PAWN) & ~DarkSquares & attackedBy[Them][PAWN]) 
                               - pe->pawns_on_same_color_squares(Them, s));
                 // Bonus for bishop on a long diagonal which can "see" both center squares
