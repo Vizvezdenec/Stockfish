@@ -994,7 +994,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(29 + std::max(0, int(QueenValueMg - pos.non_pawn_material(us)))/200) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(29 + std::max(0, int(QueenValueMg - pos.non_pawn_material(us)))/400) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (   !extension // (~20 Elo)
