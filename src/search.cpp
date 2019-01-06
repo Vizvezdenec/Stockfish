@@ -970,7 +970,6 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck
               && !pos.advanced_pawn_push(move)
-              && (ss-1)->statScore < 30000
              )
           {
               // Move count based pruning (~30 Elo)
@@ -996,7 +995,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-29 * lmrDepth * (lmrDepth + (ss-1)->statScore > 25000))))
                   continue;
           }
           else if (   !extension // (~20 Elo)
