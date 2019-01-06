@@ -965,7 +965,6 @@ moves_loop: // When in check, search starts from here
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && pos.non_pawn_material(~us)
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           if (   !captureOrPromotion
@@ -995,7 +994,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(29 + std::max(0, int(QueenValueMg - pos.non_pawn_material(us)))/50) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (   !extension // (~20 Elo)
