@@ -965,9 +965,7 @@ moves_loop: // When in check, search starts from here
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && bestValue > VALUE_MATED_IN_MAX_PLY
-          && !(abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us)) >= KnightValueMg 
-             && eval == 0))
+          && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           if (   !captureOrPromotion
               && !givesCheck
@@ -1000,7 +998,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (   !extension // (~20 Elo)
-                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+                   && !pos.see_ge(move, -(PawnValueEg + 50 * (pos.non_pawn_material(us) < RookValueMg) ) * (depth / ONE_PLY)))
                   continue;
       }
 
