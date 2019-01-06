@@ -998,7 +998,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (   !extension // (~20 Elo)
-                   && !pos.see_ge(move, -PawnValueEg * (1 + (pos.non_pawn_material(us) < RookValueMg)) * (depth / ONE_PLY)))
+                   && !pos.see_ge(move, -PawnValueEg * (1 + (pos.non_pawn_material(us) <= QueenValueMg)) * (depth / ONE_PLY)))
                   continue;
       }
 
