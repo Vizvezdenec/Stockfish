@@ -739,8 +739,13 @@ namespace {
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
+    bool pawnsOnBothFlanks = 0;
+    if (eg > 0)
+    pawnsOnBothFlanks =   (pos.pieces(WHITE, PAWN) & QueenSide)
+                            && (pos.pieces(WHITE, PAWN) & KingSide);
+    else 
+    pawnsOnBothFlanks =   (pos.pieces(BLACK, PAWN) & QueenSide)
+                            && (pos.pieces(BLACK, PAWN) & KingSide);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
