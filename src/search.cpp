@@ -994,11 +994,11 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * (lmrDepth - (ss-1)->statScore > 25000))))
+              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (   !extension // (~20 Elo)
-                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+                   && !pos.see_ge(move, -PawnValueEg * (1 + 2 * (pos.non_pawn_material(us) < RookValueMg)) * (depth / ONE_PLY)))
                   continue;
       }
 
