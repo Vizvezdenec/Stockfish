@@ -739,20 +739,16 @@ namespace {
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
-
-    bool piecesOnBothFlanks =   (pos.pieces() & QueenSide)
-                            && (pos.pieces() & KingSide);
+    int pawnsOnBothFlanks =   bool((pos.pieces(WHITE, PAWN) & QueenSide) && (pos.pieces(WHITE, PAWN) & KingSide)) 
+                            + bool((pos.pieces(BLACK, PAWN) & QueenSide) && (pos.pieces(BLACK, PAWN) & KingSide));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
-                    + 32 * piecesOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -150 ;
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
