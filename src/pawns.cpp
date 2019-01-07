@@ -83,6 +83,8 @@ namespace {
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->pawnsOnSquares[Us][BLACK] = 0;
+    e->pawnsOnSquares[Us][WHITE] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -108,7 +110,14 @@ namespace {
         // on the adjacent files and cannot be safely advanced.
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
-
+        if (support)
+           {
+           if (DarkSquares & s)
+             e->pawnsOnSquares[Us][BLACK]++;
+           else 
+             e->pawnsOnSquares[Us][WHITE]++;
+           }
+        
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
         // which could become passed after one or two pawn pushes when are
