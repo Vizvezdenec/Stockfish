@@ -83,8 +83,8 @@ namespace {
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
-    e->pawnsOnSquares[Us][BLACK] = 0;
-    e->pawnsOnSquares[Us][WHITE] = 0;
+    e->protectedPawnsOnSquares[Us][BLACK] = 0;
+    e->protectedPawnsOnSquares[Us][WHITE] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -113,9 +113,9 @@ namespace {
         if (support)
            {
            if (DarkSquares & s)
-             e->pawnsOnSquares[Us][BLACK]++;
+             e->protectedPawnsOnSquares[Us][BLACK]++;
            else 
-             e->pawnsOnSquares[Us][WHITE]++;
+             e->protectedPawnsOnSquares[Us][WHITE]++;
            }
         
         // Passed pawns will be properly scored in evaluation because we need
