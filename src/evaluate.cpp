@@ -347,7 +347,7 @@ namespace {
                     score += LongDiagonalBishop;
             }
             else if (!(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2])))
-                score -= make_score(0, 25);
+                score -= make_score(15, 75);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
