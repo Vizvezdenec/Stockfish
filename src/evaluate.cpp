@@ -348,7 +348,7 @@ namespace {
             }
             else if (!(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2]) 
                       & ~(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN])))
-                score -= make_score(15, 75);
+                score -= make_score(10, 40);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
