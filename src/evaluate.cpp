@@ -563,6 +563,7 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+    b |= pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & pos.pieces(Them);
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
@@ -591,24 +592,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    }
-    else if (pos.count<QUEEN>(Them) > 1)
-        {
-        Bitboard bb = pos.pieces(Them, QUEEN);
-    	while (bb)
-    	{
-        Square s = pop_lsb(&bb);
-        safe = mobilityArea[Us] & ~stronglyProtected;
-
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
-
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    	}
     }
 
     if (T)
