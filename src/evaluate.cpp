@@ -565,18 +565,17 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= (~attackedBy[Them][PAWN] & safe) 
-          | (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & ~double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)));
+    b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
+    score += ThreatBySafePawn * (popcount(b) - popcount(double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & safe) & nonPawnEnemies));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
