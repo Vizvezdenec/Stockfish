@@ -563,6 +563,7 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+    b |= attackedBy[Us][PAWN] & pos.pieces(Them, PAWN);
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
@@ -572,11 +573,7 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     // Our safe or protected pawns
-    b = pos.pieces(Us, PAWN) 
-        & (~attackedBy[Them][ALL_PIECES] 
-        | (attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them] & ~attackedBy[Them][PAWN]) 
-        | (attackedBy[Us][PAWN] & (~attackedBy[Them][PAWN] | (attackedBy2[Us] & ~attackedBy2[Them]))) 
-        | (double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & ~double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))));
+    b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
