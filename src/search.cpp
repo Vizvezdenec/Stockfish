@@ -963,7 +963,7 @@ moves_loop: // When in check, search starts from here
           // that is multiple moves fail high, and we can prune the whole subtree by returning
           // the hard beta bound.
           else if (cutNode && singularBeta > beta)
-              return (beta + (singularBeta - beta) * std::max((ss-1)->statScore - 23000, 0) / 8000);
+              return beta;
       }
       else if (    givesCheck // Check extension (~2 Elo)
                &&  pos.see_ge(move))
@@ -1043,7 +1043,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV
           if (pvHit)
-              r -= ONE_PLY;
+              r -= ONE_PLY * (1 - ((ss-1)->statScore > 23000));
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
