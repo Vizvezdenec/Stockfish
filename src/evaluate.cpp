@@ -346,8 +346,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
                 
-                bool (DarkSquares & s) ? score += WeakUnopposedPawn * pe->weak_dark(Them) 
-                       : score += WeakUnopposedPawn * pe->weak_light(Them);
+                bool (DarkSquares & s) ? score += BishopPawns  * pe->weak_dark(Them) 
+                       : score += BishopPawns * pe->weak_light(Them);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
