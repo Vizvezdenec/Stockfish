@@ -156,7 +156,6 @@ namespace {
   constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 69, 36);
-  constexpr Score HinderMinor        = S( 10, 15);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
@@ -170,6 +169,7 @@ namespace {
   constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 96,  4);
+  constexpr Score UsefulKnight       = S(  2,  5);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
 
@@ -347,6 +347,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
+            else score += UsefulKnight * popcount(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2]) 
+                      & ~(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]));
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -478,9 +480,6 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-    // Penalty if our king hinders the mobility of a minor.
-    else if ((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT] | attackedBy[Us][QUEEN]) & ksq)
-        score -= HinderMinor;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
