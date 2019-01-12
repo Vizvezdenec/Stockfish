@@ -561,12 +561,11 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN));
+    score -= make_score(2, 3) * popcount(b & pos.pieces(Us)); 
+    b &= ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    score -= make_score (3, 3) 
-             * popcount((stronglyProtected | (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES])) 
-               & ~attackedBy[Us][PAWN] & b);
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
