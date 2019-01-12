@@ -169,7 +169,7 @@ namespace {
   constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 96,  4);
-  constexpr Score UsefulKnight       = S(  2, 10);
+  constexpr Score UsefulKnight       = S(  3, 15);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
 
@@ -347,8 +347,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
-            else score += UsefulKnight * popcount(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2]) 
-                      & ~(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]));
+            else score += UsefulKnight * (popcount(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2]) 
+                      & ~(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN])) - 5);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
