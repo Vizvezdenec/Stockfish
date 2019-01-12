@@ -387,6 +387,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+            if (   (b & pos.square<KING>(Us))
+                && relative_rank(Us, pos.square<KING>(Us)) > relative_rank(Us, s))
+                score -= make_score(20,30);
         }
     }
     if (T)
@@ -561,9 +564,7 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN));
-    score -= make_score(20, 30) * bool (b & pos.pieces(Us, KING)); 
-    b &= ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
