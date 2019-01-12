@@ -577,6 +577,7 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    score += make_score(5,5) * popcount(attackedBy[Us][ALL_PIECES] & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN]);
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
@@ -639,9 +640,9 @@ namespace {
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
-            Bitboard stronglyAttacked =  attackedBy2[Us] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
+
             // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq) || (stronglyAttacked & blockSq))
+            if (pos.empty(blockSq))
             {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
