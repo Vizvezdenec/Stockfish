@@ -562,7 +562,7 @@ namespace {
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN));
-    score -= make_score(2, 3) * popcount(b & pos.pieces(Us)); 
+    score -= make_score(20, 30) * bool (b & pos.pieces(Us, KING)); 
     b &= ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
