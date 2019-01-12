@@ -479,13 +479,8 @@ namespace {
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     // Penalty if our king hinders the mobility of a minor.
-    else 
-    {
-    if ((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & ksq)
+    else if ((attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT] | attackedBy[Us][QUEEN]) & ksq)
         score -= HinderMinor;
-    if (attackedBy[Us][QUEEN] & ksq)
-        score -= HinderMinor;
-    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
