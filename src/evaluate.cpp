@@ -639,7 +639,7 @@ namespace {
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
-            Bitboard stronglyAttacked =  attackedBy2[Us] & ~attackedBy[Them][ALL_PIECES];
+            Bitboard stronglyAttacked =  attackedBy2[Us] & ~attackedBy[Them][PAWN] & ~attackedBy2[Them];
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq) || (stronglyAttacked & blockSq))
             {
