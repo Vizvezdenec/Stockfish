@@ -1043,7 +1043,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV
           if (pvHit)
-              r -= ONE_PLY;
+              r -= ONE_PLY * (1 + !PvNode);
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
