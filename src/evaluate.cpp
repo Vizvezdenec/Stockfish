@@ -577,10 +577,6 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    score += make_score(2,5) 
-              * popcount(
-              attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]
-              & pos.pieces(Them, PAWN) & ~attackedBy[Them][PAWN]);
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
@@ -781,6 +777,10 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
+        else if (pos.non_pawn_material(strongSide) == RookValueMg 
+                 && pos.non_pawn_material(~strongSide) == BishopValueMg)
+            sf = std::min(20 + 10 * (pos.count<PAWN>(~strongSide) 
+                 - pe->pawns_on_same_color_squares(~strongSide, pos.square<BISHOP>(~strongSide))), sf);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
