@@ -338,6 +338,7 @@ namespace {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                blocked |= pos.pieces(Us, PAWN) & shift<Down>(double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)));
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -346,8 +347,6 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
-            else if (!(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2])))
-                score -= make_score(20, 125);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
