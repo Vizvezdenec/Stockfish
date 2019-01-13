@@ -346,6 +346,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
+            else if (!(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2])))
+                score -= make_score(20, 125);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -426,9 +428,6 @@ namespace {
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-
-    weak |= ~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]) 
-             & (attackedBy[Them][PAWN] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
