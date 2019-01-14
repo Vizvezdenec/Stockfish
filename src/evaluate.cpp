@@ -432,12 +432,13 @@ namespace {
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN, ROOK));
+    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
     // Enemy queen safe checks
     if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
         kingDanger += QueenSafeCheck;
 
+    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN, ROOK));
     b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
