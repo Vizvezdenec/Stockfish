@@ -484,10 +484,21 @@ namespace {
         score -= PawnlessFlank;
 
     Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
-
-    if (!(attackedBy[Us][KING] & ~blocked & ~attackedBy[Them][ALL_PIECES] 
-          & ~(SquareBB[relative_square(Us, SQ_H1)] | SquareBB[relative_square(Us, SQ_A1)])))
-        score -= make_score(0, 50);
+    b = ~blocked & ~attackedBy[Them][ALL_PIECES];
+    b1 = attackedBy[Us][KING] & b;
+    if (!more_than_one(b1))
+        {
+        if (b1)
+        {
+        while (b1)
+        {
+        Square s = pop_lsb(&b1);
+        if (!(pos.attacks_from<KING>(s) & b & ~ksq))
+        	score -= make_score(0, 50);
+        }
+        }
+        else score -= make_score(0, 50);
+        }
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
