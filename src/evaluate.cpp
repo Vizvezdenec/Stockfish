@@ -379,9 +379,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
             }
-            Bitboard rookPinners;
-            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners))
-                score -= make_score(20, 7);
         }
 
         if (Pt == QUEEN)
@@ -404,6 +401,7 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -484,6 +482,12 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
+
+    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
+
+    if (!(attackedBy[Us][KING] & ~blocked & ~attackedBy[Them][ALL_PIECES] 
+          & ~(SquareBB[relative_square(Us, SQ_H1)] | SquareBB[relative_square(Us, SQ_A1)])))
+        score -= make_score(0, 50);
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
