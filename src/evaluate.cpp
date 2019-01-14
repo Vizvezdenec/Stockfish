@@ -465,7 +465,12 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    unsafeChecks |= shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces() & mobilityArea[Them] & pawn_attacks_bb<Us>(ksq);
+    b = shift<Down>(pos.pieces(Them, PAWN)) & ~pos.pieces() 
+                      & pawn_attacks_bb<Us>(ksq);
+    if (b & safe)
+        kingDanger += 400;
+    else 
+        unsafeChecks |= b;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
