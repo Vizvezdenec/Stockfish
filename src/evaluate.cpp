@@ -447,10 +447,12 @@ namespace {
     else
         unsafeChecks |= b1;
     
-    safe |= attackedBy2[Them] & ~attackedBy2[Us] & attackedBy[Us][ROOK] & ~pos.pieces(Them);
+    Bitboard semisafe = attackedBy2[Them] & ~attackedBy2[Us] & attackedBy[Us][ROOK] & ~pos.pieces(Them);
     // Enemy bishops checks
     if (b2 & safe)
         kingDanger += BishopSafeCheck;
+    else if (b2 & semisafe)
+        kingDanger += BishopSafeCheck / 2;
     else
         unsafeChecks |= b2;
 
@@ -458,6 +460,8 @@ namespace {
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (b & safe)
         kingDanger += KnightSafeCheck;
+    else if (b & semisafe)
+        kingDanger += KnightSafeCheck / 2;
     else
         unsafeChecks |= b;
 
