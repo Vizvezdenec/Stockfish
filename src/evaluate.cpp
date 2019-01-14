@@ -401,7 +401,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -482,10 +481,7 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
-    b = FileABB| FileHBB| Rank1BB | Rank8BB;
-    if (!(attackedBy[Us][KING] & ~b & ~blocked & ~attackedBy[Them][ALL_PIECES]))
-        score -= make_score(0, 50);
+
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
@@ -746,8 +742,11 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int passedNumber = popcount(pe->passed_pawns(WHITE) + pe->passed_pawns(BLACK));
+
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
+                    +  8 * passedNumber
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
