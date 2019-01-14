@@ -428,7 +428,7 @@ namespace {
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
     // Analyse the safe enemy's checks which are possible on next move
-    safe  = ~pos.pieces(Them);
+    safe  = mobilityArea[Them];
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
@@ -581,7 +581,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = (mobilityArea[Us] | pos.pieces(Us, QUEEN) | pos.pieces(Us, KING)) & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
