@@ -379,6 +379,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
             }
+            Bitboard rookPinners;
+            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners))
+                score -= make_score(20, 7);
         }
 
         if (Pt == QUEEN)
