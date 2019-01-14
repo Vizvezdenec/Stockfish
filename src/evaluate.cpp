@@ -482,24 +482,10 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
-
     Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them));
-    b = ~blocked & ~attackedBy[Them][ALL_PIECES];
-    b1 = attackedBy[Us][KING] & b;
-    if (!more_than_one(b1))
-        {
-        if (b1)
-        {
-        while (b1)
-        {
-        Square s = pop_lsb(&b1);
-        if (!(pos.attacks_from<KING>(s) & b & ~ksq))
-        	score -= make_score(0, 50);
-        }
-        }
-        else score -= make_score(0, 50);
-        }
-
+    b = FileABB| FileHBB| Rank1BB | Rank8BB;
+    if (!(attackedBy[Us][KING] & ~b & ~blocked & ~attackedBy[Them][ALL_PIECES]))
+        score -= make_score(0, 50);
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
