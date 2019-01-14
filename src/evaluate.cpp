@@ -438,7 +438,6 @@ namespace {
     if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
         kingDanger += QueenSafeCheck;
 
-    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN, ROOK));
     b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
@@ -447,7 +446,8 @@ namespace {
         kingDanger += RookSafeCheck;
     else
         unsafeChecks |= b1;
-
+    
+    safe |= attackedBy2[Them] & ~attackedBy2[Us] & attackedBy[Us][ROOK] & ~pos.pieces(Them);
     // Enemy bishops checks
     if (b2 & safe)
         kingDanger += BishopSafeCheck;
