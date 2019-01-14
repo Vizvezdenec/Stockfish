@@ -742,7 +742,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int passedNumber = popcount(pe->passed_pawns(WHITE) + pe->passed_pawns(BLACK));
+    int passedNumber = popcount(pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
