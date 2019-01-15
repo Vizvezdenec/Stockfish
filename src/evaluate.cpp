@@ -742,16 +742,13 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int passerPresence = popcount (pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   8 * pe->pawn_asymmetry()
-                    + 12 * passerPresence
                     + 12 * pos.count<PAWN>()
                     + 12 * outflanking
                     + 16 * pawnsOnBothFlanks
                     + 48 * !pos.non_pawn_material()
-                    -130 ;
+                    -118 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -780,6 +777,9 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
+        else if (pos.non_pawn_material(strongSide) == QueenValueMg
+            && pos.count<ROOK>(~strongSide) == 1)
+            sf = std::min(40 + 7 * pos.count<PAWN>(strongSide) - 30 * (pe->un_opposed(strongSide) == 0), sf);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
