@@ -332,11 +332,12 @@ namespace {
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
-            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
             if (Pt == BISHOP)
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -345,9 +346,6 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
-            else if (!(pos.pieces() & (DistanceRingBB[s][1] | DistanceRingBB[s][2]) 
-                      & ~(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]) & ~blocked))
-                score -= make_score(20, 30);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -779,6 +777,9 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
+        else if (pos.non_pawn_material(strongSide) == QueenValueMg
+            && pos.count<QUEEN>(~strongSide) == 0)
+            sf = std::min(20 + 7 * pos.count<PAWN>(strongSide) + pe->win_ability(strongSide) * 2, sf);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
