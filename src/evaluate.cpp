@@ -313,8 +313,10 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
+        if (pos.pieces(Us) & ~pos.pieces(Us, KING, PAWN) & ~s)
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        else 
+        mobility[Us] += MobilityBonus[Pt - 2][mob] * 2;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -592,20 +594,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    else if (pos.count<ROOK>(Them) > 0)
-    {
-	Bitboard b1 = pos.pieces(Them, ROOK);
-        while (b1)
-        {
-        	Square s1 = pop_lsb(&b1);
-		safe = ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES];
 
-		b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s1);
-		b |=  attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s1);
-
-		score += make_score(5,20) * popcount(b & safe);
-        }
-    }
     if (T)
         Trace::add(THREAT, Us, score);
 
