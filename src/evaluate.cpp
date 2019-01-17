@@ -460,10 +460,6 @@ namespace {
         kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= b;
-    if (more_than_one(pos.pieces(Us,PAWN) & (FileDBB|FileEBB) & shift<Down>(pos.pieces(Them,PAWN)))
-        && tropism > 10
-        && (attackedBy[Them][PAWN] & kingRing[Us]))
-        kingDanger += 100;
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
@@ -488,6 +484,10 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
+    if (more_than_one(pos.pieces(Us,PAWN) & (FileDBB|FileEBB) & shift<Down>(pos.pieces(Them,PAWN)))
+        && (attackedBy[Them][PAWN] & kingRing[Us]))
+    score -= make_score(11,0) * tropism;
+    else 
     score -= CloseEnemies * tropism;
 
     if (T)
