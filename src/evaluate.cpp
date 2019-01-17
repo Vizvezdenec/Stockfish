@@ -484,7 +484,7 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    if (more_than_one(pos.pieces(Us,PAWN) & (FileDBB|FileEBB) & shift<Down>(pos.pieces(Them,PAWN)))
+    if (popcount(pos.pieces(Us,PAWN) & CenterFiles & shift<Down>(pos.pieces(Them,PAWN))) > 2
         && (attackedBy[Them][PAWN] & kingRing[Us]))
     score -= make_score(11,0) * tropism;
     else 
