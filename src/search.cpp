@@ -980,7 +980,7 @@ moves_loop: // When in check, search starts from here
       {
           if (   !captureOrPromotion
               && !givesCheck
-              && !pos.advanced_pawn_push(move))
+              && !(pos.advanced_pawn_push(move) && relative_rank(us, from_sq(move)) > RANK_5))
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
@@ -1008,15 +1008,9 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (   !extension )// (~20 Elo)
-                  {
-                  if (pos.advanced_pawn_push(move) && relative_rank(us, from_sq(move)) > RANK_5 
-                      && pos.non_pawn_material(us) > QueenValueMg
-                      && !pos.see_ge(move, -PawnValueEg /2 * (depth / ONE_PLY)))
+          else if (   !extension // (~20 Elo)
+                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
                   continue;
-                  else if (!pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) 
-                  continue;
-                  }
       }
 
       // Speculative prefetch as early as possible
