@@ -483,7 +483,10 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    score -= CloseEnemies * (tropism + tropism * tropism / 80);
+    score -= CloseEnemies * tropism;
+
+    int attackMass = popcount((pos.pieces(Them, ROOK, KNIGHT) | pos.pieces(Them, PAWN)) & kingFlank);
+    score -= make_score(5, 0) * attackMass;
 
     if (T)
         Trace::add(KING, Us, score);
