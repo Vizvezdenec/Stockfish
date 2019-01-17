@@ -777,9 +777,11 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
-        else if (pos.non_pawn_material(strongSide) == QueenValueMg
-            && pos.count<QUEEN>(~strongSide) == 0)
-            sf = std::min(20 + 7 * pos.count<PAWN>(strongSide) + pe->win_ability(strongSide) * 2, sf);
+        else if (pos.non_pawn_material(WHITE) == RookValueMg
+            && pos.non_pawn_material(BLACK) == RookValueMg
+            && pe->win_ability(strongSide) < 3
+            && (forward_ranks_bb(strongSide, pos.square<KING>(strongSide)) & pos.pieces(strongSide,PAWN)))
+            sf = SCALE_FACTOR_DRAW;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 

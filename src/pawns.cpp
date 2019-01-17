@@ -109,8 +109,9 @@ namespace {
         // on the adjacent files and cannot be safely advanced.
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
-        e->winnability[Us] += 3 * !opposed;
+
         e->winnability[Us] += !more_than_one(neighbours);
+        e->winnability[Us] += !opposed && !(theirPawns & adjacent_files_bb(f)) && neighbours;
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
