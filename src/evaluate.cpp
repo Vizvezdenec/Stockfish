@@ -313,10 +313,10 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-        if (pos.pieces(Us) & ~pos.pieces(Us, KING, PAWN) & ~s)
+        if (more_than_one(pos.pieces(Us) & ~pos.pieces(Us, KING, PAWN) & ~s))
         mobility[Us] += MobilityBonus[Pt - 2][mob];
         else 
-        mobility[Us] += MobilityBonus[Pt - 2][mob] * 2;
+        mobility[Us] += MobilityBonus[Pt - 2][mob] * 3/2;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
