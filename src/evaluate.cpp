@@ -603,7 +603,7 @@ namespace {
 		b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s1);
 		b |=  attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s1);
 
-		score += make_score(20,5) * popcount(b & safe);
+		score += make_score(5,20) * popcount(b & safe);
         }
     }
     if (T)
