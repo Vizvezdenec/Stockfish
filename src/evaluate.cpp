@@ -379,15 +379,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
             }
-            if (pos.count<QUEEN>(Us) == 0)
-            {
-            	Bitboard safe = ~pos.pieces(Them) & ~attackedBy[Us][ALL_PIECES];
-
-            	b = attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-            	b |=  attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s);
-
-            	score += make_score(15,15) * popcount(b & safe);
-            }
         }
 
         if (Pt == QUEEN)
@@ -601,7 +592,20 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    else if (pos.count<ROOK>(Them) > 0)
+    {
+	Bitboard b1 = pos.pieces(Them, ROOK);
+        while (b1)
+        {
+        	Square s1 = pop_lsb(&b1);
+		safe = ~pos.pieces(Us) & ~attackedBy[Them][ALL_PIECES];
 
+		b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s1);
+		b |=  attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s1);
+
+		score += make_score(15,15) * popcount(b & safe);
+        }
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -833,8 +837,8 @@ namespace {
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
-    score +=  pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
