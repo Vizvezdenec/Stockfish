@@ -1005,18 +1005,17 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (type_of(pos.moved_piece(move)) != PAWN)
-              {
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
-              }
-              else if (!pos.see_ge(move, Value(-(29 
-                    + std::max(0, (QueenValueEg - pos.non_pawn_material()) / PawnValueEg))* lmrDepth * lmrDepth)))
-                  continue;
           }
-          else if (   !extension // (~20 Elo)
-                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+          else if (   !extension )// (~20 Elo)
+                  {
+                  if (pos.advanced_pawn_push(move) && relative_rank(us, from_sq(move)) > RANK_5 
+                      && !pos.see_ge(move, -PawnValueEg /2 * (depth / ONE_PLY)))
                   continue;
+                  else if (!pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) 
+                  continue;
+                  }
       }
 
       // Speculative prefetch as early as possible
