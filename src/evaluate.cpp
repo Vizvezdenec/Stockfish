@@ -414,7 +414,7 @@ namespace {
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
-    b2 = b1 & attackedBy2[Them];
+    b2 = b1 & (attackedBy2[Them] | attackedBy[Them][PAWN]);
 
     int tropism = popcount(b1) + popcount(b2);
 
@@ -464,13 +464,10 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    int attackMass = popcount((pos.pieces(Them, ROOK, KNIGHT) | pos.pieces(Them, PAWN)) & kingFlank);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 +   5 * attackMass
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
