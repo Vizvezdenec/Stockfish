@@ -578,9 +578,13 @@ namespace {
     score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1)
+    if (pos.count<QUEEN>(Them) > 0)
     {
-        Square s = pos.square<QUEEN>(Them);
+    Bitboard b1 = pos.pieces(Them,QUEEN);
+    while (b1)
+    {
+        Square s = pop_lsb(&b1);
+
         safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
@@ -591,6 +595,7 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
     }
 
     if (T)
@@ -777,11 +782,6 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
-        else if (pos.non_pawn_material(WHITE) == RookValueMg
-            && pos.non_pawn_material(BLACK) == RookValueMg
-            && pe->win_ability(strongSide) < 3
-            && (forward_ranks_bb(strongSide, pos.square<KING>(strongSide)) & pos.pieces(strongSide,PAWN)))
-            sf = SCALE_FACTOR_DRAW;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
