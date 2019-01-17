@@ -464,10 +464,13 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    int attackMass = popcount((pos.pieces(Them, ROOK, KNIGHT) | pos.pieces(Them, PAWN)) & kingFlank);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 +   5 * attackMass
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -484,9 +487,6 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-
-    int attackMass = popcount((pos.pieces(Them, ROOK, KNIGHT) | pos.pieces(Them, PAWN)) & kingFlank);
-    score -= make_score(5, 0) * attackMass;
 
     if (T)
         Trace::add(KING, Us, score);
