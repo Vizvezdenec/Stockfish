@@ -401,7 +401,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -484,11 +483,7 @@ namespace {
         score -= PawnlessFlank;
 
     // King tropism bonus, to anticipate slow motion attacks on our king
-    if (popcount(pos.pieces(Us,PAWN) & CenterFiles & shift<Down>(pos.pieces(Them,PAWN))) > 2
-        && (attackedBy[Them][PAWN] & kingRing[Us]))
-    score -= make_score(11,0) * tropism;
-    else 
-    score -= CloseEnemies * tropism;
+    score -= CloseEnemies * (tropism + tropism * tropism / 12);
 
     if (T)
         Trace::add(KING, Us, score);
