@@ -460,7 +460,7 @@ namespace {
         kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= b;
-    if (popcount(pos.pieces(Us,PAWN) & CenterFiles & shift<Down>(pos.pieces(Them,PAWN))) > 2
+    if (more_than_one(pos.pieces(Us,PAWN) & (FileDBB|FileEBB) & shift<Down>(pos.pieces(Them,PAWN)))
         && tropism > 10
         && (attackedBy[Them][PAWN] & kingRing[Us]))
         kingDanger += 100;
