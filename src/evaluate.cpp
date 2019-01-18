@@ -301,6 +301,9 @@ namespace {
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+        if (more_than_one(pos.attacks_from<Pt>(s) & blocked))
+             score -= make_score(10, 15);
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
@@ -337,7 +340,6 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
