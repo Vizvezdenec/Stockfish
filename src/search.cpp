@@ -977,7 +977,8 @@ moves_loop: // When in check, search starts from here
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_MATED_IN_MAX_PLY
-          && (abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us)) <= abs(eval) * 50 + 500))
+          && ((abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us) 
+             + (pos.count<PAWN>(us) - pos.count<PAWN>(~us)) * PawnValueMg) <= abs(eval) * 50 + 500)||captureOrPromotion))
       {
           if (   !captureOrPromotion
               && !givesCheck
