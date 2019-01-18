@@ -464,13 +464,9 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    Bitboard weakToMinors = attackedBy[Them][PAWN] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
-            & ~attackedBy[Us][PAWN] & ~attackedBy[Us][BISHOP] & ~attackedBy[Us][KNIGHT];
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 +  75 * popcount(kingRing[Us] & weakToMinors)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
@@ -833,8 +829,12 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
+    
+    Score kingScore = king<   WHITE>() - king<   BLACK>();
+    if (abs(mg_value(kingScore)) > LazyThreshold && pos.non_pawn_material() > MidgameLimit / 2)
+       return pos.side_to_move() == WHITE ? mg_value(score) : -mg_value(score);
 
-    score +=  king<   WHITE>() - king<   BLACK>()
+    score +=  kingScore
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
