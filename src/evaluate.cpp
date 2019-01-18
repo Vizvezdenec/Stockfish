@@ -829,12 +829,8 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
-    
-    Score kingScore = king<   WHITE>() - king<   BLACK>();
-    if (abs(mg_value(kingScore)) > LazyThreshold && pos.non_pawn_material() > MidgameLimit / 2)
-       return pos.side_to_move() == WHITE ? mg_value(score + kingScore) : -mg_value(score + kingScore);
 
-    score +=  kingScore
+    score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
