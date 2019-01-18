@@ -1005,12 +1005,12 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(29 + abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us)) / PawnValueMg )
-                  * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (   !extension // (~20 Elo)
-                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))
+                   && !pos.see_ge(move, -(PawnValueEg + abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us)) / 20) 
+                   * (depth / ONE_PLY)))
                   continue;
       }
 
