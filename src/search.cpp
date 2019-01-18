@@ -979,7 +979,8 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY
           && bestValue > VALUE_MATED_IN_MAX_PLY
           && ((abs(pos.non_pawn_material(us) - pos.non_pawn_material(~us) 
-             + (pos.count<PAWN>(us) - pos.count<PAWN>(~us)) * PawnValueMg) <= abs(eval) * 20 + 400)||captureOrPromotion))
+             + (pos.count<PAWN>(us) - pos.count<PAWN>(~us)) * PawnValueMg - eval) / (abs(eval) + 100) <= 5)
+             ||captureOrPromotion))
       {
           if (   !captureOrPromotion
               && !givesCheck
