@@ -832,7 +832,7 @@ namespace {
     
     Score kingScore = king<   WHITE>() - king<   BLACK>();
     if (abs(mg_value(kingScore)) > LazyThreshold && pos.non_pawn_material() > MidgameLimit / 2)
-       return pos.side_to_move() == WHITE ? mg_value(score) : -mg_value(score);
+       return pos.side_to_move() == WHITE ? mg_value(score + kingScore) : -mg_value(score + kingScore);
 
     score +=  kingScore
             + threats<WHITE>() - threats<BLACK>()
