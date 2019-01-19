@@ -141,7 +141,7 @@ namespace {
         if (doubled && !support)
             score -= Doubled;
 
-        if (ourPawns & forward_file_bb(Us, s))
+        if ((ourPawns & forward_file_bb(Us, s)) && !neighbours)
             e->doubledPawns[Us]++;
     }
 
