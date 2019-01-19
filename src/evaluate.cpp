@@ -270,7 +270,7 @@ namespace {
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingRing[Us] &= ~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us));
+    kingRing[Us] &= ~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
   }
 
@@ -519,7 +519,7 @@ namespace {
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
     // Safe or protected squares
-    safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+    safe = (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]) & ~pos.blockers_for_king(Us);
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
