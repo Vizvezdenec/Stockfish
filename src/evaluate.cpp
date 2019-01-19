@@ -565,7 +565,14 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~attackedBy[Them][PAWN] & safe;
+    if (pos.count<QUEEN>(Them) == 1)
+    {
+    Bitboard queenPinners;
+    b &= ~pawn_attacks_bb<Them>(pos.pieces(Them,PAWN) & ~pos.blockers_for_king(Them) & 
+            ~pos.slider_blockers(pos.pieces(Us, ROOK, BISHOP), pos.square<QUEEN>(Them), queenPinners)) & safe;
+    }
+    else 
+    b &= ~pawn_attacks_bb<Them>(pos.pieces(Them,PAWN) & ~pos.blockers_for_king(Them)) & safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
