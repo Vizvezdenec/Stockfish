@@ -562,10 +562,10 @@ namespace {
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
-    b |= shift<Up>(b & TRank3BB & ~attackedBy[Them][PAWN]) & ~pos.pieces();
+    b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~pawn_attacks_bb<Them>(pos.pieces(Them,PAWN) & ~pos.blockers_for_king(Them)) & safe;
+    b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
@@ -778,7 +778,7 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * (pos.count<PAWN>(strongSide) - pe->doubled_pawns(strongSide)), sf);
 
     }
 
