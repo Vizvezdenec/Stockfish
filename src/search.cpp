@@ -977,7 +977,7 @@ moves_loop: // When in check, search starts from here
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_MATED_IN_MAX_PLY
-          && !(pos.count<KNIGHT>(us) + pos.count<BISHOP>(us) + pos.count<ROOK>(us) + pos.count<QUEEN>(us) <= 1 
+          && !(pos.count<ALL_PIECES>(us) - pos.count<PAWN>(us) <= 2 
           && type_of(pos.moved_piece(move)) == KING))
       {
           if (   !captureOrPromotion
