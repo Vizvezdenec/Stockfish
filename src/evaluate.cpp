@@ -403,6 +403,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -477,6 +478,11 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+
+    if (((Rank1BB | Rank8BB) & ksq) && 
+         !(attackedBy[Us][KING] & (Rank2BB | Rank7BB) & ~attackedBy[Them][ALL_PIECES] 
+           & ~(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them) | attackedBy[Them][PAWN]))))
+        score -= make_score(0, 100);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
@@ -565,14 +571,7 @@ namespace {
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    if (pos.count<QUEEN>(Them) == 1)
-    {
-    Bitboard queenPinners;
-    b &= ~pawn_attacks_bb<Them>(pos.pieces(Them,PAWN) & ~pos.blockers_for_king(Them) & 
-            ~pos.slider_blockers(pos.pieces(Us, ROOK, BISHOP), pos.square<QUEEN>(Them), queenPinners)) & safe;
-    }
-    else 
-    b &= ~pawn_attacks_bb<Them>(pos.pieces(Them,PAWN) & ~pos.blockers_for_king(Them)) & safe;
+    b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
