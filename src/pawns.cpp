@@ -116,7 +116,7 @@ namespace {
         if (   !(stoppers ^ lever ^ leverPush)
             && popcount(support) >= popcount(lever) - 1
             && popcount(phalanx) >= popcount(leverPush)
-            && !(ourPawns && forward_file_bb(Us, s)))
+            && !(ourPawns & forward_file_bb(Us, s)))
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == SquareBB[s + Up]
