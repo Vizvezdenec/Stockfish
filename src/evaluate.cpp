@@ -168,7 +168,7 @@ namespace {
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
-  constexpr Score TrappedRook        = S( 30,  4);
+  constexpr Score TrappedRook        = S( 96,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
 
@@ -318,6 +318,8 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if ((kingRing[Us] & s) && (b & pos.pieces(Us, KING)))
+                 score -= make_score(10,15);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -374,7 +376,11 @@ namespace {
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
-                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
+            {
+                File kf = file_of(pos.square<KING>(Us));
+                if ((kf < FILE_E) == (file_of(s) < kf))
+                    score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
+            }
         }
 
         if (Pt == QUEEN)
