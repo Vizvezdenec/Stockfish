@@ -379,9 +379,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
             }
-            Bitboard rookPinners;
-            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners) & pos.pieces(Us, ROOK))
-                score -= make_score(100,100);
         }
 
         if (Pt == QUEEN)
@@ -389,7 +386,8 @@ namespace {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-                score -= WeakQueen;
+                score -= WeakQueen * (1 + bool (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners) 
+                         & pos.pieces(Us, ROOK)));
         }
     }
     if (T)
