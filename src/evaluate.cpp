@@ -345,9 +345,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, QUEEN, ROOK) ^ pos.pieces(Them, KING)) 
-                    & (pos.pieces(Them, QUEEN, ROOK) | pos.pieces(Them, KING))))
-                    score += make_score(50, 50);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -382,6 +379,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= (TrappedRook - make_score(mob * 22, 0)) * (1 + !pos.castling_rights(Us));
             }
+            Bitboard rookPinners;
+            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners) & pos.pieces(Us, ROOK))
+                score -= make_score(100,100);
         }
 
         if (Pt == QUEEN)
