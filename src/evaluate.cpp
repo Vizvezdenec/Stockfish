@@ -668,7 +668,7 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
                 
-                k /= (1 + bool (pos.pieces(Us) & blockSq));
+                k /= (1 + bool ((pos.pieces(Us, KING) | pos.pieces(Us, PAWN)) & blockSq));
                 bonus += make_score(k * w, k * w);
             }
         } // rank > RANK_3
