@@ -819,7 +819,8 @@ namespace {
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-    if ((pe->blockedStructure[WHITE] < 7) || (pe->blockedStructure[BLACK] < 7))
+    if ((pe->blockedStructure[WHITE] < 6 && pe->blockedStructure[BLACK] < 7) 
+         || (pe->blockedStructure[BLACK] < 6 && pe->blockedStructure[WHITE] < 7))
     {
     initialize<WHITE>();
     initialize<BLACK>();

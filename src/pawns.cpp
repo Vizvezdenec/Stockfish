@@ -142,8 +142,10 @@ namespace {
             score -= Doubled;
 
         if (
-            (theirPawns & (s + Up)) 
-            || (double_pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Us, s))
+            (
+             (theirPawns & (s + Up)) 
+            || (double_pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Us, s)
+            ))
            )
             e->blockedStructure[Us]++;
             
