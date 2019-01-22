@@ -79,6 +79,7 @@ namespace {
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
+    e->blockedStructure[Us] = 0;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
@@ -139,6 +140,13 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (
+            (theirPawns & (s + Up)) 
+            || (double_pawn_attacks_bb<Them>(theirPawns) & forward_file_bb(Us, s))
+           )
+            e->blockedStructure[Us]++;
+            
     }
 
     return score;

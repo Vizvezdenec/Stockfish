@@ -819,7 +819,8 @@ namespace {
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-
+    if ((pe->blockedStructure[WHITE] < 7) || (pe->blockedStructure[BLACK] < 7))
+    {
     initialize<WHITE>();
     initialize<BLACK>();
 
@@ -854,6 +855,8 @@ namespace {
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         Trace::add(TOTAL, score);
     }
+    }
+    else v = Value(0);
 
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
