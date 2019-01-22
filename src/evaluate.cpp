@@ -808,21 +808,25 @@ namespace {
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
     Score materialScore = me->imbalance();
-    Score score = pos.psq_score() + materialScore + pos.this_thread()->contempt;
-
+    Value v = Value(0);
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
+    if (pe->blockedStructure[WHITE] < 7
+        || pe->blockedStructure[BLACK] < 7)
+    {
+    Score score = pos.psq_score() + materialScore + pos.this_thread()->contempt;
+
+
+
     score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
 
     // Early exit if score is high
-    Value v = (mg_value(score) + eg_value(score)) / 2;
+    v = (mg_value(score) + eg_value(score)) / 2;
     if (abs(v) > LazyThreshold)
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-    if (pe->blockedStructure[WHITE] < 7
-        || pe->blockedStructure[BLACK] < 7 || abs(mg_value(materialScore)) >  0  )
-    {
+
     initialize<WHITE>();
     initialize<BLACK>();
 
@@ -858,7 +862,9 @@ namespace {
         Trace::add(TOTAL, score);
     }
     }
-    else v = Value(0);
+    else v = (mg_value(materialScore + pos.this_thread()->contempt) * int(me->game_phase())
+       + eg_value(materialScore + pos.this_thread()->contempt) * int(PHASE_MIDGAME - me->game_phase())) 
+         / int(PHASE_MIDGAME) / 2;
 
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
