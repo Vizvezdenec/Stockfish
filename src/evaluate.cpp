@@ -807,7 +807,8 @@ namespace {
     // Initialize score by reading the incrementally updated scores included in
     // the position object (material + piece square tables) and the material
     // imbalance. Score is computed internally from the white point of view.
-    Score score = pos.psq_score() + me->imbalance() + pos.this_thread()->contempt;
+    Score materialScore = me->imbalance();
+    Score score = pos.psq_score() + materialScore + pos.this_thread()->contempt;
 
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
@@ -819,8 +820,8 @@ namespace {
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
-    if ((pe->blockedStructure[WHITE] < 6 && pe->blockedStructure[BLACK] < 7) 
-         || (pe->blockedStructure[BLACK] < 6 && pe->blockedStructure[WHITE] < 7))
+    if (pe->blockedStructure[WHITE] < 7
+        || pe->blockedStructure[BLACK] < 7 || abs(mg_value(materialScore)) >  0  )
     {
     initialize<WHITE>();
     initialize<BLACK>();
