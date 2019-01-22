@@ -90,7 +90,13 @@ namespace {
     constexpr Color Them = (Us == WHITE ? BLACK : WHITE);
 
     int bonus = 0;
-
+	if (pieceCount[Us][QUEEN] - pieceCount[Them][QUEEN] == 0
+		&& (pieceCount[Us][BISHOP] + pieceCount[Us][KNIGHT] - pieceCount[Them][BISHOP] - pieceCount[Them][KNIGHT] == 1
+			&& (pieceCount[Us][ROOK] - pieceCount[Them][ROOK] == -1)))
+	{
+		int summ_pawns = (pieceCount[Us][PAWN] - pieceCount[Them][PAWN])*(PawnValueEg + PawnValueMg) / 2;
+		bonus = -1000 + summ_pawns * 1.5;//TST 26
+	}
     // Second-degree polynomial material imbalance, by Tord Romstad
     for (int pt1 = NO_PIECE_TYPE; pt1 <= QUEEN; ++pt1)
     {
