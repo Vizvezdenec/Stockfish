@@ -465,7 +465,7 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
     
-    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us));
+    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us)) & ~pawn_attacks_bb<Us>(pos.pieces(Us));
     if ((FileABB | FileHBB) & ksq)
          kingDanger -= 300 * (popcount(blocked & kingFlank) == 3);
     else 
