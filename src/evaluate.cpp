@@ -346,10 +346,13 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
 
+                if (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) <= 3)
+                {
                 if (DarkSquares & s)
                     score -= make_score(0, 50) * !(pos.pieces(Them) & ~pos.pieces(Them, KING) & DarkSquares);
                 else 
                     score -= make_score(0, 50) * !(pos.pieces(Them) & ~pos.pieces(Them, KING) & ~DarkSquares);
+                }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
