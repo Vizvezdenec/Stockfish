@@ -377,7 +377,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + !(pos.castling_rights(Us)) || rank_of(s) != rank_of(pos.square<KING>(Us)));
+                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
 
@@ -631,7 +631,10 @@ namespace {
         {
             int w = (r-2) * (r-2) + 2;
             Square blockSq = s + Up;
-
+            
+            if (pos.non_pawn_material(Us) == RookValueMg && pos.non_pawn_material(Them) == RookValueMg
+                && r == RANK_7 && (pos.pieces(Us, ROOK) & blockSq) && (FileBB[file_of(s)] & pos.pieces(Them, ROOK)))
+                w = 0;
             // Adjust bonus based on the king's proximity
             bonus += make_score(0, (  king_proximity(Them, blockSq) * 5
                                     - king_proximity(Us,   blockSq) * 2) * w);
