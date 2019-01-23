@@ -377,7 +377,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + (!pos.castling_rights(Us) || rank_of(s) != rank_of(pos.square<KING>(Us))));
+                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
 
@@ -743,12 +743,17 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK)))
+                       | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE)));
+    bool pawnStructureVolatility = (pos.count<PAWN>() - popcount(blocked) < 2);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    - 60 * pawnStructureVolatility
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
