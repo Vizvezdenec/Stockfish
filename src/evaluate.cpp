@@ -403,7 +403,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -464,12 +463,6 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
-    
-    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us)) & ~pawn_attacks_bb<Us>(pos.pieces(Us));
-    if ((FileABB | FileHBB) & ksq)
-         kingDanger -= 300 * (popcount(blocked & kingFlank) == 3);
-    else 
-         kingDanger -= 300 * (popcount(blocked & kingFlank) == 4);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -562,6 +555,15 @@ namespace {
                 & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
+    
+    b = attackedBy[Them][ALL_PIECES] & ~(attackedBy[Them][PAWN] & ~attackedBy2[Them]);
+    int theirAttackZone = popcount(b);
+    int ourAttackZone = popcount(b & attackedBy[Us][ALL_PIECES]);
+    if (ourAttackZone * 2 > theirAttackZone)
+         {
+         int bonus = 50 * (ourAttackZone * 2 - theirAttackZone) / theirAttackZone;
+         score += make_score(bonus,bonus);
+         }
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
