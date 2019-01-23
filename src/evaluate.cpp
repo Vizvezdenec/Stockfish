@@ -345,11 +345,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-
-                if (DarkSquares & s)
-                    score -= make_score(0, 50) * (!(pos.pieces(Them) & ~pos.pieces(Them, KING) & DarkSquares) && pe->pawn_asymmetry() < 3);
-                else 
-                    score -= make_score(0, 50) * (!(pos.pieces(Them) & ~pos.pieces(Them, KING) & ~DarkSquares) && pe->pawn_asymmetry() < 3);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -408,6 +403,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -468,6 +464,12 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
+    
+    Bitboard blocked = pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us));
+    if ((FileABB | FileHBB) & ksq)
+         kingDanger -= 300 * (popcount(blocked & kingFlank) == 3);
+    else 
+         kingDanger -= 300 * (popcount(blocked & kingFlank) == 4);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
