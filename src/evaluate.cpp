@@ -559,9 +559,9 @@ namespace {
     b = attackedBy[Them][ALL_PIECES] & ~(attackedBy[Them][PAWN] & ~attackedBy2[Them]);
     int theirAttackZone = popcount(b);
     int ourAttackZone = popcount(b & attackedBy[Us][ALL_PIECES]);
-    if (ourAttackZone * 2 > theirAttackZone)
+    if (ourAttackZone * 4 > 3 *theirAttackZone)
          {
-         int bonus = 50 * (ourAttackZone * 2 - theirAttackZone) / theirAttackZone;
+         int bonus = 50 * (ourAttackZone * 4 - 3 * theirAttackZone) / theirAttackZone;
          score += make_score(bonus,bonus);
          }
 
