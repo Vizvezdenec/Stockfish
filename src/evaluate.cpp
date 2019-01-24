@@ -566,7 +566,7 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    if (!(b & ~stronglyProtected))
+    if (pos.count<PAWN>(Us) > 6 && !(b & ~stronglyProtected))
         noPawnPushes[Us] = 1;
 
     // Keep only the squares which are relatively safe
