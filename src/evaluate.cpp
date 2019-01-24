@@ -188,7 +188,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats() const;
+    template<Color Us> Score threats();
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -232,6 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int noPawnPushes[COLOR_NB];
   };
 
 
@@ -257,6 +258,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    noPawnPushes[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -495,7 +497,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() const {
+  Score Evaluation<T>::threats() {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -563,6 +565,9 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+
+    if (!(b & ~stronglyProtected))
+        noPawnPushes[Us] = 1;
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
@@ -845,28 +850,6 @@ namespace {
 
     v /= int(PHASE_MIDGAME);
 
-    int noPawnPushes = 0;
-    if (v > 0 && pos.count<PAWN>(WHITE) > 6) 
-        {
-        Bitboard b  = shift<NORTH>(pos.pieces(WHITE, PAWN)) & ~pos.pieces();
-        b |= shift<NORTH>(b & Rank3BB) & ~pos.pieces();
-        
-        Bitboard stronglyProtected =  attackedBy[BLACK][PAWN]
-                       | (attackedBy2[BLACK] & ~attackedBy2[WHITE]);
-        if (!(b & ~stronglyProtected))
-	     noPawnPushes = 1;
-        }
-    else if (v < 0 && pos.count<PAWN>(BLACK) > 6)
-        {
-        Bitboard b  = shift<SOUTH>(pos.pieces(BLACK, PAWN)) & ~pos.pieces();
-        b |= shift<SOUTH>(b & Rank6BB) & ~pos.pieces();
-        
-        Bitboard stronglyProtected =  attackedBy[WHITE][PAWN]
-                       | (attackedBy2[WHITE] & ~attackedBy2[BLACK]);
-        if (!(b & ~stronglyProtected))
-	     noPawnPushes = 1;
-        }
-
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
@@ -876,7 +859,10 @@ namespace {
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         Trace::add(TOTAL, score);
     }
-    v /= (1 + noPawnPushes);
+    if (v > 0)
+           v /= (1 + noPawnPushes[WHITE]);
+    else 
+           v /= (1 + noPawnPushes[BLACK]);
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
   }
