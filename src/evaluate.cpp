@@ -460,10 +460,6 @@ namespace {
     else
         unsafeChecks |= b;
 
-
-    b = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | ~attackedBy[Us][KING])) & kingFlank & Camp;
-    int tropismDifference = tropism - popcount(b);
-
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
@@ -488,7 +484,6 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-    score -= make_score(5, 0) * tropismDifference;
 
     if (T)
         Trace::add(KING, Us, score);
@@ -571,6 +566,8 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
+
+    score += make_score(3,3) * popcount(b);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
