@@ -846,7 +846,7 @@ namespace {
     v /= int(PHASE_MIDGAME);
 
     int noPawnPushes = 0;
-    if (v > 0) 
+    if (v > 0 && pos.count<PAWN>(WHITE) > 6) 
         {
         Bitboard b  = shift<NORTH>(pos.pieces(WHITE, PAWN)) & ~pos.pieces();
         b |= shift<NORTH>(b & Rank3BB) & ~pos.pieces();
@@ -856,7 +856,7 @@ namespace {
         if (!(b & ~stronglyProtected))
 	     noPawnPushes = 1;
         }
-    else 
+    else if (v < 0 && pos.count<PAWN>(BLACK) > 6)
         {
         Bitboard b  = shift<SOUTH>(pos.pieces(BLACK, PAWN)) & ~pos.pieces();
         b |= shift<SOUTH>(b & Rank6BB) & ~pos.pieces();
