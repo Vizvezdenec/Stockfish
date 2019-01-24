@@ -460,6 +460,10 @@ namespace {
     else
         unsafeChecks |= b;
 
+
+    b = (attackedBy[Us][ALL_PIECES] & (attackedBy2[Us] | ~attackedBy[Us][KING])) & kingFlank & Camp;
+    int tropismDifference = tropism - popcount(b);
+
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
@@ -469,6 +473,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
+                 +       tropismDifference * abs (tropismDifference)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
