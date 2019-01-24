@@ -415,7 +415,7 @@ namespace {
     kingFlank = KingFlank[file_of(ksq)];
     b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
-
+    
     int tropism = popcount(b1) + popcount(b2);
 
     // Main king safety evaluation
@@ -743,19 +743,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK) | double_pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))))
-                     | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE) | double_pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN))));
-    bool pawnStructureVolatility = (pos.count<PAWN>() > 13) && (pos.count<PAWN>() - popcount(blocked) < 2);
-
-
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 60 * pawnStructureVolatility
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -852,6 +845,28 @@ namespace {
 
     v /= int(PHASE_MIDGAME);
 
+    int noPawnPushes = 0;
+    if (v > 0) 
+        {
+        Bitboard b  = shift<NORTH>(pos.pieces(WHITE, PAWN)) & ~pos.pieces();
+        b |= shift<NORTH>(b & Rank3BB) & ~pos.pieces();
+        
+        Bitboard stronglyProtected =  attackedBy[BLACK][PAWN]
+                       | (attackedBy2[BLACK] & ~attackedBy2[WHITE]);
+        if (!(b & ~stronglyProtected))
+	     noPawnPushes = 1;
+        }
+    else 
+        {
+        Bitboard b  = shift<SOUTH>(pos.pieces(BLACK, PAWN)) & ~pos.pieces();
+        b |= shift<SOUTH>(b & Rank6BB) & ~pos.pieces();
+        
+        Bitboard stronglyProtected =  attackedBy[WHITE][PAWN]
+                       | (attackedBy2[WHITE] & ~attackedBy2[BLACK]);
+        if (!(b & ~stronglyProtected))
+	     noPawnPushes = 1;
+        }
+
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
@@ -861,7 +876,7 @@ namespace {
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         Trace::add(TOTAL, score);
     }
-
+    v /= (1 + noPawnPushes);
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
   }
