@@ -114,8 +114,7 @@ namespace {
       S( 28, 61), S( 41, 73), S( 43, 79), S( 48, 92), S( 56, 94), S( 60,104),
       S( 60,113), S( 66,120), S( 67,123), S( 70,126), S( 71,133), S( 73,136),
       S( 79,140), S( 88,143), S( 88,148), S( 99,166), S(102,170), S(102,175),
-      S(106,184), S(109,191), S(113,206), S(116,212) },
-    { S(-6,-3),S(-2,-2),S(2,-1),S(2,0),S(-1,1),S(-3,2),S(-5,3),S(-7,4),S(-9,5) }  //KING
+      S(106,184), S(109,191), S(113,206), S(116,212) }
   };
 
   // Outpost[knight/bishop][supported by pawn] contains bonuses for minor
@@ -486,9 +485,6 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    int kingmob = popcount(attackedBy[Us][KING] & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Us)));
-    score += MobilityBonus[KING-2][kingmob];
-
     if (T)
         Trace::add(KING, Us, score);
 
@@ -747,12 +743,19 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Bitboard blocked = (pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces(BLACK) | double_pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))))
+                     | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces(WHITE) | double_pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN))));
+    bool pawnStructureVolatility = (pos.count<PAWN>() > 13) && (pos.count<PAWN>() - popcount(blocked) < 2);
+
+
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    - 40 * pawnStructureVolatility
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
