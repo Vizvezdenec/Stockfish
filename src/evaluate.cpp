@@ -566,7 +566,7 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    if (pos.count<PAWN>(Us) > 7 && !(b & ~stronglyProtected))
+    if (!(b & ~stronglyProtected))
         noPawnPushes[Us] = 1;
 
     // Keep only the squares which are relatively safe
@@ -835,8 +835,7 @@ namespace {
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += threats<WHITE>() - threats<BLACK>();
-    if (!(mg_value(score) > 0 && noPawnPushes[WHITE]) && !(mg_value(score) < 0 && noPawnPushes[BLACK]))
-    {
+
     score += mobility[WHITE] - mobility[BLACK];
 
     score +=  king<   WHITE>() - king<   BLACK>()
@@ -844,9 +843,6 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
 
     score += initiative(eg_value(score));
-    }
-    else
-    score = make_score(mg_value(score) / 4, eg_value(score) / 4);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
@@ -864,6 +860,10 @@ namespace {
         Trace::add(MOBILITY, mobility[WHITE], mobility[BLACK]);
         Trace::add(TOTAL, score);
     }
+    if (v > 0)
+           v *= (9 - pos.count<PAWN>(WHITE)) / (9 - pos.count<PAWN>(WHITE) + noPawnPushes[WHITE]);
+    else 
+           v *= (9 - pos.count<PAWN>(BLACK)) / (9 - pos.count<PAWN>(BLACK) + noPawnPushes[BLACK]);
 
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
