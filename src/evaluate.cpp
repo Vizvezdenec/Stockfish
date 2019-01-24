@@ -473,7 +473,6 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
-                 +       tropismDifference * abs (tropismDifference)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -489,6 +488,7 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+    score -= make_score(5, 0) * tropismDifference;
 
     if (T)
         Trace::add(KING, Us, score);
