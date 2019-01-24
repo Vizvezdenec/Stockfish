@@ -861,9 +861,17 @@ namespace {
         Trace::add(TOTAL, score);
     }
     if (v > 0)
-           v *= (9 - pos.count<PAWN>(WHITE)) / (9 - pos.count<PAWN>(WHITE) + noPawnPushes[WHITE]);
+           {
+           int pawnFactor = (9 - pos.count<PAWN>(WHITE)) * (9 - pos.count<PAWN>(WHITE));
+           v *= pawnFactor;
+           v /= (pawnFactor + 4 * noPawnPushes[WHITE]);
+           }
     else 
-           v *= (9 - pos.count<PAWN>(BLACK)) / (9 - pos.count<PAWN>(BLACK) + noPawnPushes[BLACK]);
+           {
+           int pawnFactor = (9 - pos.count<PAWN>(BLACK)) * (9 - pos.count<PAWN>(BLACK));
+           v *= (pawnFactor);
+           v /= (pawnFactor + 4 * noPawnPushes[BLACK]);
+           }
 
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
            + Eval::Tempo;
