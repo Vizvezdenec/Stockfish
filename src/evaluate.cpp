@@ -188,7 +188,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats() const;
+    template<Color Us> Score threats();
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -232,6 +232,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int noPawnPushes[COLOR_NB];
   };
 
 
@@ -257,6 +258,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    noPawnPushes[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -495,7 +497,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() const {
+  Score Evaluation<T>::threats() {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -563,6 +565,16 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+
+    if (!
+        (b 
+        & ~(~attackedBy[Us][PAWN] & stronglyProtected)
+        & ~(~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN)) & double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)) 
+           & (~attackedBy2[Us] | attackedBy2[Them]))
+        & ~(attackedBy[Us][PAWN] & ~attackedBy2[Us] & attackedBy[Them][PAWN] & attackedBy2[Them])
+         )
+       )
+        noPawnPushes[Us] = 1;
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
@@ -829,14 +841,20 @@ namespace {
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
+    score += threats<WHITE>() - threats<BLACK>();
+    if (!(mg_value(score) > 0 && pos.count<PAWN>(WHITE) > 7 && noPawnPushes[WHITE]) 
+        && !(mg_value(score) < 0 && pos.count<PAWN>(BLACK) > 7 && noPawnPushes[BLACK]))
+    {
     score += mobility[WHITE] - mobility[BLACK];
 
     score +=  king<   WHITE>() - king<   BLACK>()
-            + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
     score += initiative(eg_value(score));
+    }
+    else
+    score = make_score(mg_value(score) / 4, eg_value(score) / 4);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
