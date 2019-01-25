@@ -140,8 +140,10 @@ namespace {
         if (doubled && !support)
             score -= Doubled;
         
-        if (!more_than_one(neighbours) && !((FileABB|FileHBB) & s))
+        if ((more_than_one(neighbours) && opposed) || (((FileABB | FileHBB) & s) && opposed && neighbours))
             e->rookPawns[Us]++;
+        if (!opposed && !(pawn_attack_span(Us, s) & theirPawns))
+            e->rookPawns[Us]--;
     }
 
     return score;
