@@ -782,7 +782,8 @@ namespace {
            (pos.non_pawn_material(WHITE) == RookValueMg
             && pos.non_pawn_material(BLACK) == RookValueMg
             && pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide) < 2
-            && pe->rook_pawns(strongSide) < 2 && pe->rook_pawns(~strongSide) < 2)
+            && pe->rook_pawns(strongSide) < 2 && pe->rook_pawns(~strongSide) < 2
+            && relative_rank(strongSide, pos.square<KING>(strongSide)) < relative_rank(strongSide, pos.square<KING>(~strongSide)))
             sf = SCALE_FACTOR_DRAW;
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
