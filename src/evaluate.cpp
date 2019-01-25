@@ -215,6 +215,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard noMobMinor[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -257,6 +258,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    noMobMinor[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -319,6 +321,8 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
+            if (mob == 0)
+                 noMobMinor[Us] |= s;
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
@@ -378,6 +382,8 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                if (pos.attacks_from<ROOK>(s) & noMobMinor[Us])
+                    score -= TrappedRook * 2;
             }
         }
 
@@ -825,8 +831,8 @@ namespace {
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
+    score +=  pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
