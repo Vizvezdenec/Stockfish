@@ -321,7 +321,7 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
-            if (mob == 0)
+            if (mob == 0 && !(b & (pos.pieces(Us, KING) | pos.pieces(Us, QUEEN))))
                  noMobMinor[Us] |= s;
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -382,7 +382,7 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                if (pos.attacks_from<ROOK>(s) & noMobMinor[Us])
+                if (b & noMobMinor[Us])
                     score -= TrappedRook * 2;
             }
         }
