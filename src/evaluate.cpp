@@ -215,7 +215,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
-    Bitboard noMobMinor[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -258,7 +257,6 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
-    noMobMinor[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -318,11 +316,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (!(b & ~attackedBy[Them][PAWN] & ~(pos.pieces(Us, PAWN) 
+            & shift<Down>(pos.pieces(Them)) & ~pawn_attacks_bb<Them>(pos.pieces(Them)))))
+             mobility[Us] -= make_score (20,40);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-            if (mob == 0 && !(b & ~(blocked | attackedBy[Them][PAWN])))
-                 noMobMinor[Us] |= s;
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -342,6 +341,8 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
@@ -381,8 +382,6 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                else if (b & noMobMinor[Us])
-                    score -= TrappedRook * 2;
             }
         }
 
@@ -830,8 +829,8 @@ namespace {
 
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
-            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>();
-    score +=  pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
+            + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
