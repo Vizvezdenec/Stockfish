@@ -318,7 +318,7 @@ namespace {
 
         if (!(b & ~attackedBy[Them][PAWN] & ~(pos.pieces(Us, PAWN) 
             & shift<Down>(pos.pieces(Them)) & ~pawn_attacks_bb<Them>(pos.pieces(Them)))))
-             mobility[Us] -= make_score (20,20);
+             mobility[Us] -= make_score (70,70);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
