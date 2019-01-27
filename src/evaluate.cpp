@@ -161,7 +161,7 @@ namespace {
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score RestrictedPiece    = S(  6,  6);
+  constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
@@ -315,6 +315,10 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (!(b & ~attackedBy[Them][PAWN] & ~(pos.pieces(Us, PAWN) 
+            & shift<Down>(pos.pieces(Them)) & ~pawn_attacks_bb<Them>(pos.pieces(Them)))))
+             mobility[Us] -= make_score (20,20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -552,7 +556,7 @@ namespace {
 
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
-                & (~stronglyProtected | attackedBy[Us][PAWN])
+                & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
 
