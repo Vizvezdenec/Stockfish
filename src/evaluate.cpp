@@ -316,10 +316,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (!(b & ~attackedBy[Them][PAWN] & ~(pos.pieces(Us, PAWN) 
-            & shift<Down>(pos.pieces(Them)) & ~pawn_attacks_bb<Them>(pos.pieces(Them)))))
-             mobility[Us] -= make_score (70,70);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -467,6 +463,8 @@ namespace {
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
+
+    kingDanger += 30 * popcount(pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, QUEEN), ksq, b));
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
