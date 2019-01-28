@@ -377,10 +377,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                    mobilityArea[Us] &= ~SquareBB[s];
-                    }
             }
         }
 
@@ -746,12 +743,15 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int ocbPieceCount = std::min(pos.opposite_bishops() * (10 - pos.count<ALL_PIECES>() + pos.count<PAWN>()), 6);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    -      ocbPieceCount * ocbPieceCount
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -827,9 +827,9 @@ namespace {
     initialize<BLACK>();
 
     // Pieces should be evaluated first (populate attack tables)
-    score += pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
             + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
