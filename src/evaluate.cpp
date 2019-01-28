@@ -401,7 +401,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
@@ -471,6 +470,7 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
+                 + 100 * (pos.count<QUEEN>(Them) != pos.count<QUEEN>(Us))
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  -   30;
@@ -478,9 +478,7 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-    else if (((Rank1BB|Rank8BB) & ksq) && !(attackedBy[Us][KING] & (Rank2BB|Rank7BB) 
-               & ~attackedBy[Them][ALL_PIECES] & ~(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)))))
-        score -= make_score(50, 50);
+
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
         score -= PawnlessFlank;
