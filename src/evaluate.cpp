@@ -283,6 +283,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
+
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -316,6 +318,11 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
+        if (relative_rank(Us, s) < RANK_3 && (b & LowRanks & pos.pieces(Us, PAWN) & blocked))
+             score -= make_score(20,10);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -337,8 +344,6 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
@@ -470,7 +475,6 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +       tropism * tropism / 4
                  - 873 * !pos.count<QUEEN>(Them)
-                 + 100 * (pos.count<QUEEN>(Them) != pos.count<QUEEN>(Us))
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  -   30;
