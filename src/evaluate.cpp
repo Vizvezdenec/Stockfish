@@ -480,7 +480,7 @@ namespace {
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     else if (((Rank1BB|Rank8BB) & ksq) && !(attackedBy[Us][KING] & (Rank2BB|Rank7BB) 
                & ~attackedBy[Them][ALL_PIECES] & ~(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)))))
-        score -= make_score( 0, 50);
+        score -= make_score( 50, 0);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & kingFlank))
