@@ -379,7 +379,7 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                    mobilityArea[Us] &= ~s;
+                    mobilityArea[Us] &= ~SquareBB[s];
                     }
             }
         }
