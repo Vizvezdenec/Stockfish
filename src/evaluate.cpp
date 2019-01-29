@@ -314,6 +314,8 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
+        mobility[Us] += MobilityBonus[Pt - 2][mob];
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -376,13 +378,6 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                b = b & mobilityArea[Us];
-                while (b)
-                {
-            		Square s1 = pop_lsb(&b);
-                        if (!more_than_one(pos.attacks_from<ROOK>(s1) & mobilityArea[Us]))
-                             mob--;
-                }
             }
         }
 
@@ -393,7 +388,6 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
-        mobility[Us] += MobilityBonus[Pt - 2][mob];
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -441,20 +435,22 @@ namespace {
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
     // Enemy queen safe checks
-    if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
+    Bitboard QueenCheck = (b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN];
+
+    if (QueenCheck)
         kingDanger += QueenSafeCheck;
 
     b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
     // Enemy rooks checks
-    if (b1 & safe)
+    if (b1 & safe & ~QueenCheck)
         kingDanger += RookSafeCheck;
     else
         unsafeChecks |= b1;
 
     // Enemy bishops checks
-    if (b2 & safe)
+    if (b2 & safe & ~QueenCheck)
         kingDanger += BishopSafeCheck;
     else
         unsafeChecks |= b2;
