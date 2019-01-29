@@ -247,6 +247,7 @@ namespace {
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+    b |= shift<Down>(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()) & LowRanks);
 
     // Squares occupied by those pawns, by our king or queen, or controlled by enemy pawns
     // are excluded from the mobility area.
@@ -591,9 +592,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        if (!(attackedBy[Them][QUEEN] & ~((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN]) | attackedBy2[Us])))
-             score += make_score(50, 50);
     }
 
     if (T)
