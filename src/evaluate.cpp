@@ -314,8 +314,6 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt - 2][mob];
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -383,7 +381,7 @@ namespace {
                 {
             		Square s1 = pop_lsb(&b);
                         if (!more_than_one(pos.attacks_from<ROOK>(s1) & mobilityArea[Us]))
-                             mobility[Us] -= make_score(15,20);
+                             mob--;
                 }
             }
         }
@@ -395,6 +393,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+        mobility[Us] += MobilityBonus[Pt - 2][mob];
     }
     if (T)
         Trace::add(Pt, Us, score);
