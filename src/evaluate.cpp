@@ -743,7 +743,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int ocbPieceCount = 2 * std::max(pos.opposite_bishops() * (8 - pos.count<ALL_PIECES>() + pos.count<PAWN>()), 0);
+    int ocbPieceCount = std::max(pos.opposite_bishops() * (12 - pos.count<ALL_PIECES>() + pos.count<PAWN>()), 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
