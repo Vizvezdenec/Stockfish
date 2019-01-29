@@ -247,7 +247,6 @@ namespace {
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
-    b |= shift<Down>(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()) & LowRanks);
 
     // Squares occupied by those pawns, by our king or queen, or controlled by enemy pawns
     // are excluded from the mobility area.
@@ -379,6 +378,13 @@ namespace {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                b = b & mobilityArea[Us];
+                while (b)
+                {
+            		Square s1 = pop_lsb(&b);
+                        if (!more_than_one(pos.attacks_from<ROOK>(s1) & mobilityArea[Us]))
+                             mobility[Us] -= make_score(15,20);
+                }
             }
         }
 
