@@ -751,7 +751,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    -      ocbPieceCount * ocbPieceCount * 3 / 2
+                    -      ocbPieceCount * ocbPieceCount * 3 / 4
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
