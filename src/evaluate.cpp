@@ -434,18 +434,20 @@ namespace {
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
+    Bitboard RookCheck = b1 & safe & attackedBy[Them][ROOK];
+    if (RookCheck)
+        kingDanger += RookSafeCheck;
+    else
+        unsafeChecks |= b1 & attackedBy[Them][ROOK];
+
     // Enemy queen safe checks
-    if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN])
+    if ((b1 | b2) & attackedBy[Them][QUEEN] & safe & ~attackedBy[Us][QUEEN] & ~RookCheck)
         kingDanger += QueenSafeCheck;
 
-    b1 &= attackedBy[Them][ROOK];
     b2 &= attackedBy[Them][BISHOP];
 
     // Enemy rooks checks
-    if (b1 & safe)
-        kingDanger += RookSafeCheck;
-    else
-        unsafeChecks |= b1;
+    
 
     // Enemy bishops checks
     if (b2 & safe)
