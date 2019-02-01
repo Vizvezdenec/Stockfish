@@ -92,9 +92,9 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 765;
-  constexpr int RookSafeCheck   = 1010;
-  constexpr int BishopSafeCheck = 610;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
@@ -440,7 +440,7 @@ namespace {
                         & attackedBy[Them][ROOK];
 
     if (RookCheck)
-        kingDanger += RookSafeCheck;
+        kingDanger += RookSafeCheck * (bool(RookCheck & FileBB[file_of(ksq)]) + bool(RookCheck & RankBB[rank_of(ksq)]));
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -449,18 +449,20 @@ namespace {
     Bitboard QueenCheck =  (b1 | b2)
                          & attackedBy[Them][QUEEN]
                          & safe
-                         & ~attackedBy[Us][QUEEN];
+                         & ~attackedBy[Us][QUEEN]
+                         & ~RookCheck;
 
-    if ((QueenCheck & ~RookCheck) || more_than_one(QueenCheck))
+    if (QueenCheck)
         kingDanger += QueenSafeCheck;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     Bitboard BishopCheck =  b2 
                           & attackedBy[Them][BISHOP]
-                          & safe;
+                          & safe
+                          & ~QueenCheck;
 
-    if ((BishopCheck & ~QueenCheck) || more_than_one(BishopCheck))
+    if (BishopCheck)
         kingDanger += BishopSafeCheck;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
