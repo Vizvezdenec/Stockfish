@@ -440,7 +440,7 @@ namespace {
                         & attackedBy[Them][ROOK];
 
     if (RookCheck)
-        kingDanger += RookSafeCheck;
+        kingDanger += RookSafeCheck * popcount(RookCheck);
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -449,12 +449,11 @@ namespace {
     Bitboard QueenCheck =  (b1 | b2)
                          & attackedBy[Them][QUEEN]
                          & safe
-                         & ~attackedBy[Us][QUEEN];
+                         & ~attackedBy[Us][QUEEN]
+                         & ~RookCheck;
 
-    if (QueenCheck & ~RookCheck)
+    if (QueenCheck)
         kingDanger += QueenSafeCheck;
-    else 
-       unsafeChecks|= QueenCheck;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
