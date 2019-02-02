@@ -764,7 +764,7 @@ namespace {
     if ((pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK))
         && (pos.count<ALL_PIECES>(WHITE) - pos.count<PAWN>(WHITE) == 2))
          endgameWinnability = EndgameInitiative[pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE) * 2
-                              + pos.count<ROOK>(WHITE) * 3 + pos.count<QUEEN>(WHITE) * 4];
+                              + pos.count<ROOK>(WHITE) * 3 + pos.count<QUEEN>(WHITE) * 4 - 1];
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
