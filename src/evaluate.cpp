@@ -90,7 +90,6 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
-  constexpr int EndgameInitiative[4] = {20, 10, -20, -10};
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -483,12 +482,13 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   30;
+                 -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
@@ -758,13 +758,6 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-    
-    int endgameWinnability = 0;
-
-    if ((pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK))
-        && (pos.count<ALL_PIECES>(WHITE) - pos.count<PAWN>(WHITE) == 2))
-         endgameWinnability = EndgameInitiative[pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE) * 2
-                              + pos.count<ROOK>(WHITE) * 3 + pos.count<QUEEN>(WHITE) * 4 - 1];
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
@@ -772,7 +765,6 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +      endgameWinnability
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
