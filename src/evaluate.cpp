@@ -457,7 +457,7 @@ namespace {
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
-    safe |= ~pos.pieces(Them) & attackedBy2[Them] & ~attackedBy2[Us] & attackedBy[Us][ROOK];
+    safe |= ~pos.pieces(Them) & attackedBy[Them][PAWN] & ~(attackedBy[Us][KNIGHT]|attackedBy[Us][BISHOP]|attackedBy[Us][PAWN]) ;
     Bitboard BishopCheck =  b2 
                           & attackedBy[Them][BISHOP]
                           & safe
