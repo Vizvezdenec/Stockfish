@@ -471,7 +471,7 @@ namespace {
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
     if (b & safe)
-        kingDanger += KnightSafeCheck;
+        kingDanger += KnightSafeCheck * popcount(b & safe);
     else
         unsafeChecks |= b;
 
@@ -479,12 +479,9 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    weak |= attackedBy[Them][PAWN] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
-            & ~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 175 * popcount(kingRing[Us] & weak)
+                 + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
