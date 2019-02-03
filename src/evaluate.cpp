@@ -471,7 +471,7 @@ namespace {
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
     if (b & safe)
-        kingDanger += KnightSafeCheck * popcount(b & safe);
+        kingDanger += (KnightSafeCheck - 100) * popcount(b & safe);
     else
         unsafeChecks |= b;
 
