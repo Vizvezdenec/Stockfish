@@ -479,7 +479,7 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    Bitboard bishopProtection = attackedBy[Us][BISHOP] & kingRing[Us];
+    Bitboard bishopProtection = attackedBy[Us][BISHOP] & attackedBy[Us][KING];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -492,7 +492,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -   10;
+                 -   15;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
