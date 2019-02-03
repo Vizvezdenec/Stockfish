@@ -470,8 +470,22 @@ namespace {
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
-    if (b & safe)
-        kingDanger += (KnightSafeCheck - 100) * popcount(b & safe);
+    Bitboard KnightCheck = b & safe;
+    if (KnightCheck)
+        {
+        kingDanger += KnightSafeCheck;
+        if (more_than_one(KnightCheck))
+            {
+            Bitboard KnightCheckers = 0;
+            while (KnightCheck)
+            	{
+                Square s = pop_lsb(&KnightCheck);
+                KnightCheckers |= pos.attacks_from<KNIGHT>(s) & pos.pieces(Them, KNIGHT);
+                }
+            if (more_than_one(KnightCheckers))
+                kingDanger += KnightSafeCheck;
+            }
+        }
     else
         unsafeChecks |= b;
 
