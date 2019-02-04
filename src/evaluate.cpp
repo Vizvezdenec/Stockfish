@@ -333,15 +333,15 @@ namespace {
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
 
-            if (mob == 0 && (attackedBy[Us][KING] & s))
+            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+
+            if (!(b & ~blocked & ~attackedBy[Them][PAWN]) && (attackedBy[Us][KING] & s))
                 score -= make_score(0, 50);
 
             if (Pt == BISHOP)
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
