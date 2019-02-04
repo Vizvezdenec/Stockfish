@@ -483,7 +483,7 @@ namespace {
                 KnightCheckers |= pos.attacks_from<KNIGHT>(s) & pos.pieces(Them, KNIGHT);
                 }
             if (more_than_one(KnightCheckers))
-                kingDanger += KnightSafeCheck / 2;
+                kingDanger += KnightSafeCheck / 4;
             }
         }
     else
