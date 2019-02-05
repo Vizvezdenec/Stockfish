@@ -92,9 +92,9 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 730;
-  constexpr int RookSafeCheck   = 1050;
-  constexpr int BishopSafeCheck = 585;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
@@ -479,7 +479,6 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    kingDanger += 40 * popcount(RookCheck | QueenCheck | BishopCheck);
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -578,7 +577,7 @@ namespace {
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN) & ~(safe & pawn_attacks_bb<Them>(nonPawnEnemies))) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
