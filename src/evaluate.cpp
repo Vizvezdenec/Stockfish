@@ -92,9 +92,9 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
+  constexpr int QueenSafeCheck  = 730;
+  constexpr int RookSafeCheck   = 1050;
+  constexpr int BishopSafeCheck = 585;
   constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
@@ -449,27 +449,23 @@ namespace {
     Bitboard QueenCheck =  (b1 | b2)
                          & attackedBy[Them][QUEEN]
                          & safe
-                         & ~attackedBy[Us][QUEEN];
+                         & ~attackedBy[Us][QUEEN]
+                         & ~RookCheck;
 
-    if (QueenCheck & ~RookCheck)
+    if (QueenCheck)
         kingDanger += QueenSafeCheck;
-    else if (QueenCheck)
-        kingDanger += 100;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     Bitboard BishopCheck =  b2 
                           & attackedBy[Them][BISHOP]
-                          & safe;
+                          & safe
+                          & ~QueenCheck;
 
-    if (BishopCheck & ~QueenCheck)
+    if (BishopCheck)
         kingDanger += BishopSafeCheck;
-    else 
-        {
-        if (BishopCheck)
-        	kingDanger += 100;
+    else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
-        }
 
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
@@ -483,6 +479,7 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    kingDanger += 40 * popcount(RookCheck | QueenCheck | BishopCheck);
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
