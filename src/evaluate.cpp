@@ -297,7 +297,8 @@ namespace {
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
           : Pt == QUEEN ? attacks_bb<QUEEN>(s, pos.pieces() & ~pos.pieces(Us, QUEEN) 
-                  & ~(pos.pieces(Us, ROOK) & (RankBB[s] | FileBB[s])) & ~(pos.pieces(Us, BISHOP) & ~(RankBB[s] | FileBB[s])))
+                  & ~(pos.pieces(Us, ROOK) & (RankBB[rank_of(s)] | FileBB[file_of(s)])) 
+                  & ~(pos.pieces(Us, BISHOP) & ~(RankBB[rank_of(s)] | FileBB[file_of(s)])))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
