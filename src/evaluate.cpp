@@ -465,7 +465,7 @@ namespace {
     if (BishopCheck)
         kingDanger += BishopSafeCheck;
     else
-        unsafeChecks |= b2 & attackedBy[Them][BISHOP];
+        unsafeChecks |= b2 & attackedBy[Them][BISHOP] & ~QueenCheck;
 
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
