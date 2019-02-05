@@ -312,7 +312,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        b = pos.attacks_from<Pt>(s);
+        b &= ~pos.pieces(Us, Pt);
         
         int mob = popcount(b & mobilityArea[Us]);
 
