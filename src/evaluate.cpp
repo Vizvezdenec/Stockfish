@@ -449,11 +449,11 @@ namespace {
     Bitboard QueenCheck =  (b1 | b2)
                          & attackedBy[Them][QUEEN]
                          & safe
-                         & ~attackedBy[Us][QUEEN]
-                         & ~RookCheck;
+                         & ~attackedBy[Us][QUEEN];
 
-    if (QueenCheck)
+    if (QueenCheck & ~RookCheck)
         kingDanger += QueenSafeCheck;
+    else unsafeChecks |= QueenCheck;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -465,7 +465,7 @@ namespace {
     if (BishopCheck)
         kingDanger += BishopSafeCheck;
     else
-        unsafeChecks |= b2 & attackedBy[Them][BISHOP] & ~QueenCheck;
+        unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     b = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
