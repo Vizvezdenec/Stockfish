@@ -483,6 +483,7 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 +  50 * popcount(attackedBy[Them][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
                  - 873 * !pos.count<QUEEN>(Them)
