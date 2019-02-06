@@ -283,6 +283,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Trank8BB = (Us == WHITE ? Rank8BB: Rank1BB);
+
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -309,9 +311,10 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
-            if (more_than_one(b & attackedBy[Them][KING]))
-                 kingAttackersCount[Us]++;
+            if (!(pos.pieces(Them, KING) & CenterFiles) || !(pos.pieces(Them, KING) & Trank8BB))
+            	kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            else 
+                kingAttacksCount[Us] += popcount(b & kingRing[Them]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
