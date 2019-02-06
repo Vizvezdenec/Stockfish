@@ -488,6 +488,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
+                 +  20 * (pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them) - pos.count<KNIGHT>(Us) - pos.count<BISHOP>(Us))
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -500,8 +501,6 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
-    
-    score -= make_score(pos.non_pawn_material(Them)/QueenValueMg - 1, 0) * tropism;
 
     if (T)
         Trace::add(KING, Us, score);
