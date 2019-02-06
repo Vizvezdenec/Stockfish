@@ -479,6 +479,14 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    if ((pos.pieces(Them, BISHOP) & DarkSquares) && !(pos.pieces(Us, BISHOP) & DarkSquares) 
+        && (attackedBy[Them][BISHOP] & DarkSquares & kingRing[Us]))
+          kingDanger += 50;
+
+    if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && !(pos.pieces(Us, BISHOP) & ~DarkSquares) 
+        && (attackedBy[Them][BISHOP] & ~DarkSquares & kingRing[Us]))
+          kingDanger += 50;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -583,7 +591,6 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    score += make_score(2, 3) * popcount(pawn_attacks_bb<Us>(b) & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
