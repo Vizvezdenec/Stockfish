@@ -488,7 +488,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +  20 * (pos.count<KNIGHT>(Them) + pos.count<BISHOP>(Them) - pos.count<KNIGHT>(Us) - pos.count<BISHOP>(Us))
+                 +       mg_value(pos.psq_score() * ((Us == WHITE) * 2 - 1))
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
