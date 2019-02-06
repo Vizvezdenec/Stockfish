@@ -403,6 +403,9 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB
+                                                   : Rank6BB | Rank7BB);
 
     const Square ksq = pos.square<KING>(Us);
     Bitboard kingFlank, weak, b, b1, b2, safe, unsafeChecks;
@@ -500,6 +503,17 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+
+    Bitboard sideOfKing = 0;
+    
+    if (KingSide & ksq)
+         sideOfKing = KingSide;
+    else 
+         sideOfKing = QueenSide;
+
+    if (popcount(pos.pieces(Us,PAWN) & ~sideOfKing 
+         & shift<Down>(pos.pieces(Them) | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))) == 4)
+         score -= make_score(10, 10) * popcount(attackedBy[Them][PAWN] & sideOfKing & LowRanks);
 
     if (T)
         Trace::add(KING, Us, score);
