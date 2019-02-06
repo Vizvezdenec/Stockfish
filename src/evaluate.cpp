@@ -475,6 +475,8 @@ namespace {
     else
         unsafeChecks |= b;
 
+    int checkNumber = popcount((b & safe) | RookCheck | QueenCheck | BishopCheck);
+
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
@@ -488,6 +490,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
+                 +       checkNumber * checkNumber
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
