@@ -479,14 +479,6 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    if ((pos.pieces(Them, BISHOP) & DarkSquares) && !(pos.pieces(Us, BISHOP) & DarkSquares) 
-        && (attackedBy[Them][BISHOP] & DarkSquares & kingRing[Us]))
-          kingDanger += 50;
-
-    if ((pos.pieces(Them, BISHOP) & ~DarkSquares) && !(pos.pieces(Us, BISHOP) & ~DarkSquares) 
-        && (attackedBy[Them][BISHOP] & ~DarkSquares & kingRing[Us]))
-          kingDanger += 50;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -508,6 +500,8 @@ namespace {
 
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
+    
+    score -= make_score(pos.non_pawn_material(Them)/QueenValueMg - 1, 0) * tropism;
 
     if (T)
         Trace::add(KING, Us, score);
