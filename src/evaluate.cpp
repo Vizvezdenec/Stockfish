@@ -310,6 +310,8 @@ namespace {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            if (more_than_one(b & kingRing[Them]))
+                 kingAttackersCount[Us]++;
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -578,7 +580,7 @@ namespace {
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
-    b |= shift<Up>(b & TRank3BB) & ~pos.pieces(Us, PAWN) & ~pos.pieces(Them);
+    b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
