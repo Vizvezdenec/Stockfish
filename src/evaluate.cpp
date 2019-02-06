@@ -504,16 +504,13 @@ namespace {
     // King tropism bonus, to anticipate slow motion attacks on our king
     score -= CloseEnemies * tropism;
 
-    Bitboard sideOfKing = 0;
-    
-    if (KingSide & ksq)
-         sideOfKing = KingSide;
-    else 
-         sideOfKing = QueenSide;
-
-    if (popcount(pos.pieces(Us,PAWN) & ~sideOfKing 
+    if (popcount(pos.pieces(Us,PAWN) & KingSide 
          & shift<Down>(pos.pieces(Them) | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))) == 4)
-         score -= make_score(10, 10) * popcount(attackedBy[Them][PAWN] & sideOfKing & LowRanks);
+         score -= make_score(10, 10) * popcount(attackedBy[Them][PAWN] & QueenSide & LowRanks);
+
+    if (popcount(pos.pieces(Us,PAWN) & QueenSide 
+         & shift<Down>(pos.pieces(Them) | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))) == 4)
+         score -= make_score(10, 10) * popcount(attackedBy[Them][PAWN] & KingSide & LowRanks);
 
     if (T)
         Trace::add(KING, Us, score);
