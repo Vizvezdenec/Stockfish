@@ -92,10 +92,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 750;
+  constexpr int RookSafeCheck   = 1145;
+  constexpr int BishopSafeCheck = 597;
+  constexpr int KnightSafeCheck = 812;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -488,7 +488,6 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +       mg_value(pos.psq_score() * ((Us == WHITE) * 2 - 1))
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
