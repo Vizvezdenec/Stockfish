@@ -418,6 +418,10 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
+    b2 = kingFlank & Camp & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us]);
+
+    int tropismDifference = tropism - popcount(b2);
+
     // Main king safety evaluation
     int kingDanger = 0;
     unsafeChecks = 0;
@@ -485,6 +489,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  +   5 * tropism * tropism / 16
+                 +       tropismDifference * abs(tropismDifference) / 4
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
