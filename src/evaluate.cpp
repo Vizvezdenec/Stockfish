@@ -215,6 +215,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard fieldOfPlay[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -272,6 +273,14 @@ namespace {
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingRing[Us] &= ~double_pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    
+    fieldOfPlay[Us] = 0;
+    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() 
+        | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))) & QueenSide) < 4)
+         fieldOfPlay[Us] |= QueenSide;
+    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() 
+        | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))) & KingSide) < 4)
+         fieldOfPlay[Us] |= KingSide;
   }
 
 
@@ -319,7 +328,7 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
-            bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
+            bb = OutpostRanks & ~pe->pawn_attacks_span(Them) & fieldOfPlay[Us];
             if (bb & s)
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & s)] * 2;
 
