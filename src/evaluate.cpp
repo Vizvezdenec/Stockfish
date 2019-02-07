@@ -569,7 +569,8 @@ namespace {
     // Bonus for restricting their piece moves
     restricted =   attackedBy[Them][ALL_PIECES]
                 & ~stronglyProtected
-                &  attackedBy[Us][ALL_PIECES];
+                &  attackedBy[Us][ALL_PIECES]
+                & mobilityArea[Them];
     score += RestrictedPiece * popcount(restricted);
 
     // Bonus for enemy unopposed weak pawns
@@ -579,8 +580,6 @@ namespace {
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
-
-    score -= make_score(5, 5) * popcount(b & attackedBy[Them][PAWN] & attackedBy2[Them]);
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
