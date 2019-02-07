@@ -463,7 +463,7 @@ namespace {
                           & ~QueenCheck;
 
     if (BishopCheck)
-        kingDanger += BishopSafeCheck;
+        kingDanger += BishopSafeCheck * popcount(BishopCheck);
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
@@ -759,15 +759,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int mobilityDanger = abs(eg_value(mobility[WHITE] - mobility[BLACK]))/32;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +      mobilityDanger
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
