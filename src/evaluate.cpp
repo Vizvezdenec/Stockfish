@@ -515,7 +515,9 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, restricted;
     Score score = SCORE_ZERO;
@@ -597,7 +599,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected & ~pos.pieces(Us, PAWN);
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
@@ -608,6 +610,16 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    if ((more_than_one(attackedBy[Them][PAWN] & LowRanks & KingSide) 
+        && popcount(pos.pieces(Us, PAWN) & QueenSide 
+        & shift<Down>(pos.pieces(Them) | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))) == 4)
+        || 
+         (more_than_one(attackedBy[Them][PAWN] & LowRanks & QueenSide) 
+        && popcount(pos.pieces(Us, PAWN) & KingSide 
+        & shift<Down>(pos.pieces(Them) | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN)))) == 4))
+           
+        score -= make_score(50, 20);
 
     if (T)
         Trace::add(THREAT, Us, score);
