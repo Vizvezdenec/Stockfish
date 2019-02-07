@@ -580,6 +580,8 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
+    score -= make_score(10, 5) * popcount(b & TRank3BB & attackedBy[Them][PAWN]);
+
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
