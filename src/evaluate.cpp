@@ -275,10 +275,10 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
     
     fieldOfPlay[Us] = 0;
-    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() 
+    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN) 
         | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))) & QueenSide) < 4)
          fieldOfPlay[Us] |= QueenSide;
-    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() 
+    if (popcount(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN) 
         | double_pawn_attacks_bb<Them>(pos.pieces(Them, PAWN))) & KingSide) < 4)
          fieldOfPlay[Us] |= KingSide;
   }
