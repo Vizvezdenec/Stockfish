@@ -479,7 +479,7 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    Bitboard stronglyProtected = attackedBy2[Us] & attackedBy[Us][PAWN];
+    Bitboard stronglyProtected = attackedBy2[Us] & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
