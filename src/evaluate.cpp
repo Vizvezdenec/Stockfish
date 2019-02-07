@@ -327,7 +327,7 @@ namespace {
                 score += Outpost[Pt == BISHOP][bool(attackedBy[Us][PAWN] & bb)];
 
             // Knight and Bishop bonus for being right behind a pawn
-            else if (shift<Down>(pos.pieces(PAWN)) & s)
+            if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
@@ -609,6 +609,16 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    if (pos.pieces(Us, KNIGHT))
+    {
+    b = pos.pieces(Us, KNIGHT);
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        if (!(pos.attacks_from<KNIGHT>(s) & ~stronglyProtected & ~(FileABB | FileHBB | Rank1BB | Rank8BB)))
+        score -= make_score(30, 30);
+    }
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
