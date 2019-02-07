@@ -418,10 +418,6 @@ namespace {
 
     int tropism = popcount(b1) + popcount(b2);
 
-    b2 = kingFlank & Camp & ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING]) | attackedBy2[Us]);
-
-    int tropismDifference = tropism - popcount(b2);
-
     // Main king safety evaluation
     int kingDanger = 0;
     unsafeChecks = 0;
@@ -488,7 +484,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 +   5 * tropismDifference * abs(tropismDifference) / 8
+                 +   5 * tropism * tropism / 16
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -763,12 +759,15 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    int mobilityDanger = abs(eg_value(mobility[WHITE] - mobility[BLACK]))/32;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    +      mobilityDanger
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
