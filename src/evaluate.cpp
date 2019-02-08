@@ -413,7 +413,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
-    b1 = ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][KING] & ~attackedBy[Them][QUEEN]) | attackedBy2[Them]) & kingFlank & Camp;
+    b1 = ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][KING]) | attackedBy2[Them]) & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
@@ -484,7 +484,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 +   5 * tropism * tropism / 16
+                 +   3 * tropism * tropism / 8
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
