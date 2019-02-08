@@ -78,6 +78,7 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
+    e->freelyPushedPawns[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
@@ -139,6 +140,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (!leverPush && !(theirPawns & (s + Up)))
+            e->freelyPushedPawns[Us]|= s;
     }
 
     return score;

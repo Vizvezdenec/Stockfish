@@ -244,9 +244,10 @@ namespace {
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
+    constexpr Bitboard TRank3BB = (Us == WHITE ? Rank3BB: Rank3BB);
 
     // Find our pawns that are blocked or on the first two ranks
-    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | (LowRanks & ~(pe->freely_pushed_pawns(Us) & TRank3BB)));
 
     // Squares occupied by those pawns, by our king or queen, or controlled by enemy pawns
     // are excluded from the mobility area.
@@ -597,7 +598,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = (mobilityArea[Us] | pos.pieces(Us, QUEEN)) & ~stronglyProtected & ~pos.pieces(Us, PAWN);
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
