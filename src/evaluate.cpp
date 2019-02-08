@@ -153,17 +153,17 @@ namespace {
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
-  constexpr Score CloseEnemies       = S(  9,  0);
+  constexpr Score CloseEnemies       = S(  8,  0);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
-  constexpr Score KnightOnQueen      = S( 16, 12);
+  constexpr Score KnightOnQueen      = S( 17, 13);
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
-  constexpr Score SliderOnQueen      = S( 59, 18);
+  constexpr Score SliderOnQueen      = S( 62, 19);
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
@@ -413,7 +413,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     kingFlank = KingFlank[file_of(ksq)];
-    b1 = ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][KING]) | attackedBy2[Them]) & kingFlank & Camp;
+    b1 = attackedBy[Them][ALL_PIECES] & kingFlank & Camp;
     b2 = b1 & attackedBy2[Them];
 
     int tropism = popcount(b1) + popcount(b2);
@@ -484,7 +484,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 +   3 * tropism * tropism / 8
+                 +   5 * tropism * tropism / 16
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -597,7 +597,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected & ~pos.pieces(Us, PAWN);
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
