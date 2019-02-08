@@ -616,7 +616,7 @@ namespace {
     {
         Square s = pop_lsb(&b);
         if (!(pos.attacks_from<KNIGHT>(s) & ~stronglyProtected & ~(FileABB | FileHBB | Rank1BB | Rank8BB)))
-        score -= make_score(30, 30);
+        score -= make_score(40, 20);
     }
     }
     if (T)
