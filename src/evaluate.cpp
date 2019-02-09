@@ -384,8 +384,7 @@ namespace {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-                score -= WeakQueen * (popcount(queenPinners & ~(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN])
-                         & ~(pos.pieces(Them, PAWN) & shift<Down>(pos.pieces()))));
+                score -= WeakQueen;
         }
     }
     if (T)
@@ -474,6 +473,14 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int linearDanger = 0;
+    if (file_of(ksq) == FILE_A || file_of(ksq) == FILE_H)
+        linearDanger = 3 - popcount(pos.pieces(Them, PAWN) & KingFlank[file_of(ksq)]);
+    else 
+        linearDanger = 4 - popcount(pos.pieces(Them, PAWN) & KingFlank[file_of(ksq)]);
+
+    linearDanger = std::max(0, linearDanger); 
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -483,6 +490,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +  10 * (pos.count<ROOK>(Them) + pos.count<QUEEN>(Them)) * linearDanger
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
