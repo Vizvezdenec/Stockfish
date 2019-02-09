@@ -474,12 +474,14 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     int linearDanger = 0;
-    if (file_of(ksq) == FILE_A || file_of(ksq) == FILE_H)
-        linearDanger = 3 - popcount(pos.pieces(Them, PAWN) & KingFlank[file_of(ksq)]);
-    else 
-        linearDanger = 4 - popcount(pos.pieces(Them, PAWN) & KingFlank[file_of(ksq)]);
-
-    linearDanger = std::max(0, linearDanger); 
+    
+    b = pos.pieces(Us, PAWN) & KingFlank[file_of(ksq)];
+     while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (!(forward_file_bb(Us, s) & pos.pieces(PAWN)))
+            	linearDanger++;
+        }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
