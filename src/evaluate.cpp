@@ -401,6 +401,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -475,11 +476,11 @@ namespace {
 
     int linearDanger = 0;
     
-    b = pos.pieces(Us, PAWN) & KingFlank[file_of(ksq)];
-     while (b)
+    b = TRank1BB & KingFlank[file_of(ksq)];
+    while (b)
         {
             Square s = pop_lsb(&b);
-            if (!(forward_file_bb(Us, s) & pos.pieces(PAWN)))
+            if (!(forward_file_bb(Us, s) & pos.pieces(Them, PAWN)))
             	linearDanger++;
         }
 
