@@ -972,7 +972,7 @@ moves_loop: // When in check, search starts from here
               && !pos.advanced_pawn_push(move))
           {
               bool isKiller = 0;
-              if ((ss-1)->currentMove == (ss-1)->killers[0] || (ss-2)->currentMove == (ss-2)->killers[0])
+              if (ss->currentMove == ss->killers[0] || ss->currentMove == ss->killers[1])
                      isKiller = 1;
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
