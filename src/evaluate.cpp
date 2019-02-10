@@ -475,7 +475,8 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-    if (more_than_one(blocked & (FileEBB | FileDBB)) && (kingRing[Us] & attackedBy[Them][PAWN]))
+    b = (FileEBB | FileDBB);
+    if (more_than_one(blocked & b) && (kingRing[Us] & pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & b)))
     	kingDanger += 100;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
