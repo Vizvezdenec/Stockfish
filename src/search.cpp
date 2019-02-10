@@ -971,6 +971,9 @@ moves_loop: // When in check, search starts from here
               && !givesCheck
               && !pos.advanced_pawn_push(move))
           {
+              bool isKiller = 0;
+              if ((ss-1)->currentMove == (ss-1)->killers[0] || (ss-2)->currentMove == (ss-2)->killers[0])
+                     isKiller = 1;
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
               {
@@ -982,7 +985,8 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   !isKiller
+                  && lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
