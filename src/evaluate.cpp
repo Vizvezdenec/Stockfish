@@ -162,7 +162,7 @@ namespace {
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
-  constexpr Score WeakUnopposedPawn  = S(  5, 10);
+  constexpr Score WeakUnopposedPawn  = S(  8, 16);
   constexpr Score Outpost            = S(  9,  3);
 
 #undef S
@@ -567,8 +567,10 @@ namespace {
     score += RestrictedPiece * popcount(restricted);
 
     // Bonus for enemy unopposed weak pawns
-    if (pos.pieces(Us, ROOK, QUEEN))
-        score += WeakUnopposedPawn * pe->weak_unopposed(Them) * (pos.count<ROOK>(Us) + pos.count<QUEEN>(Us));
+    if (pos.pieces(Us, ROOK))
+        score += WeakUnopposedPawn * pe->weak_unopposed(Them);
+    if (pos.pieces(Us, QUEEN))
+        score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
