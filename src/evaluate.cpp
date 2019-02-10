@@ -552,8 +552,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        if (weak & attackedBy[Us][KING])
-            score += ThreatByKing;
+            score += ThreatByKing * popcount(weak & attackedBy[Us][KING]);
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
