@@ -140,7 +140,7 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-        e->pawnRank[Us] += relative_rank(Us, s);
+        e->pawnRank[Us] += relative_rank(Us, s) - 2;
     }
 
     return score;
