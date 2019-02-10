@@ -552,7 +552,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-            score += ThreatByKing * popcount(weak & attackedBy[Us][KING]);
+            score += ThreatByKing * popcount(weak & attackedBy[Us][KING] & (attackedBy2[Us] | ~attackedBy[Them][ALL_PIECES]));
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
