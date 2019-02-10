@@ -241,7 +241,7 @@ namespace {
     const Square ksq = pos.square<KING>(Us);
 
     // Find our pawns that are blocked or on the first two ranks
-    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+    Bitboard b = pos.pieces(Us, PAWN) & ((shift<Down>(pos.pieces()) & ~pawn_attacks_bb<Them>(pos.pieces(Them)))  | LowRanks);
 
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
@@ -401,7 +401,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -473,11 +472,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-    b = (FileEBB | FileDBB);
-    if (more_than_one(blocked & b) && (kingRing[Us] & pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & b)))
-    	kingDanger += 100;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
