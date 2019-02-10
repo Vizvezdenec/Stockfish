@@ -585,7 +585,17 @@ namespace {
     b = pos.pieces(Us, PAWN) & safe;
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
+    if (b)
+    while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (pos.pieces(Them, QUEEN) & s)
+            	score += ThreatBySafePawn + make_score(100,50);
+            else if (pos.pieces(Them, ROOK) & s)
+                score += ThreatBySafePawn;
+            else if (pos.pieces(Them, BISHOP, KNIGHT) & s)
+                score += ThreatBySafePawn - make_score(50,25);
+        };
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
@@ -600,9 +610,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]) 
-                 * (1 + !(attackedBy[Them][QUEEN] & ~attackedBy2[Us]
-          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN])));
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
