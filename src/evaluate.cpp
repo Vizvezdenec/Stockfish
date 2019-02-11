@@ -132,6 +132,10 @@ namespace {
     S(0, 0), S(0, 24), S(38, 71), S(38, 61), S(0, 38), S(51, 38)
   };
 
+  constexpr Score ThreatBySafePawn[PIECE_TYPE_NB] = {
+S(0, 0), S(0, 0), S(147, 117), S(147, 117), S(169, 81), S(206, 109)
+};
+
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
     S(0, 0), S(5, 18), S(12, 23), S(10, 31), S(57, 62), S(163, 167), S(271, 250)
@@ -159,7 +163,6 @@ namespace {
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatByRank       = S( 13,  0);
-  constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
   constexpr Score WeakUnopposedPawn  = S( 12, 23);
@@ -589,12 +592,7 @@ namespace {
     while (b)
         {
             Square s = pop_lsb(&b);
-            if (pos.pieces(Them, QUEEN) & s)
-            	score += ThreatBySafePawn + make_score(150,75);
-            else if (pos.pieces(Them, ROOK) & s)
-                score += ThreatBySafePawn;
-            else if (pos.pieces(Them, BISHOP, KNIGHT) & s)
-                score += ThreatBySafePawn - make_score(75,35);
+	    score += ThreatBySafePawn[type_of(pos.piece_on(s))];
         };
 
     // Bonus for threats on the next moves against enemy queen
