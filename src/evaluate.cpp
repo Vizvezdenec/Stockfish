@@ -590,11 +590,11 @@ namespace {
         {
             Square s = pop_lsb(&b);
             if (pos.pieces(Them, QUEEN) & s)
-            	score += ThreatBySafePawn + make_score(50,25);
+            	score += ThreatBySafePawn + make_score(150,75);
             else if (pos.pieces(Them, ROOK) & s)
                 score += ThreatBySafePawn;
             else if (pos.pieces(Them, BISHOP, KNIGHT) & s)
-                score += ThreatBySafePawn - make_score(30,15);
+                score += ThreatBySafePawn - make_score(75,35);
         };
 
     // Bonus for threats on the next moves against enemy queen
