@@ -331,9 +331,6 @@ namespace {
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
 
-            if (!(b & ~forward_ranks_bb(Us, s) & ~pos.pieces(Us)))
-                 score -= make_score(30, 30);
-
             if (Pt == BISHOP)
             {
                 // Penalty according to number of pawns on the same color square as the
@@ -606,6 +603,13 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    b = pos.pieces(Us, BISHOP) & (FileABB | FileHBB) & pawn_attacks_bb<Us>(pos.pieces(Them, PAWN) & stronglyProtected);
+    while (b) 
+    {
+        Square s = pop_lsb(&b);
+        if (!(pos.attacks_from<BISHOP>(s) & (~((attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]) | attackedBy2[Them]))))
+             score -= make_score(70, 70);
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
