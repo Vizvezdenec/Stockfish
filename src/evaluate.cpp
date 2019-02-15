@@ -607,7 +607,7 @@ namespace {
     while (b) 
     {
         Square s = pop_lsb(&b);
-        if (!(pos.attacks_from<BISHOP>(s) & (~((attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us]) | attackedBy2[Them]))))
+        if (!(pos.attacks_from<BISHOP>(s) & ~attackedBy[Them][ALL_PIECES]))
              score -= make_score(70, 70);
     }
     if (T)
