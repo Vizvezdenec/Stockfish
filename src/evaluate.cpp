@@ -84,6 +84,13 @@ namespace {
     KingSide, KingSide, KingSide ^ FileEBB
   };
 
+  constexpr Bitboard Camp[RANK_NB] = {
+    AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, 
+    AllSquares ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank8BB,
+    AllSquares ^ Rank1BB, AllSquares ^ Rank1BB ^ Rank2BB,
+    AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
+  };
+
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
   constexpr Value SpaceThreshold = Value(12222);
@@ -399,8 +406,6 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -468,7 +473,7 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp[rank_of(ksq)];
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
