@@ -602,6 +602,16 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+    if (pos.pieces(Us, BISHOP) & (FileABB | FileHBB) & pawn_attacks_bb<Us>(pos.pieces(Them, PAWN) & stronglyProtected))
+        {
+        b = pos.pieces(Us, BISHOP) & (FileABB | FileHBB) & pawn_attacks_bb<Us>(pos.pieces(Them, PAWN) & stronglyProtected);
+        while (b) 
+             {
+             Square s = pop_lsb(&b);
+             if (!(pos.attacks_from<BISHOP>(s) & ~attackedBy[Them][ALL_PIECES]))
+                  score -= make_score(70, 70);
+             }
+        }
 
     if (T)
         Trace::add(THREAT, Us, score);
