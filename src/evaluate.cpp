@@ -86,8 +86,8 @@ namespace {
 
   constexpr Bitboard Camp[RANK_NB] = {
     AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, 
-    AllSquares ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank8BB,
-    AllSquares ^ Rank1BB, AllSquares ^ Rank1BB ^ Rank2BB,
+    AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank8BB,
+    AllSquares ^ Rank1BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB,
     AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
   };
 
@@ -486,7 +486,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +       kingFlankAttacks * kingFlankAttacks / 4
+                 +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
