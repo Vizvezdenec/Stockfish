@@ -604,7 +604,7 @@ namespace {
     }
 
     if (!(pos.pieces(Them) & shift<Up>(pos.pieces(Us, PAWN)) & CenterFiles))
-        score += make_score(3, 9) * (pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us));
+        score += make_score(9, 3) * (pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
