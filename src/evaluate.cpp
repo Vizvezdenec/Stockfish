@@ -603,7 +603,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-        score += make_score(2, 2) * ((pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us) + pos.count<ROOK>(Us)) 
+        score += make_score(0, 3) * ((pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us) + pos.count<ROOK>(Us)) 
                  * (8 - popcount(pos.pieces(PAWN) & CenterFiles)));
 
     if (T)
