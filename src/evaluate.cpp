@@ -603,8 +603,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-        score += make_score(0, 3) * ((pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us) + pos.count<ROOK>(Us)) 
-                 * (8 - popcount(pos.pieces(PAWN) & CenterFiles)));
+    if (!(pos.pieces(Them) & shift<Up>(pos.pieces(Us, PAWN)) & CenterFiles))
+        score += make_score(3, 9) * (pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
