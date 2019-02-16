@@ -86,8 +86,8 @@ namespace {
 
   constexpr Bitboard Camp[RANK_NB] = {
     AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, 
-    AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank8BB,
-    AllSquares ^ Rank1BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB,
+    AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB, AllSquares ^ Rank1BB ^ Rank7BB ^ Rank8BB,
+    AllSquares ^ Rank1BB ^ Rank2BB ^ Rank8BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB,
     AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB, AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
   };
 
