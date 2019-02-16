@@ -225,6 +225,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int trappedRookCount[COLOR_NB];
   };
 
 
@@ -266,6 +267,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    trappedRookCount[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -375,7 +377,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                    trappedRookCount[Us]++;
             }
         }
 
@@ -401,6 +403,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
+    constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB : Rank7BB);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
@@ -479,7 +483,6 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 + 50  * popcount(pos.pieces(Us, PAWN) & attackedBy[Us][KING] & shift<Down>(attackedBy[Them][PAWN]))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -497,6 +500,9 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
 
+    score -= TrappedRook * trappedRookCount[Us] * ((1 + !pos.castling_rights(Us)) 
+             * (1 + bool((TRank1BB & ksq) && !(attackedBy[Us][KING] & TRank2BB & ~attackedBy[Them][ALL_PIECES] 
+             & ~(pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))))));
     if (T)
         Trace::add(KING, Us, score);
 
