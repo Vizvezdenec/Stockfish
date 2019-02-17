@@ -476,6 +476,7 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
+                 + 100 * popcount(kingRing[Us] & weak & attackedBy2[Them])
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
@@ -602,9 +603,6 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
-    if (!(pos.pieces(Them) & shift<Up>(pos.pieces(Us, PAWN)) & CenterFiles))
-        score += make_score(9, 3) * (pos.count<BISHOP>(Us) + pos.count<QUEEN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
