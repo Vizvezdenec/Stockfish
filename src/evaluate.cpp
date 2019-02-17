@@ -342,12 +342,7 @@ namespace {
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
-                    {
                     score += LongDiagonalBishop;
-                    if (((DarkSquares & s) && !(DarkSquares & pos.pieces(Them, BISHOP)))
-                             || ((~DarkSquares & s) && !(~DarkSquares & pos.pieces(Them, BISHOP))))
-                         score += make_score(25, 0);
-                    }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -480,7 +475,8 @@ namespace {
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 130 * popcount(kingRing[Us] & weak)
+                 + 130 * popcount(kingRing[Us] & weak & attackedBy2[Them])
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
