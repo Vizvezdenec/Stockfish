@@ -610,7 +610,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             safe = mobilityArea[Us] & ~stronglyProtected;
-            score += make_score(8, 4) 
+            score += make_score(24, 12) 
                      * popcount(safe & 
                      ((attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s)) | 
                      (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s))));
