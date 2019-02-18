@@ -332,7 +332,7 @@ namespace {
             score -= KingProtector * distance(s, pos.square<KING>(Us));
 
             if (mob < 3 && relative_rank(Us, s) == RANK_1)
-                score -= make_score(5, 15);
+                score -= make_score(8, 0);
 
             if (Pt == BISHOP)
             {
