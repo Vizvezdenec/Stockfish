@@ -466,12 +466,17 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
+    int kingFlankAttacks = 0;
+
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
+    if (pos.pieces(Them,QUEEN) || ((kingAttackersCount[Them] + kingAttacksCount[Them]) > 1))
+    {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2);
+    kingFlankAttacks = popcount(b1) + popcount(b2);
+    }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -493,9 +498,7 @@ namespace {
         score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
-    if (kingDanger > -500)
-        score -= FlankAttacks 
-                 * (kingFlankAttacks - std::max(0, - kingFlankAttacks * kingDanger / 500));
+    score -= FlankAttacks * kingFlankAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
