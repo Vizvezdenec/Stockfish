@@ -139,6 +139,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+        
+        if (more_than_one(lever))
+            score -= make_score(20, 0);
     }
 
     return score;
