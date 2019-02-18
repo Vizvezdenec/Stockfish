@@ -752,13 +752,13 @@ namespace {
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-
+    int non_pawn_init = (1 + 4 * !pos.non_pawn_material(WHITE)) * (1 + 4 * !pos.non_pawn_material(BLACK)) - 1;
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
-                    + 25 * (!pos.non_pawn_material(WHITE) + !pos.non_pawn_material(BLACK))
+                    +  2 * non_pawn_init
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
