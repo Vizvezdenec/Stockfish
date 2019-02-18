@@ -474,7 +474,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
     if (relative_rank(Us, ksq) == RANK_1 && (pos.pieces(Us, BISHOP) & TRank2BB & kingRing[Us]))
-        kingDanger -= 50;
+        kingDanger -= 100;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -485,7 +485,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   25;
+                 -   15;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
