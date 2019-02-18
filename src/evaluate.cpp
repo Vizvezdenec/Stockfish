@@ -343,7 +343,7 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-                else if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & (FileEBB | FileDBB)))
+                else if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & CenterFiles & (Rank4BB | Rank5BB)))
                     score += LongDiagonalBishop / 2;
             }
 
