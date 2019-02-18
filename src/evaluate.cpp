@@ -495,7 +495,7 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     if (kingDanger > -500)
         score -= FlankAttacks 
-                 * (kingFlankAttacks - std::max(0, - kingFlankAttacks * kingDanger / 500));
+                 * (kingFlankAttacks - std::max(0, kingFlankAttacks - kingFlankAttacks * kingDanger / 500) / 2);
 
     if (T)
         Trace::add(KING, Us, score);
