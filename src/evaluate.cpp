@@ -470,7 +470,7 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    if (pos.pieces(Them,QUEEN) || ((kingAttackersCount[Them] + kingAttacksCount[Them]) > 1))
+    if (pos.pieces(Them,QUEEN) || kingAttackersCount[Them] > 0)
     {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
