@@ -401,7 +401,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB : Rank7BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -473,8 +472,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-    if (relative_rank(Us, ksq) == RANK_1 && (pos.pieces(Us, BISHOP) & TRank2BB & kingRing[Us]))
-        kingDanger -= 100;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -496,7 +493,9 @@ namespace {
         score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
-    score -= FlankAttacks * kingFlankAttacks;
+    if (kingDanger > -500)
+        score -= FlankAttacks 
+                 * (kingFlankAttacks - std::min(kingFlankAttacks, kingFlankAttacks * kingDanger / 500 + kingFlankAttacks));
 
     if (T)
         Trace::add(KING, Us, score);
