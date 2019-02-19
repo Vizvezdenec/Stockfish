@@ -466,17 +466,17 @@ namespace {
     // the square is in the attacker's mobility area.
     unsafeChecks &= mobilityArea[Them];
 
-    int kingFlankAttacks = 0;
-
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    if (pos.non_pawn_material(Them) > 3500)
-    {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    kingFlankAttacks = popcount(b1) + popcount(b2);
-    }
+    int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    weak |= ((attackedBy[Them][KNIGHT] & attackedBy[Them][BISHOP]) | 
+            (attackedBy[Them][KNIGHT] & attackedBy[Them][PAWN]) | 
+            (attackedBy[Them][PAWN] & attackedBy[Them][BISHOP])) &
+            ~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
