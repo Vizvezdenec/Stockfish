@@ -442,6 +442,7 @@ namespace {
     if (QueenCheck)
         kingDanger += QueenSafeCheck;
 
+    safe |= attackedBy[Us][ROOK] & ~attackedBy2[Us] & attackedBy2[Them];
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     Bitboard BishopCheck =  b2
