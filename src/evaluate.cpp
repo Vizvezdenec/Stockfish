@@ -482,7 +482,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +  20 * popcount((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & forward_ranks_bb(Them, ksq) & KingFlank[file_of(ksq)])
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -495,6 +494,7 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
+    score -= make_score(3,0) * popcount(attackedBy[Them][ALL_PIECES] & forward_ranks_bb(Them, ksq) & KingFlank[file_of(ksq)]);
 
     if (T)
         Trace::add(KING, Us, score);
