@@ -94,8 +94,8 @@ namespace {
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
   constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 615;
-  constexpr int KnightSafeCheck = 760;
+  constexpr int BishopSafeCheck = 635;
+  constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -294,19 +294,19 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
-        if (pos.blockers_for_king(Us) & s)
-            b &= LineBB[pos.square<KING>(Us)][s];
-
-        attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
-        attackedBy[Us][Pt] |= b;
-        attackedBy[Us][ALL_PIECES] |= b;
-
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+
+        if (pos.blockers_for_king(Us) & s)
+            b &= LineBB[pos.square<KING>(Us)][s];
+
+        attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
+        attackedBy[Us][Pt] |= b;
+        attackedBy[Us][ALL_PIECES] |= b;
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -448,9 +448,6 @@ namespace {
                           & attackedBy[Them][BISHOP]
                           & safe
                           & ~QueenCheck;
-
-    safe |= attackedBy[Us][ROOK] & ((~attackedBy2[Us] & attackedBy2[Them]) 
-            | (~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]) & attackedBy[Them][PAWN]));
 
     if (BishopCheck)
         kingDanger += BishopSafeCheck;
