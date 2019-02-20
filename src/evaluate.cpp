@@ -296,10 +296,14 @@ namespace {
 
         if (pos.blockers_for_king(Us) & s)
             {
-            if (b & kingRing[Them])
+            if ((b & kingRing[Them]) && !(b & kingRing[Them] & LineBB[pos.square<KING>(Us)][s]))
             	kingAttackersCount[Us]++;
             b &= LineBB[pos.square<KING>(Us)][s];
             }
+ 
+        attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
+        attackedBy[Us][Pt] |= b;
+        attackedBy[Us][ALL_PIECES] |= b;
 
         if (b & kingRing[Them])
         {
@@ -307,10 +311,6 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-
-        attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
-        attackedBy[Us][Pt] |= b;
-        attackedBy[Us][ALL_PIECES] |= b;
 
         int mob = popcount(b & mobilityArea[Us]);
 
