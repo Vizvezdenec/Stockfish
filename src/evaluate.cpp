@@ -401,6 +401,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -472,6 +473,19 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+    b = pos.pieces(Them, PAWN) & (FileEBB | FileDBB);
+    if (more_than_one(b & shift<Up>(pos.pieces(Us, PAWN))) 
+        && (b & pawn_attacks_bb<Them>(b)))
+         {
+         while (b)
+         {
+         Square s = pop_lsb(&b);
+         if ((b & (s - Up + WEST)) && (LineBB[s][s - Up + WEST] & kingRing[Us]))
+             kingDanger += 50;
+         else if ((b & (s - Up + EAST)) && (LineBB[s][s - Up + EAST] & kingRing[Us]))
+             kingDanger += 50;
+         }
+         }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -494,7 +508,6 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
-    score -= make_score(3,0) * popcount(attackedBy[Them][ALL_PIECES] & forward_ranks_bb(Them, ksq) & KingFlank[file_of(ksq)]);
 
     if (T)
         Trace::add(KING, Us, score);
