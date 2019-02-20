@@ -418,12 +418,13 @@ namespace {
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+    weak|= attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us] & ~attackedBy2[Them] & attackedByBlocker[Them]
+           & attackedBy[Us][KING];
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them])
-            | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us] & ~attackedBy2[Them] & attackedByBlocker[Them]
-           & attackedBy[Us][KING]);
+            | (weak & attackedByBlocker[Them]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
