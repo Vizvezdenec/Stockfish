@@ -474,17 +474,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
     b = pos.pieces(Them, PAWN) & (FileEBB | FileDBB);
-    if (more_than_one(b & shift<Up>(pos.pieces(Us, PAWN))) 
-        && (b & pawn_attacks_bb<Them>(b)))
+    if (more_than_one(b & shift<Up>(pos.pieces(Us, PAWN))))
          {
-         while (b)
-         {
-         Square s = pop_lsb(&b);
-         if ((b & (s - Up + WEST)) && (LineBB[s][s - Up + WEST] & kingRing[Us]))
-             kingDanger += 50;
-         else if ((b & (s - Up + EAST)) && (LineBB[s][s - Up + EAST] & kingRing[Us]))
-             kingDanger += 50;
-         }
+         b1 = LineBB[relative_square(Us, SQ_H1)][relative_square(Us, SQ_A8)];
+         b2 = LineBB[relative_square(Us, SQ_H2)][relative_square(Us, SQ_B8)];
+         if ((more_than_one(b1 & b) && (b1 & kingRing[Us]))
+             || (more_than_one(b2 & b) && (b2 & kingRing[Us])))
+              kingDanger += 100;
          }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
