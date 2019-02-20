@@ -959,9 +959,6 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
-      else if (type_of(move) == PROMOTION)
-          extension = ONE_PLY * (2 * (promotion_type(move) == QUEEN) - 1);
-
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 

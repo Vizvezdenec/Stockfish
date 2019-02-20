@@ -94,8 +94,8 @@ namespace {
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
   constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int BishopSafeCheck = 575;
+  constexpr int KnightSafeCheck = 700;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -448,6 +448,8 @@ namespace {
                           & attackedBy[Them][BISHOP]
                           & safe
                           & ~QueenCheck;
+
+    safe |= attackedBy[Us][ROOK] & ~attackedBy2[Us] & attackedBy2[Them];
 
     if (BishopCheck)
         kingDanger += BishopSafeCheck;
