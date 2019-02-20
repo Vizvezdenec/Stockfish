@@ -202,6 +202,7 @@ namespace {
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
+    Bitboard attackedByBlocker[COLOR_NB];
 
     // kingRing[color] are the squares adjacent to the king, plus (only for a
     // king on its first rank) the squares two ranks in front. For instance,
@@ -252,6 +253,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    attackedByBlocker[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -296,11 +298,10 @@ namespace {
 
         if (pos.blockers_for_king(Us) & s)
             {
-            if ((b & kingRing[Them]) && !(b & kingRing[Them] & LineBB[pos.square<KING>(Us)][s]))
-            	kingAttackersCount[Us]++;
+            attackedByBlocker[Us] |= b;
             b &= LineBB[pos.square<KING>(Us)][s];
             }
- 
+
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
@@ -420,7 +421,9 @@ namespace {
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
-    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
+    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them])
+            | (attackedBy[Them][ALL_PIECES] & ~attackedBy2[Us] & ~attackedBy2[Them] & attackedByBlocker[Them]
+           & attackedBy[Us][KING]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
