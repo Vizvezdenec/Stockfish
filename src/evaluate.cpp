@@ -401,7 +401,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -439,16 +438,7 @@ namespace {
                          & safe
                          & ~attackedBy[Us][QUEEN]
                          & ~RookCheck;
-    if (!QueenCheck && pos.count<QUEEN>(Them) == 1 && !(attackedBy[Us][ALL_PIECES] & pos.pieces(Them, QUEEN)))
-    	{
-        Square s = pos.square<QUEEN>(Them);
-        if (
-            (attacks_bb<QUEEN>(s, pos.pieces(Us)) & ksq)
-            && (!more_than_one(pos.pieces(Them) & BetweenBB[s][ksq]))
-            && !(pos.pieces(Them) & BetweenBB[s][ksq] & (pos.blockers_for_king(Them) | (shift<Up>(pos.pieces()) & pos.pieces(Them, PAWN))))
-           )
-            QueenCheck = SquareBB[s];
-        }
+
     if (QueenCheck)
         kingDanger += QueenSafeCheck;
 
@@ -482,6 +472,19 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    b = pos.blockers_for_king(Us) & pos.pieces(Them);
+    if (b)
+         {
+         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ b);
+         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ b);
+         if (!RookCheck && (b1 & pos.pieces(Them, ROOK) & (~attackedBy[Us][ALL_PIECES] | weak)))
+              kingDanger += RookSafeCheck - 150;
+         if (!QueenCheck && ((b1 | b2) & pos.pieces(Them, QUEEN) & ~attackedBy[Us][ALL_PIECES]))
+              kingDanger += QueenSafeCheck - 150;
+         if (!BishopCheck && (b2 & pos.pieces(Them, BISHOP) & (~attackedBy[Us][ALL_PIECES] | weak)))
+              kingDanger += BishopSafeCheck - 150;
+         }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
