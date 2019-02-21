@@ -486,8 +486,6 @@ namespace {
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 0)
-        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
     KingDanger[Them] = kingDanger;
 
     // Penalty when our king is on a pawnless flank
@@ -848,15 +846,9 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    if (abs(KingDanger[WHITE] - KingDanger[BLACK]) > 4000)
-         {
-         int kdScore = 0;
-         if (KingDanger[WHITE] - KingDanger[BLACK] > 0)
-             kdScore = KingDanger[WHITE] - KingDanger[BLACK] - 4000;
-         else 
-             kdScore = KingDanger[BLACK] - KingDanger[WHITE] - 4000;
-         score += make_score(kdScore * abs(kdScore) / 10000, 0);
-         }
+    int kdDiff = KingDanger[WHITE] - KingDanger[BLACK];
+    score -= make_score(kdDiff * abs(kdDiff) / 4096, kdDiff / 16);
+
     score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
