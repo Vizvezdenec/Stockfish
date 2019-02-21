@@ -480,7 +480,7 @@ namespace {
          b2 = LineBB[relative_square(Us, SQ_H2)][relative_square(Us, SQ_B8)];
          if ((more_than_one(b1 & b) && (b1 & kingRing[Us]))
              || (more_than_one(b2 & b) && (b2 & kingRing[Us])))
-              kingDanger += 100;
+              kingDanger += 50;
          }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
