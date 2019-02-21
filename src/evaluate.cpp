@@ -208,6 +208,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard trappedRookBB[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -252,6 +253,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    trappedRookBB[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -377,8 +379,7 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                    if ((shift<Down>(blocked) & s) || (shift<Down>(shift<Down>(blocked)) & s))
-                          score -= TrappedRook;
+                    trappedRookBB[Us] |= SquareBB[s];
                     }
             }
         }
@@ -606,7 +607,13 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-
+    b = trappedRookBB[Us];
+    while (b)
+    {
+    Square s = pop_lsb(&b);
+    if (more_than_one(pos.attacks_from<ROOK>(s) & (attackedBy[Them][PAWN] | attackedBy[Them][BISHOP] | attackedBy[Them][KNIGHT])))
+         score -= TrappedRook;
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
