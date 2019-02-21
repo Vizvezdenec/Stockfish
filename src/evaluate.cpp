@@ -439,7 +439,7 @@ namespace {
                          & safe
                          & ~attackedBy[Us][QUEEN]
                          & ~RookCheck;
-    if (!QueenCheck && pos.count<QUEEN>(Them) == 1)
+    if (!QueenCheck && pos.count<QUEEN>(Them) == 1 && !(attackedBy[Us][ALL_PIECES] & pos.pieces(Them, QUEEN)))
     	{
         Square s = pos.square<QUEEN>(Them);
         if (
