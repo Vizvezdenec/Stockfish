@@ -847,7 +847,7 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
 
     int kdDiff = KingDanger[WHITE] - KingDanger[BLACK];
-    score -= make_score(kdDiff * abs(kdDiff) / 4096, kdDiff / 16);
+    score += make_score(kdDiff * abs(kdDiff) / 4096, kdDiff / 16);
 
     score += initiative(eg_value(score));
 
