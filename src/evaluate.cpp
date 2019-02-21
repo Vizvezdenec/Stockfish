@@ -150,7 +150,7 @@ namespace {
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
-  constexpr Score LongDiagonalBishop = S( 55,  2);
+  constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -311,6 +311,8 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+        
+        Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -335,8 +337,6 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
 
@@ -375,7 +375,11 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
+                    {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                    if ((shift<Down>(blocked) & s) || (shift<Down>(shift<Down>(blocked)) & s))
+                          score -= TrappedRook;
+                    }
             }
         }
 
