@@ -848,13 +848,13 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    if (abs(KingDanger[WHITE] - KingDanger[BLACK]) > 2000)
+    if (abs(KingDanger[WHITE] - KingDanger[BLACK]) > 4000)
          {
          int kdScore = 0;
          if (KingDanger[WHITE] - KingDanger[BLACK] > 0)
-             kdScore = KingDanger[WHITE] - KingDanger[BLACK] - 2000;
+             kdScore = KingDanger[WHITE] - KingDanger[BLACK] - 4000;
          else 
-             kdScore = KingDanger[BLACK] - KingDanger[WHITE] - 2000;
+             kdScore = KingDanger[BLACK] - KingDanger[WHITE] - 4000;
          score += make_score(kdScore * abs(kdScore) / 10000, 0);
          }
     score += initiative(eg_value(score));
