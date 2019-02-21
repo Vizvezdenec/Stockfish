@@ -482,6 +482,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +       pos.non_pawn_material()/250
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -846,9 +847,7 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    if (pos.non_pawn_material() < MidgameLimit)
-         {
-         score += initiative(eg_value(score));
+    score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
@@ -856,8 +855,7 @@ namespace {
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
     v /= PHASE_MIDGAME;
-    }
-    else v = mg_value(score);
+
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
