@@ -847,6 +847,7 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
 
     if (pos.non_pawn_material() < MidgameLimit)
+         {
          score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
@@ -855,7 +856,8 @@ namespace {
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
     v /= PHASE_MIDGAME;
-
+    }
+    else v = mg_value(score);
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
