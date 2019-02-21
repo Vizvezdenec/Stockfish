@@ -150,7 +150,7 @@ namespace {
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
-  constexpr Score LongDiagonalBishop = S( 45,  0);
+  constexpr Score LongDiagonalBishop = S( 50,  1);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -401,7 +401,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -473,15 +472,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-    b = pos.pieces(Them, PAWN) & (FileEBB | FileDBB);
-    if (more_than_one(b & shift<Up>(pos.pieces(Us, PAWN))))
-         {
-         b1 = LineBB[relative_square(Us, SQ_H1)][relative_square(Us, SQ_A8)];
-         b2 = LineBB[relative_square(Us, SQ_H2)][relative_square(Us, SQ_B8)];
-         if ((more_than_one(b1 & b) && (b1 & kingRing[Us]))
-             || (more_than_one(b2 & b) && (b2 & kingRing[Us])))
-              kingDanger += 50;
-         }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
