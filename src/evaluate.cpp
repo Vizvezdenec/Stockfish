@@ -92,9 +92,9 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 750;
-  constexpr int RookSafeCheck   = 1040;
-  constexpr int BishopSafeCheck = 615;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
@@ -418,8 +418,9 @@ namespace {
     safe  = ~pos.pieces(Them);
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
-    b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
-    b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
+    b = ~(pos.blockers_for_king(Us) & pos.pieces(Them));
+    b1 = attacks_bb<ROOK  >(ksq, (pos.pieces() ^ pos.pieces(Us, QUEEN)) & b);
+    b2 = attacks_bb<BISHOP>(ksq, (pos.pieces() ^ pos.pieces(Us, QUEEN)) & b);
 
     // Enemy rooks checks
     Bitboard RookCheck =  b1
@@ -472,19 +473,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    b = pos.blockers_for_king(Us) & pos.pieces(Them);
-    if (b)
-         {
-         b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ b);
-         b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ b);
-         if (!RookCheck && (b1 & pos.pieces(Them, ROOK) & (~attackedBy[Us][ALL_PIECES] | weak)))
-              kingDanger += RookSafeCheck - 150;
-         if (!QueenCheck && ((b1 | b2) & pos.pieces(Them, QUEEN) & ~attackedBy[Us][ALL_PIECES]))
-              kingDanger += QueenSafeCheck - 150;
-         if (!BishopCheck && (b2 & pos.pieces(Them, BISHOP) & (~attackedBy[Us][ALL_PIECES] | weak)))
-              kingDanger += BishopSafeCheck - 150;
-         }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
