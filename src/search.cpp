@@ -879,7 +879,7 @@ moves_loop: // When in check, search starts from here
                                       countermove,
                                       ss->killers);
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-
+    int goodStatCnt = 0;
     skipQuiets = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
@@ -982,11 +982,14 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 3 + goodStatCnt / 5 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+	      if ((*contHist[0])[movedPiece][to_sq(move)] >= CounterMovePruneThreshold
+			&& (*contHist[1])[movedPiece][to_sq(move)] >= CounterMovePruneThreshold)
+			goodStatCnt++;
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
                   && !inCheck
