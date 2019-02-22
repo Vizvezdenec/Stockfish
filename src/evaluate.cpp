@@ -401,7 +401,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    //constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -474,7 +474,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b = pos.blockers_for_king(Us) & pos.pieces(Them);
+    b = pos.blockers_for_king(Us) & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
     if (b)
          {
          b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ b);
