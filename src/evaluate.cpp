@@ -401,6 +401,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -464,7 +465,7 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+    unsafeChecks &= ~(attackedBy[Us][PAWN] | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())) | pos.pieces(Them, QUEEN, KING));
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -473,21 +474,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (pos.blockers_for_king(Us) & pos.pieces(Them) & ~pos.pieces(Them, PAWN))
-         {
-         b = pos.blockers_for_king(Us) & pos.pieces(Them) & ~pos.pieces(Them, PAWN);
-         while (b)
-         	{
-                Square s = pop_lsb(&b);
-                PieceType Pt = type_of(pos.piece_on(s));
-                if (Pt == KNIGHT && (pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(ksq)))
-			kingDanger += KnightSafeCheck;
-		else if (Pt == BISHOP && (pos.attacks_from<BISHOP>(s) & pos.attacks_from<BISHOP>(ksq)))
-			kingDanger += BishopSafeCheck;
-		else if (Pt == ROOK && (pos.attacks_from<ROOK>(s) & pos.attacks_from<ROOK>(ksq)))
-			kingDanger += RookSafeCheck;
-                }
-         }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
