@@ -475,17 +475,17 @@ namespace {
 
     if (pos.blockers_for_king(Us) & pos.pieces(Them) & ~pos.pieces(Them, PAWN))
          {
-         b = pos.blockers_for_king(Us) & pos.pieces(Them);
+         b = pos.blockers_for_king(Us) & pos.pieces(Them) & ~pos.pieces(Them, PAWN);
          while (b)
          	{
                 Square s = pop_lsb(&b);
                 PieceType Pt = type_of(pos.piece_on(s));
                 if (Pt == KNIGHT && (pos.attacks_from<KNIGHT>(s) & pos.attacks_from<KNIGHT>(ksq)))
-			kingDanger += 1000;
+			kingDanger += KnightSafeCheck;
 		else if (Pt == BISHOP && (pos.attacks_from<BISHOP>(s) & pos.attacks_from<BISHOP>(ksq)))
-			kingDanger += 1000;
+			kingDanger += BishopSafeCheck;
 		else if (Pt == ROOK && (pos.attacks_from<ROOK>(s) & pos.attacks_from<ROOK>(ksq)))
-			kingDanger += 1000;
+			kingDanger += RookSafeCheck;
                 }
          }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
