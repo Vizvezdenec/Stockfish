@@ -474,7 +474,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b = pos.blockers_for_king(Us) & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
+    b = pos.blockers_for_king(Us) & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()))
+        & ~(pos.pieces(Them, PAWN) & file_bb(file_of(ksq)) & ~pawn_attacks_bb<Us>(pos.pieces(Us, ALL_PIECES)));
     if (b)
          {
          b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ b);
