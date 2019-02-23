@@ -475,7 +475,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     if (more_than_one(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us, PAWN)) & pawn_attacks_bb<Us>(kingRing[Us])))
-    	kingDanger += 100;
+    	kingDanger += 33;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
