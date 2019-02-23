@@ -315,7 +315,7 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
-            bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
+            bb = OutpostRanks & (~pe->pawn_attacks_span(Them) | attackedBy[Us][PAWN]);
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
                                  * (1 + bool(attackedBy[Us][PAWN] & s));
@@ -601,10 +601,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        Bitboard queenPinners;
-        if (!(attackedBy[Them][ALL_PIECES] & s) && pos.slider_blockers(pos.pieces(Us, QUEEN), s, queenPinners))
-            score += WeakQueen;
     }
 
     if (T)
