@@ -465,7 +465,7 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= ~(attackedBy[Us][PAWN] | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())) | pos.pieces(Them, QUEEN, KING));
+    unsafeChecks &= mobilityArea[Them];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -473,6 +473,9 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    if (more_than_one(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us, PAWN)) & pawn_attacks_bb<Us>(kingRing[Us])))
+    	kingDanger += 66;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
