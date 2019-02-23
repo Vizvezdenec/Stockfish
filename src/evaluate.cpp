@@ -401,7 +401,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -473,9 +472,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    if (more_than_one(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us, PAWN)) & pawn_attacks_bb<Us>(kingRing[Us])))
-    	kingDanger += 33;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -605,6 +601,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        Bitboard queenPinners;
+        if (!(attackedBy[Them][ALL_PIECES] & s) && pos.slider_blockers(pos.pieces(Us, QUEEN), s, queenPinners))
+            score += WeakQueen;
     }
 
     if (T)
