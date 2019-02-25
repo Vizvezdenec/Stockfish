@@ -301,7 +301,7 @@ void Thread::search() {
   // The former is needed to allow update_continuation_histories(ss-1, ...),
   // which accesses its argument at ss-4, also near the root.
   // The latter is needed for statScores and killer initialization.
-  Stack stack[MAX_PLY+8], *ss = stack+5;
+  Stack stack[MAX_PLY+10], *ss = stack+7;
   Move  pv[MAX_PLY+1];
   Value bestValue, alpha, beta, delta;
   Move  lastBestMove = MOVE_NONE;
