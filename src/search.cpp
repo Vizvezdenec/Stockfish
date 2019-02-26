@@ -311,7 +311,7 @@ void Thread::search() {
   Color us = rootPos.side_to_move();
   bool failedLow;
 
-  std::memset(ss-7, 0, 8 * sizeof(Stack));
+  std::memset(ss-9, 0, 8 * sizeof(Stack));
   for (int i = 9; i > 0; i--)
      (ss-i)->continuationHistory = &this->continuationHistory[NO_PIECE][0]; // Use as sentinel
   ss->pv = pv;
