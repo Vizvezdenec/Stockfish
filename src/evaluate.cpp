@@ -788,10 +788,6 @@ namespace {
             && pos.non_pawn_material(WHITE) == BishopValueMg
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
-        else if ((pos.count<ALL_PIECES>(strongSide) - pos.count<PAWN>(strongSide) 
-                 - pos.count<ALL_PIECES>(~strongSide) + pos.count<PAWN>(~strongSide) < 0) 
-                 && !pe->passed_pawns(strongSide))
-            sf = 20 + 4 * pe->pawn_asymmetry();
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
@@ -851,6 +847,10 @@ namespace {
             + space<  WHITE>() - space<  BLACK>();
 
     score += initiative(eg_value(score));
+
+    if (abs(mg_value(score)) > 300 && abs(mg_value(me->imbalance())) > 300 
+        && abs(mg_value(score - me->imbalance())) < 100)
+         score -= score * 2 / 3;
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
