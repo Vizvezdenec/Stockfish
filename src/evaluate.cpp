@@ -848,10 +848,6 @@ namespace {
 
     score += initiative(eg_value(score));
 
-    if (abs(mg_value(score)) > 300 && abs(mg_value(me->imbalance())) > 300 
-        && abs(mg_value(score - me->imbalance())) < 100)
-         score -= score * 2 / 3;
-
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
     v =  mg_value(score) * int(me->game_phase())
