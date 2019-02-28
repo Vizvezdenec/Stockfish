@@ -312,6 +312,14 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+    	if (!pos.castling_rights(Us))
+                {
+        	if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)))
+            		score -= make_score(8, 0);
+        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us)))
+           	 	score -= make_score(8, 0);
+                }
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -473,12 +481,9 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int krAttCnt = popcount(kingRing[Us] & attackedBy[Them][ALL_PIECES]);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 +  80 * std::max(0, krAttCnt - 5)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
