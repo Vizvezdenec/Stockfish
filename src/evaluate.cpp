@@ -473,10 +473,12 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int krAttCnt = popcount(kingRing[Us] & attackedBy[Them][ALL_PIECES]);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 + 100 * (popcount(kingRing[Us] & attackedBy[Them][ALL_PIECES]) > 5)
+                 +  40 * std::max(0, krAttCnt - 3)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
