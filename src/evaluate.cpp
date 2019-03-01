@@ -314,9 +314,11 @@ namespace {
 
     	if (!pos.castling_rights(Us))
                 {
-        	if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)))
+        	if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)) 
+                        && file_of(s) > file_of(pos.square<KING>(Them)))
             		score -= make_score(8, 0);
-        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us)))
+        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us))
+                        && file_of(s) < file_of(pos.square<KING>(Them)))
            	 	score -= make_score(8, 0);
                 }
 
