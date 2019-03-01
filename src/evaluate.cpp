@@ -308,12 +308,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        Bitboard b1 = b & mobilityArea[Us];
-        int mob = popcount(b1);
-
-        if (     mob == 1
-            && !(pos.attacks_from<Pt>(lsb(b1)) & mobilityArea[Us] & ~SquareBB[s]))
-            score -= MobilityBonus[Pt - 2][1] - MobilityBonus[Pt - 2][0];
+        int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -566,7 +561,7 @@ namespace {
     }
 
     // Bonus for restricting their piece moves
-    restricted =   attackedBy[Them][ALL_PIECES]
+    restricted =   ((attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][KING]) | attackedBy2[Them])
                 & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
