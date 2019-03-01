@@ -312,16 +312,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-    	if (!pos.castling_rights(Us))
-                {
-        	if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)) 
-                        && file_of(s) > file_of(pos.square<KING>(Them)))
-            		score -= make_score(8, 0);
-        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us))
-                        && file_of(s) < file_of(pos.square<KING>(Them)))
-           	 	score -= make_score(8, 0);
-                }
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -354,6 +344,12 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
+            else if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)) 
+                        && file_of(s) > file_of(pos.square<KING>(Them)))
+            		score -= make_score(8, 0);
+        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us))
+                        && file_of(s) < file_of(pos.square<KING>(Them)))
+           	 	score -= make_score(8, 0);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
