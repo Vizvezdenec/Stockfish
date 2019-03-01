@@ -310,6 +310,17 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
+        if (mob == 1)
+             {
+             Bitboard b1 = b & mobilityArea[Us];
+             while (b1)
+             {
+             Square s1 = pop_lsb(&b1);
+             if (!(pos.attacks_from<Pt>(s1) & mobilityArea[Us] & ~SquareBB[s]))
+                  mob --;
+             }
+             }
+
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -344,12 +355,6 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
-            else if (file_of(pos.square<KING>(Us)) > FILE_D && file_of(s) > file_of(pos.square<KING>(Us)) 
-                        && file_of(s) > file_of(pos.square<KING>(Them)))
-            		score -= make_score(8, 0);
-        	else if (file_of(pos.square<KING>(Us)) < FILE_E && file_of(s) < file_of(pos.square<KING>(Us))
-                        && file_of(s) < file_of(pos.square<KING>(Them)))
-           	 	score -= make_score(8, 0);
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
