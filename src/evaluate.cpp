@@ -313,7 +313,7 @@ namespace {
 
         if (     mob == 1
             && !(pos.attacks_from<Pt>(lsb(b1)) & mobilityArea[Us] & ~SquareBB[s]))
-            mob--;
+            score -= make_score(20, 25);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
