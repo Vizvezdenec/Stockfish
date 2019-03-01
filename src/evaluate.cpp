@@ -308,18 +308,12 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        Bitboard b1 = b & mobilityArea[Us];
+        int mob = popcount(b1);
 
-        if (mob == 1)
-             {
-             Bitboard b1 = b & mobilityArea[Us];
-             while (b1)
-             {
-             Square s1 = pop_lsb(&b1);
-             if (!(pos.attacks_from<Pt>(s1) & mobilityArea[Us] & ~SquareBB[s]))
-                  mob --;
-             }
-             }
+        if (     mob == 1
+            && !(pos.attacks_from<Pt>(lsb(b1)) & mobilityArea[Us] & ~SquareBB[s]))
+            mob--;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
