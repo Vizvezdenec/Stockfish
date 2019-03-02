@@ -307,17 +307,6 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (Pt == QUEEN) 
-            {
-            Bitboard b1 = attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Us, QUEEN, BISHOP))
-                 | attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, BISHOP));
-            if (b1 & kingRing[Them])
-            	{
-            	kingAttackersCount[Us]++;
-            	kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            	kingAttacksCount[Us] += popcount(b1 & attackedBy[Them][KING]);
-        	}
-            }
 
         int mob = popcount(b & mobilityArea[Us]);
 
