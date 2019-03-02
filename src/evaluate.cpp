@@ -608,8 +608,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (totalMobility[Us] * (10 - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us))) < popcount(mobilityArea[Us]))
-        score -= make_score(100, 0);
+        score -= make_score(3, 0) * std::max(popcount(mobilityArea[Us]) - (totalMobility[Us] * (10 - (pos.count<ALL_PIECES>(Us) 
+                  - pos.count<PAWN>(Us)))), 0);
 
     if (T)
         Trace::add(THREAT, Us, score);
