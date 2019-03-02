@@ -311,7 +311,6 @@ namespace {
                  || (attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, BISHOP)) & kingRing[Them])))
             {
             kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += KingAttackWeights[Pt];
             }
 
         int mob = popcount(b & mobilityArea[Us]);
