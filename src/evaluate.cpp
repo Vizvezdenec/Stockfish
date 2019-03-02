@@ -225,6 +225,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int totalMobility[COLOR_NB];
   };
 
 
@@ -252,6 +253,8 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+
+    totalMobility[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -310,10 +313,9 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        if (more_than_one(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & b))
-            score += make_score(10, 10);
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        totalMobility[Us] += mob;
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -605,6 +607,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    if (totalMobility[Us] * (10 - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us))) < popcount(mobilityArea[Us]))
+        score -= make_score(100, 0);
 
     if (T)
         Trace::add(THREAT, Us, score);
