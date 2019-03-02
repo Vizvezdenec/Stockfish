@@ -1028,8 +1028,8 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= ONE_PLY;
 
-          if (PvNode && beta - alpha < 30)
-              r += ONE_PLY;
+          if (PvNode && beta - alpha < 80)
+              r += ONE_PLY * (80 - (beta - alpha)) / 40;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
