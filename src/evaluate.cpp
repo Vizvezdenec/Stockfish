@@ -471,6 +471,12 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
+    if (pos.count<QUEEN>(Them) == 1)
+          {
+          Square s = pos.square<QUEEN>(Them);
+          b2 |= b1 & attacks_bb<ROOK  >(s, pos.pieces() ^ pos.pieces(Them, ROOK)) & ~attackedBy[Them][QUEEN];
+          b2 |= b1 & attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, BISHOP)) & ~attackedBy[Them][QUEEN];
+          }
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
@@ -565,8 +571,6 @@ namespace {
                 & ~stronglyProtected
                 &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(restricted);
-
-    score += make_score(8 ,3) * popcount(pos.pieces(Them) & attackedBy2[Them] & ~attackedBy[Them][PAWN] & ~attackedBy[Us][ALL_PIECES]);
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
