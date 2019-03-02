@@ -307,6 +307,12 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+        else if (Pt == QUEEN && ((attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Us, QUEEN, BISHOP)) & kingRing[Them])
+                 || (attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Us, ROOK, BISHOP)) & kingRing[Them])))
+            {
+            kingAttackersCount[Us]++;
+            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            }
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -471,12 +477,6 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    if (pos.count<QUEEN>(Them) == 1)
-          {
-          Square s = pos.square<QUEEN>(Them);
-          b2 |= b1 & attacks_bb<ROOK  >(s, pos.pieces() ^ pos.pieces(Them, ROOK)) & ~attackedBy[Them][QUEEN];
-          b2 |= b1 & attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, BISHOP)) & ~attackedBy[Them][QUEEN];
-          }
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
