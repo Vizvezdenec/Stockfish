@@ -89,7 +89,7 @@ namespace {
   constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 74, 53, 42, 10 };
   constexpr int KingAttackWeights2[PIECE_TYPE_NB] = { 0, 0, 84, 61, 48, 11 };
 
   // Penalties for enemy's safe checks
