@@ -482,7 +482,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +       3 * kingAttackersCount[Them] * kingAttackersCount[Them] / 2
+                 +       2 * kingAttackersCount[Them] * kingAttackersCount[Them] / 3
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
