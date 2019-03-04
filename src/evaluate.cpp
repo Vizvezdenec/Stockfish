@@ -146,7 +146,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  8,  0);
+  //constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -399,8 +399,8 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
-                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard Camp = (Us == WHITE ? Rank1BB | Rank2BB | Rank3BB
+                                           : Rank1BB | Rank2BB | Rank3BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -471,7 +471,12 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int kingFlankAttacksClose = popcount(b1) + popcount(b2);
+
+    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & (Rank4BB | Rank5BB);
+    b2 = b1 & attackedBy2[Them];
+    int kingFlankAttacksDist = popcount(b1) + popcount(b2);
+    int kingFlankAttacks = kingFlankAttacksClose + kingFlankAttacksDist;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -482,8 +487,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +       kingAttackersCount[Them] * kingAttackersCount[Them]
-                 -   35;
+                 -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
@@ -494,7 +498,7 @@ namespace {
         score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
-    score -= FlankAttacks * kingFlankAttacks;
+    score -= make_score(10, 0) * kingFlankAttacksClose + make_score(6, 0) * kingFlankAttacksDist;
 
     if (T)
         Trace::add(KING, Us, score);
