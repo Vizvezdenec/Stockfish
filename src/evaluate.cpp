@@ -208,7 +208,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
-    Bitboard kingRing2[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -255,31 +254,21 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     // Init our king safety tables
-    kingRing[Us] = kingRing2[Us] = attackedBy[Us][KING];
+    kingRing[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
-        {
         kingRing[Us] |= shift<Up>(kingRing[Us]);
-        kingRing2[Us] |= shift<Up>(shift<Up>(pos.pieces(Us, KING)));
-        }
 
     if (file_of(ksq) == FILE_H)
-        {
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
-        kingRing2[Us] |= shift<WEST>(shift<WEST>(pos.pieces(Us, KING)));
-        }
 
     else if (file_of(ksq) == FILE_A)
-        {
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
-        kingRing2[Us] |= shift<EAST>(shift<EAST>(pos.pieces(Us, KING)));
-        }
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
-    kingRing2[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
   }
 
 
@@ -316,7 +305,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & kingRing2[Them]);
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -485,7 +474,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  55 * kingAttacksCount[Them]
+                 +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
@@ -493,6 +482,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +       3 * kingAttackersCount[Them] * kingAttackersCount[Them] / 2
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
