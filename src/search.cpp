@@ -1369,11 +1369,9 @@ moves_loop: // When in check, search starts from here
                        &&  bestValue > VALUE_MATED_IN_MAX_PLY
                        && !pos.capture(move);
 
-      bool negativeHist = thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 1000;
-
       // Don't search moves with negative SEE values
       if (  (!inCheck || evasionPrunable)
-          && (negativeHist || !pos.see_ge(move)))
+          && !pos.see_ge(move))
           continue;
 
       // Speculative prefetch as early as possible

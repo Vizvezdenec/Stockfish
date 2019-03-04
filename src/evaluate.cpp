@@ -90,6 +90,7 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int KingAttackWeights2[PIECE_TYPE_NB] = { 0, 0, 87, 63, 51, 11 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -304,7 +305,7 @@ namespace {
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            kingAttackersWeight[Us] += more_than_one(b & kingRing[Them])? KingAttackWeights2[Pt] : KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
