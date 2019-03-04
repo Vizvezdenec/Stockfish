@@ -146,7 +146,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  //constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -208,6 +208,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard kingRing2[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -254,21 +255,31 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     // Init our king safety tables
-    kingRing[Us] = attackedBy[Us][KING];
+    kingRing[Us] = kingRing2[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
+        {
         kingRing[Us] |= shift<Up>(kingRing[Us]);
+        kingRing2[Us] |= shift<Up>(shift<Up>(pos.pieces(Us, KING)));
+        }
 
     if (file_of(ksq) == FILE_H)
+        {
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
+        kingRing2[Us] |= shift<WEST>(shift<WEST>(pos.pieces(Us, KING)));
+        }
 
     else if (file_of(ksq) == FILE_A)
+        {
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
+        kingRing2[Us] |= shift<EAST>(shift<EAST>(pos.pieces(Us, KING)));
+        }
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    kingRing2[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
   }
 
 
@@ -305,7 +316,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            kingAttacksCount[Us] += popcount(b & kingRing2[Them]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -399,8 +410,8 @@ namespace {
   Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
-    constexpr Bitboard Camp = (Us == WHITE ? Rank1BB | Rank2BB | Rank3BB
-                                           : Rank1BB | Rank2BB | Rank3BB);
+    constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
+                                           : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -471,12 +482,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacksClose = popcount(b1) + popcount(b2);
-
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & (Rank4BB | Rank5BB);
-    b2 = b1 & attackedBy2[Them];
-    int kingFlankAttacksDist = popcount(b1) + popcount(b2);
-    int kingFlankAttacks = kingFlankAttacksClose + kingFlankAttacksDist;
+    int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -498,7 +504,7 @@ namespace {
         score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
-    score -= make_score(10, 0) * kingFlankAttacksClose + make_score(6, 0) * kingFlankAttacksDist;
+    score -= FlankAttacks * kingFlankAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
