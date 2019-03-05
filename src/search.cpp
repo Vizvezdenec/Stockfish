@@ -870,7 +870,7 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr, (ss-4)->continuationHistory,
                                           nullptr, (ss-6)->continuationHistory };
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
@@ -1055,6 +1055,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
+                             + (*contHist[5])[movedPiece][to_sq(move)]/2
                              - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
@@ -1323,7 +1324,7 @@ moves_loop: // When in check, search starts from here
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr, (ss-4)->continuationHistory,
                                           nullptr, (ss-6)->continuationHistory };
 
     // Initialize a MovePicker object for the current position, and prepare
@@ -1474,7 +1475,7 @@ moves_loop: // When in check, search starts from here
 
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
-    for (int i : {1, 2, 3, 4, 6})
+    for (int i : {1, 2, 4, 6})
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
   }
