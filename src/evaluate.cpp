@@ -401,6 +401,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
     int kingDanger = 0;
@@ -473,6 +474,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    b = AllSquares;
+    if (relative_rank(Us, ksq) < RANK_7)
+    b = forward_ranks_bb(Them, ksq + Up + Up);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -482,6 +487,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 + 100 * more_than_one(pos.pieces(Them, ROOK, QUEEN) & b)
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -588,7 +594,7 @@ namespace {
     score += ThreatBySafePawn * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1 && !more_than_one(attackedBy[Them][QUEEN] & pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES]))
+    if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
