@@ -970,7 +970,8 @@ moves_loop: // When in check, search starts from here
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && ((*contHist[3])[movedPiece][to_sq(move)] + (*contHist[5])[movedPiece][to_sq(move)]< 3 * CounterMovePruneThreshold))
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
@@ -1041,8 +1042,7 @@ moves_loop: // When in check, search starts from here
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + 3 * (*contHist[3])[movedPiece][to_sq(move)] / 4 
-                             + (*contHist[5])[movedPiece][to_sq(move)] / 4 
+                             + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
