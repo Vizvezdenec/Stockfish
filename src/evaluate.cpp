@@ -297,7 +297,19 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = 0;
+
+        if (Pt == QUEEN)
+        {
+            // Penalty if any relative pin or discovered attack against the queen
+            Bitboard queenPinners;
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+                score -= WeakQueen;
+            
+            mob = popcount(b & (mobilityArea[Us] | pos.pieces(Us, QUEEN)));
+        }
+        else 
+            mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -367,14 +379,6 @@ namespace {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
-
-        if (Pt == QUEEN)
-        {
-            // Penalty if any relative pin or discovered attack against the queen
-            Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-                score -= WeakQueen;
-        }
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -403,8 +407,6 @@ namespace {
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
-
-    weak &= mobilityArea[Them];
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
