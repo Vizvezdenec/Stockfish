@@ -461,11 +461,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    weak |= attackedBy2[Them] & ~(attackedBy[Us][PAWN] | attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]) & ~attackedBy2[Us];
+    weak |= attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 165 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
