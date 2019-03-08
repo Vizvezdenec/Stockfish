@@ -461,9 +461,16 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    b1 = kingRing[Us] & weak;
+
+    while (b1)
+        {
+        Square s = pop_lsb(&b1);
+        kingDanger += 30 * popcount(pos.attacks_from<KNIGHT>(s) & attackedBy[Them][KNIGHT] & safe);
+        }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 185 * popcount(b1)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
@@ -575,9 +582,6 @@ namespace {
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
-
-    b = nonPawnEnemies & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
-    score += make_score(40,20) * popcount(pawn_double_attacks_bb<Us>(b) & pos.pieces(Them, PAWN));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
