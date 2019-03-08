@@ -474,7 +474,7 @@ namespace {
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
-        score -= make_score(std::max(kingDanger * kingDanger / 4096, kingDanger / 16), kingDanger / 16);
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
@@ -575,6 +575,9 @@ namespace {
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
+
+    b = nonPawnEnemies & attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+    score += make_score(40,20) * popcount(pawn_double_attacks_bb<Us>(b) & pos.pieces(Them, PAWN));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
