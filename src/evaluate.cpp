@@ -586,8 +586,6 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
-        score += make_score(30, 30) * bool(b & safe & pos.attacks_from<KNIGHT>(pos.square<KING>(Them)));
-
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
