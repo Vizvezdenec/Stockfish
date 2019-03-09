@@ -1021,7 +1021,7 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
-          else if ((ss-1)->moveCount < 2)
+          else if ((ss-1)->moveCount < 1)
               r += ONE_PLY;
 
           if (!captureOrPromotion)
