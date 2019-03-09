@@ -1031,6 +1031,9 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2 * ONE_PLY;
 
+              if (type_of(movedPiece) == KING && pos.blockers_for_king(us))
+                  r -= ONE_PLY;
+
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~5 Elo)
