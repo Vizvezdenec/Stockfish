@@ -945,9 +945,6 @@ moves_loop: // When in check, search starts from here
       else if (type_of(move) == CASTLING)
           extension = ONE_PLY;
 
-      else if (type_of(movedPiece) == KING && pos.blockers_for_king(us))
-          extension = ONE_PLY;
-
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
@@ -1055,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 20000 * ONE_PLY;
+              r -= std::min(std::max((ss->statScore + (*contHist[3])[movedPiece][to_sq(move)]/2 )/ 20000, -3), 3) * ONE_PLY;
           }
 
           Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
