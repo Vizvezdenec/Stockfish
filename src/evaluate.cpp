@@ -279,7 +279,7 @@ namespace {
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
         // Find attacked squares, including x-ray attacks for bishops and rooks
-        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, QUEEN))
+        b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
@@ -482,6 +482,10 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
+
+    Bitboard boardEdge = FileABB|FileHBB|Rank1BB|Rank8BB;
+    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
+         score -= make_score(0, 50);
 
     if (T)
         Trace::add(KING, Us, score);
