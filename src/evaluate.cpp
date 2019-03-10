@@ -594,7 +594,7 @@ namespace {
 
     if ((pos.non_pawn_material(Us) - pos.non_pawn_material(Them) == BishopValueMg - RookValueMg)
         && (pos.count<BISHOP>(Us) == 2) && (pos.count<PAWN>(Us) - pos.count<PAWN>(Them) > 0))
-        score += make_score(0, 50);
+        score += make_score(0, 25);
     if (T)
         Trace::add(THREAT, Us, score);
 
