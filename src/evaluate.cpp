@@ -332,6 +332,10 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+                
+                if ((s == relative_square(Us, SQ_A1) || s == relative_square(Us, SQ_H1))
+                    && !(b & ~attackedBy[Them][PAWN]))
+                    score -= make_score(50, 50);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -390,7 +394,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -483,11 +486,6 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
-
-    Bitboard boardEdge = FileABB|FileHBB|Rank1BB|Rank8BB;
-    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] 
-         & ~(pos.pieces(Us,PAWN) & shift<Down>(attackedBy[Them][PAWN]))))
-         score -= make_score(0, 50);
 
     if (T)
         Trace::add(KING, Us, score);
