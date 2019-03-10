@@ -390,6 +390,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -484,7 +485,8 @@ namespace {
     score -= FlankAttacks * kingFlankAttacks;
 
     Bitboard boardEdge = FileABB|FileHBB|Rank1BB|Rank8BB;
-    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] & ~weak))
+    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] 
+         & ~(pos.pieces(Us,PAWN) & shift<Down>(attackedBy[Them][PAWN]))))
          score -= make_score(0, 50);
 
     if (T)
