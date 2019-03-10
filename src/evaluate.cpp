@@ -592,9 +592,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if ((pos.non_pawn_material(Us) - pos.non_pawn_material(Them) == BishopValueMg - RookValueMg)
-        && (pos.count<BISHOP>(Us) == 2) && (pos.count<PAWN>(Us) - pos.count<PAWN>(Them) > 0))
-        score += make_score(0, 25);
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -781,7 +778,9 @@ namespace {
             && pos.non_pawn_material(BLACK) == BishopValueMg)
             sf = 8 + 4 * pe->pawn_asymmetry();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf 
+                  + 16 * bool(pos.count<BISHOP>(strongSide) == 2 
+                  && (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) == BishopValueMg - RookValueMg)));
 
     }
 
