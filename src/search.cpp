@@ -754,7 +754,6 @@ namespace {
     if (   !PvNode
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth, improving) >= beta
-        && (ss-1)->currentMove != MOVE_NULL
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
