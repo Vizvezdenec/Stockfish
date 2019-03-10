@@ -306,8 +306,12 @@ namespace {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
+                {
+                bool unpushableOutpost = !(pos.count<KNIGHT>(Them)) && !(((DarkSquares & s) && (pos.pieces(Them, BISHOP) & DarkSquares))
+                                          || ((~DarkSquares & s) && (pos.pieces(Them, BISHOP) & ~DarkSquares)));
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s));
+                                 * (1 + bool(attackedBy[Us][PAWN] & s)) * (1 + unpushableOutpost);
+                }
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
@@ -324,13 +328,10 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                if (mob<=9)
-                {
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
-                }
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
