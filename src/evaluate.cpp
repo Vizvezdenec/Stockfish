@@ -484,7 +484,7 @@ namespace {
     score -= FlankAttacks * kingFlankAttacks;
 
     Bitboard boardEdge = FileABB|FileHBB|Rank1BB|Rank8BB;
-    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] & ~attackedBy[Them][ALL_PIECES]))
+    if ((boardEdge & ksq) && !(attackedBy[Us][KING] & ~boardEdge & mobilityArea[Us] & ~weak))
          score -= make_score(0, 50);
 
     if (T)
