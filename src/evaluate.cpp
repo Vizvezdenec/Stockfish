@@ -79,6 +79,7 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int KingAttackCntWeights[PIECE_TYPE_NB] = {0, 0, 77, 69, 69, 60};
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -294,7 +295,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]) * KingAttackCntWeights[Pt];
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -464,7 +465,7 @@ namespace {
     weak |= ~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK]) & attackedBy2[Them];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  69 * kingAttacksCount[Them]
+                 +       kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
