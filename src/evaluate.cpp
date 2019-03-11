@@ -380,7 +380,7 @@ namespace {
                      {
                      Square s1 = pop_lsb(&b);
                      if (aligned(s1, s, pos.square<KING>(Us)) && !more_than_one(pos.pieces() & between_bb(pos.square<KING>(Us), s1)))
-                           score -= WeakQueen;
+                           score -= WeakQueen / 2;
                      }
                 }
         }
