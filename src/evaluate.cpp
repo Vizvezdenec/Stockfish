@@ -327,7 +327,7 @@ namespace {
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
-                                     * (1 + popcount(blocked & CenterFiles)) * std::min(14-mob, 8) / 8;
+                                     * (1 + popcount(blocked & CenterFiles)) * std::max(std::min(20 - 2 * mob, 8), 0) / 8;
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
