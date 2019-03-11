@@ -310,7 +310,7 @@ namespace {
                 bool unpushableOutpost = !(pos.count<KNIGHT>(Them)) && !(((DarkSquares & s) && (pos.pieces(Them, BISHOP) & DarkSquares))
                                           || ((~DarkSquares & s) && (pos.pieces(Them, BISHOP) & ~DarkSquares)));
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s)) * (1 + unpushableOutpost);
+                                 * (1 + bool(attackedBy[Us][PAWN] & s)) * (2 + unpushableOutpost) / 2;
                 }
 
             else if (bb &= b & ~pos.pieces(Us))
