@@ -332,9 +332,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-
-                if ((b & kingRing[Us]) && (b & kingRing[Them]))
-                    score += make_score(25, 0);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -678,6 +675,10 @@ namespace {
         // pawn push to become passed, or have a pawn in front of them.
         if (   !pos.pawn_passed(Us, s + Up)
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
+            bonus = bonus / 2;
+
+        if (pos.non_pawn_material(WHITE) == RookValueMg && pos.non_pawn_material(BLACK) == RookValueMg
+            && !more_than_one(b))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
