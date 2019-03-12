@@ -123,7 +123,7 @@ namespace {
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
-    S(0, 0), S(5, 18), S(12, 23), S(10, 31), S(57, 62), S(163, 167), S(271, 250)
+    S(0, 0), S(2, 16), S(9, 25), S(7, 34), S(51, 65), S(158, 162), S(277, 252)
   };
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
@@ -469,7 +469,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +   3 * kingFlankAttacks * kingFlankAttacks / 8
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -742,16 +742,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int pawnPushCount = popcount((pos.pieces(WHITE, PAWN) & ~shift<SOUTH>(pos.pieces())) 
-                         | (pos.pieces(BLACK, PAWN) & ~shift<NORTH>(pos.pieces())));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->pawn_asymmetry()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +  3 * pawnPushCount
                     -121 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
