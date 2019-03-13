@@ -575,6 +575,7 @@ namespace {
 
     b = pawn_attacks_bb<Us>(b & ~pos.blockers_for_king(Us)) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
+    score += ThreatBySafePawn / 2 * popcount(pawn_attacks_bb<Us>(b & pos.blockers_for_king(Us)) & nonPawnEnemies);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
