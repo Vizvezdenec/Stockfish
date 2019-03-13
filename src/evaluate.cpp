@@ -316,7 +316,7 @@ namespace {
                                  * (1 + bool(attackedBy[Us][PAWN] & bb));
 
             // Knight and Bishop bonus for being right behind a pawn
-            if (shift<Down>(pos.pieces(PAWN)) & s)
+            if (shift<Down>(pos.pieces(PAWN) & ~LowRanks) & s)
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
@@ -368,8 +368,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
-            else if (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()) & forward_file_bb(Us, s) & LowRanks)
-                score -= make_score(5, 20);
         }
 
         if (Pt == QUEEN)
