@@ -269,6 +269,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
+
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -366,6 +368,8 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
+            else if (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()) & forward_file_bb(Us, s) & LowRanks)
+                score -= make_score(20, 5);
         }
 
         if (Pt == QUEEN)
@@ -573,9 +577,8 @@ namespace {
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
-    b = pawn_attacks_bb<Us>(b & ~pos.blockers_for_king(Us)) & nonPawnEnemies;
+    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
-    score += ThreatBySafePawn / 2 * popcount(pawn_attacks_bb<Us>(b & pos.blockers_for_king(Us)) & nonPawnEnemies);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
