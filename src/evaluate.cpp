@@ -369,7 +369,7 @@ namespace {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
             else if (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()) & forward_file_bb(Us, s) & LowRanks)
-                score -= make_score(20, 5);
+                score -= make_score(5, 20);
         }
 
         if (Pt == QUEEN)
