@@ -269,8 +269,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard TheirSide = (Us == WHITE ? AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
-                                           : AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -300,9 +298,6 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-
-        if (!(b & mobilityArea[Us] & TheirSide))
-            score -= make_score(10, 10);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -395,6 +390,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -465,6 +461,11 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    if ((relative_rank(Us, ksq) == RANK_1 && (shift<Up>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])) 
+        || (file_of(ksq) == FILE_A && (shift<EAST>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])) 
+        || (file_of(ksq) == FILE_H && (shift<WEST>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])))
+          kingDanger += 100;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
