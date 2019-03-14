@@ -484,7 +484,7 @@ namespace {
         {
         int kfPawnCount = popcount(pos.pieces(PAWN) & KingFlank[file_of(ksq)]);
         if (kfPawnCount * 2 < pos.count<PAWN>())
-        score -= make_score(1, 10) * (pos.count<PAWN>() - kfPawnCount * 2);
+        score -= make_score(0, 4) * (pos.count<PAWN>() - kfPawnCount * 2);
         }
 
     // Penalty if king flank is under attack, potentially moving toward the king
