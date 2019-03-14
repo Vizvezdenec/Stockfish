@@ -269,6 +269,7 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB: Rank7BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -314,7 +315,7 @@ namespace {
                                  * (1 + bool(attackedBy[Us][PAWN] & bb));
 
             // Knight and Bishop bonus for being right behind a pawn
-            else if (shift<Down>(pos.pieces(PAWN)) & s)
+            if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
@@ -356,7 +357,7 @@ namespace {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
             // Bonus for rook on an open or semi-open file
-            if (pe->semiopen_file(Us, file_of(s)))
+            if (pe->semiopen_file(Us, file_of(s)) && !(pos.pieces(Them, PAWN) & forward_file_bb(Us, s) & LowRanks))
                 score += RookOnFile[bool(pe->semiopen_file(Them, file_of(s)))];
 
             // Penalty when trapped by the king, even more if the king cannot castle
