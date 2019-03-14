@@ -462,10 +462,15 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if ((relative_rank(Us, ksq) == RANK_1 && (shift<Up>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])) 
-        || (file_of(ksq) == FILE_A && (shift<EAST>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])) 
-        || (file_of(ksq) == FILE_H && (shift<WEST>(pos.pieces(Us, KING)) & attackedBy2[Them] & attackedBy[Them][QUEEN])))
-          kingDanger += 100;
+    b1 = 0;
+
+    if (relative_rank(Us, ksq) == RANK_1) 
+        b1 = shift<Up>(pos.pieces(Us, KING));
+    if (file_of(ksq) == FILE_A)
+        b1 |= shift<EAST>(pos.pieces(Us, KING) | b1);
+    else if (file_of(ksq) == FILE_H)
+        b1 |= shift<WEST>(pos.pieces(Us, KING) | b1);
+    kingDanger += 100 * popcount(b1 & attackedBy2[Them] & attackedBy[Them][QUEEN]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
