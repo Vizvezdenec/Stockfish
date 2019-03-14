@@ -127,7 +127,7 @@ namespace {
   };
 
   constexpr Score MinorBehindPawn[RANK_NB]    = {
-    S(5, 0), S(8, 1), S(15, 3), S(18, 3), S(18, 3), S(19, 3), S(20, 3)
+    S(10, 0), S(25, 3), S(20, 3), S(18, 3), S(18, 3), S(22, 8)
   };
 
   // PassedFile[File] contains a bonus according to the file of a passed pawn
