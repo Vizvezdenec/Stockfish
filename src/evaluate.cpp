@@ -269,6 +269,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard TheirSide = (Us == WHITE ? AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB
+                                           : AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -298,6 +300,9 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+
+        if (!(b & mobilityArea[Us] & TheirSide))
+            score -= make_score(10, 10);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -479,13 +484,6 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
-
-    else 
-        {
-        int kfPawnCount = popcount(pos.pieces(PAWN) & KingFlank[file_of(ksq)]);
-        if (kfPawnCount * 2 < pos.count<PAWN>())
-        score -= make_score(0, 4) * (pos.count<PAWN>() - kfPawnCount * 2);
-        }
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
