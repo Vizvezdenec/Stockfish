@@ -390,7 +390,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -461,16 +460,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    b1 = 0;
-
-    if (relative_rank(Us, ksq) == RANK_1) 
-        b1 = shift<Up>(pos.pieces(Us, KING));
-    if (file_of(ksq) == FILE_A)
-        b1 |= shift<EAST>(pos.pieces(Us, KING) | b1);
-    else if (file_of(ksq) == FILE_H)
-        b1 |= shift<WEST>(pos.pieces(Us, KING) | b1);
-    kingDanger += 50 * popcount(b1 & attackedBy2[Them] & attackedBy[Them][QUEEN]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -602,6 +591,9 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    if (pos.count<QUEEN>(Them) == 0 && pos.count<QUEEN>(Us) == 1)
+    score -= make_score(8, 8) * (popcount(pos.pieces(Them, PAWN) & stronglyProtected) - pos.count<PAWN>(Us));
 
     if (T)
         Trace::add(THREAT, Us, score);
