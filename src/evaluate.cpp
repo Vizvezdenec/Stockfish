@@ -79,7 +79,6 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
-  constexpr int KingAttackCntWeights[PIECE_TYPE_NB] = {0, 0, 75, 70, 58, 58};
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -295,7 +294,7 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]) * KingAttackCntWeights[Pt];
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -463,7 +462,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +       kingAttacksCount[Them]
+                 +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
@@ -593,6 +592,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    score -= make_score(3, 7) * popcount(pos.pieces(Them, PAWN) & stronglyProtected);
     if (T)
         Trace::add(THREAT, Us, score);
 
