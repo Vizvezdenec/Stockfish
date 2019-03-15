@@ -374,6 +374,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            if (mob < 9 && (pos.count<PAWN>(Them) - pos.count<PAWN>(Us) > 2))
+                score -= make_score(6, 12);
         }
     }
     if (T)
@@ -591,9 +594,7 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
-    
-    int strongPawns = popcount(pos.pieces(Them, PAWN) & stronglyProtected);
-    score -= make_score(2, 5) * (strongPawns * 2 - pos.count<PAWN>(Them));
+
     if (T)
         Trace::add(THREAT, Us, score);
 
