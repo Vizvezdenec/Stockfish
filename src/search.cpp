@@ -924,7 +924,7 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < singularBeta)
-              extension = ONE_PLY;
+              extension = ONE_PLY * (1 + (value - singularBeta < -1000));
 
           // Multi-cut pruning
           // Our ttMove is assumed to fail high, and now we failed high also on a reduced
