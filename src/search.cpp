@@ -967,10 +967,7 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction<PvNode>(improving, depth, moveCount), DEPTH_ZERO) / ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + 
-                      ((*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold 
-                        && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold ) + 
-                      ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -982,7 +979,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(29 + 10 * ((ss-1)->currentMove == MOVE_NULL)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (   !extension // (~20 Elo)
