@@ -374,6 +374,9 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+	    if (mob < 11 && (pos.count<PAWN>(Them) - pos.count<PAWN>(Us) > 2))
+			score -= make_score(6, 12);
         }
     }
     if (T)
