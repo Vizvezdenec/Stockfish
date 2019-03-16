@@ -599,7 +599,7 @@ namespace {
     int attackedMobility = popcount((attackedBy[Us][QUEEN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK])
                                      & mobilityArea[Us]);
     if (attackedMobility * 2 < mobilityCount[Us])
-        score -= make_score(1, 4) * (mobilityCount[Us] - attackedMobility * 2);
+        score -= make_score(5, 5) * (mobilityCount[Us] - attackedMobility * 2);
 
     if (T)
         Trace::add(THREAT, Us, score);
