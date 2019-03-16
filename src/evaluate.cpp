@@ -79,6 +79,8 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
+  constexpr int MinMobilityValue[PIECE_TYPE_NB] = { 0, 0, 2, 3, 3, 7 };
+  constexpr int MaxMobilityValue[PIECE_TYPE_NB] = { 0, 0, 6, 10, 11, 21 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -214,6 +216,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int goodBadMobility[COLOR_NB];
   };
 
 
@@ -255,6 +258,8 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+
+    goodBadMobility[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -298,6 +303,11 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+
+        if (mob <= MinMobilityValue[Pt])
+             goodBadMobility[Us]--;
+        else if (mob >= MaxMobilityValue[Pt])
+             goodBadMobility[Us]++;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -834,6 +844,8 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
+
+    score += make_score(10, 10) * (goodBadMobility[WHITE] - goodBadMobility[BLACK]);
 
     score += initiative(eg_value(score));
 
