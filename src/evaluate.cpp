@@ -214,6 +214,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int mobilityCount[COLOR_NB];
   };
 
 
@@ -255,6 +256,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    mobilityCount[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -298,6 +300,8 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+
+        mobilityCount[Us] += mob;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -374,9 +378,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-	    if (mob < 11 && (pos.count<PAWN>(Them) - pos.count<PAWN>(Us) > 2))
-			score -= make_score(6, 12);
         }
     }
     if (T)
@@ -594,6 +595,11 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    int attackedMobility = popcount((attackedBy[Us][QUEEN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK])
+                                     & mobilityArea[Us]);
+    if (attackedMobility * 2 < mobilityCount[Us])
+        score -= make_score(2, 2) * (mobilityCount[Us] - attackedMobility * 2);
 
     if (T)
         Trace::add(THREAT, Us, score);
