@@ -845,7 +845,7 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += make_score(2, 2) * (goodBadMobility[WHITE] - goodBadMobility[BLACK]) * abs(goodBadMobility[WHITE] - goodBadMobility[BLACK]);
+    score += make_score(3, 1) * (goodBadMobility[WHITE] - goodBadMobility[BLACK]) * abs(goodBadMobility[WHITE] - goodBadMobility[BLACK]);
 
     score += initiative(eg_value(score));
 
