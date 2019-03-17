@@ -567,10 +567,9 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
-    score += ThreatByPawnPush * popcount(pawn_attacks_bb<Us>(b) & pos.pieces(Them));
-
-    b = shift<Up>(b & pawn_attacks_bb<Them>(pos.pieces(Them))) & ~pos.pieces();
+    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
+
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
@@ -612,10 +611,13 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, nonPawnEnemiesAtt;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
+
+    nonPawnEnemiesAtt = pawn_attacks_bb<Them>(pos.pieces(Them) & ~pos.pieces(Them, PAWN)) 
+                        & (~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES]);
 
     while (b)
     {
@@ -669,6 +671,9 @@ namespace {
                     k += 4;
 
                 bonus += make_score(k * w, k * w);
+
+                if (nonPawnEnemiesAtt & blockSq)
+                    score += ThreatByPawnPush;
             }
         } // rank > RANK_3
 
