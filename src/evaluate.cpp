@@ -309,8 +309,8 @@ namespace {
 
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s) 
-                         + bool(b & pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Them) & shift<Up>(pos.pieces())));
+                                 * (1 + bool(attackedBy[Us][PAWN] & s)) * 
+                         (1 + bool(b & pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Them) & shift<Up>(pos.pieces())));
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
