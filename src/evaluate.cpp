@@ -324,8 +324,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces() 
-                                   | (pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)) & ~pe->pawn_attacks_span(Us)));
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -577,6 +576,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    b = pos.pieces(Them, PAWN) & (shift<Up>(pos.pieces() | (~attackedBy[Them][PAWN] & (attackedBy2[Us] | attackedBy[Us][PAWN]))));
+    score += make_score(3, 10) * popcount(b & attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]);
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
