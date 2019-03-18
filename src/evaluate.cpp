@@ -577,7 +577,7 @@ namespace {
     score += ThreatBySafePawn * popcount(b);
 
     b = pos.pieces(Them, PAWN) & (shift<Up>(pos.pieces() | (~attackedBy[Them][PAWN] & (attackedBy2[Us] | attackedBy[Us][PAWN]))));
-    score += make_score(4, 15) * popcount(b & attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]);
+    score += make_score(2, 7) * popcount(b & attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]);
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
