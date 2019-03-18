@@ -422,7 +422,7 @@ namespace {
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
     queenChecks =  ((b1 & (safe | (attackedBy[Them][ROOK] & ~attackedBy2[Us] & attackedBy[Us][ROOK])))
-                    | (b2 & (safe | (attackedBy[Them][BISHOP] & ~attackedBy2[Us] & (attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT])))))
+                    | (b2 & safe))
                  & attackedBy[Them][QUEEN]
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
