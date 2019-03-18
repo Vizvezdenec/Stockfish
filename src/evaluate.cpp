@@ -197,7 +197,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
-    Bitboard attackedByRooks[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -242,7 +241,6 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
-    attackedByRooks[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -353,7 +351,6 @@ namespace {
 
         if (Pt == ROOK)
         {
-            attackedByRooks[Us] |= attackedBy[Us][ROOK] & b;
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
@@ -415,7 +412,7 @@ namespace {
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
     // Enemy rooks checks
-    rookChecks = b1 & (safe | (attackedByRooks[Them] & attackedBy[Us][ROOK] & ~attackedBy2[Us])) & attackedBy[Them][ROOK];
+    rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
         kingDanger += RookSafeCheck;
@@ -424,9 +421,9 @@ namespace {
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
-    queenChecks =  (b1 | b2)
+    queenChecks =  ((b1 & (safe | (attackedBy[Them][ROOK] & ~attackedBy2[Us] & attackedBy[Us][ROOK])))
+                    | (b2 & (safe | (attackedBy[Them][BISHOP] & ~attackedBy2[Us] & (attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT])))))
                  & attackedBy[Them][QUEEN]
-                 & safe
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
 
