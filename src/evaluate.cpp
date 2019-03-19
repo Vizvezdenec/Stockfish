@@ -650,21 +650,29 @@ namespace {
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN) & pos.attacks_from<ROOK>(s);
 
                 if (!(pos.pieces(Us) & bb))
+                    {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
+                    semisafeSquares &= (attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them];
+                    }
+                else 
+                    semisafeSquares &= attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
 
                 if (!(pos.pieces(Them) & bb))
                     {
-                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
-                    semisafeSquares &= (attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them] & ~pos.pieces(Them);
+                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them); 
                     }
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 : !(unsafeSquares & ~semisafeSquares) ? 14 : !(unsafeSquares & blockSq) ? 9 : 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-                if (defendedSquares == squaresToQueen)
+
+                if (semisafeSquares == squaresToQueen)
+                    k += 8;
+                
+                else if (defendedSquares == squaresToQueen)
                     k += 6;
 
                 else if (defendedSquares & blockSq)
