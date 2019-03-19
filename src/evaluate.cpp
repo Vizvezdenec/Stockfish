@@ -242,17 +242,6 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    Bitboard b1 = ~mobilityArea[Us];
-
-    b = pos.pieces(Us, BISHOP);
-    while (b)
-        {
-            Square s = pop_lsb(&b);
-            if (!(pos.attacks_from<BISHOP>(s) & b1))
-                 mobilityArea[Us] &= ~SquareBB[s];
-        }
-    b = pos.pieces(Us, ROOK);
-
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
@@ -364,7 +353,8 @@ namespace {
         {
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
-                score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
+                score += RookOnPawn * (popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s])
+                                       - popcount(pos.pieces(Us, PAWN) & b & forward_ranks_bb(Them, s)));
 
             // Bonus for rook on an open or semi-open file
             if (pe->semiopen_file(Us, file_of(s)))
