@@ -243,7 +243,7 @@ namespace {
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
     b = pos.pieces(Us, KNIGHT);
-    Bitboard b1 = ~(pe->pawn_attacks(Them) | (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
+    Bitboard b1 = ~(pe->pawn_attacks(Them) & ~pe->pawn_attacks_span(Us));
     while (b)
         {
             Square s = pop_lsb(&b);
