@@ -652,10 +652,11 @@ namespace {
                 if (!(pos.pieces(Us) & bb))
                     {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
-                    semisafeSquares &= (attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them];
+                    semisafeSquares &= ((attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them]) | ~attackedBy[Them][ALL_PIECES];
                     }
                 else 
-                    semisafeSquares &= attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them];
+                    semisafeSquares &= (attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) 
+                                        | ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
 
                 if (!(pos.pieces(Them) & bb))
                     {
