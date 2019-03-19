@@ -197,6 +197,8 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard knightChecks1[COLOR_NB];    
+    Bitboard knightChecks2[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -255,6 +257,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    knightChecks1[Us] = knightChecks2[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -333,6 +336,16 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
+            else 
+            {
+            knightChecks2[Us] = pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & b & ~knightChecks1[Us];
+            if (knightChecks2[Us])
+                 if (knightChecks1[Us] == 0)
+                      {
+                      knightChecks1[Us] = knightChecks2[Us];
+                      knightChecks2[Us] = 0;
+                      }
+            }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -392,7 +405,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
-    Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
+    Bitboard rookChecks, queenChecks, bishopChecks;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
 
@@ -421,9 +434,9 @@ namespace {
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
-    queenChecks =  ((b1 & (safe | (attackedBy[Them][ROOK] & ~attackedBy2[Us] & attackedBy[Us][ROOK])))
-                    | (b2 & safe))
+    queenChecks =  (b1 | b2)
                  & attackedBy[Them][QUEEN]
+                 & safe
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
 
@@ -443,12 +456,10 @@ namespace {
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
-    knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
-
-    if (knightChecks & safe)
-        kingDanger += KnightSafeCheck;
+    if ((knightChecks1[Them]|knightChecks2[Them]) & safe)
+        kingDanger += KnightSafeCheck * (1 + bool(knightChecks2[Them] & safe));
     else
-        unsafeChecks |= knightChecks;
+        unsafeChecks |= knightChecks1[Them] | knightChecks2[Them];
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
