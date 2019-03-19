@@ -351,7 +351,6 @@ namespace {
 
         if (Pt == ROOK)
         {
-            score -= RookOnPawn * popcount(pos.pieces(Us, PAWN) & b & forward_ranks_bb(Them, s));
             // Bonus for aligning rook with enemy pawns on the same rank/file
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
@@ -654,7 +653,7 @@ namespace {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
 
                 if (!(pos.pieces(Them) & bb))
-                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
+                    unsafeSquares &= (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES]) | attackedBy2[Them] | pos.pieces(Them);
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
