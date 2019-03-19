@@ -85,7 +85,6 @@ namespace {
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
-  constexpr int KnightSafeCheck1 = 250;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -198,8 +197,6 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
-    Bitboard knightChecks1[COLOR_NB];    
-    Bitboard knightChecks2[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -258,7 +255,6 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-    knightChecks1[Us] = knightChecks2[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -294,7 +290,7 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        if (b & kingRing[Them])
+        if ((b & kingRing[Them]) || (pos.attacks_from<Pt>(pos.square<KING>(Them)) & b & mobilityArea[Us]))
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
@@ -336,15 +332,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-            }
-            else 
-            {
-            knightChecks2[Us] = pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & b & ~knightChecks1[Us];
-            if (knightChecks2[Us] && knightChecks1[Us] == 0)
-                      {
-                      knightChecks1[Us] = knightChecks2[Us];
-                      knightChecks2[Us] = 0;
-                      }
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -405,7 +392,7 @@ namespace {
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
-    Bitboard rookChecks, queenChecks, bishopChecks;
+    Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
 
@@ -456,10 +443,12 @@ namespace {
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
-    if ((knightChecks1[Them]|knightChecks2[Them]) & safe)
-        kingDanger += KnightSafeCheck + KnightSafeCheck1 * bool(knightChecks2[Them] & safe);
+    knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
+
+    if (knightChecks & safe)
+        kingDanger += KnightSafeCheck;
     else
-        unsafeChecks |= knightChecks1[Them] | knightChecks2[Them];
+        unsafeChecks |= knightChecks;
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
