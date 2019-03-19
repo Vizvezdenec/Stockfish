@@ -242,8 +242,7 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
-    b = pos.pieces(Us, KNIGHT);
-    Bitboard b1 = ~(pe->pawn_attacks(Them) & ~pe->pawn_attacks_span(Us));
+    Bitboard b1 = ~mobilityArea[Us];
 
     b = pos.pieces(Us, BISHOP);
     while (b)
