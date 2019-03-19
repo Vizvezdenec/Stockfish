@@ -242,6 +242,29 @@ namespace {
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
 
+    b = pos.pieces(Us, KNIGHT);
+    Bitboard b1 = ~(pe->pawn_attacks(Them) | (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
+    while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (!(pos.attacks_from<KNIGHT>(s) & b1))
+                 mobilityArea[Us] &= ~SquareBB[s];
+        }
+    b = pos.pieces(Us, BISHOP);
+    while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (!(pos.attacks_from<BISHOP>(s) & b1))
+                 mobilityArea[Us] &= ~SquareBB[s];
+        }
+    b = pos.pieces(Us, ROOK);
+    while (b)
+        {
+            Square s = pop_lsb(&b);
+            if (!(pos.attacks_from<ROOK>(s) & b1))
+                 mobilityArea[Us] &= ~SquareBB[s];
+        }
+
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
