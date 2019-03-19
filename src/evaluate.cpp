@@ -302,11 +302,10 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (relative_rank(Us, s) == RANK_1 && !(b & mobilityArea[Us] & UpRanks))
-            score -= make_score(0, 15);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (relative_rank(Us, s) == RANK_1 && !(b & mobilityArea[Us] & UpRanks))
+            	score -= make_score(0, 15);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
