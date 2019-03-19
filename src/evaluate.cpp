@@ -244,12 +244,7 @@ namespace {
 
     b = pos.pieces(Us, KNIGHT);
     Bitboard b1 = ~(pe->pawn_attacks(Them) & ~pe->pawn_attacks_span(Us));
-    while (b)
-        {
-            Square s = pop_lsb(&b);
-            if (!(pos.attacks_from<KNIGHT>(s) & b1))
-                 mobilityArea[Us] &= ~SquareBB[s];
-        }
+
     b = pos.pieces(Us, BISHOP);
     while (b)
         {
@@ -258,12 +253,6 @@ namespace {
                  mobilityArea[Us] &= ~SquareBB[s];
         }
     b = pos.pieces(Us, ROOK);
-    while (b)
-        {
-            Square s = pop_lsb(&b);
-            if (!(pos.attacks_from<ROOK>(s) & b1))
-                 mobilityArea[Us] &= ~SquareBB[s];
-        }
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
