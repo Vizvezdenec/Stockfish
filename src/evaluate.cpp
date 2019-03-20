@@ -611,7 +611,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, superdefendedSquares;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -650,7 +650,14 @@ namespace {
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN) & pos.attacks_from<ROOK>(s);
 
                 if (!(pos.pieces(Us) & bb))
+                    {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
+                    superdefendedSquares = defendedSquares & (~attackedBy[Them][ALL_PIECES] 
+                                          | ((attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them]));
+                    }
+                else 
+                    superdefendedSquares = defendedSquares & ((attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) 
+                                          | attackedBy2[Us] | attackedBy[Us][PAWN]);
 
                 if (!(pos.pieces(Them) & bb))
                     unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
@@ -661,7 +668,10 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-                if (defendedSquares == squaresToQueen)
+                if (superdefendedSquares == squaresToQueen)
+                    k +=10;
+                 
+                else if (defendedSquares == squaresToQueen)
                     k += 6;
 
                 else if (defendedSquares & blockSq)
