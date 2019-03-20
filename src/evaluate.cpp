@@ -645,19 +645,16 @@ namespace {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
                 // in the pawn's path attacked or occupied by the enemy.
-                defendedSquares = unsafeSquares = squaresToQueen = forward_file_bb(Us, s);
+                defendedSquares = unsafeSquares = squaresToQueen = superdefendedSquares = forward_file_bb(Us, s);
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN) & pos.attacks_from<ROOK>(s);
 
                 if (!(pos.pieces(Us) & bb))
                     {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
-                    superdefendedSquares = defendedSquares & (~attackedBy[Them][ALL_PIECES] 
-                                          | ((attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them]));
+                    superdefendedSquares = defendedSquares & (~attackedBy2[Them] 
+                                          | (attackedBy2[Us] | attackedBy[Us][PAWN]));
                     }
-                else 
-                    superdefendedSquares = defendedSquares & ((attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) 
-                                          | attackedBy2[Us] | attackedBy[Us][PAWN]);
 
                 if (!(pos.pieces(Them) & bb))
                     unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
