@@ -611,7 +611,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, semisafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -645,23 +645,16 @@ namespace {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
                 // in the pawn's path attacked or occupied by the enemy.
-                defendedSquares = unsafeSquares = squaresToQueen = semisafeSquares = forward_file_bb(Us, s);
+                defendedSquares = unsafeSquares = squaresToQueen = forward_file_bb(Us, s);
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN) & pos.attacks_from<ROOK>(s);
 
                 if (!(pos.pieces(Us) & bb))
-                    {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
-                    semisafeSquares &= ((attackedBy2[Us] | attackedBy[Us][PAWN]) & ~attackedBy2[Them]) | ~attackedBy[Them][ALL_PIECES];
-                    }
-                else 
-                    semisafeSquares &= (attackedBy[Us][ALL_PIECES] & ~attackedBy2[Them]) 
-                                        | ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Them));
 
                 if (!(pos.pieces(Them) & bb))
-                    {
-                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them); 
-                    }
+                    unsafeSquares &= (((attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES]) 
+                                     | attackedBy2[Them]) & ~attackedBy[Us][PAWN]) | pos.pieces(Them);
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
@@ -669,11 +662,7 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-
-                if (semisafeSquares == squaresToQueen)
-                    k += 8;
-                
-                else if (defendedSquares == squaresToQueen)
+                if (defendedSquares == squaresToQueen)
                     k += 6;
 
                 else if (defendedSquares & blockSq)
