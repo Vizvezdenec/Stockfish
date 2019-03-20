@@ -498,7 +498,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  TRank2BB = (Us == WHITE ? Rank2BB : Rank7BB);
+    constexpr Bitboard  TRank7BB = (Us == WHITE ? Rank7BB : Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -571,8 +571,7 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
-    score -= make_score(3, 7) * popcount(shift<Up>(pos.pieces(Us, PAWN) & TRank2BB) 
-              & ((attackedBy[Them][PAWN] & attackedBy2[Them]) | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))));
+    score -= make_score(3, 7) * popcount(pos.pieces(Them, PAWN) & TRank7BB & shift<Up>(~stronglyProtected & attackedBy[Us][PAWN]));
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
