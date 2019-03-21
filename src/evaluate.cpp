@@ -466,6 +466,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 + 100 * !(pos.pieces(Us, PAWN) & kingRing[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -614,7 +615,6 @@ namespace {
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
 
-    Bitboard stronglyAttacked = attackedBy[Us][PAWN] | (attackedBy2[Us] & ~attackedBy2[Them]);
     b = pe->passed_pawns(Us);
 
     while (b)
@@ -658,11 +658,10 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 :!(unsafeSquares & blockSq)? 9 : !(~stronglyAttacked & unsafeSquares)? 5: 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
-
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
