@@ -614,6 +614,7 @@ namespace {
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
     Score score = SCORE_ZERO;
 
+    Bitboard stronglyAttacked = attackedBy[Us][PAWN] | (attackedBy2[Us] & ~attackedBy2[Them]);
     b = pe->passed_pawns(Us);
 
     while (b)
@@ -661,6 +662,7 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
+                    k += popcount(stronglyAttacked & unsafeSquares);
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
