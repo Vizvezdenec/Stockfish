@@ -257,7 +257,7 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
-    kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) | pe->pawn_attacks(Them);
   }
 
 
@@ -657,7 +657,7 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 : !((unsafeSquares & ~attackedBy[Us][PAWN]) & blockSq)? 9 : 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
