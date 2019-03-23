@@ -667,6 +667,12 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
+                if (r >= RANK_6 && pos.non_pawn_material(Them) == RookValueMg 
+                    && !(attackedBy[Them][ROOK] & (forward_ranks_bb(Us, s) 
+                          | (forward_file_bb(Them, s) & attacks_bb<  ROOK>(s, pos.pieces()))))
+                    && !(attackedBy[Them][KING] & DistanceRingBB[s][2] & forward_ranks_bb(Us, s - Up)))
+                    k += 20;
+
                 bonus += make_score(k * w, k * w);
             }
         } // rank > RANK_3
