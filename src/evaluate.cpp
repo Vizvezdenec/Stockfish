@@ -669,11 +669,13 @@ namespace {
                     while (bb)
                          {
                          Square s1 = pop_lsb(&bb);
-                         if ((pos.count<KNIGHT>(Them) > 0 && (attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s1)))
-                             || (pos.count<BISHOP>(Them) > 0 && (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s1)))
-                             || (pos.count<ROOK>(Them) > 0 && (attackedBy[Them][ROOK] & pos.attacks_from<ROOK>(s1)))
-                             || (pos.count<QUEEN>(Them) > 0 && (attackedBy[Them][QUEEN] & pos.attacks_from<QUEEN>(s1)))
-                             || (attackedBy[Them][KING] & pos.attacks_from<KING>(s1)))
+                         if ((attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s1))
+                             || (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s1))
+                             || (attackedBy[Them][ROOK] & pos.attacks_from<ROOK>(s1))
+                             || (attackedBy[Them][QUEEN] & pos.attacks_from<QUEEN>(s1))
+                             || (attackedBy[Them][KING] & pos.attacks_from<KING>(s1))
+                             || (forward_file_bb(Them, s) & attacks_bb<  ROOK>(s, pos.pieces()) 
+                                   & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN])))
                               unstoppable = 0;
                          }
                     k+= 20 * unstoppable;
