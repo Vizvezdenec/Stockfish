@@ -666,6 +666,11 @@ namespace {
                     {
                     bb = squaresToQueen;
                     bool unstoppable = 1;
+                    if (forward_file_bb(Them, s) & attacks_bb<  ROOK>(s, pos.pieces()) 
+                                   & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]))
+                         unstoppable = 0;
+                    else
+                    {
                     while (bb)
                          {
                          Square s1 = pop_lsb(&bb);
@@ -673,11 +678,10 @@ namespace {
                              || (attackedBy[Them][BISHOP] & pos.attacks_from<BISHOP>(s1))
                              || (attackedBy[Them][ROOK] & pos.attacks_from<ROOK>(s1))
                              || (attackedBy[Them][QUEEN] & pos.attacks_from<QUEEN>(s1))
-                             || (attackedBy[Them][KING] & pos.attacks_from<KING>(s1))
-                             || (forward_file_bb(Them, s) & attacks_bb<  ROOK>(s, pos.pieces()) 
-                                   & (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN])))
+                             || (attackedBy[Them][KING] & pos.attacks_from<KING>(s1)))
                               unstoppable = 0;
                          }
+                    }
                     k+= 20 * unstoppable;
                     }
 
