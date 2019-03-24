@@ -682,7 +682,7 @@ namespace {
                               unstoppable = 0;
                          }
                     }
-                    k+= 30 * unstoppable;
+                    k+= 12 * unstoppable;
                     }
 
                 if (defendedSquares == squaresToQueen)
