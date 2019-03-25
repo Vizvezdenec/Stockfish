@@ -460,7 +460,7 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-    int linearFlankAttacks = popcount(pe->semiopenFiles[Them] & KingFlank[file_of(ksq)]) * pos.count<ROOK>(Them);
+    int linearFlankAttacks = popcount(pe->semiopenFiles[Them] & KingFlank[file_of(ksq)]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -471,7 +471,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +   3 * linearFlankAttacks * linearFlankAttacks
+                 +   3 * linearFlankAttacks * linearFlankAttacks  * pos.count<ROOK>(Them)
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
