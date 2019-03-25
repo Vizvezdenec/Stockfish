@@ -81,7 +81,8 @@ namespace {
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns & ~pos.blockers_for_king(Us));
-    e->pawnAttacks[Us]   = PseudoAttacks[BISHOP][pos.square<KING>(Us)] & pawn_attacks_bb<Us>(ourPawns & pos.blockers_for_king(Us));
+    e->pawnAttacks[Us]   |= PseudoAttacks[BISHOP][pos.square<KING>(Us)] 
+                            & pawn_attacks_bb<Us>(ourPawns & pos.blockers_for_king(Us) & ~PseudoAttacks[ROOK][pos.square<KING>(Us)]);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
