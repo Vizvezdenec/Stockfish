@@ -460,7 +460,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-    int linearFlankAttacks = popcount(pe->semiopenFiles[Them] & KingFlank[file_of(ksq)]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -471,7 +470,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +   3 * linearFlankAttacks * linearFlankAttacks  * pos.count<ROOK>(Them)
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -630,7 +628,7 @@ namespace {
 
         if (r > RANK_3)
         {
-            int w = (r-2) * (r-2) + 2;
+            int w = (r-2) * (r-2) + 2 + 4 * (r > RANK_5 && pos.count<BISHOP>(Us) == 2 && pos.count<BISHOP>(Them) < 2);
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
