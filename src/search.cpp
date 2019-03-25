@@ -1013,9 +1013,6 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
-              if (ss->staticEval < (ss-2)->staticEval - 20 * Eval::Tempo)
-                  r += ONE_PLY;
-
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
                   r += 2 * ONE_PLY;
