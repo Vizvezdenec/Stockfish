@@ -191,8 +191,6 @@ namespace {
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
-    Bitboard attackedBy2Kn[COLOR_NB];
-    Bitboard attackedBy2Rk[COLOR_NB];
 
     // kingRing[color] are the squares adjacent to the king, plus (only for a
     // king on its first rank) the squares two ranks in front. For instance,
@@ -243,8 +241,6 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
-    attackedBy2Kn[Us] = 0;
-    attackedBy2Rk[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -337,8 +333,6 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
             }
-            else 
-                attackedBy2Kn[Us] |= attackedBy[Us][KNIGHT] & b;
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
             // pawn diagonally in front of it is a very serious problem, especially
@@ -372,7 +366,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
-            attackedBy2Rk[Us] |= attackedBy[Us][ROOK] & b;
         }
 
         if (Pt == QUEEN)
@@ -419,7 +412,7 @@ namespace {
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
     // Enemy rooks checks
-    rookChecks = b1 & (safe | (attackedBy2Rk[Them] & ~attackedBy2[Us] & attackedBy[Us][ROOK])) & attackedBy[Them][ROOK];
+    rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
         kingDanger += RookSafeCheck;
@@ -452,7 +445,7 @@ namespace {
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
-    if (knightChecks & (safe | (attackedBy2Kn[Them] & ~attackedBy2[Us] & ~attackedBy[Us][PAWN])))
+    if (knightChecks & safe)
         kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= knightChecks;
@@ -467,6 +460,7 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int linearFlankAttacks = popcount(pe->semiopenFiles[Them] & KingFlank[file_of(ksq)]) * pos.count<ROOK>(Them);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -477,6 +471,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +   5 * linearFlankAttacks * linearFlankAttacks
                  -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
