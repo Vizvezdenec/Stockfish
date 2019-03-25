@@ -733,7 +733,7 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =   ss->staticEval >= (ss-2)->staticEval + Eval::Tempo
+    improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
 
     // Step 8. Futility pruning: child node (~30 Elo)
@@ -1011,6 +1011,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
+                  r += ONE_PLY;
+
+              if (ss->staticEval < (ss-2)->staticEval - 10 * Eval::Tempo)
                   r += ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
