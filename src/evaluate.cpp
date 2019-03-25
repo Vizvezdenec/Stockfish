@@ -116,6 +116,9 @@ namespace {
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
     S(0, 0), S(0, 31), S(39, 42), S(57, 44), S(68, 112), S(62, 120)
   };
+  constexpr Score MinorBehindPawn[RANK_NB]    = {
+    S(12, 1), S(18, 6), S(22, 8), S(17, 13), S(17, 6), S(18, 12)
+  };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
     S(0, 0), S(0, 24), S(38, 71), S(38, 61), S(0, 38), S(51, 38)
@@ -140,7 +143,6 @@ namespace {
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
-  constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S(  9,  3);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
@@ -315,7 +317,7 @@ namespace {
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
-                score += MinorBehindPawn;
+                score += MinorBehindPawn[relative_rank(Us, s)];
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
@@ -461,11 +463,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int safeChecksCount = popcount(rookChecks | queenChecks| bishopChecks | (knightChecks & safe));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 +   3 * safeChecksCount * safeChecksCount
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
