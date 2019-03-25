@@ -67,7 +67,7 @@ namespace {
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
-    Bitboard b, blockers, neighbours, stoppers, doubled, support, phalanx;
+    Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
     Square s;
     bool opposed, backward;
@@ -81,12 +81,7 @@ namespace {
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns & ~pos.blockers_for_king(Us));
-    blockers = ourPawns & pos.blockers_for_king(Us);
-    while (blockers)
-    	{
-        Square s1 = pop_lsb(&blockers);
-        e->pawnAttacks[Us]  |= PawnAttacks[Us][s1] & LineBB[pos.square<KING>(Us)][s1]; 
-        }
+    e->pawnAttacks[Us]   = PseudoAttacks[BISHOP][pos.square<KING>(Us)] & pawn_attacks_bb<Us>(ourPawns & pos.blockers_for_king(Us));
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
