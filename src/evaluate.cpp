@@ -590,6 +590,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        b = attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them)) & pos.pieces(Us) & ~pos.pieces(Us, BISHOP);
+        b |= attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Them) ^ pos.pieces(Us, PAWN)) & pos.pieces(Us) & ~pos.pieces(Us, ROOK);
+        score -= make_score(10, 10) * popcount(b & ~attackedBy[Us][ALL_PIECES]);
     }
 
     if (T)
