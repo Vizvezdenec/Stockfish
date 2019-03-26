@@ -390,8 +390,10 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
+    Bitboard lowKingRing = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
@@ -399,6 +401,8 @@ namespace {
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
 
+    if (relative_rank(Us, ksq) > RANK_2)
+          lowKingRing |= shift<Down>(kingRing[Us]);
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
@@ -463,7 +467,7 @@ namespace {
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 185 * popcount((kingRing[Us] | lowKingRing) & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
@@ -590,10 +594,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        b = attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them)) & pos.pieces(Us) & ~pos.pieces(Us, BISHOP);
-        b |= attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Them) ^ pos.pieces(Us, PAWN)) & pos.pieces(Us) & ~pos.pieces(Us, ROOK);
-        score -= make_score(10, 10) * popcount(b & ~attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][QUEEN]);
     }
 
     if (T)
