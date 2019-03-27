@@ -576,7 +576,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    score += make_score(4, 4) * popcount(~stronglyProtected &  attackedBy[Us][ALL_PIECES] & pos.pieces(Them));
+    if (more_than_one(pos.pieces(Them) & ~attackedBy[Them][PAWN] & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES]))
+          score += make_score (15, 15);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
