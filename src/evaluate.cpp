@@ -246,8 +246,6 @@ namespace {
     kingRing[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
         kingRing[Us] |= shift<Up>(kingRing[Us]);
-    else if (relative_rank(Us, ksq) == RANK_8)
-        kingRing[Us] |= shift<Down>(kingRing[Us]);
 
     if (file_of(ksq) == FILE_H)
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
@@ -458,7 +456,7 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & (Camp | kingRing[Us]);
+    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & (Camp | forward_ranks_bb(Them, ksq));
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
