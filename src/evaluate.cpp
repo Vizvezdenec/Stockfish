@@ -78,8 +78,7 @@ namespace {
   constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 80, 57, 46, 11 };
-  constexpr int KingAttackWeights2[PIECE_TYPE_NB] = { 0, 0, 74, 53, 42, 9 };
+  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -294,12 +293,8 @@ namespace {
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
-            bb = b & attackedBy[Them][KING];
-            kingAttacksCount[Us] += popcount(bb);
-            if (bb)
-            	kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            else 
-                kingAttackersWeight[Us] += KingAttackWeights2[Pt];
+            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -395,6 +390,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -461,7 +457,8 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] 
+            & (Camp | shift<Up>(shift<Up>(forward_ranks_bb(Them, ksq))));
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
