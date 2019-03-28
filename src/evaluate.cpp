@@ -466,7 +466,6 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
-                 +  50 * popcount(kingRing[Us] & weak & pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -577,11 +576,12 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    safe = mobilityArea[Us] & ~stronglyProtected;
+
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
@@ -593,6 +593,14 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & safe;
+    while (b)
+    {
+    Square s = pop_lsb(&b);
+    if (pos.attacks_from<KNIGHT>(s) & ((pos.pieces(Them) & ~pos.pieces(Them, KING) & ~attackedBy[Them][ALL_PIECES])
+          | pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN)))
+    	score += make_score(25, 10);
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
