@@ -499,7 +499,7 @@ namespace {
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe, bb;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -559,8 +559,15 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
+    Bitboard queenPinners;
+    
+    bb = 0;
+    if (pos.count<QUEEN>(Us) == 1)
+    	bb = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), pos.square<QUEEN>(Us), queenPinners);
     // Find squares where our pawns can push on the next move
-    b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
+    b  = shift<Up>(pos.pieces(Us, PAWN) 
+                & ~bb
+                & ~pos.blockers_for_king(Us)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
@@ -589,11 +596,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        b = b & safe & attackedBy2[Us];
-        score += SliderOnQueen * popcount(b);
-        if ((PseudoAttacks[QUEEN][pos.square<KING>(Them)] & s) && (LineBB[s][pos.square<KING>(Them)] & b)
-            && !(pos.pieces() & BetweenBB[s][pos.square<KING>(Them)]))
-        	score += SliderOnQueen;
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
