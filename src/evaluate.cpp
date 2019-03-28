@@ -591,7 +591,8 @@ namespace {
 
         b = b & safe & attackedBy2[Us];
         score += SliderOnQueen * popcount(b);
-        if ((PseudoAttacks[QUEEN][pos.square<KING>(Them)] & s) && (LineBB[s][pos.square<KING>(Them)] & b))
+        if ((PseudoAttacks[QUEEN][pos.square<KING>(Them)] & s) && (LineBB[s][pos.square<KING>(Them)] & b)
+            && !(pos.pieces() & BetweenBB[s][pos.square<KING>(Them)]))
         	score += SliderOnQueen;
     }
 
