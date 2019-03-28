@@ -598,10 +598,10 @@ namespace {
     {
     Square s = pop_lsb(&b);
     if (pos.attacks_from<KNIGHT>(s) & pos.pieces(Them, QUEEN))
-        score += make_score(50,20);
+        score += make_score(75, 30);
     else if (pos.attacks_from<KNIGHT>(s) 
                 & (pos.pieces(Them, ROOK) | (pos.pieces(Them, BISHOP) & ~attackedBy[Them][ALL_PIECES])))
-        score += make_score(25, 10);
+        score += make_score(50, 20);
     else if (pos.attacks_from<KNIGHT>(s) & pos.pieces(Them, PAWN) & ~attackedBy[Them][ALL_PIECES])
         score += make_score(12, 5);
     }
