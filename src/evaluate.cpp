@@ -597,9 +597,9 @@ namespace {
     while (b)
     {
     Square s = pop_lsb(&b);
-    if (pos.attacks_from<KNIGHT>(s) & ((pos.pieces(Them) & ~pos.pieces(Them, KING) & ~attackedBy[Them][ALL_PIECES])
-          | pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN)))
-    	score += make_score(25, 10);
+    score += make_score(25, 10) * popcount(pos.attacks_from<KNIGHT>(s) 
+           & ((pos.pieces(Them) & ~pos.pieces(Them, KING) & ~attackedBy[Them][ALL_PIECES])
+          | pos.pieces(Them, ROOK) | pos.pieces(Them, QUEEN)));
     }
     if (T)
         Trace::add(THREAT, Us, score);
