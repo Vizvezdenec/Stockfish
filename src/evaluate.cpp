@@ -589,7 +589,10 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        b = b & safe & attackedBy2[Us];
+        score += SliderOnQueen * popcount(b);
+        if ((PseudoAttacks[QUEEN][pos.square<KING>(Them)] & s) && (LineBB[s][pos.square<KING>(Them)] & b))
+        	score += SliderOnQueen;
     }
 
     if (T)
