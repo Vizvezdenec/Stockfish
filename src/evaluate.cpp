@@ -513,8 +513,7 @@ namespace {
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
-                       | ((attackedBy2[Them] | (attackedByBlocker[Them] & attackedBy[Them][ALL_PIECES])) 
-                       & ~attackedBy2[Us]);
+                       | (attackedBy2[Them] & ~attackedBy2[Us]);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
@@ -546,7 +545,7 @@ namespace {
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
-        if (weak & attackedBy[Us][KING])
+        if (weak & ~(~attackedBy2[Us] & attackedBy[Them][ALL_PIECES] & attackedByBlocker[Them]) & attackedBy[Us][KING])
             score += ThreatByKing;
 
         b =  ~attackedBy[Them][ALL_PIECES]
