@@ -301,9 +301,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (Pt != ROOK && relative_rank(Us, s) < RANK_3 && (file_of(s) < FILE_C || file_of(s) > FILE_F))
-        	mobility[Us] -= make_score(10, 10);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -367,7 +364,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                    mobility[Us] -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
 
