@@ -269,6 +269,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Corners = (Us == WHITE ? (Rank1BB | Rank2BB) & (FileABB | FileBBB| FileGBB | FileHBB) : 
+                                                (Rank7BB | Rank8BB) & (FileABB | FileBBB| FileGBB | FileHBB));
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -300,6 +302,9 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if (mob < 2 && (Corners & s))
+             mobility[Us] -= make_score(10, 10);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -391,20 +396,10 @@ namespace {
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
 
-    Bitboard weak, b, b1, b2, safe, unsafeChecks = 0;
+    Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
-    Bitboard queenMateThreat = 0;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
-
-    if (rank_of(ksq) == RANK_1)
-    	queenMateThreat = shift<NORTH>(pos.pieces(Us, KING));
-    else if (rank_of(ksq) == RANK_8)
-        queenMateThreat = shift<SOUTH>(pos.pieces(Us, KING));
-    if (file_of(ksq) == FILE_A)
-        queenMateThreat |= shift<EAST>(pos.pieces(Us, KING) | queenMateThreat);
-    else if (file_of(ksq) == FILE_H)
-        queenMateThreat |= shift<WEST>(pos.pieces(Us, KING) | queenMateThreat);
 
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -439,12 +434,6 @@ namespace {
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
-    else 
-    {
-    b = queenMateThreat & (b1 | b2)
-                 & attackedBy[Them][QUEEN] & attackedBy2[Them];
-    unsafeChecks |= b;
-    }
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
