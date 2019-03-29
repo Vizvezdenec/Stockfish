@@ -461,13 +461,16 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    // Penalty if king flank is under attack, potentially moving toward the king
+    score -= FlankAttacks * kingFlankAttacks;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
-                 -   6 * mg_value(score) / 8
+                 -   5 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   25;
@@ -479,9 +482,6 @@ namespace {
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
-
-    // Penalty if king flank is under attack, potentially moving toward the king
-    score -= FlankAttacks * kingFlankAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
@@ -575,8 +575,6 @@ namespace {
 
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
-
-    score += make_score(2,1) * (popcount(attackedBy[Us][ALL_PIECES]) + popcount(attackedBy2[Us]));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
