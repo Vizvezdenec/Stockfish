@@ -269,8 +269,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard Corners = (Us == WHITE ? (Rank1BB | Rank2BB) & (FileABB | FileBBB| FileGBB | FileHBB) : 
-                                                (Rank7BB | Rank8BB) & (FileABB | FileBBB| FileGBB | FileHBB));
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -303,8 +301,8 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob < 2 && (Corners & s))
-             mobility[Us] -= make_score(10, 10);
+        if (Pt != ROOK && relative_rank(Us, s) < RANK_3 && (file_of(s) < FILE_C || file_of(s) > FILE_F))
+        	mobility[Us] -= make_score(10, 10);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
