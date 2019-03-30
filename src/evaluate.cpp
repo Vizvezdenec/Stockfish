@@ -79,7 +79,6 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
-  constexpr int KingDefenceWeights[PIECE_TYPE_NB] = { 0, 0, 100, 20, 8, 4 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -215,7 +214,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int KingDefenceWeight[COLOR_NB];
   };
 
 
@@ -256,7 +254,7 @@ namespace {
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttacksCount[Them] = kingAttackersWeight[Them] = KingDefenceWeight[Them] = 0;
+    kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
@@ -298,8 +296,6 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        if (b & attackedBy[Us][KING])
-            KingDefenceWeight[Us] += KingDefenceWeights[Pt];
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -394,6 +390,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -468,7 +465,7 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 -       KingDefenceWeight[Us]
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING] & (shift<Down>(forward_ranks_bb(Us, ksq))))
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
