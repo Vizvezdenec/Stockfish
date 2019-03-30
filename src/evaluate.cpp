@@ -81,7 +81,7 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 520;
+  constexpr int QueenSafeCheck  = 390;
   constexpr int RookSafeCheck   = 1080;
   constexpr int BishopSafeCheck = 635;
   constexpr int KnightSafeCheck = 790;
@@ -429,7 +429,7 @@ namespace {
     if (queenChecks & ~rookChecks)
         kingDanger += QueenSafeCheck;
     if (queenChecks & attackedBy[Us][KING])
-        kingDanger += QueenSafeCheck / 2;
+        kingDanger += QueenSafeCheck;
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     bishopChecks =  b2
