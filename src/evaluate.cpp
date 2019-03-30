@@ -424,10 +424,9 @@ namespace {
     queenChecks =  (b1 | b2)
                  & attackedBy[Them][QUEEN]
                  & safe
-                 & ~attackedBy[Us][QUEEN]
-                 & ~rookChecks;
+                 & ~attackedBy[Us][QUEEN];
 
-    if (queenChecks)
+    if (queenChecks & ~rookChecks)
         kingDanger += QueenSafeCheck;
     if (queenChecks & attackedBy[Us][KING])
         kingDanger += QueenSafeCheck / 2;
