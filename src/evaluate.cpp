@@ -253,7 +253,8 @@ namespace {
     else if (file_of(ksq) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
-    kingAttackersCount[Them] = popcount(kingRing[Us] & (pe->pawn_attacks(Them) | attackedBy[Them][KING]));
+    kingAttackersCount[Them] = popcount(kingRing[Us] 
+                               & (pe->pawn_attacks(Them) | pos.attacks_from<KING>(pos.square<KING>(Them))));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
