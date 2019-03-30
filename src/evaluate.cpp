@@ -720,7 +720,7 @@ namespace {
     int weight =  std::max(pos.count<ALL_PIECES>(Us)
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]), 0);
 
-    Score score = make_score(bonus * weight * weight / 16, bonus * weight / 16);
+    Score score = make_score(bonus * weight * weight / 16, bonus * weight / 4);
 
     if (T)
         Trace::add(SPACE, Us, score);
