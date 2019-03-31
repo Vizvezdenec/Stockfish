@@ -190,6 +190,7 @@ namespace {
     // possibly via x-ray or by one pawn and one piece. Diagonal x-ray through
     // pawn or squares attacked by 2 pawns are not explicitly added.
     Bitboard attackedBy2[COLOR_NB];
+    Bitboard attackedByLesser[COLOR_NB];
 
     // kingRing[color] are the squares adjacent to the king, plus (only for a
     // king on its first rank) the squares two ranks in front. For instance,
@@ -240,6 +241,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    attackedByLesser[Us] = attackedBy[Us][PAWN];
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -374,6 +376,8 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
         }
+        else 
+        	attackedByLesser[Us] |= b;
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -401,7 +405,7 @@ namespace {
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
-          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+          & ~attackedByLesser[Us];
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -507,7 +511,7 @@ namespace {
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
-                       | (attackedBy2[Them] & ~attackedBy2[Us]);
+                       | (attackedBy2[Them] & ~attackedBy2[Us]) | (attackedByLesser[Them] & ~attackedByLesser[Us]);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
