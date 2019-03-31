@@ -591,16 +591,17 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (pos.count<QUEEN>(Us) > 0)
-    {
     b = (pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, KNIGHT)) & ~attackedBy[Them][ALL_PIECES];
     while (b)
     	{
         Square s = pop_lsb(&b);
-	if (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Them][ALL_PIECES])
-            score += make_score(0, 20);
+	if (pos.attacks_from<BISHOP>(s) & (attackedBy[Us][QUEEN] | attackedBy[Us][BISHOP]) 
+              & ~attackedBy[Them][ALL_PIECES])
+            score += make_score(0, 10);
+        else if (pos.attacks_from<ROOK>(s) & (attackedBy[Us][QUEEN] | attackedBy[Us][ROOK]) 
+              & ~attackedBy[Them][ALL_PIECES])
+            score += make_score(0, 10);
     	}
-    }
 
     if (T)
         Trace::add(THREAT, Us, score);
