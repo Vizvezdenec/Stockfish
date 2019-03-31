@@ -511,7 +511,7 @@ namespace {
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
-                       | (attackedBy2[Them] & (~attackedBy2[Us] | ~attackedByLesser[Us]));
+                       | (attackedBy2[Them] & ~attackedBy2[Us]);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
@@ -583,7 +583,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~attackedByLesser[Them];
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
