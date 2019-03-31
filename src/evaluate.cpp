@@ -196,6 +196,7 @@ namespace {
     // if black's king is on g8, kingRing[BLACK] is f8, h8, f7, g7, h7, f6, g6
     // and h6.
     Bitboard kingRing[COLOR_NB];
+    Bitboard blockerKnightAtt[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -240,6 +241,7 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us]            = attackedBy[Us][KING] & attackedBy[Us][PAWN];
+    blockerKnightAtt[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -270,7 +272,7 @@ namespace {
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
 
-    Bitboard b, bb;
+    Bitboard b, bb, bbb;
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
@@ -371,8 +373,17 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            bb = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (bb)
+                {
                 score -= WeakQueen;
+                bbb = bb & pos.pieces(Us, KNIGHT);
+            	while (bbb)
+            		{
+                	Square s1 = pop_lsb(&bbb);
+                	blockerKnightAtt[Us] |= pos.attacks_from<KNIGHT>(s1);
+                	}
+                }
         }
     }
     if (T)
@@ -463,7 +474,7 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING] & ~blockerKnightAtt[Us])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -591,16 +602,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if (pos.count<QUEEN>(Us) > 0)
-    {
-    b = (pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, KNIGHT)) & ~attackedBy[Them][ALL_PIECES];
-    while (b)
-    	{
-        Square s = pop_lsb(&b);
-	if (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Them][ALL_PIECES])
-            score += make_score(2, 12);
-    	}
-    }
     if (T)
         Trace::add(THREAT, Us, score);
 
