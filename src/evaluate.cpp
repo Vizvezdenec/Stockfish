@@ -593,7 +593,7 @@ namespace {
 
     if (pos.count<QUEEN>(Us) > 0)
     {
-    b = (pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, KNIGHT)) & ~attackedBy[Them][ALL_PIECES];
+    b = pos.pieces(Them, KNIGHT) & ~attackedBy[Them][ALL_PIECES];
     while (b)
     	{
         Square s = pop_lsb(&b);
