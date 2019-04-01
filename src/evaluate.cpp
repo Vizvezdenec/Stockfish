@@ -334,7 +334,7 @@ namespace {
 
                 if (attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, ROOK)) 
                       & (pos.pieces(Them, ROOK, QUEEN) | pos.pieces(Them, KING)))
-                    score += make_score(40, 20);
+                    score += make_score(50, 50);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
