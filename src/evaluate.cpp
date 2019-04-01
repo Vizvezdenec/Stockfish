@@ -597,7 +597,7 @@ namespace {
     	{
         Square s = pop_lsb(&b);
 	if (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Them][ALL_PIECES])
-            score += make_score(0, 15);
+            score += make_score(12, 16);
     	}
     }
 
