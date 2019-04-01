@@ -460,6 +460,18 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    b1 = attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
+    if (kingDanger > 0 && !(more_than_one(b1)))
+    	while (b1)
+            {
+            Square s = pop_lsb(&b1);
+            kingDanger += 30 * popcount(safe & (
+                (pos.attacks_from<BISHOP>(s) & attackedBy[Them][BISHOP])
+                | (pos.attacks_from<ROOK>(s) & attackedBy[Them][ROOK])
+                | (pos.attacks_from<KNIGHT>(s) & attackedBy[Us][KNIGHT])
+                | (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Us][QUEEN])
+                ));
+            }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
