@@ -592,7 +592,7 @@ namespace {
     }
 
     score += make_score(20, 10) * popcount(pawn_double_attacks_bb<Us>(nonPawnEnemies 
-              & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES] & attackedBy[Them][PAWN]));
+              & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES] & attackedBy[Them][PAWN]) & pos.pieces(Them, PAWN));
     if (T)
         Trace::add(THREAT, Us, score);
 
