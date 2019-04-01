@@ -463,7 +463,7 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - 100 * bool(attackedBy[Us][KNIGHT] & (attackedBy[Us][KING] | pos.pieces(Us, KING)))
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -589,10 +589,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        if (more_than_one(attacks_bb<QUEEN>(s, pos.pieces() & ~(pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES]))
-                          & pos.pieces(Us) & ~attackedBy[Us][ALL_PIECES]))
-              score -= make_score(30, 10);
     }
 
     if (T)
