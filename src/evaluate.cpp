@@ -371,7 +371,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners)
+                & ~(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them)))
                 score -= WeakQueen;
         }
     }
@@ -589,17 +590,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    }
-
-    if (pos.count<QUEEN>(Us) > 0)
-    {
-    b = pos.pieces(Them, KNIGHT) & ~attackedBy[Them][ALL_PIECES];
-    while (b)
-    	{
-        Square s = pop_lsb(&b);
-	if (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Them][ALL_PIECES])
-            score += make_score(0, 30);
-    	}
     }
 
     if (T)
