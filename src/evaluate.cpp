@@ -468,8 +468,8 @@ namespace {
             kingDanger += 30 * popcount(safe & (
                 (pos.attacks_from<BISHOP>(s) & attackedBy[Them][BISHOP])
                 | (pos.attacks_from<ROOK>(s) & attackedBy[Them][ROOK])
-                | (pos.attacks_from<KNIGHT>(s) & attackedBy[Us][KNIGHT])
-                | (pos.attacks_from<QUEEN>(s) & attackedBy[Us][QUEEN] & ~attackedBy[Us][QUEEN])
+                | (pos.attacks_from<KNIGHT>(s) & attackedBy[Them][KNIGHT])
+                | (pos.attacks_from<QUEEN>(s) & attackedBy[Them][QUEEN] & ~attackedBy[Us][QUEEN])
                 ));
             }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
