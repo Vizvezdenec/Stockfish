@@ -331,6 +331,10 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                if (attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, ROOK)) 
+                      & (pos.pieces(Them, ROOK, QUEEN) | pos.pieces(Them, KING)))
+                    score += make_score(80, 40);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -591,9 +595,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    score += make_score(20, 10) * popcount(pawn_double_attacks_bb<Us>(nonPawnEnemies 
-              & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES] & attackedBy[Them][PAWN] 
-              & ~pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))) & pos.pieces(Them, PAWN));
     if (T)
         Trace::add(THREAT, Us, score);
 
