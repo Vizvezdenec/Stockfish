@@ -132,7 +132,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score BishopPawns        = S(  3,  7);
+  constexpr Score BishopPawns        = S(  2,  4);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
@@ -256,7 +256,7 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
-    kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) | attackedBy[Us][KING];
+    kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
   }
 
 
@@ -266,6 +266,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
+    constexpr Direction Up = (Us == BLACK ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -323,7 +324,8 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
+                Bitboard blocked = (pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
+                                   | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
