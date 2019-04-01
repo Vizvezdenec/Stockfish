@@ -331,10 +331,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-
-                if (attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, ROOK)) 
-                      & (pos.pieces(Them, ROOK, QUEEN) | pos.pieces(Them, KING)))
-                    score += make_score(50, 50);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -376,6 +372,9 @@ namespace {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+                score -= WeakQueen;
+
+            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, queenPinners) & pos.pieces(Us, ROOK))
                 score -= WeakQueen;
         }
     }
