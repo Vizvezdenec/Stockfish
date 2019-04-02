@@ -554,8 +554,8 @@ namespace {
 
     score += RestrictedPiece * popcount(b);
 
-    b = attackedBy[Them][KNIGHT] & attackedBy[Us][PAWN];
-    score += make_score(11, 11) * popcount(b);
+    b = attackedBy[Them][KNIGHT] & attackedBy[Us][BISHOP] & ~attackedBy[Us][PAWN];
+    score += make_score(5, 5) * popcount(b);
 
 
     // Bonus for enemy unopposed weak pawns
