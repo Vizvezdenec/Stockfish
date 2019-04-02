@@ -460,19 +460,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
-    if (kingDanger > 0 && !(more_than_one(b1)) && b1)
-            {
-            Square s = pop_lsb(&b1);
-            if (safe & pos.attacks_from<BISHOP>(s) & attackedBy[Them][BISHOP])
-            	kingDanger += BishopSafeCheck / 10;
-            if (safe & pos.attacks_from<KNIGHT>(s) & attackedBy[Them][KNIGHT])
-            	kingDanger += KnightSafeCheck / 10;
-            if (safe & pos.attacks_from<ROOK>(s) & attackedBy[Them][ROOK])
-            	kingDanger += RookSafeCheck / 10;
-            if (safe & pos.attacks_from<QUEEN>(s) & attackedBy[Them][QUEEN] & ~attackedBy[Us][QUEEN])
-            	kingDanger += QueenSafeCheck / 10;
-            }
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -566,6 +553,10 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    b = attackedBy[Them][KNIGHT] & attackedBy[Us][PAWN];
+    score += make_score(11, 11) * popcount(b);
+
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
