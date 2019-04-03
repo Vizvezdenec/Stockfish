@@ -255,6 +255,7 @@ namespace {
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
+    if (relative_rank(Us, ksq) == RANK_1 && !(CenterFiles & ksq))
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
   }
@@ -553,10 +554,6 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
-
-    b = attackedBy[Them][KNIGHT] & attackedBy[Us][BISHOP] & ~attackedBy[Us][PAWN];
-    score += make_score(5, 5) * popcount(b);
-
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
