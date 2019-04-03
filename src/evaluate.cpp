@@ -255,7 +255,7 @@ namespace {
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
-    if (relative_rank(Us, ksq) <= RANK_2 && !((FileEBB|FileDBB) & ksq))
+    if (relative_rank(Us, ksq) < RANK_2)
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
   }
