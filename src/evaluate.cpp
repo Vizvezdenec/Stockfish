@@ -549,10 +549,12 @@ namespace {
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
-       & (~stronglyProtected | attackedBy[Us][PAWN])
+       & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    score += RestrictedPiece * popcount(attackedBy2[Them] & attackedBy[Us][PAWN] & ~attackedBy[Them][PAWN]);
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
