@@ -141,7 +141,7 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         if (doubled && !support)
-            score -= Doubled;
+            score -= Doubled + make_score(2,10) * (pos.count<KNIGHT>(Them) - pos.count<KNIGHT>(Us));
     }
 
     return score;
