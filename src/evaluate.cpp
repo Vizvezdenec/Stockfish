@@ -245,6 +245,8 @@ namespace {
     kingRing[Us] = attackedBy[Us][KING];
     if (relative_rank(Us, ksq) == RANK_1)
         kingRing[Us] |= shift<Up>(kingRing[Us]);
+    else if (relative_rank(Us, ksq) > RANK_3)
+        kingRing[Us] |= shift<Down>(kingRing[Us]);
 
     if (file_of(ksq) == FILE_H)
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
