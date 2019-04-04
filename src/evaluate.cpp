@@ -305,18 +305,24 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            bool mbp = shift<Down>(pos.pieces(PAWN)) & s;
+            bool goodOutpost = 0;
+            if (file_of(s) != FILE_A && file_of(s) != FILE_H 
+                 && (pe->semiopen_file(Us, file_of(s + WEST)) || pe->semiopen_file(Us, file_of(s + EAST))))
+            	goodOutpost = 1;
+            
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s));
+                                 * (1 + bool(attackedBy[Us][PAWN] & s) + (mbp && goodOutpost));
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * (1 + bool(attackedBy[Us][PAWN] & bb));
+                                 * (1 + bool(attackedBy[Us][PAWN] & bb) + (mbp && goodOutpost));
 
             // Knight and Bishop bonus for being right behind a pawn
-            if (shift<Down>(pos.pieces(PAWN)) & s)
+            if (mbp)
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
