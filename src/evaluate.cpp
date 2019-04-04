@@ -457,7 +457,7 @@ namespace {
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     if (!(b1 & attackedBy[Them][KNIGHT]))
-    	kingDanger -= 60;
+    	kingDanger -= 40;
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
@@ -471,7 +471,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   20;
+                 -   25;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 0)
