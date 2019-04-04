@@ -457,7 +457,7 @@ namespace {
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     if (!(b1 & attackedBy[Them][KNIGHT]))
-    	kingDanger -= 60;
+    	kingDanger -= 100;
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
