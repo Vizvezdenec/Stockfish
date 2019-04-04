@@ -305,18 +305,15 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
-            bool badOutpost = (blocked & shift<WEST>(file_bb(file_of(s)))) 
-                              && (blocked & shift<EAST>(file_bb(file_of(s))));
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s) - badOutpost);
+                                 * (1 + bool(attackedBy[Us][PAWN] & s));
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * (1 + bool(attackedBy[Us][PAWN] & bb) - badOutpost);
+                                 * (1 + bool(attackedBy[Us][PAWN] & bb));
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
@@ -329,6 +326,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pe->pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -554,7 +552,7 @@ namespace {
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
-       & ~stronglyProtected
+       & ~stronglyProtected & ~pos.pieces()
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
