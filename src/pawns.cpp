@@ -148,7 +148,13 @@ namespace {
             score -= Doubled;
 
         if (e->spaceNumber[Us]>= 0 && f > FILE_B && f < FILE_G)
+            {
             e->spaceNumber[Us] += std::min(r - 2, 3);
+            if (r == 2)
+            	e->spaceNumber[Us] += bool(leverPush) + bool(theirPawns & PawnAttacks[Us][s + Up + Up]);
+            else if (r == 3)
+            	e->spaceNumber[Us] += bool(leverPush);
+            }
     }
 
     return score;
