@@ -74,7 +74,6 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1500);
-  constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
@@ -552,7 +551,7 @@ namespace {
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
-       & ~stronglyProtected & ~(pos.pieces() & ~pos.pieces(PAWN))
+       & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
@@ -699,26 +698,15 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold)
+    if (pe->space_number(Us) < 0)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
-    // Find the available squares for our pieces inside the area defined by SpaceMask
-    Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
-                   & ~attackedBy[Them][PAWN];
-
-    // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= shift<Down>(behind);
-    behind |= shift<Down>(shift<Down>(behind));
-
-    int bonus = popcount(safe) + popcount(behind & safe);
+    int bonus = 2 * pe->space_number(Us) - popcount((pos.pieces(Us, PAWN) | attackedBy[Them][PAWN]) & SpaceMask);
     int weight =  pos.count<ALL_PIECES>(Us)
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 

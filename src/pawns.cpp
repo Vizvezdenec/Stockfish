@@ -34,6 +34,7 @@ namespace {
   constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
   constexpr Score Isolated = S( 5, 15);
+  constexpr Value SpaceThreshold = Value(12222);
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 13, 24, 18, 65, 100, 175, 330 };
@@ -77,17 +78,21 @@ namespace {
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
+    e->spaceNumber[Us] = 0;
     e->semiopenFiles[Us] = 0xFF;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    if (pos.non_pawn_material() < SpaceThreshold) 
+    	e->spaceNumber[Us] = -1;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
         assert(pos.piece_on(s) == make_piece(Us, PAWN));
-
+        
+        int r = relative_rank(Us, s);
         File f = file_of(s);
 
         e->semiopenFiles[Us]   &= ~(1 << f);
@@ -118,7 +123,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == square_bb(s + Up)
-                 && relative_rank(Us, s) >= RANK_5)
+                 && r >= RANK_5)
         {
             b = shift<Up>(support) & ~theirPawns;
             while (b)
@@ -129,7 +134,6 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int r = relative_rank(Us, s);
             int v = phalanx ? Connected[r] + Connected[r + 1] : 2 * Connected[r];
             v = 17 * popcount(support) + (v >> (opposed + 1));
             score += make_score(v, v * (r - 2) / 4);
@@ -142,6 +146,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (e->spaceNumber[Us]>= 0 && f > FILE_B && f < FILE_G)
+            e->spaceNumber[Us] += std::min(r - 2, 3);
     }
 
     return score;
