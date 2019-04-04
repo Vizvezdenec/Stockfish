@@ -456,8 +456,8 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    if (!(b1 & attackedBy[Them][KNIGHT]))
-    	kingDanger -= 40;
+    if (!((DistanceRingBB[ksq][1] | DistanceRingBB[ksq][2]) & attackedBy[Them][KNIGHT]))
+    	kingDanger -= 60;
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
