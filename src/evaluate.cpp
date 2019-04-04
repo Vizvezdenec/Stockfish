@@ -456,7 +456,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    if (!((DistanceRingBB[ksq][1] | DistanceRingBB[ksq][2]) & attackedBy[Them][KNIGHT]))
+    if (!((DistanceRingBB[ksq][1] | DistanceRingBB[ksq][2]| DistanceRingBB[ksq][3]) & attackedBy[Them][KNIGHT]))
     	kingDanger -= 60;
     b2 = b1 & attackedBy2[Them];
 
