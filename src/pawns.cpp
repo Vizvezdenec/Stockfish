@@ -82,7 +82,10 @@ namespace {
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
+    e->spaceBonus[Us] = 0;
 
+    if (ourPawns & CenterFiles)
+    {
     constexpr Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
@@ -97,10 +100,9 @@ namespace {
     Bitboard behind = ourPawns;
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
-    behind |= shift<Down>(behind);
 
     e->spaceBonus[Us] = popcount(safe) + popcount(behind & safe);
-
+    }
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
