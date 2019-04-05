@@ -109,12 +109,6 @@ namespace {
   // no (friendly) pawn on the rook file.
   constexpr Score RookOnFile[] = { S(18, 7), S(44, 20) };
 
-  constexpr Bitboard spaceFlank[FILE_NB] = {
-  CenterFiles | FileGBB | FileHBB, CenterFiles | FileGBB | FileHBB, CenterFiles,
-  CenterFiles, CenterFiles,
-  CenterFiles, CenterFiles | FileABB | FileBBB, CenterFiles | FileABB | FileBBB
-};
-
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
@@ -711,11 +705,11 @@ namespace {
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
-      Us == WHITE ? (Rank2BB | Rank3BB | Rank4BB)
-                  : (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
-    Bitboard safe =   SpaceMask & spaceFlank[file_of(pos.square<KING>(Us))]
+    Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
@@ -724,7 +718,7 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
 
-    int bonus = popcount(safe) + popcount(behind & safe);
+    int bonus = popcount(safe) + popcount(behind & safe) + popcount(behind & safe & (FileEBB | FileDBB));
     int weight =  pos.count<ALL_PIECES>(Us)
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 
