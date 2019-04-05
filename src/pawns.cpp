@@ -84,8 +84,7 @@ namespace {
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
     e->spaceBonus[Us] = 0;
 
-    if (ourPawns & CenterFiles)
-    {
+
     constexpr Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
@@ -93,16 +92,19 @@ namespace {
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
-                   & ~ourPawns
                    & ~pawn_attacks_bb<Them>(theirPawns);
 
+    if (ourPawns & CenterFiles)
+    {
     // Find all squares which are at most three squares behind some friendly pawn
+    safe &= ~ourPawns;
     Bitboard behind = ourPawns;
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
 
-    e->spaceBonus[Us] = popcount(safe) + popcount(behind & safe);
+    e->spaceBonus[Us] = popcount(behind & safe);
     }
+    e->spaceBonus[Us] += popcount(safe);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
