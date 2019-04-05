@@ -594,8 +594,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    score += make_score(7, 0) * popcount(shift<Up>(pos.pieces(Them,PAWN)) 
-                & ~attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES]);
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -725,6 +723,8 @@ namespace {
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 
     Score score = make_score(bonus * weight * weight / 16, 0);
+
+    score -= make_score(5, 0) * popcount(behind & safe & attackedBy[Them][ALL_PIECES]);
 
     if (T)
         Trace::add(SPACE, Us, score);
