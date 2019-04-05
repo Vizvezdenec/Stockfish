@@ -715,14 +715,18 @@ namespace {
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
+
+    Score score = make_score(10, 0) * popcount(behind & SpaceMask 
+                      & ~attackedBy[Us][PAWN] & attackedBy[Them][ALL_PIECES]);
+
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
 
-    int bonus = popcount(safe) + popcount(behind & safe) + popcount(behind & safe & (FileEBB | FileDBB));
+    int bonus = popcount(safe) + popcount(behind & safe);
     int weight =  pos.count<ALL_PIECES>(Us)
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 
-    Score score = make_score(bonus * weight * weight / 16, 0);
+    score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
         Trace::add(SPACE, Us, score);
