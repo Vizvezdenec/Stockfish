@@ -563,7 +563,7 @@ namespace {
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
-    b |= shift<Up>(b & TRank3BB & ~(attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN])) & ~pos.pieces();
+    b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
@@ -750,6 +750,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    +  9 * (pos.count<KNIGHT>(WHITE) + pos.count<KNIGHT>(BLACK))
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
