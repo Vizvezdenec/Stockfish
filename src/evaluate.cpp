@@ -724,7 +724,7 @@ namespace {
 
     Score score = make_score(bonus * weight * weight / 16, 0);
 
-    score -= make_score(5, 0) * popcount(behind & safe & attackedBy[Them][ALL_PIECES]);
+    score -= make_score(5, 0) * popcount(behind & safe & attackedBy2[Them]);
 
     if (T)
         Trace::add(SPACE, Us, score);
