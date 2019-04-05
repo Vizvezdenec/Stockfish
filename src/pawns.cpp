@@ -97,6 +97,7 @@ namespace {
     Bitboard behind = ourPawns;
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
+    behind |= shift<Down>(behind);
 
     e->spaceBonus[Us] = popcount(safe) + popcount(behind & safe);
 
