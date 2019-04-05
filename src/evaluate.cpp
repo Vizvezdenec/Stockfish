@@ -594,6 +594,8 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    score += make_score(7, 0) * popcount(shift<Up>(pos.pieces(Them,PAWN)) 
+                & ~attackedBy[Them][PAWN] & attackedBy[Us][ALL_PIECES]);
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -715,10 +717,6 @@ namespace {
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
-
-    Score score = make_score(10, 0) * popcount(behind & SpaceMask 
-                      & ~attackedBy[Us][PAWN] & attackedBy[Them][ALL_PIECES]);
-
     behind |= shift<Down>(behind);
     behind |= shift<Down>(shift<Down>(behind));
 
@@ -726,7 +724,7 @@ namespace {
     int weight =  pos.count<ALL_PIECES>(Us)
                 - 2 * popcount(pe->semiopenFiles[WHITE] & pe->semiopenFiles[BLACK]);
 
-    score = make_score(bonus * weight * weight / 16, 0);
+    Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
         Trace::add(SPACE, Us, score);
