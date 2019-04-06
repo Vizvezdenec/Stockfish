@@ -521,7 +521,7 @@ namespace {
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
-    noPush = shift<Up>(attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]);
+    noPush = shift<Up>(attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]) & ~pe->pawn_attacks_span(Them);
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
     {
@@ -530,10 +530,8 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            if (type_of(pos.piece_on(s)) != PAWN || (noPush & s))
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else if (noPush & ~pe->pawn_attacks_span(Them) & s)
-                score += make_score(15, 15);
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -541,10 +539,8 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            if (type_of(pos.piece_on(s)) != PAWN || (noPush & s))
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else if (noPush & ~pe->pawn_attacks_span(Them) & s)
-                score += make_score(15, 15);
         }
 
         if (weak & attackedBy[Us][KING])
