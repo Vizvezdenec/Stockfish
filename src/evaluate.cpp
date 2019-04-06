@@ -403,11 +403,8 @@ namespace {
 
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
-          & ((~attackedBy2[Us]
-          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]))
-          | (pawn_attacks_bb<Us>(pos.pieces(Us,PAWN) & pos.blockers_for_king(Us)) & 
-            ~(attackedBy[Us][KNIGHT] | attackedBy[Us][ROOK] | attackedBy[Us][BISHOP] 
-               | (attackedBy[Us][KING] & attackedBy[Us][QUEEN]) | pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)))));
+          & ~attackedBy2[Us]
+          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -503,6 +500,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  TRank6BB = (Us == WHITE ? Rank6BB : Rank3BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -520,6 +518,9 @@ namespace {
 
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
+
+    score += make_score(15, 0) * popcount(weak & pos.pieces(Them, PAWN) 
+             & TRank6BB & shift<Up>(~stronglyProtected & attackedBy[Us][ALL_PIECES]));
 
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
