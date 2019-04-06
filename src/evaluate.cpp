@@ -518,13 +518,14 @@ namespace {
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
-    reallyWeak = ~attackedBy[Them][PAWN] & ((attackedBy2[Us] & ~attackedBy2[Them]) 
-                  | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Them][ALL_PIECES]));
-    
-    score += make_score(15, 0) * popcount(weak & pos.pieces(Them, PAWN) & shift<Up>(reallyWeak));
-
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
+
+    reallyWeak = ~attackedBy[Them][PAWN] & ((attackedBy2[Us] & ~attackedBy2[Them]) 
+                  | safe);
+
+    score += make_score(15, 0) * popcount(weak & pos.pieces(Them, PAWN) 
+              & shift<Up>(reallyWeak) & ~pe->pawn_attacks_span(Them));
 
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
