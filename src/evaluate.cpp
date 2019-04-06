@@ -532,8 +532,8 @@ namespace {
             score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else if (noPush & s)
-                score += make_score(15, 0);
+            else if (noPush & ~pe->pawn_attacks_span(Them) & s)
+                score += make_score(15, 15);
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -543,8 +543,8 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else if (noPush & s)
-                score += make_score(15, 0);
+            else if (noPush & ~pe->pawn_attacks_span(Them) & s)
+                score += make_score(15, 15);
         }
 
         if (weak & attackedBy[Us][KING])
