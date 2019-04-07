@@ -663,15 +663,14 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
+
+                k += 4 * bool(pe->passed_pawns(Us) & DistanceRingBB[s][1]);
+
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
                 else if (defendedSquares & blockSq)
                     k += 4;
-
-                int passCnt = popcount(pe->passed_pawns(Us) & pos.attacks_from<KING>(s));
-
-                    k += passCnt * passCnt;
 
                 bonus += make_score(k * w, k * w);
             }
