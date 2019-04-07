@@ -669,7 +669,7 @@ namespace {
                 // Otherwise assign a smaller bonus if the block square is defended.
 
                 if (stronglyDefended == squaresToQueen)
-                    k += 10;
+                    k += 8;
                 else 
                 {
 
