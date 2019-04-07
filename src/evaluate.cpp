@@ -672,7 +672,10 @@ namespace {
                     k += 10;
                 else 
                 {
-                defendedSquares &= attackedBy[Us][ALL_PIECES];
+
+                if (noRookSupport)
+                    defendedSquares &= attackedBy[Us][ALL_PIECES];
+
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
