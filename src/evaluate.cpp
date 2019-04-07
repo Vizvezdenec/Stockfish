@@ -670,7 +670,7 @@ namespace {
                     k += 4;
 
                 if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s)))
-                    k += 3;
+                    k += 6;
 
                 bonus += make_score(k * w, k * w);
             }
