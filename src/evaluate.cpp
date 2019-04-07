@@ -510,9 +510,7 @@ namespace {
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
-                       | (attackedBy2[Them] & ~attackedBy2[Us]) | 
-                       ((attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]) 
-                         & (~attackedBy2[Us] & attackedBy[Us][QUEEN]));
+                       | (attackedBy2[Them] & ~attackedBy2[Us]);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
@@ -615,7 +613,7 @@ namespace {
       return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
-    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares, stronglyDefended;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -649,12 +647,16 @@ namespace {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
                 // in the pawn's path attacked or occupied by the enemy.
-                defendedSquares = unsafeSquares = squaresToQueen = forward_file_bb(Us, s);
+                defendedSquares = unsafeSquares = squaresToQueen = stronglyDefended = forward_file_bb(Us, s);
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN) & pos.attacks_from<ROOK>(s);
 
-                if (!(pos.pieces(Us) & bb))
-                    defendedSquares &= attackedBy[Us][ALL_PIECES];
+                bool noRookSupport = !(pos.pieces(Us) & bb);
+
+                if (noRookSupport)
+                    stronglyDefended &= attackedBy2[Us];
+                else 
+                    stronglyDefended &= attackedBy[Us][ALL_PIECES];
 
                 if (!(pos.pieces(Them) & bb))
                     unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
@@ -665,11 +667,18 @@ namespace {
 
                 // If the path to the queen is fully defended, assign a big bonus.
                 // Otherwise assign a smaller bonus if the block square is defended.
+
+                if (stronglyDefended == squaresToQueen)
+                    k += 10;
+                else 
+                {
+                defendedSquares &= attackedBy[Us][ALL_PIECES];
                 if (defendedSquares == squaresToQueen)
                     k += 6;
 
                 else if (defendedSquares & blockSq)
                     k += 4;
+                }
 
                 bonus += make_score(k * w, k * w);
             }
