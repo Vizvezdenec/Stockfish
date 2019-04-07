@@ -669,8 +669,9 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s)))
-                    k += 6;
+                int passCnt = pe->passed_pawns(Us) & pos.attacks_from<KING>(s);
+
+                    k += 2 * passCnt * passCnt;
 
                 bonus += make_score(k * w, k * w);
             }
