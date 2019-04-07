@@ -669,7 +669,7 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s)))
+                if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s) & ~file_bb(s)))
                     k += 10;
 
                 bonus += make_score(k * w, k * w);
