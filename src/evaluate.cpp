@@ -529,8 +529,8 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank * (int)relative_rank(Them, s);
+            if (type_of(pos.piece_on(s)) != PAWN || (file_of(s) == FILE_A || file_of(s) == FILE_H))
+                score += ThreatByRank * (int)relative_rank(Them, s);         	
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -538,7 +538,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            if (type_of(pos.piece_on(s)) != PAWN || (file_of(s) == FILE_A || file_of(s) == FILE_H))
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
@@ -655,10 +655,7 @@ namespace {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
 
                 if (!(pos.pieces(Them) & bb))
-                    unsafeSquares &= ((attackedBy[Them][ALL_PIECES] 
-                    & ~(attackedBy[Us][PAWN] & ~attackedBy2[Them])) | pos.pieces(Them));
-                else 
-                    unsafeSquares &= ~(attackedBy[Us][PAWN] & ~attackedBy[Them][ALL_PIECES]) | pos.pieces(Them);
+                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
