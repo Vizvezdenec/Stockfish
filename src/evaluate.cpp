@@ -339,10 +339,10 @@ namespace {
                 if (DarkSquares & s)
                 score -= make_score (10, 20) 
                  * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & DarkSquares) 
-                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles);
+                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles & ~pe->pawn_attacks_span(Us));
                 else score -= make_score (10, 20) 
                  * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~DarkSquares) 
-                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles);
+                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles & ~pe->pawn_attacks_span(Us));
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
