@@ -545,9 +545,6 @@ namespace {
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
 
-        if (more_than_one(weak & attackedBy[Them][QUEEN]))
-            score += make_score(15, 5);
-
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
@@ -587,12 +584,12 @@ namespace {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        b = (attackedBy[Us][KNIGHT] | pos.pieces(Us, KNIGHT)) & pos.attacks_from<KNIGHT>(s);
 
         score += KnightOnQueen * popcount(b & safe);
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        b =  ((attackedBy[Us][BISHOP] | pos.pieces(Us, BISHOP)) & pos.attacks_from<BISHOP>(s))
+           | ((attackedBy[Us][ROOK  ] | pos.pieces(Us, ROOK)) & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
