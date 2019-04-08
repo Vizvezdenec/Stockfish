@@ -334,6 +334,13 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+                if (DarkSquares & s)
+                score -= make_score (10, 20) 
+                 * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & DarkSquares) 
+                  & pos.pieces(Them, PAWN));
+                else score -= make_score (10, 20) 
+                 * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~DarkSquares) 
+                  & pos.pieces(Them, PAWN));
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -584,12 +591,12 @@ namespace {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = (attackedBy[Us][KNIGHT] | pos.pieces(Us, KNIGHT)) & pos.attacks_from<KNIGHT>(s);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
         score += KnightOnQueen * popcount(b & safe);
 
-        b =  ((attackedBy[Us][BISHOP] | pos.pieces(Us, BISHOP)) & pos.attacks_from<BISHOP>(s))
-           | ((attackedBy[Us][ROOK  ] | pos.pieces(Us, ROOK)) & pos.attacks_from<ROOK  >(s));
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
