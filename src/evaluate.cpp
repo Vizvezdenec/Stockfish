@@ -366,7 +366,8 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                    score -= TrappedRook * (1 + !pos.castling_rights(Us));
+                    score -= TrappedRook * (1 + !pos.castling_rights(Us)
+                             + bool(attackedBy[Us][KING] & s));
             }
         }
 
@@ -655,10 +656,7 @@ namespace {
                     defendedSquares &= attackedBy[Us][ALL_PIECES];
 
                 if (!(pos.pieces(Them) & bb))
-                    unsafeSquares &= ((attackedBy[Them][ALL_PIECES] 
-                    & ~(attackedBy[Us][PAWN] & ~attackedBy2[Them])) | pos.pieces(Them));
-                else 
-                    unsafeSquares &= ~(attackedBy[Us][PAWN] & ~attackedBy[Them][ALL_PIECES]);
+                    unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
