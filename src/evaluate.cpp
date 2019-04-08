@@ -271,6 +271,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard ProtectRanks = (Us == WHITE ? Rank3BB | Rank4BB | Rank5BB
+                                                   : Rank3BB | Rank5BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -336,11 +338,11 @@ namespace {
                     score += LongDiagonalBishop;
                 if (DarkSquares & s)
                 score -= make_score (10, 20) 
-                 * bool (pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & DarkSquares) 
-                  & pos.pieces(Them, PAWN) & Center);
+                 * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & DarkSquares) 
+                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles);
                 else score -= make_score (10, 20) 
-                 * bool (pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~DarkSquares) 
-                  & pos.pieces(Them, PAWN) & Center);
+                 * popcount(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~DarkSquares) 
+                  & pos.pieces(Them, PAWN) & ProtectRanks & CenterFiles);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
