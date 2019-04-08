@@ -518,8 +518,6 @@ namespace {
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
-    weak |= pos.pieces(Them, QUEEN) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | attackedBy[Us][ROOK]);
-
     // Safe or protected squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
@@ -546,6 +544,9 @@ namespace {
 
         if (weak & attackedBy[Us][KING])
             score += ThreatByKing;
+
+        if (more_than_one(weak & attackedBy[Them][QUEEN]))
+            score += make_score(20, 10);
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
