@@ -546,7 +546,7 @@ namespace {
             score += ThreatByKing;
 
         if (more_than_one(weak & attackedBy[Them][QUEEN]))
-            score += make_score(40, 10);
+            score += make_score(40, 20);
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
