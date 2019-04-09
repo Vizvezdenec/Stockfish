@@ -931,8 +931,8 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
-          extension = ONE_PLY * (1 + captureOrPromotion);
+               && !captureOrPromotion && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
+          extension = ONE_PLY;
 
       // Shuffle extension
       else if(pos.rule50_count() > 14 && ss->ply > 14 && depth < 3 * ONE_PLY && PvNode)
