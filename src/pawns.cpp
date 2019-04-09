@@ -141,9 +141,17 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
-        else if (r > RANK_4 && !(PawnAttacks[Them][s] & shift<Up>(ourPawns) 
-               & (~pawn_attacks_bb<Them>(theirPawns) | pawn_attacks_bb<Us>(ourPawns))))
-            score -= Backward;
+        else 
+            if (r > RANK_4)
+            {
+            Bitboard neighbourSafePush;
+            constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+            Bitboard noTheirAttacks = ~(pawn_attacks_bb<Them>(theirPawns) & ~e->pawnAttacks[Us]);
+            neighbourSafePush = shift<Up>(neighbours) & noTheirAttacks;
+            neighbourSafePush |= shift<Up>(neighbourSafePush & TRank3BB) & noTheirAttacks;
+            if (!(PawnAttacks[Them][s] & neighbourSafePush))
+            	score -= Backward;
+            }
 
         if (doubled && !support)
             score -= Doubled;
