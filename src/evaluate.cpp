@@ -500,8 +500,9 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  TRank23BB = (Us == WHITE ? Rank2BB|Rank3BB : Rank6BB|Rank7BB);
 
-    Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
+    Bitboard b, bb, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
 
     // Non-pawn enemies
@@ -568,9 +569,14 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
+    bb = pawn_attacks_bb<Us>(b);
+
+    b = pos.pieces(Us, PAWN) & ~(bb | attackedBy[Us][PAWN] | attackedBy2[Us] 
+        | TRank23BB | shift<WEST>(pos.pieces(Us, PAWN)) | shift<EAST>(pos.pieces(Us, PAWN)));
+    score -= make_score(10, 10) * popcount(b);
+
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
-    score += ThreatByPawnPush * popcount(b);
+    score += ThreatByPawnPush * popcount(bb & pos.pieces(Them));
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
