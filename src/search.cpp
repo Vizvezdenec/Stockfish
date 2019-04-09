@@ -1053,7 +1053,7 @@ moves_loop: // When in check, search starts from here
           }
           else if ((DistanceRingBB[pos.square<KING>(~us)][2] | DistanceRingBB[pos.square<KING>(~us)][1]) 
                     & to_sq(move))
-              r -= ONE_PLY;
+              r += ONE_PLY;
 
           Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
 
