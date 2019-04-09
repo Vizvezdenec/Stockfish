@@ -982,7 +982,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (!pos.see_ge(move, -PawnValueEg * (1 + (captureOrPromotion
-              && givesCheck)) * (depth / ONE_PLY))) // (~20 Elo)
+              && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move))) ) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
