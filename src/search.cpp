@@ -930,8 +930,7 @@ moves_loop: // When in check, search starts from here
       }
 
       // Check extension (~2 Elo)
-      else if (    givesCheck
-               && !captureOrPromotion)
+      else if (    givesCheck)
           extension = ONE_PLY;
 
       // Shuffle extension
