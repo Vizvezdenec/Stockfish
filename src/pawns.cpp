@@ -107,8 +107,6 @@ namespace {
         // on the adjacent files and cannot be safely advanced.
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
-        
-        int r = relative_rank(Us, s);
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
@@ -120,7 +118,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == square_bb(s + Up)
-                 && r >= RANK_5)
+                 && relative_rank(Us, s) >= RANK_5)
         {
             b = shift<Up>(support) & ~theirPawns;
             while (b)
@@ -131,6 +129,7 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
+            int r = relative_rank(Us, s);
             int v = phalanx ? Connected[r] + Connected[r + 1] : 2 * Connected[r];
             v = 17 * popcount(support) + (v >> (opposed + 1));
             score += make_score(v, v * (r - 2) / 4);
@@ -140,18 +139,6 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-
-        else 
-            if (r > RANK_4)
-            {
-            Bitboard neighbourSafePush;
-            constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-            Bitboard noTheirAttacks = ~(pawn_attacks_bb<Them>(theirPawns) & ~e->pawnAttacks[Us]);
-            neighbourSafePush = shift<Up>(neighbours) & noTheirAttacks;
-            neighbourSafePush |= shift<Up>(neighbourSafePush & TRank3BB) & noTheirAttacks;
-            if (!(PawnAttacks[Them][s] & neighbourSafePush))
-            	score -= Backward;
-            }
 
         if (doubled && !support)
             score -= Doubled;
