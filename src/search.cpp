@@ -930,7 +930,8 @@ moves_loop: // When in check, search starts from here
       }
 
       // Check extension (~2 Elo)
-      else if (    givesCheck)
+      else if (    givesCheck
+               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
           extension = ONE_PLY;
 
       // Shuffle extension
@@ -1050,6 +1051,9 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 20000 * ONE_PLY;
           }
+          else if ((DistanceRingBB[pos.square<KING>(~us)][2] | DistanceRingBB[pos.square<KING>(~us)][1]) 
+                    & to_sq(move))
+              r -= ONE_PLY;
 
           Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
 
