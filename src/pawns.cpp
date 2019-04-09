@@ -107,6 +107,8 @@ namespace {
         // on the adjacent files and cannot be safely advanced.
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
+        
+        int r = relative_rank(Us, s);
 
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
@@ -118,7 +120,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == square_bb(s + Up)
-                 && relative_rank(Us, s) >= RANK_5)
+                 && r >= RANK_5)
         {
             b = shift<Up>(support) & ~theirPawns;
             while (b)
@@ -129,7 +131,6 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
-            int r = relative_rank(Us, s);
             int v = phalanx ? Connected[r] + Connected[r + 1] : 2 * Connected[r];
             v = 17 * popcount(support) + (v >> (opposed + 1));
             score += make_score(v, v * (r - 2) / 4);
@@ -139,6 +140,10 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
+
+        else if (r > RANK_4 && !(PawnAttacks[Them][s] & shift<Up>(ourPawns) 
+               & (~pawn_attacks_bb<Them>(theirPawns) | pawn_attacks_bb<Us>(ourPawns))))
+            score -= Backward;
 
         if (doubled && !support)
             score -= Doubled;
