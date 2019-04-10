@@ -947,8 +947,12 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
       else if (type_of(movedPiece) == PAWN 
-               && pos.non_pawn_material() > 7000 
-               && (file_bb(pos.square<KING>(~us)) & from_sq(move)))
+               && pos.non_pawn_material() > 10000 
+               && relative_rank(us, from_sq(move)) > RANK_3
+               && ((file_bb(pos.square<KING>(~us)) 
+                     | shift<WEST>(file_bb(pos.square<KING>(~us)))
+                     | shift<EAST>(file_bb(pos.square<KING>(~us)))) & from_sq(move))
+              )
           extension = ONE_PLY;
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
