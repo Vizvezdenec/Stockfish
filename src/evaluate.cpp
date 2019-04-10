@@ -469,7 +469,7 @@ namespace {
     {
     int openFiles = bool (b1 & pos.pieces(Them, ROOK)) + bool (b1 & pos.pieces(Them, QUEEN)) 
                      + bool (pos.pieces(Them, PAWN) & file_bb(ksq));
-    kingDanger += 10 * openFiles * openFiles;
+    kingDanger += 20 * openFiles * openFiles;
     }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
