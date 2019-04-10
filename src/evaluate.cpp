@@ -309,11 +309,13 @@ namespace {
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * (1 + bool(attackedBy[Us][PAWN] & s));
+                                 * (1 + bool(attackedBy[Us][PAWN] & s) 
+                                   + bool(pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pe->pawn_attacks_span(Them)) & s));
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * (1 + bool(attackedBy[Us][PAWN] & bb));
+                                 * (1 + bool(attackedBy[Us][PAWN] & bb)
+                                   + bool(pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pe->pawn_attacks_span(Them)) & bb));
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
@@ -549,10 +551,6 @@ namespace {
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
     }
-
-    if (more_than_one(pos.pieces(Them) & ~attackedBy2[Them] & ~attackedBy2[Us] 
-          & attackedBy[Them][QUEEN] & attackedBy[Us][QUEEN]))
-    	score += make_score(20, 20);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
