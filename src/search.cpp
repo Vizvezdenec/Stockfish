@@ -946,6 +946,10 @@ moves_loop: // When in check, search starts from here
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
+      else if (type_of(movedPiece) == PAWN 
+               && pos.non_pawn_material() > 10000 
+               && (file_bb(pos.square<KING>(~us)) & from_sq(move)))
+          extension = ONE_PLY;
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
