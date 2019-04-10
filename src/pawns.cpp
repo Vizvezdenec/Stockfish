@@ -83,12 +83,6 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    Bitboard safePush;
-    constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    Bitboard noTheirAttacks = ~(pawn_attacks_bb<Them>(theirPawns) & ~e->pawnAttacks[Us]);
-    safePush = shift<Up>(ourPawns) & noTheirAttacks;
-    safePush |= shift<Up>(safePush & TRank3BB) & noTheirAttacks;
-
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -114,8 +108,6 @@ namespace {
         backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
-        int r = relative_rank(Us, s);
-
         // Passed pawns will be properly scored in evaluation because we need
         // full attack info to evaluate them. Include also not passed pawns
         // which could become passed after one or two pawn pushes when are
@@ -126,7 +118,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == square_bb(s + Up)
-                 && r >= RANK_5)
+                 && relative_rank(Us, s) >= RANK_5)
         {
             b = shift<Up>(support) & ~theirPawns;
             while (b)
@@ -137,6 +129,7 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
+            int r = relative_rank(Us, s);
             int v = phalanx ? Connected[r] + Connected[r + 1] : 2 * Connected[r];
             v = 17 * popcount(support) + (v >> (opposed + 1));
             score += make_score(v, v * (r - 2) / 4);
@@ -146,9 +139,6 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-        else 
-            if (r > RANK_4 && !(PawnAttacks[Them][s] & safePush) && !(e->passedPawns[Us] & s))
-            	score -= make_score(40, 10);
 
         if (doubled && !support)
             score -= Doubled;
