@@ -147,7 +147,7 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
         else 
-            if (r > RANK_4 && !(PawnAttacks[Them][s] & safePush))
+            if (r > RANK_4 && !(PawnAttacks[Them][s] & safePush) && opposed)
             	score -= make_score(40, 10);
 
         if (doubled && !support)
