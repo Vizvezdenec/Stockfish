@@ -463,10 +463,15 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = KingFlank[file_of(ksq)] & (FileHBB | FileABB) & pe->semiopenFiles[Them];
-    if (b1)
-    kingDanger += 100 * bool(pos.count<ROOK>(Them)) * (1 + bool(b1 & pe->semiopenFiles[Us]));
-    
+    b1 = (shift<WEST>(file_bb(ksq)) | shift<EAST>(file_bb(ksq))) & (FileABB | FileHBB);
+
+    if (b1 & pe->semiopenFiles[Them])
+    {
+    int openFiles = bool (b1 & pos.pieces(Them, ROOK)) + bool (b1 & pos.pieces(Them, QUEEN)) 
+                     + bool (pos.pieces(Them, PAWN) & file_bb(ksq));
+    kingDanger += 10 * openFiles * openFiles;
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
