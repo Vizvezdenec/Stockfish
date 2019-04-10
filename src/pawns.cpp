@@ -83,19 +83,12 @@ namespace {
     e->pawnsOnSquares[Us][BLACK] = popcount(ourPawns & DarkSquares);
     e->pawnsOnSquares[Us][WHITE] = pos.count<PAWN>(Us) - e->pawnsOnSquares[Us][BLACK];
 
-    Bitboard safePush;
-    constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    Bitboard noTheirAttacks = ~(pawn_attacks_bb<Them>(theirPawns) & ~e->pawnAttacks[Us]);
-    safePush = shift<Up>(ourPawns) & noTheirAttacks;
-    safePush |= shift<Up>(safePush & TRank3BB) & noTheirAttacks;
-
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
         assert(pos.piece_on(s) == make_piece(Us, PAWN));
 
         File f = file_of(s);
-        int r = relative_rank(Us, s);
 
         e->semiopenFiles[Us]   &= ~(1 << f);
         e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
@@ -125,7 +118,7 @@ namespace {
             e->passedPawns[Us] |= s;
 
         else if (   stoppers == square_bb(s + Up)
-                 && r >= RANK_5)
+                 && relative_rank(Us, s) >= RANK_5)
         {
             b = shift<Up>(support) & ~theirPawns;
             while (b)
@@ -136,6 +129,7 @@ namespace {
         // Score this pawn
         if (support | phalanx)
         {
+            int r = relative_rank(Us, s);
             int v = phalanx ? Connected[r] + Connected[r + 1] : 2 * Connected[r];
             v = 17 * popcount(support) + (v >> (opposed + 1));
             score += make_score(v, v * (r - 2) / 4);
@@ -145,9 +139,7 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-        else 
-            if (r > RANK_4 && !(PawnAttacks[Them][s] & safePush) && opposed)
-            	score -= make_score(20, 10);
+
         if (doubled && !support)
             score -= Doubled;
     }
