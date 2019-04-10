@@ -541,12 +541,18 @@ namespace {
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
-        score += ThreatByKing * popcount(weak & attackedBy[Us][KING]);
+
+        if (weak & attackedBy[Us][KING])
+            score += ThreatByKing;
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
     }
+
+    if (more_than_one(pos.pieces(Them) & ~attackedBy2[Them] & ~attackedBy2[Us] 
+          & attackedBy[Them][QUEEN] & attackedBy[Us][QUEEN]))
+    	score += make_score(20, 20);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
