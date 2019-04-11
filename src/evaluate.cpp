@@ -303,7 +303,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        bool immob = (Pt != ROOK) && (mob == 0);
+        bool immob = (Pt != ROOK) && (mob == 0) && !(b & pos.pieces(Us));
         if (immob && (file_of(s) == FILE_A || file_of(s) == FILE_H))
               mobility[Us] -= make_score(7, 12);
         if (immob && (relative_rank(Us, s) == RANK_1))
