@@ -303,7 +303,7 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (!((forward_ranks_bb(Us, s) | rank_bb(s)) & b))
+        if (relative_rank(Us, s) < RANK_5 && !((forward_ranks_bb(Us, s) | rank_bb(s)) & b & mobilityArea[Us]))
             score -= make_score(10, 20);
 
         if (Pt == BISHOP || Pt == KNIGHT)
