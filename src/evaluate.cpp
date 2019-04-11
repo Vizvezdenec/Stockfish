@@ -303,8 +303,11 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if ((Pt != ROOK) && (mob == 0) && (s == relative_square(Us, SQ_A1) || s == relative_square(Us, SQ_H1)))
-              mobility[Us] -= make_score(10, 30);
+        bool immob = (Pt != ROOK) && (mob == 0);
+        if (immob && (file_of(s) == FILE_A || file_of(s) == FILE_H))
+              mobility[Us] -= make_score(7, 12);
+        if (immob && (relative_rank(Us, s) == RANK_1))
+              mobility[Us] -= make_score(7, 12);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
