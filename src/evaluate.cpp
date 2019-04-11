@@ -303,9 +303,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (relative_rank(Us, s) < RANK_5 && !((forward_ranks_bb(Us, s) | rank_bb(s)) & b & mobilityArea[Us]))
-            score -= make_score(10, 20);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -643,6 +640,9 @@ namespace {
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
+
+            if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s)))
+            	bonus += make_score(r * r * 5, r * r * 5);
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
