@@ -642,7 +642,7 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             if (more_than_one(pe->passed_pawns(Us) & pos.attacks_from<KING>(s)))
-            	bonus += make_score(r * r * 5, r * r * 5);
+            	bonus += make_score(0, w * 8);
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
