@@ -1011,24 +1011,22 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
 
-          Depth r1 = 0 * ONE_PLY;
-
           if (!captureOrPromotion)
           {
-              // Increase reduction if ttMove is  a capture (~0 Elo)
+              // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
-                  r1 += ONE_PLY;
+                  r += ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r1 += 2 * ONE_PLY;
+                  r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~5 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
-                  r1 -= 2 * ONE_PLY;
+                  r -= 2 * ONE_PLY;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1038,18 +1036,16 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
-                  r1 -= ONE_PLY;
+                  r -= ONE_PLY;
 
               else if ((ss-1)->statScore >= 0 && ss->statScore < 0)
-                  r1 += ONE_PLY;
+                  r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r1 -= ss->statScore / 20000 * ONE_PLY;
-
-              r1 = std::min(r1, 5 * ONE_PLY);
+              r -= ss->statScore / 20000 * ONE_PLY;
           }
 
-          Depth d = std::max(newDepth - std::max(r + r1, DEPTH_ZERO), ONE_PLY);
+          Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
