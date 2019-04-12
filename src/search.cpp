@@ -948,7 +948,7 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
-      else if (type_of(move) == PROMOTION && promotion_type(move) == QUEEN)
+      else if (type_of(move) == PROMOTION && (promotion_type(move) == QUEEN || promotion_type(move) == KNIGHT))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
