@@ -285,6 +285,9 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
+        if (!(b & ~pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Us))))
+	    score -= make_score (100, 100);
+
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
@@ -302,9 +305,6 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
-
-        if (mob == 0 && !(b & ~pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Us))))
-	    score -= make_score (100, 100);
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
