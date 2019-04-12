@@ -303,6 +303,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (mob == 0 && !(b & ~pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Us))))
+	    score -= make_score (100, 100);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -470,8 +473,6 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
-                 +  30 * (pos.count<BISHOP>(Them) + pos.count<KNIGHT>(Them) 
-                           - pos.count<BISHOP>(Us) + pos.count<KNIGHT>(Us))
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   15;
