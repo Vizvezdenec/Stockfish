@@ -285,9 +285,6 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
-        if (!(b & ~pe->pawn_strong_attack(Them)))
-	    score -= make_score (30, 120);
-
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
@@ -559,6 +556,8 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    score += make_score(10, 10) * popcount(attackedBy[Them][ALL_PIECES] & pe->pawn_strong_attack(Us));
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
