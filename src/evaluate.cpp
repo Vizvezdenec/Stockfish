@@ -286,7 +286,7 @@ namespace {
                          : pos.attacks_from<Pt>(s);
 
         if (!(b & ~pe->pawn_strong_attack(Them)))
-	    score -= make_score (50, 100);
+	    score -= make_score (50, 50);
 
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
