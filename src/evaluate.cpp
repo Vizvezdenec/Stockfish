@@ -557,7 +557,7 @@ namespace {
 
     score += RestrictedPiece * popcount(b);
 
-    score += make_score(6, 12) * popcount(attackedBy[Them][ALL_PIECES] 
+    score += make_score(15, 15) * popcount(attackedBy[Them][ALL_PIECES] 
               & pawn_attacks_bb<Us>(pe->pawn_strong_attack(Us)));
 
     // Bonus for enemy unopposed weak pawns
