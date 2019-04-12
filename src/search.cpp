@@ -1057,7 +1057,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 20000 * ONE_PLY;
           }
-          r = std::min(reduction<PvNode>(improving, depth, moveCount) + 4 * ONE_PLY, r);
 
           Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
 
