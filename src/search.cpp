@@ -1057,6 +1057,8 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 20000 * ONE_PLY;
           }
+          else if (type_of(move) == PROMOTION && !(promotion_type(move) == QUEEN || promotion_type(move) == KNIGHT))
+              r += ONE_PLY;
 
           Depth d = std::max(newDepth - std::max(r, DEPTH_ZERO), ONE_PLY);
 
