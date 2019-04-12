@@ -134,7 +134,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  9,  0);
+  constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -458,8 +458,7 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp
-            & ~(pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & ~attackedBy[Them][PAWN]);
+    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
@@ -470,6 +469,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
+                 + 100 * more_than_one(pos.pieces(Them, QUEEN))
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
