@@ -285,7 +285,7 @@ namespace {
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
                          : pos.attacks_from<Pt>(s);
 
-        if (!(b & ~pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pe->pawn_attacks_span(Us))))
+        if (!(b & ~pe->pawn_strong_attack(Them)))
 	    score -= make_score (100, 100);
 
         if (pos.blockers_for_king(Us) & s)
