@@ -143,7 +143,7 @@ namespace {
         if (doubled && !support)
             score -= Doubled;
     }
-    e->strongAttack[Them]  =  pawn_attacks_bb<Them>(theirPawns & e->pawnAttacksSpan[Us]); 
+    e->strongAttack[Them]  =  pawn_attacks_bb<Them>(theirPawns & ~e->pawnAttacksSpan[Us]); 
 
     return score;
   }
