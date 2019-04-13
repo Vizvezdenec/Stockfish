@@ -369,6 +369,14 @@ namespace {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
+
+        if (Pt == QUEEN)
+        {
+            // Penalty if any relative pin or discovered attack against the queen
+            Bitboard queenPinners;
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+                score -= WeakQueen;
+        }
     }
     if (T)
         Trace::add(Pt, Us, score);
@@ -553,12 +561,6 @@ namespace {
     if (pos.pieces(Us, ROOK, QUEEN))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
-    // Our safe or protected pawns
-    b = pos.pieces(Us, PAWN) & safe;
-
-    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
-    score += ThreatBySafePawn * popcount(b);
-
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
@@ -566,34 +568,34 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    // Bonus for threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1)
-    {
-        Square s = pos.square<QUEEN>(Them);
-        // Penalty if any relative pin or discovered attack against the queen
-        Bitboard queenPinners;
-        Bitboard b1 = pos.slider_blockers(pos.pieces(Us, ROOK, BISHOP), s, queenPinners);
-        if (b1)
-            score += WeakQueen;
-
-        if (b1 & pawn_attacks_bb<Us>(b & ~PseudoAttacks[QUEEN][s]))
-            score += make_score(80, 60);
-
-        safe = mobilityArea[Us] & ~stronglyProtected;
-
-        b1 = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b1 & safe);
-
-        b1 =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
-        score += SliderOnQueen * popcount(b1 & safe & attackedBy2[Us]);
-    }
+    score += make_score(80, 60) * popcount(pawn_attacks_bb<Us>(b & ~PseudoAttacks[QUEEN][pos.square<KING>(Them)])
+               & pos.blockers_for_king(Them));
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
+
+    // Our safe or protected pawns
+    b = pos.pieces(Us, PAWN) & safe;
+
+    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    score += ThreatBySafePawn * popcount(b);
+
+    // Bonus for threats on the next moves against enemy queen
+    if (pos.count<QUEEN>(Them) == 1)
+    {
+        Square s = pos.square<QUEEN>(Them);
+        safe = mobilityArea[Us] & ~stronglyProtected;
+
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+
+        score += KnightOnQueen * popcount(b & safe);
+
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
 
     if (T)
         Trace::add(THREAT, Us, score);
