@@ -566,10 +566,6 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
-    // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
-    score += ThreatByPawnPush * popcount(b);
-
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
@@ -580,20 +576,24 @@ namespace {
         if (b1)
             score += WeakQueen;
 
-        if (b1 & b)
+        if (b1 & pawn_attacks_bb<Us>(b & ~PseudoAttacks[QUEEN][s]))
             score += make_score(80, 60);
 
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        b1 = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += KnightOnQueen * popcount(b & safe);
+        score += KnightOnQueen * popcount(b1 & safe);
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+        b1 =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * popcount(b1 & safe & attackedBy2[Us]);
     }
+
+    // Bonus for safe pawn threats on the next move
+    b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
+    score += ThreatByPawnPush * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
