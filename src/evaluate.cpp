@@ -374,11 +374,8 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            b = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
-            if (b)
-                score -= WeakQueen * (1 
-                         + bool((LineBB[s][pos.square<KING>(Us)] & b) 
-                                 && !(pos.pieces() & between_bb(s, pos.square<KING>(Us)))));
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+                score -= WeakQueen;
         }
     }
     if (T)
@@ -561,7 +558,7 @@ namespace {
     score += RestrictedPiece * popcount(b);
 
     // Bonus for enemy unopposed weak pawns
-    if (pos.pieces(Us, ROOK, QUEEN))
+    if (pos.pieces(Us, ROOK, KNIGHT))
         score += WeakUnopposedPawn * pe->weak_unopposed(Them);
 
     // Find squares where our pawns can push on the next move
