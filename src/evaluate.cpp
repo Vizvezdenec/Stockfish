@@ -471,8 +471,8 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 + 150 * popcount(b1 | b2 | unsafeChecks)
-                 + 150 * popcount(b2)
+                 + 150 * popcount(b1 | unsafeChecks)
+                 + 450 * popcount(b2)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
