@@ -392,7 +392,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -464,16 +463,12 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = pos.blockers_for_king(Us) 
-            & ((pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())) | pos.pieces(Us) | pos.blockers_for_king(Them));
-    b2 = pos.blockers_for_king(Us) & ~b1;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 + 150 * popcount(b1 | unsafeChecks)
-                 + 300 * popcount(b2)
+                 + 150 * popcount((pos.blockers_for_king(Us) 
+                          & ~(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN])) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
