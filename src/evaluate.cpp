@@ -464,7 +464,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = pos.blockers_for_king(Us) & ((pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())) | pos.pieces(Us));
+    b1 = pos.blockers_for_king(Us) 
+            & ((pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())) | pos.pieces(Us) | pos.blockers_for_king(Them));
     b2 = pos.blockers_for_king(Us) & ~b1;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
@@ -472,7 +473,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  + 150 * popcount(b1 | unsafeChecks)
-                 + 450 * popcount(b2)
+                 + 300 * popcount(b2)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
