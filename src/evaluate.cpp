@@ -376,7 +376,9 @@ namespace {
             Bitboard queenPinners;
             b = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
             if (b)
-                score -= WeakQueen * (1 + bool(LineBB[s][pos.square<KING>(Us)] & b));
+                score -= WeakQueen * (1 
+                         + bool((LineBB[s][pos.square<KING>(Us)] & b) 
+                                 && !(pos.pieces() & between_bb(s, pos.square<KING>(Us)))));
         }
     }
     if (T)
