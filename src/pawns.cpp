@@ -81,10 +81,6 @@ namespace {
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
 
-    b = ourPawns & CenterFiles;
-
-    int advance = b ? relative_rank(Us, frontmost_sq(Us, b)) : 0;
-
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
     {
@@ -126,9 +122,6 @@ namespace {
                 if (!more_than_one(theirPawns & PawnAttacks[Us][pop_lsb(&b)]))
                     e->passedPawns[Us] |= s;
         }
-
-        if (r == advance)
-            score += make_score(r * r / 2, 0);
 
         // Score this pawn
         if (support | phalanx)
