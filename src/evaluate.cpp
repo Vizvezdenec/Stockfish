@@ -485,7 +485,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +       kingCampAttacks * kingCampAttacks / 4
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -498,6 +497,7 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
+    score -= make_score(5, 0) * kingCampAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
