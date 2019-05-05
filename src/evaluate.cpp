@@ -303,12 +303,11 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob < 3 && (relative_rank(Us, s) == RANK_1 || !(b & mobilityArea[Us] & ~TRank1BB)))
-            score -= make_score(7, 3) * (file_of(s) < FILE_E ? popcount(KingSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
-                                             : popcount(QueenSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (mob < 3 && (relative_rank(Us, s) == RANK_1 || !(b & mobilityArea[Us] & ~TRank1BB)))
+            	score -= make_score(7, 3) * (file_of(s) < FILE_E ? popcount(KingSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
+                                             : popcount(QueenSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
