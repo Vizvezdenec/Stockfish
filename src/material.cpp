@@ -35,7 +35,7 @@ namespace {
     // pair pawn knight bishop rook queen
     {1438                               }, // Bishop pair
     {  40,   38                         }, // Pawn
-    {  32,  255, -62                    }, // Knight      OUR PIECES
+    {  32,  255, -30                    }, // Knight      OUR PIECES
     {   0,  104,   4,    0              }, // Bishop
     { -26,   -2,  47,   105,  -208      }, // Rook
     {-189,   24, 117,   133,  -134, -6  }  // Queen
