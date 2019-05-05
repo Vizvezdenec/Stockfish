@@ -131,11 +131,16 @@ namespace {
     S( -1,  7), S( 0,  9), S(-9, -8), S(-30,-14),
     S(-30,-14), S(-9, -8), S( 0,  9), S( -1,  7)
   };
+  constexpr Bitboard KingCamp[FILE_NB] = {
+     QueenSide | FileEBB, QueenSide | FileEBB, QueenSide | FileEBB | FileFBB,
+     AllSquares, AllSquares,
+     KingSide | FileDBB | FileCBB, KingSide | FileDBB, KingSide | FileDBB
+  };
 
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  7,  0);
+  constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -391,6 +396,8 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down       = (Us == BLACK ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -458,10 +465,12 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b1 |= (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & rank_bb(ksq);
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    b1 = file_bb(ksq);
+    b1 |= shift<Up>(b1) | shift<Down>(b1);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -485,6 +494,7 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
+    score -= make_score(4, 0) * popcount((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & KingCamp[file_of(ksq)] & b1);
 
     if (T)
         Trace::add(KING, Us, score);
