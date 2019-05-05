@@ -302,14 +302,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob == 1)
-        {
-        bb = b & mobilityArea[Us];
-        Square s1 = pop_lsb(&bb);
-        if (!(pos.attacks_from<Pt>(s1) & mobilityArea[Us] & ~SquareBB[s]))
-             mobility[Us] += (MobilityBonus[Pt - 2][0] - MobilityBonus[Pt - 2][1]) / 2;
-        }
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -466,6 +458,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b1 |= (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & rank_bb(ksq);
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
