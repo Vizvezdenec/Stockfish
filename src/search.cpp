@@ -1014,6 +1014,12 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction<PvNode>(improving, depth, moveCount);
 
+              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             - 4000;
+
           // Decrease reduction if position is or has been on the PV
           if (ttPv)
               r -= ONE_PLY;
@@ -1021,14 +1027,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
-
-          if (!captureOrPromotion
-               ||  ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
-             ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4000;
 
           if (!captureOrPromotion)
           {
