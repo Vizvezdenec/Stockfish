@@ -131,16 +131,16 @@ namespace {
     S( -1,  7), S( 0,  9), S(-9, -8), S(-30,-14),
     S(-30,-14), S(-9, -8), S( 0,  9), S( -1,  7)
   };
+
   constexpr Bitboard KingCamp[FILE_NB] = {
      QueenSide | FileEBB, QueenSide | FileEBB, QueenSide | FileEBB | FileFBB,
      AllSquares, AllSquares,
      KingSide | FileDBB | FileCBB, KingSide | FileDBB, KingSide | FileDBB
   };
-
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FlankAttacks       = S(  7,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -465,15 +465,12 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b1 |= (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) 
+           & (shift<Up>(rank_bb(ksq)) | shift<Down>(rank_bb(ksq)))
+           & KingCamp[file_of(ksq)];
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    b1 = rank_bb(ksq);
-    b1 |= shift<Up>(b1) | shift<Down>(b1);
-    b1 = (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & KingCamp[file_of(ksq)] & b1;
-    b2 = b1 & attackedBy2[Them];
-    int kingCampAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -497,7 +494,6 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
-    score -= make_score(5, 0) * kingCampAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
