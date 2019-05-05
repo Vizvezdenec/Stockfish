@@ -469,7 +469,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = file_bb(ksq);
+    b1 = rank_bb(ksq);
     b1 |= shift<Up>(b1) | shift<Down>(b1);
     b1 = (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & KingCamp[file_of(ksq)] & b1;
     b2 = b1 & attackedBy2[Them];
