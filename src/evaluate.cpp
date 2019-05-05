@@ -471,6 +471,9 @@ namespace {
 
     b1 = file_bb(ksq);
     b1 |= shift<Up>(b1) | shift<Down>(b1);
+    b1 = (attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & KingCamp[file_of(ksq)] & b1;
+    b2 = b1 & attackedBy2[Them];
+    int kingCampAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -494,7 +497,7 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
-    score -= make_score(4, 0) * popcount((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & KingCamp[file_of(ksq)] & b1);
+    score -= make_score(5, 0) * kingCampAttacks;
 
     if (T)
         Trace::add(KING, Us, score);
