@@ -303,7 +303,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (relative_rank(Us, s) == RANK_1 && mob < 3)
-            score -= make_score(10, 0) * (file_of(s) < FILE_E ? popcount(KingSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
+            score -= make_score(7, 3) * (file_of(s) < FILE_E ? popcount(KingSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
                                              : popcount(QueenSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
 
         if (Pt == BISHOP || Pt == KNIGHT)
