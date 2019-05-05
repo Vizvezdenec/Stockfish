@@ -270,7 +270,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -303,11 +302,16 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (mob == 1)
+        {
+        bb = b & mobilityArea[Us];
+        Square s1 = pop_lsb(&bb);
+        if (!(pos.attacks_from<Pt>(s1) & mobilityArea[Us] & ~SquareBB[s]))
+             mobility[Us] += (MobilityBonus[Pt - 2][0] - MobilityBonus[Pt - 2][1]) / 2;
+        }
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            if (mob < 3 && (relative_rank(Us, s) == RANK_1 || !(b & mobilityArea[Us] & ~TRank1BB)))
-            	score -= make_score(7, 3) * (file_of(s) < FILE_E ? popcount(KingSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces()))
-                                             : popcount(QueenSide & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces())));
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
