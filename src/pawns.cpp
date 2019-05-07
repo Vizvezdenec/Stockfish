@@ -33,7 +33,7 @@ namespace {
 
   // Pawn penalties
   constexpr Score Backward = S( 9, 24);
-  constexpr Score Doubled  = S(11, 56);
+  constexpr Score Doubled  = S(6, 28);
   constexpr Score Isolated = S( 5, 15);
 
   // Connected pawn bonus
@@ -137,7 +137,7 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         if (doubled && !support)
-            score -= Doubled;
+            score -= Doubled * (1 + !(neighbours & pos.attacks_from<KING>(s)));
     }
 
     return score;
