@@ -407,14 +407,16 @@ namespace {
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
     // Analyse the safe enemy's checks which are possible on next move
-    safe  = ~(pos.pieces(Them) & (~pos.blockers_for_king(Us) | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()))));
+    safe  = ~pos.pieces(Them);
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
+    Bitboard discocheck = pos.pieces(Them) & pos.blockers_for_king(Us) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
+    rookChecks |= discocheck & attackedBy[Them][ROOK] & (file_bb(ksq) | rank_bb(ksq));
 
     if (rookChecks)
         kingDanger += RookSafeCheck;
@@ -428,6 +430,7 @@ namespace {
                  & safe
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
+    queenChecks |= discocheck & attackedBy[Them][QUEEN] & ~rookChecks;
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
@@ -438,6 +441,7 @@ namespace {
                   & attackedBy[Them][BISHOP]
                   & safe
                   & ~queenChecks;
+    bishopChecks |= discocheck & attackedBy[Them][BISHOP] & ~queenChecks;
 
     if (bishopChecks)
         kingDanger += BishopSafeCheck;
@@ -468,7 +472,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 + 150 * popcount((pos.blockers_for_king(Us) & pos.pieces(Us)) | unsafeChecks)
+                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
