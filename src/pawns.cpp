@@ -136,8 +136,8 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
-        if (doubled && !support)
-            score -= Doubled * (1 + !neighbours);
+        if (doubled && !neighbours)
+            score -= Doubled;
     }
 
     return score;
