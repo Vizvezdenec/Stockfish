@@ -373,7 +373,7 @@ namespace {
                     {
                     if (((KingSide & s) && (KingSide & rank1ImmobileMinor[Us]))
                         || ((QueenSide & s) && (QueenSide & rank1ImmobileMinor[Us])))
-                    	score -= TrappedRook;
+                    	score -= TrappedRook * 2;
                     }
             }
         }
