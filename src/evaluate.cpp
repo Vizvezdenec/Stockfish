@@ -478,7 +478,7 @@ namespace {
     if (kingDanger > 100)
         {
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        score -= make_score(4, 0) * (kingDanger / 100) * popcount(pe->passed_pawns(Them) & ~KingFlank[file_of(ksq)]);
+        score -= make_score(4, 4) * (kingDanger / 100) * popcount(pe->passed_pawns(Them) & ~KingFlank[file_of(ksq)]);
         }
 
     // Penalty when our king is on a pawnless flank
