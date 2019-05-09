@@ -1004,11 +1004,11 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      constexpr int mcLimit[] = {3, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1, 1, 1, 1};
+      constexpr int mcLimit[] = {3, 3, 2, 2, 2, 1, 1, 1, 1, 1};
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1 + ((PvNode && ss->ply < 15) ? mcLimit[ss->ply] : 0)
+          &&  moveCount > 1 + ((PvNode && ss->ply < 10) ? mcLimit[ss->ply] : 0)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
