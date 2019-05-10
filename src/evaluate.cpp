@@ -228,7 +228,7 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
 
-    Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    Bitboard dblAttackByPawn = pe->pawn_double_att(Us);
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
@@ -297,6 +297,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+        else if (b & pe->pawn_double_att(Them) & attackedBy[Them][KING])
+            kingAttacksCount[Us] ++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
