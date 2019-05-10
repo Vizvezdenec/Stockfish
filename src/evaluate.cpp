@@ -453,7 +453,8 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= (mobilityArea[Them] | attackedBy[Us][KING]);
+    kingDanger += 150 * bool(unsafeChecks & attackedBy[Us][KING]);
+    unsafeChecks &= mobilityArea[Them];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
