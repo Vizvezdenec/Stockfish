@@ -430,6 +430,8 @@ namespace {
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
+    if (queenChecks & attackedBy[Us][KING])
+    	kingDanger += 300;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
