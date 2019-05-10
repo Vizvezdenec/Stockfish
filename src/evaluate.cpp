@@ -430,8 +430,6 @@ namespace {
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
-    if (queenChecks & attackedBy[Us][KING])
-    	kingDanger += 300;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -455,7 +453,7 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+    unsafeChecks &= (mobilityArea[Them] | attackedBy[Us][KING]);
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
