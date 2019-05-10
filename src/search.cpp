@@ -715,7 +715,8 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore / 512;
+            int bonus = -(ss-1)->statScore / 512 
+                          + (pos.non_pawn_material() <= 2 * QueenValueMg) * (pos.count<PAWN>(us) - pos.count<PAWN>(~us));
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
