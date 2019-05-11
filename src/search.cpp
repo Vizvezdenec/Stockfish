@@ -1004,7 +1004,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      int depthAdd = rootNode ? 2 : (PvNode && ss->ply < 4) ? 1 : 0;
+      int depthAdd = PvNode && ss->ply < 2 ? 2 : PvNode ? 1 : 0;
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
