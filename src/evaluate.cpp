@@ -462,12 +462,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kAbonus = 0;
-    if (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & attackedBy[Us][KING] & attackedBy2[Them] 
-          & ~(attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]))
-    	kAbonus ++;
-
-    kingDanger +=        (kingAttackersCount[Them] + kAbonus) * kingAttackersWeight[Them]
+    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -760,7 +755,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg)) * (abs(eg) > 10);
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
