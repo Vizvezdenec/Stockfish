@@ -325,8 +325,7 @@ namespace {
             {
                 // Penalty according to number of pawns on the same color square as the
                 // bishop, bigger when the center files are blocked with pawns.
-                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>((pos.pieces() | 
-				    (pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)) & ~pe->pawn_attacks_span(Us))));
+                Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
@@ -462,6 +461,7 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int noKFmobility = popcount(KingFlank[file_of(ksq)] & Camp & ~mobilityArea[Us] & ~attackedBy[Us][ALL_PIECES]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -473,6 +473,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
+                 +       noKFmobility * noKFmobility
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
