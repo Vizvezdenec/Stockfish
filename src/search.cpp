@@ -1138,10 +1138,7 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  if(!rootNode)
-			ss->statScore = 0;
-                  else  
-                        (ss+1)->statScore = 0;
+                  ss->statScore = 0;
                   break;
               }
           }
