@@ -465,7 +465,7 @@ namespace {
     int kAbonus = 0;
     if (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & attackedBy[Us][KING] & attackedBy2[Them] 
           & ~(attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]))
-    	kAbonus += 2;
+    	kAbonus ++;
 
     kingDanger +=        (kingAttackersCount[Them] + kAbonus) * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
