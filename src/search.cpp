@@ -1138,7 +1138,10 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  ss->statScore = 0;
+                  if(!(PvNode && ss->ply < 2))
+			ss->statScore = 0;
+                  else  
+                        (ss+1)->statScore = 0;
                   break;
               }
           }
