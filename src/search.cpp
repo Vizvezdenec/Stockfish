@@ -915,7 +915,7 @@ moves_loop: // When in check, search starts from here
               {
               extension = ONE_PLY;
               singularExtension++;
-              if (value < singularBeta - 4 * depth / ONE_PLY)
+              if (value < singularBeta - depth / ONE_PLY)
               	  singularExtension++;
               }
 
