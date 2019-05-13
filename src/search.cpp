@@ -914,6 +914,8 @@ moves_loop: // When in check, search starts from here
               {
               extension = ONE_PLY;
               singularExtension++;
+              if (value < singularBeta - 2 * depth / ONE_PLY)
+              	  singularExtension++;
               }
 
           // Multi-cut pruning
