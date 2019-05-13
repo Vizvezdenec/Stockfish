@@ -104,7 +104,7 @@ namespace {
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
-        backward =  !(ourPawns & pawn_attack_span(Them, s + Up) & ~shift<Down>(theirPawns))
+        backward =  !(ourPawns & pawn_attack_span(Them, s + Up))
                   && (stoppers & (leverPush | (s + Up)));
 
         // Passed pawns will be properly scored in evaluation because we need
@@ -136,6 +136,9 @@ namespace {
 
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
+
+        else if (!(neighbours & (~shift<Down>(theirPawns) | pawn_attack_span(Us, s))) && opposed)
+            score -= Backward;
 
         if (doubled && !support)
             score -= Doubled;
