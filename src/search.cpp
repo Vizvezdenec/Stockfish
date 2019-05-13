@@ -855,7 +855,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
     moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-      bool singularExtension = false;
+    int singularExtension = 0;
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -913,7 +913,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
               {
               extension = ONE_PLY;
-              singularExtension = true;
+              singularExtension++;
               }
 
           // Multi-cut pruning
@@ -1025,13 +1025,10 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
 
-          if (singularExtension)
-                  r -= ONE_PLY;
+          r -= singularExtension * ONE_PLY;
 
           if (!captureOrPromotion)
           {
-              if (singularExtension)
-                  r -= ONE_PLY;
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
