@@ -886,6 +886,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool singularExt = 0;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -911,7 +912,7 @@ moves_loop: // When in check, search starts from here
           ss->excludedMove = MOVE_NONE;
 
           if (value < singularBeta)
-              extension = ONE_PLY;
+              extension = ONE_PLY, singularExt = 1;
 
           // Multi-cut pruning
           // Our ttMove is assumed to fail high, and now we failed high also on a reduced
@@ -1021,6 +1022,8 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
+          if (extension)
+              r -= (singularExt * 2 - 1) * ONE_PLY;
 
           if (!captureOrPromotion)
           {
@@ -1138,10 +1141,7 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  if(!(PvNode && ss->ply < 2))
-			ss->statScore = 0;
-                  else  
-                        (ss+1)->statScore = 0;
+                  ss->statScore = 0;
                   break;
               }
           }
