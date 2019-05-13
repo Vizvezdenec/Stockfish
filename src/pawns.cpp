@@ -66,7 +66,6 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
-    constexpr Direction Down   = (Us == BLACK ? NORTH : SOUTH);
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
@@ -137,8 +136,8 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
-        else if (!(neighbours & (~shift<Down>(theirPawns) | pawn_attack_span(Us, s))) && opposed)
-            score -= Backward;
+        else if (!(neighbours & pos.attacks_from<KING>(s)))
+            score -= make_score(5,5);
 
         if (doubled && !support)
             score -= Doubled;
