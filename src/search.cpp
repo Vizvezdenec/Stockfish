@@ -1026,10 +1026,12 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
 
           if (singularExtension)
-                  r -= 2 * ONE_PLY;
+                  r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
+              if (singularExtension)
+                  r -= ONE_PLY;
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
