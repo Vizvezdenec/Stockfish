@@ -750,7 +750,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +      abs(eg) / 10
+                    +      abs(eg) / 20
                     -113 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
