@@ -926,7 +926,7 @@ moves_loop: // When in check, search starts from here
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
-          extension = ONE_PLY;
+          extension = ONE_PLY, singularExt = 1;
 
       // Castling extension
       else if (type_of(move) == CASTLING)
@@ -943,7 +943,7 @@ moves_loop: // When in check, search starts from here
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
-          extension = ONE_PLY;
+          extension = ONE_PLY, singularExt = 1;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
@@ -1022,8 +1022,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
               r -= ONE_PLY;
-          if (extension)
-              r -= (singularExt * 2 - 1) * ONE_PLY;
+ 
+          if (singularExt)
+              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
