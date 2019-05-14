@@ -778,6 +778,9 @@ namespace {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 16 + 4 * pe->passed_count();
+        else if (pos.non_pawn_material(strongSide) == QueenValueMg
+            && pos.count<QUEEN>() == 1)
+            sf = std::min(10 + pe->passed_count(strongSide) * pe->passed_count(strongSide) * 8, sf);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
