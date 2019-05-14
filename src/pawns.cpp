@@ -136,6 +136,9 @@ namespace {
         else if (backward)
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
+        else if (!(neighbours & pos.attacks_from<KING>(s)))
+            score -= make_score(8, 18);
+
         if (doubled && !support)
             score -= Doubled;
     }
