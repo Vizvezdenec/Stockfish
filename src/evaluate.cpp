@@ -669,11 +669,10 @@ namespace {
                 else if (defendedSquares & blockSq)
                     k += 4;
 
-                if (r != RANK_7 && pos.empty(blockSq + Up))
-                    k += 2;
-
                 bonus += make_score(k * w, k * w);
             }
+            if (pe->passed_pawns(Us) & pos.attacks_from<KING>(s))
+            	bonus += make_score(w, w);
         } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
