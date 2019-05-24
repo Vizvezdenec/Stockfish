@@ -1025,6 +1025,10 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularExtensionLMRmultiplier * ONE_PLY;
 
+          if (type_of(movedPiece) == PAWN
+              && (pos.attacks_from<ROOK>(from_sq(move)) & (pos.pieces(us, ROOK) | pos.pieces(us, QUEEN))))
+          	r -= ONE_PLY;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
