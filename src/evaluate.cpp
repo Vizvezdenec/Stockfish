@@ -671,8 +671,6 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
-            if (pe->passed_pawns(Us) & pos.attacks_from<KING>(s))
-            	bonus += make_score(w, w);
         } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one

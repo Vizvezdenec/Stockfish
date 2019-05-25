@@ -912,6 +912,8 @@ moves_loop: // When in check, search starts from here
               singularExtensionLMRmultiplier++;
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
               	  singularExtensionLMRmultiplier++;
+              if (value < singularBeta - 1000)
+                  extension += ONE_PLY;
               }
 
           // Multi-cut pruning
