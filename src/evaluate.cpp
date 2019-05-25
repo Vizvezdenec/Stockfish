@@ -298,7 +298,10 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = 0;
+        if (Pt != QUEEN)
+            mob = popcount(b & mobilityArea[Us]);
+        else mob = popcount(b & (mobilityArea[Us] | pos.pieces(Us, QUEEN)));
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -744,12 +747,11 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
-                    + 12 * pos.count<PAWN>()
+                    + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
-                    + 48 * !pos.non_pawn_material()
-                    + 24 * !pos.opposite_bishops()
-                    -126 ;
+                    + 49 * !pos.non_pawn_material()
+                    -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
