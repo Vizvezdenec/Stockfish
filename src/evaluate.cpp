@@ -282,7 +282,6 @@ namespace {
         // Find attacked squares, including x-ray attacks for bishops and rooks
         b = Pt == BISHOP ? attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(QUEEN))
           : Pt ==   ROOK ? attacks_bb<  ROOK>(s, pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(Us, ROOK))
-          : Pt == QUEEN ? attacks_bb<QUEEN>(s, pos.pieces() ^ pos.pieces(Us, QUEEN))
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
@@ -299,12 +298,12 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = 0;
-        if (Pt != QUEEN)
-            mob = popcount(b & mobilityArea[Us]);
-        else mob = popcount(b & (mobilityArea[Us] | pos.pieces(Us, QUEEN)));
+        int mob = popcount(b & mobilityArea[Us]);
 
-        mobility[Us] += MobilityBonus[Pt - 2][mob];
+        if (!(b & pos.pieces(Us, KING)))
+            mobility[Us] += MobilityBonus[Pt - 2][mob];
+        else 
+            mobility[Us] += make_score(mg_value(MobilityBonus[Pt - 2][mob]), eg_value(MobilityBonus[Pt - 2][mob + 1]));
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
