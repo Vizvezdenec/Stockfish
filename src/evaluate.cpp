@@ -331,7 +331,7 @@ namespace {
                                      * (1 + popcount(blocked & CenterFiles));
 
                 if (pe->locked_pawns(Us) > 2)
-                    score -= BishopPawns * (pe->locked_pawns(Us) - 2) * pe->locked_pawns(Us);
+                    score -= make_score(5, 5) * (pe->locked_pawns(Us) - 2) * pe->locked_pawns(Us);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
