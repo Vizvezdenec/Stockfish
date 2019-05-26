@@ -141,7 +141,7 @@ namespace {
             {
             score -= Doubled;
             if (!(pawn_attack_span(Them, s + Up) & ourPawns) && (theirPawns & (s + Up)))
-            	score -= Doubled;
+            	score -= make_score(20, 20);
             }
     }
 
