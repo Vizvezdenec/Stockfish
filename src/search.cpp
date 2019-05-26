@@ -1025,9 +1025,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularExtensionLMRmultiplier * ONE_PLY;
 
-          if (type_of(move) == NORMAL && type_of(movedPiece) == KING && !inCheck && pos.non_pawn_material() > 12000)
-          	r += ONE_PLY;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
