@@ -982,7 +982,7 @@ moves_loop: // When in check, search starts from here
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)) 
-                  && (type_of(movedPiece) != PAWN || pos.rule50_count() < 12 || depth > 4 * ONE_PLY))
+                  && (type_of(movedPiece) != PAWN || pos.rule50_count() < 12 || depth < 3 * ONE_PLY))
                   continue;
           }
           else if (!pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
