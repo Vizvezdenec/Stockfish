@@ -66,6 +66,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down = (Us == BLACK ? NORTH : SOUTH);
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
@@ -80,6 +81,9 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
+
+    Bitboard blocked = ourPawns & shift<Down>(theirPawns | pawn_double_attacks_bb<Them>(theirPawns));
+    e->lockedPawns[Us] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -100,6 +104,9 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(f);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
+
+        if ((blocked & s) && !(pawn_attack_span(Them, s + Up) & ourPawns & ~blocked))
+            e->lockedPawns[Us]++;
 
         // A pawn is backward when it is behind all pawns of the same color
         // on the adjacent files and cannot be safely advanced.
@@ -138,11 +145,7 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         if (doubled && !support)
-            {
             score -= Doubled;
-            if (!(pawn_attack_span(Them, s + Up) & ourPawns) && (theirPawns & (s + Up)))
-            	score -= make_score(20, 20);
-            }
     }
 
     return score;
