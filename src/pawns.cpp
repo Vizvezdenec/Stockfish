@@ -138,7 +138,11 @@ namespace {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
 
         if (doubled && !support)
+            {
             score -= Doubled;
+            if (!(pawn_attack_span(Them, s + Up) & ourPawns) && (theirPawns & (s + Up)))
+            	score -= Doubled;
+            }
     }
 
     return score;
