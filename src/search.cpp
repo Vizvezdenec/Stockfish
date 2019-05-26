@@ -1011,8 +1011,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
-          && !(inCheck && type_of(movedPiece) == KING && moveCount > 5 + 3 * rootNode))
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1025,6 +1024,9 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
           // Decrease reduction if move has been singularly extended
           r -= singularExtensionLMRmultiplier * ONE_PLY;
+
+          if (type_of(move) == NORMAL && type_of(movedPiece) == KING && !inCheck)
+          	r += ONE_PLY;
 
           if (!captureOrPromotion)
           {
