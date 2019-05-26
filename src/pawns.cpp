@@ -82,7 +82,7 @@ namespace {
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
 
-    Bitboard blocked = ourPawns & shift<Down>(theirPawns | pawn_double_attacks_bb<Them>(theirPawns));
+    Bitboard blocked = ourPawns & shift<Down>(theirPawns | ourPawns | pawn_double_attacks_bb<Them>(theirPawns));
     e->lockedPawns[Us] = 0;
 
     // Loop through all pawns of the current color and score each pawn
