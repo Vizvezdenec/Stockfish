@@ -462,6 +462,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    Bitboard knightProtection = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
+    if (knightProtection)
+    	kingDanger -= 100;
+    Bitboard bishopProtection = attackedBy[Us][BISHOP] & attackedBy[Us][KING] & ~knightProtection;
+    if (bishopProtection)
+    	kingDanger -= 35;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -474,11 +481,7 @@ namespace {
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
-        {
-        kingDanger = std::max(101, kingDanger - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING]));
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-        }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
