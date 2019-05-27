@@ -137,10 +137,8 @@ namespace {
         else if (backward)
             {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-            Bitboard pawnSide = (QueenSide & s) ? QueenSide : KingSide;
-            pawnSide &= ~file_bb(s);
-            if ((f == FILE_A || f == FILE_H) && (theirPawns & (s + Up)) && !(ourPawns & forward_ranks_bb(Them, s + Up) & pawnSide))
-            	score -= make_score(15, 15);
+            if (!(ourPawns & KingFlank[f] & forward_ranks_bb(Them, s + Up) & ~file_bb(s)))
+            	score -= Backward;
             }
 
         if (doubled && !support)
