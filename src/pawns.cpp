@@ -137,7 +137,9 @@ namespace {
         else if (backward)
             {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-            if (f == FILE_A || f == FILE_H)
+            Bitboard pawnSide = (QueenSide & s) ? QueenSide : KingSide;
+            pawnSide &= ~file_bb(s);
+            if ((f == FILE_A || f == FILE_H) && !(ourPawns & forward_ranks_bb(Them, s + Up) & pawnSide))
             	score -= Backward;
             }
 
