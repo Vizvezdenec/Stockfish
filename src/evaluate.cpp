@@ -391,6 +391,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -462,7 +463,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int backwardAttacks = popcount(attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & forward_ranks_bb(Them, ksq));
+    int backwardAttacks = 0;
+    if (relative_rank(Us, ksq) != RANK_8)
+    	backwardAttacks = popcount(attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & forward_ranks_bb(Them, ksq + Up));
+    else 
+        backwardAttacks = popcount(attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -474,7 +479,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +       backwardAttacks * backwardAttacks
+                 +       backwardAttacks * backwardAttacks / 2
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
