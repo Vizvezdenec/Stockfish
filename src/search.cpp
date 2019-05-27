@@ -925,7 +925,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
+               && (pos.blockers_for_king(~us) & from_sq(move) || (pos.see_ge(move) && !captureOrPromotion)))
           extension = ONE_PLY;
 
       // Castling extension

@@ -135,11 +135,7 @@ namespace {
             score -= Isolated, e->weakUnopposed[Us] += !opposed;
 
         else if (backward)
-            {
             score -= Backward, e->weakUnopposed[Us] += !opposed;
-            if (!(ourPawns & KingFlank[f] & forward_ranks_bb(Them, s + Up) & ~file_bb(s)))
-            	score -= Backward;
-            }
 
         if (doubled && !support)
             score -= Doubled;
