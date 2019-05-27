@@ -140,7 +140,7 @@ namespace {
             Bitboard pawnSide = (QueenSide & s) ? QueenSide : KingSide;
             pawnSide &= ~file_bb(s);
             if ((f == FILE_A || f == FILE_H) && (theirPawns & (s + Up)) && !(ourPawns & forward_ranks_bb(Them, s + Up) & pawnSide))
-            	score -= Backward;
+            	score -= make_score(15, 15);
             }
 
         if (doubled && !support)
