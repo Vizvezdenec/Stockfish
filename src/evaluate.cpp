@@ -474,14 +474,9 @@ namespace {
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
-    	{
-        if (kingDanger > 200)
-            {
-            if (attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-            	kingDanger -= 100;
-            else if (attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                kingDanger -= 35;
-            }
+        {
+        kingDanger = std::max(101, kingDanger - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING]));
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
         }
 
