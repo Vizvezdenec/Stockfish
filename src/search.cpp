@@ -925,8 +925,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && ((pos.blockers_for_king(~us) & from_sq(move)) || (pos.see_ge(move) && !captureOrPromotion) 
-                || pos.see_ge(move, Value(100))))
+               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
           extension = ONE_PLY;
 
       // Castling extension
@@ -1025,6 +1024,9 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
           // Decrease reduction if move has been singularly extended
           r -= singularExtensionLMRmultiplier * ONE_PLY;
+
+          if (excludedMove)
+              r += ONE_PLY;
 
           if (!captureOrPromotion)
           {
