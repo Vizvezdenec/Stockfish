@@ -464,10 +464,10 @@ namespace {
 
     Bitboard knightProtection = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
     if (knightProtection)
-    	kingDanger -= 100;
+    	kingDanger -= 110;
     Bitboard bishopProtection = attackedBy[Us][BISHOP] & attackedBy[Us][KING] & ~knightProtection;
     if (bishopProtection)
-    	kingDanger -= 35;
+    	kingDanger -= 45;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
