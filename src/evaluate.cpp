@@ -539,7 +539,7 @@ namespace {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
-                score += (ThreatByRank + make_score(3, 0) * (rank_of(s) == rank_of(pos.square<KING>(Them)))) * (int)relative_rank(Them, s);
+                score += ThreatByRank * (int)relative_rank(Them, s) + make_score(9, 0) * (rank_of(s) == rank_of(pos.square<KING>(Them)));
         }
 
         if (weak & attackedBy[Us][KING])
