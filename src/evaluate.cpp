@@ -304,7 +304,7 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
-            if (!(b & ~pe->immovable_pawn(Them)))
+            if (mob == 0 && !(b & ~pe->immovable_pawn(Them)))
             	score -= make_score(200, 200);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
