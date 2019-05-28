@@ -304,6 +304,8 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (!(b & ~pe->immovable_pawn(Them)))
+            	score -= make_score(200, 200);
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -462,8 +464,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int backwardAttacks = popcount(attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & forward_ranks_bb(Them, ksq));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -474,7 +474,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +       backwardAttacks * backwardAttacks / 2
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation

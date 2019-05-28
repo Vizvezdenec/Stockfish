@@ -66,11 +66,12 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
+    constexpr Direction Down   = (Us == BLACK ? NORTH : SOUTH);
 
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
-    Bitboard lever, leverPush;
+    Bitboard lever, leverPush, opposed;
     Square s;
-    bool opposed, backward;
+    bool backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -80,6 +81,10 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->weakUnopposed[Us] = 0;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
+    Bitboard doubleAttacks = pawn_double_attacks_bb<Them>(theirPawns);
+    Bitboard theirAttacks = pawn_attacks_bb<Them>(theirPawns);
+    Bitboard realSpan = 0;
+    Bitboard blocked = ourPawns & shift<Down>(theirPawns);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -89,7 +94,9 @@ namespace {
         File f = file_of(s);
         Rank r = relative_rank(Us, s);
 
-        e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
+ 	e->pawnAttacksSpan[Us] |= pawn_attack_span(Us, s);
+
+        bool notDisturbingPawn = 0;
 
         // Flag the pawn
         opposed    = theirPawns & forward_file_bb(Us, s);
@@ -139,8 +146,35 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-    }
 
+        if (!(neighbours & ~blocked) && (opposed || (doubleAttacks & forward_file_bb(Us, s))))
+        {
+        b = (opposed | (doubleAttacks & forward_file_bb(Us, s)));
+        if (!(more_than_one(b)))
+            {
+            Square s1 = pop_lsb(&b);
+            if (!(forward_file_bb(Them, s1) & theirAttacks))
+            	notDisturbingPawn = 1;
+            }
+        else 
+            {
+            while (b)
+            	{
+            	Square s1 = pop_lsb(&b);
+            	if (!(forward_file_bb(Them, s1) & b))
+                    {
+                    b = 0;
+                    if (!(forward_file_bb(Them, s1) & theirAttacks))
+            		notDisturbingPawn = 1;
+                    }
+            	}
+            }
+        }
+        if (!notDisturbingPawn)
+            realSpan |= pawn_attack_span(Us, s);
+    }
+    e->immovablePawn[Them] = theirPawns & ~realSpan;
+    e->immovablePawn[Them] |= pawn_attacks_bb<Them>(e->immovablePawn[Them]);
     return score;
   }
 
