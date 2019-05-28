@@ -173,7 +173,7 @@ namespace {
         if (!notDisturbingPawn)
             realSpan |= pawn_attack_span(Us, s);
     }
-    e->immovablePawn[Them] = theirPawns & ~realSpan;
+    e->immovablePawn[Them] = theirPawns & theirAttacks & ~realSpan;
     e->immovablePawn[Them] |= pawn_attacks_bb<Them>(e->immovablePawn[Them]);
     return score;
   }
