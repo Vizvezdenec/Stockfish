@@ -555,14 +555,10 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
-    Bitboard restrictedByPawn = b & attackedBy[Us][PAWN];
+    Bitboard restrictedByStrongPawn = b & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN]);
+    score += make_score(20, 20) * popcount(restrictedByStrongPawn);
 
-    score += make_score(14, 14) * popcount(restrictedByPawn);
-    b &= ~restrictedByPawn;
-    Bitboard restrictedByMinor = b & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
-    score += make_score(9, 9) * popcount(restrictedByMinor);
-    b &= ~restrictedByMinor;
-    score += make_score(5, 5) * popcount(b);
+    score += RestrictedPiece * popcount(b);
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
