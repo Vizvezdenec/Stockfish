@@ -555,7 +555,7 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
-    Bitboard restrictedByStrongPawn = b & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN]);
+    Bitboard restrictedByStrongPawn = b & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them));
     score += make_score(20, 20) * popcount(restrictedByStrongPawn);
 
     score += RestrictedPiece * popcount(b);
