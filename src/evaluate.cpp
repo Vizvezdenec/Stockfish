@@ -537,9 +537,15 @@ namespace {
         while (b)
         {
             Square s = pop_lsb(&b);
-            score += ThreatByRook[type_of(pos.piece_on(s))] + make_score(9, 0) * (rank_of(s) == rank_of(pos.square<KING>(Them)));
+            score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
+                {
                 score += ThreatByRank * (int)relative_rank(Them, s);
+                if (rank_of(s) == rank_of(pos.square<KING>(Them)))
+                    score += make_score(9, 3);
+                else if ((rank_of(s) == rank_of(pos.square<KING>(Them)) + 1) || (rank_of(s) == rank_of(pos.square<KING>(Them)) - 1))
+                    score += make_score(3, 1);
+                }
         }
 
         if (weak & attackedBy[Us][KING])
