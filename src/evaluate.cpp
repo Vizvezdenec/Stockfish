@@ -577,7 +577,7 @@ namespace {
     	realOverloadCount++;
     count++;
     }
-    score += make_score(3, 3) * realOverloadCount * realOverloadCount;
+    score += make_score(1, 2) * realOverloadCount * realOverloadCount;
     }
 
     // Bonus for enemy unopposed weak pawns
