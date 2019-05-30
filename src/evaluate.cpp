@@ -170,7 +170,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats();
+    template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -213,7 +213,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int threatsCount[COLOR_NB];
   };
 
 
@@ -365,7 +364,7 @@ namespace {
             else if (mob <= 3)
             {
                 File kf = file_of(pos.square<KING>(Us));
-                if ((kf < FILE_E) == (file_of(s) < kf))
+                if ((kf < FILE_E) == (file_of(s) < kf) || (rank_of(s) > RANK_1 && mob < 2))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
@@ -496,7 +495,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() {
+  Score Evaluation<T>::threats() const {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -550,8 +549,6 @@ namespace {
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
     }
-
-    threatsCount[Us] = popcount(weak);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
@@ -836,10 +833,6 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
-
-    int threatsDiff = threatsCount[WHITE] - threatsCount[BLACK];
-    if (abs(threatsDiff) > 1)
-    	score += make_score(27, 27) * threatsDiff * (abs(threatsDiff) - 1);
 
     score += initiative(eg_value(score));
 
