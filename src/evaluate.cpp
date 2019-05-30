@@ -170,7 +170,7 @@ namespace {
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
-    template<Color Us> Score threats() const;
+    template<Color Us> Score threats();
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
@@ -213,6 +213,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int threatsCount[COLOR_NB];
   };
 
 
@@ -495,7 +496,7 @@ namespace {
   // Evaluation::threats() assigns bonuses according to the types of the
   // attacking and the attacked pieces.
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::threats() const {
+  Score Evaluation<T>::threats() {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
@@ -550,13 +551,12 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+    threatsCount[Us] = popcount(weak);
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
-
-    Bitboard restrictedByStrongPawn = b & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them));
-    score += make_score(20, 20) * popcount(restrictedByStrongPawn);
 
     score += RestrictedPiece * popcount(b);
 
@@ -836,6 +836,10 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
+
+    int threatsDiff = threatsCount[WHITE] - threatsCount[BLACK];
+    if (abs(threatsDiff) > 1)
+    	score += make_score(3, 3) * threatsDiff * (abs(threatsDiff) - 1);
 
     score += initiative(eg_value(score));
 
