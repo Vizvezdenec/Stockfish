@@ -309,7 +309,7 @@ namespace {
             Bitboard SquareColor = DarkSquares & s ? DarkSquares : ~DarkSquares;
             bool immovableOutpost = !(pos.pieces(Them, KNIGHT) | (pos.pieces(Them, BISHOP) & SquareColor));
             if (bb & s)
-                score += Outpost * (Pt == KNIGHT ? 4 : 2) * (1 + immovableOutpost)
+                score += Outpost * (Pt == KNIGHT ? 4 + 2 * immovableOutpost: 2 + immovableOutpost)
                                  * ((attackedBy[Us][PAWN] & s) ? 2 : 1);
 
             else if (bb &= b & ~pos.pieces(Us))
