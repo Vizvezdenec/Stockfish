@@ -553,10 +553,10 @@ namespace {
     b = pos.pieces(Them) & ~attackedBy2[Them] & attackedBy[Them][BISHOP];
 
     if (more_than_one(b & DarkSquares))
-    	score += make_score(25, 10);
+    	score += make_score(10, 25);
 
     if (more_than_one(b & ~DarkSquares))
-    	score += make_score(25, 10);
+    	score += make_score(10, 25);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
