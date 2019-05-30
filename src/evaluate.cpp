@@ -305,7 +305,7 @@ namespace {
         Bitboard badlyBlocked = pos.pieces(Us, PAWN) & shift<Down>((pos.pieces(Them) 
                                 | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))) & ~pe->pawn_attacks_span(Us));
 
-        if (!(b & ~(attackedBy[Them][PAWN] | badlyBlocked)))
+        if (!(b & ~(pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~pe->pawn_attacks_span(Us)) | badlyBlocked)))
             score -= make_score(50, 50);
 
         if (Pt == BISHOP || Pt == KNIGHT)
