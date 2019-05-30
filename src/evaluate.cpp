@@ -302,6 +302,12 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        Bitboard badlyBlocked = pos.pieces(Us, PAWN) & shift<Down>((pos.pieces(Them) 
+                                | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))) & ~pe->pawn_attacks_span(Us));
+
+        if (!(b & ~(attackedBy[Them][PAWN] | badlyBlocked)))
+            score -= make_score(50, 50);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -364,7 +370,7 @@ namespace {
             else if (mob <= 3)
             {
                 File kf = file_of(pos.square<KING>(Us));
-                if ((kf < FILE_E) == (file_of(s) < kf) || (relative_rank(Us, s) > RANK_1 && mob < 2))
+                if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
