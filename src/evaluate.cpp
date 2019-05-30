@@ -839,7 +839,7 @@ namespace {
 
     int threatsDiff = threatsCount[WHITE] - threatsCount[BLACK];
     if (abs(threatsDiff) > 1)
-    	score += make_score(3, 3) * threatsDiff * (abs(threatsDiff) - 1);
+    	score += make_score(9, 9) * threatsDiff * (abs(threatsDiff) - 1);
 
     score += initiative(eg_value(score));
 
