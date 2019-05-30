@@ -186,6 +186,8 @@ namespace {
     // attacked by a given color and piece type. Special "piece types" which
     // is also calculated is ALL_PIECES.
     Bitboard attackedBy[COLOR_NB][PIECE_TYPE_NB];
+    Bitboard overloadedDefended[COLOR_NB][15];
+    int overloadCount[COLOR_NB];
 
     // attackedBy2[color] are the squares attacked by at least 2 units of a given
     // color, including x-rays. But diagonal x-rays through pawns are not computed.
@@ -242,6 +244,8 @@ namespace {
     attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us] = dblAttackByPawn | (attackedBy[Us][KING] & attackedBy[Us][PAWN]);
+
+    overloadCount[Us] = 0;
 
     // Init our king safety tables
     kingRing[Us] = attackedBy[Us][KING];
@@ -301,6 +305,12 @@ namespace {
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
+
+        if(more_than_one(b & pos.pieces(Us)))
+            {
+            overloadedDefended[Us][overloadCount[Us]] = b & pos.pieces(Us);
+            overloadCount[Us]++;
+            }
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
@@ -550,21 +560,25 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
-    b = nonPawnEnemies & ~attackedBy2[Them] & attackedBy[Them][BISHOP];
-
-    if (more_than_one(b & DarkSquares))
-    	score += make_score(10, 25);
-
-    if (more_than_one(b & ~DarkSquares))
-    	score += make_score(10, 25);
-
-
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    int count = 0;
+    int realOverloadCount = 0;
+    if (overloadCount[Them] > 0)
+    {
+    while (count < overloadCount[Them])
+    {
+    if (more_than_one(overloadedDefended[Them][count] & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES]))
+    	realOverloadCount++;
+    count++;
+    }
+    score += make_score(3, 3) * realOverloadCount * realOverloadCount;
+    }
 
     // Bonus for enemy unopposed weak pawns
     if (pos.pieces(Us, ROOK, QUEEN))
