@@ -364,7 +364,7 @@ namespace {
             else if (mob <= 3)
             {
                 File kf = file_of(pos.square<KING>(Us));
-                if ((kf < FILE_E) == (file_of(s) < kf) || (rank_of(s) > RANK_1 && mob < 2))
+                if ((kf < FILE_E) == (file_of(s) < kf) || (relative_rank(Us, s) > RANK_1 && mob < 2))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
         }
