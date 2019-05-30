@@ -302,12 +302,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        Bitboard badlyBlocked = pos.pieces(Us, PAWN) & shift<Down>((pos.pieces(Them) 
-                                | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))) & ~pe->pawn_attacks_span(Us));
-
-        if (!(b & ~(pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~pe->pawn_attacks_span(Us)) | badlyBlocked)))
-            score -= make_score(50, 50);
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -555,6 +549,14 @@ namespace {
            | (nonPawnEnemies & attackedBy2[Us]);
         score += Hanging * popcount(weak & b);
     }
+
+    b = pos.pieces(Them) & ~attackedBy2[Them] & attackedBy[Them][BISHOP];
+
+    if (more_than_one(b & DarkSquares))
+    	score += make_score(25, 10);
+
+    if (more_than_one(b & ~DarkSquares))
+    	score += make_score(25, 10);
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
