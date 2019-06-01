@@ -270,8 +270,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard WeakOutpostRanks = (Us == WHITE ? Rank3BB | Rank7BB
-                                                   : Rank2BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -307,14 +305,16 @@ namespace {
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
-            bb = (OutpostRanks | WeakOutpostRanks) & ~pe->pawn_attacks_span(Them);
+            bb = OutpostRanks & ~pe->pawn_attacks_span(Them);
             if (bb & s)
                 score += Outpost * (Pt == KNIGHT ? 4 : 2)
-                                 * ((attackedBy[Us][PAWN] & s) ? 2 : 1) / (1 + bool(WeakOutpostRanks & s));
+                                 * ((attackedBy[Us][PAWN] & s) ? 2 : 1)
+                                 * (relative_rank(Us, s) == RANK_5 ? 7 : 5) / 6;
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1) / (1 + !(OutpostRanks & bb));
+                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1)
+                                 * (bool(bb & rank_bb(relative_rank(Us, RANK_5))) ? 7 : 5) / 6;
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
