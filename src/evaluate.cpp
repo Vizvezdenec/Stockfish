@@ -314,7 +314,7 @@ namespace {
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1) / (1 + bool(WeakOutpostRanks & bb));
+                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1) / (1 + !(OutpostRanks & bb));
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
