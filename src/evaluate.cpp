@@ -591,7 +591,15 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        b &= safe & attackedBy2[Us];
+        score += SliderOnQueen * popcount(b);
+
+        if (!(b & pos.attacks_from<BISHOP>(s)))
+        {
+        Bitboard queenColor = bool(DarkSquares & s) ? DarkSquares : ~DarkSquares;
+        if (pos.pieces(Us, BISHOP) & queenColor)
+            score += make_score(12, 8);
+        }
     }
 
     if (T)
@@ -718,7 +726,7 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
-    int bonus = popcount(safe) + popcount(behind & safe) - popcount(pos.pieces(Us, PAWN) & ~CenterFiles & shift<Down>(pos.pieces()));
+    int bonus = popcount(safe) + popcount(behind & safe);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
