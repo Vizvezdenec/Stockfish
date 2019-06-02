@@ -75,7 +75,7 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
-  constexpr Value SpaceThreshold = Value(12222);
+  constexpr Value SpaceThreshold = Value(11722);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
@@ -591,15 +591,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        b &= safe & attackedBy2[Us];
-        score += SliderOnQueen * popcount(b);
-
-        if (!(b & pos.attacks_from<BISHOP>(s)))
-        {
-        Bitboard queenColor = bool(DarkSquares & s) ? DarkSquares : ~DarkSquares;
-        if (pos.pieces(Us, BISHOP) & queenColor)
-            score += make_score(10, 6);
-        }
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
