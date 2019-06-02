@@ -312,7 +312,7 @@ namespace {
 
             else if (bb &= b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1)
-                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1) * 2 / (2 + !(bb & forward_ranks_bb(Us, s)));
+                                 * ((attackedBy[Us][PAWN] & bb) ? 2 : 1);
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
@@ -592,6 +592,10 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        Bitboard queenColor = bool(DarkSquares & s) ? DarkSquares : ~DarkSquares;
+        if (pos.pieces(Us, BISHOP) & queenColor)
+            score += make_score(8, 2);
     }
 
     if (T)
