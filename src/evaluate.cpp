@@ -598,7 +598,7 @@ namespace {
         {
         Bitboard queenColor = bool(DarkSquares & s) ? DarkSquares : ~DarkSquares;
         if (pos.pieces(Us, BISHOP) & queenColor)
-            score += make_score(12, 8);
+            score += make_score(7, 4);
         }
     }
 
