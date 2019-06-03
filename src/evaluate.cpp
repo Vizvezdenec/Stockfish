@@ -334,8 +334,8 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
                 
-                blocked |= pos.pieces(Us, PAWN) & shift<Down>(pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)));
-                if (((rank_bb(relative_rank(Us, RANK_1)) | FileABB | FileHBB) & s) && more_than_one(b & (blocked | attackedBy[Them][PAWN])))
+                if ((relative_rank(Us, s) == RANK_1 || file_of(s) == FILE_A || file_of(s) == FILE_H)
+                    && mob < 2 && !(b & pe->pawn_attacks_span(Us)))
                     score -= make_score(16, 32);
             }
 
