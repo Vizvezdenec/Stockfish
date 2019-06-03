@@ -591,7 +591,15 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        b &= safe & attackedBy2[Us];
+        score += SliderOnQueen * popcount(b);
+
+        if (!(b & pos.attacks_from<BISHOP>(s)))
+        {
+        Bitboard queenColor = bool(DarkSquares & s) ? DarkSquares : ~DarkSquares;
+        if (pos.pieces(Us, BISHOP) & queenColor)
+            score += make_score(0, 10);
+        }
     }
 
     if (T)
