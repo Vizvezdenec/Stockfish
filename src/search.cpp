@@ -957,8 +957,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
-              && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~pos.side_to_move()) >= Value(1000)))
+              && !givesCheck)
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
