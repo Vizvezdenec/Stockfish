@@ -231,7 +231,8 @@ namespace {
     Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
 
     // Find our pawns that are blocked or on the first two ranks
-    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces() 
+                 | (pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)) & ~pe->pawn_attacks_span(Us))) | LowRanks);
 
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
@@ -333,10 +334,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-                
-                if ((relative_rank(Us, s) == RANK_1 || file_of(s) == FILE_A || file_of(s) == FILE_H)
-                    && mob < 2 && !(b & pe->pawn_attacks_span(Us)))
-                    score -= make_score(16, 32);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
