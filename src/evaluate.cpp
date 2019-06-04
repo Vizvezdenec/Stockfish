@@ -142,6 +142,7 @@ namespace {
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S(  9,  3);
+  constexpr Score QueenOverload     = S( 72, 48);
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnPawn         = S( 10, 32);
@@ -592,6 +593,12 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        b =   nonPawnEnemies
+       		&  attackedBy[Us][ALL_PIECES]
+       		&  attackedBy[Them][QUEEN]
+       		& ~attackedBy2[Them];
+    	score += QueenOverload * popcount(b);
     }
 
     if (T)
