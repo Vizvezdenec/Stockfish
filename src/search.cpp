@@ -776,11 +776,13 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / (4 * ONE_PLY);
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+            Value raisedBetaNmp = beta + 2 * depth/ ONE_PLY;
+
+            Value v = search<NonPV>(pos, ss, raisedBetaNmp-1, raisedBetaNmp, depth-R, false);
 
             thisThread->nmpMinPly = 0;
 
-            if (v >= beta)
+            if (v >= raisedBetaNmp)
                 return nullValue;
         }
     }
@@ -961,7 +963,7 @@ moves_loop: // When in check, search starts from here
               && !pos.advanced_pawn_push(move))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCount >= futility_move_count(improving, depth / ONE_PLY) + mp.refutationMarg(move))
+              if (moveCountPruning)
                   continue;
 
               // Reduced depth of the next LMR search
