@@ -780,7 +780,7 @@ namespace {
 
             thisThread->nmpMinPly = 0;
 
-            if (v >= beta)
+            if (v >= beta + std::max(4 * depth/ONE_PLY - 20, 0))
                 return nullValue;
         }
     }
@@ -961,8 +961,7 @@ moves_loop: // When in check, search starts from here
               && !pos.advanced_pawn_push(move))
           {
               // Move count based pruning (~30 Elo)
-              if (   moveCountPruning
-                  && !mp.is_refutation(move))
+              if (moveCountPruning)
                   continue;
 
               // Reduced depth of the next LMR search

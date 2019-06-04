@@ -128,7 +128,6 @@ public:
                                            Move,
                                            Move*);
   Move next_move(bool skipQuiets = false);
-  bool is_refutation(Move m) const { return m == refutations[0]; }
 
 private:
   template<PickType T, typename Pred> Move select(Pred);
