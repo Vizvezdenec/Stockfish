@@ -776,7 +776,7 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / (4 * ONE_PLY);
             thisThread->nmpColor = us;
 
-            Value raisedBetaNmp = beta + 4 * thisThread->nmpMinPly;
+            Value raisedBetaNmp = beta + 10 * thisThread->nmpMinPly;
 
             Value v = search<NonPV>(pos, ss, raisedBetaNmp-1, raisedBetaNmp, depth-R, false);
 
