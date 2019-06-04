@@ -555,6 +555,8 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
+    b |= attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES];
+
     score += RestrictedPiece * popcount(b);
 
     // Bonus for enemy unopposed weak pawns
