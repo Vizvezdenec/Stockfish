@@ -776,11 +776,13 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / (4 * ONE_PLY);
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
+            Value raisedBetaNmp = beta + 4 * thisThread->nmpMinPly;
+
+            Value v = search<NonPV>(pos, ss, raisedBetaNmp-1, raisedBetaNmp, depth-R, false);
 
             thisThread->nmpMinPly = 0;
 
-            if (v >= beta)
+            if (v >= raisedBetaNmp)
                 return nullValue;
         }
     }
