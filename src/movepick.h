@@ -128,7 +128,7 @@ public:
                                            Move,
                                            Move*);
   Move next_move(bool skipQuiets = false);
-  int refutationMarg(Move m) const { return (m == refutations[0]) * 10 + (m == refutations[1]) * 5 + (m == refutations[2]) * 2 ; }
+  int refutationMarg(Move m) const { return (m == refutations[0]) * 10; }
 
 private:
   template<PickType T, typename Pred> Move select(Pred);
