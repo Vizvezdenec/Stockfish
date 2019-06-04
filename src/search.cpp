@@ -536,7 +536,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, worsening;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -848,8 +848,6 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue; // Workaround a bogus 'uninitialized' warning under gcc
-    worsening =   ((ss-2)->staticEval != VALUE_NONE && ss->staticEval < (ss-2)->staticEval - 100) ||
-                   (!improving && (ss-1)->staticEval != VALUE_NONE && (ss-1)->staticEval > (ss-3)->staticEval + 100);
     moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     int singularExtensionLMRmultiplier = 0;
@@ -956,7 +954,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
+          moveCountPruning = moveCount >= futility_move_count(improving || (PvNode && ss->staticEval >= beta + 256), depth / ONE_PLY);
 
           if (   !captureOrPromotion
               && !givesCheck
@@ -1032,13 +1030,10 @@ moves_loop: // When in check, search starts from here
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
-	
+
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
                   r += 2 * ONE_PLY;
-
-              if (worsening) 
-                  r += ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
