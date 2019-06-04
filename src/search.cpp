@@ -776,13 +776,11 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / (4 * ONE_PLY);
             thisThread->nmpColor = us;
 
-            Value raisedBetaNmp = beta + 10 * thisThread->nmpMinPly;
-
-            Value v = search<NonPV>(pos, ss, raisedBetaNmp-1, raisedBetaNmp, depth-R, false);
+            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, false);
 
             thisThread->nmpMinPly = 0;
 
-            if (v >= raisedBetaNmp)
+            if (v >= beta)
                 return nullValue;
         }
     }
@@ -902,7 +900,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
+          Value singularBeta = ttValue - std::max(2 * depth / ONE_PLY + (ttValue - beta) / 64, depth / ONE_PLY);
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
