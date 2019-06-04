@@ -780,7 +780,7 @@ namespace {
 
             thisThread->nmpMinPly = 0;
 
-            if (v >= beta + std::max(4 * depth/ONE_PLY - 20, 0))
+            if (v >= beta)
                 return nullValue;
         }
     }
@@ -954,7 +954,8 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY) 
+                                + mp.refutationMarg(move);
 
           if (   !captureOrPromotion
               && !givesCheck
