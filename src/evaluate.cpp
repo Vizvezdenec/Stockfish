@@ -742,9 +742,13 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool minorsEndgame = (pos.count<ROOK>() + pos.count<QUEEN>() == 0) && (pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE) == 1) 
-                         && (pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK) == 1)
-                         && !(pos.opposite_bishops());
+    int pawnSeparation = 0;
+
+    if (pos.pieces(PAWN))
+    {
+    	Bitboard b = pos.pieces(PAWN);
+        pawnSeparation = distance<Rank>(frontmost_sq(WHITE, b), frontmost_sq(BLACK, b));
+    }
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -752,8 +756,8 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 18 * minorsEndgame
-                    -103 ;
+                    +  3 * pawnSeparation
+                    -109 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
