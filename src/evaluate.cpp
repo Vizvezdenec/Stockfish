@@ -747,7 +747,7 @@ namespace {
     if (pos.pieces(PAWN))
     {
     	Bitboard b = pos.pieces(PAWN);
-        pawnSeparation = distance<Rank>(frontmost_sq(WHITE, b), frontmost_sq(BLACK, b));
+        pawnSeparation = std::max(distance<Rank>(frontmost_sq(WHITE, b), SQ_A1), distance<Rank>(frontmost_sq(BLACK, b), SQ_H8)) - 3;
     }
 
     // Compute the initiative bonus for the attacking side
@@ -756,8 +756,8 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +  3 * pawnSeparation
-                    -109 ;
+                    +  6 * pawnSeparation
+                    -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
