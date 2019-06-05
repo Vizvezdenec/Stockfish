@@ -169,7 +169,7 @@ namespace {
   private:
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
-    template<Color Us> Score king() const;
+    template<Color Us> Score king();
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
@@ -213,6 +213,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int kingDangerC[COLOR_NB];
   };
 
 
@@ -229,6 +230,7 @@ namespace {
     const Square ksq = pos.square<KING>(Us);
 
     Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    kingDangerC[Us] = 0;
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
@@ -386,7 +388,7 @@ namespace {
 
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::king() const {
+  Score Evaluation<T>::king() {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
@@ -477,7 +479,9 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-
+    
+    if (kingDanger > 0)
+    	kingDangerC[Us] = kingDanger;
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
@@ -742,13 +746,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int pawnSeparation = 0;
-
-    if (pos.pieces(PAWN))
-    {
-    	Bitboard b = pos.pieces(PAWN);
-        pawnSeparation = std::max(distance<Rank>(frontmost_sq(WHITE, b), SQ_A1), distance<Rank>(frontmost_sq(BLACK, b), SQ_H8)) - 3;
-    }
+    Value egComp = eg - (kingDangerC[WHITE] - kingDangerC[BLACK]) / 500;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -756,13 +754,12 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    +  6 * pawnSeparation
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int v = ((egComp > 0) - (egComp < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
