@@ -128,6 +128,7 @@ public:
                                            Move,
                                            Move*);
   Move next_move(bool skipQuiets = false);
+  int refutationMarg(Move m) const { return (m == refutations[0]) * 16; }
 
 private:
   template<PickType T, typename Pred> Move select(Pred);

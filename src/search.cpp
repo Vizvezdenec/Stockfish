@@ -961,7 +961,7 @@ moves_loop: // When in check, search starts from here
               && !pos.advanced_pawn_push(move))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCountPruning)
+              if (moveCount >= futility_move_count(improving, depth / ONE_PLY) + mp.refutationMarg(move))
                   continue;
 
               // Reduced depth of the next LMR search
