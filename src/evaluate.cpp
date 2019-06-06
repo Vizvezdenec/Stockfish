@@ -572,6 +572,9 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
     score += ThreatByPawnPush * popcount(b);
 
+    if (b & (FileABB | FileHBB))
+    	score += make_score(20, 20);
+
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
 
