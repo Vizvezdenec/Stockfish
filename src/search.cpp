@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= (3 - 2 * cutNode) * ONE_PLY
+      if (    depth >= (3 - cutNode) * ONE_PLY
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1033,7 +1033,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += 2 * ONE_PLY;
+                  r += (1 + (depth > 3 * ONE_PLY)) * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
