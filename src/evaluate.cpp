@@ -753,6 +753,11 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
+    if (complexity > 0 && (abs(eg) < 20))
+    	{
+        complexity *= abs(eg);
+        complexity /= 20;
+        }
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)

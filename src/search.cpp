@@ -1011,7 +1011,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ((ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha) && !rootNode)))
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
       {
           Depth r = reduction(improving, depth, moveCount);
 
