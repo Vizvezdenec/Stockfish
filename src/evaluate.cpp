@@ -132,6 +132,11 @@ namespace {
     S(-30,-14), S(-9, -8), S( 0,  9), S( -1,  7)
   };
 
+  constexpr Score PushThreat[FILE_NB] = {
+    S( 10,  0), S( 5,  0), S(0, 0), S(-5, 0),
+    S(-5, 0), S(0, 0), S( 5,  0), S( 10,  0)
+  };
+
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
@@ -570,10 +575,11 @@ namespace {
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & pos.pieces(Them);
-    score += ThreatByPawnPush * popcount(b);
-
-    if (b & (FileABB | FileHBB))
-    	score += make_score(20, 20);
+    while(b)
+    {
+    Square s = pop_lsb(&b);
+    score += ThreatByPawnPush + PushThreat[file_of(s)];
+    }
 
     // Our safe or protected pawns
     b = pos.pieces(Us, PAWN) & safe;
