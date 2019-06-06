@@ -748,10 +748,10 @@ namespace {
 
     Value egComp = eg;
     int kingDangerDiff = kingDangerC[WHITE] - kingDangerC[BLACK];
-    if (kingDangerDiff > 2000)
-    	egComp -= (kingDangerDiff - 2000) / 10;
-    else if (kingDangerDiff < -2000)
-        egComp -= (kingDangerDiff + 2000) / 10;
+    if (kingDangerDiff > 700)
+    	egComp -= (kingDangerDiff - 700) / 100;
+    else if (kingDangerDiff < -700)
+        egComp -= (kingDangerDiff + 700) / 100;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
