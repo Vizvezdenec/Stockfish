@@ -1026,7 +1026,7 @@ moves_loop: // When in check, search starts from here
           r -= singularExtensionLMRmultiplier * ONE_PLY;
 
           if (givesCheck && pos.see_ge(move))
-              r -= ONE_PLY;
+              r += ONE_PLY;
 
           if (!captureOrPromotion)
           {
