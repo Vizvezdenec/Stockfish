@@ -746,7 +746,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Value egComp = eg - (kingDangerC[WHITE] - kingDangerC[BLACK]) / 200;
+    Value egComp = eg;
+    int kingDangerDiff = kingDangerC[WHITE] - kingDangerC[BLACK];
+    if (kingDangerDiff > 2000)
+    	egComp -= (kingDangerDiff - 2000) / 10;
+    else if (kingDangerDiff < -2000)
+        egComp -= (kingDangerDiff + 2000) / 10;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
