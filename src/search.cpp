@@ -740,8 +740,8 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23200
-        &&  eval >= beta + std::max(0, 5 * (13 - depth / ONE_PLY))
-        &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
+        &&  eval >= beta
+        &&  ss->staticEval >= std::max(beta - 36 * depth / ONE_PLY + 225, beta)
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
