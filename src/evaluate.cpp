@@ -340,7 +340,7 @@ namespace {
             usefulSquares |= pos.pieces(Them) & ~pos.pieces(Them, PAWN);
             usefulSquares |= pos.pieces(Us) & mobilityArea[Us];
             if (!((b | pos.attacks_from<KING>(s)) & usefulSquares))
-            	score -= make_score(20, 70);
+            	score -= make_score(30, 30);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
