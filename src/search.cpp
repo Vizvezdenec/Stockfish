@@ -739,7 +739,7 @@ namespace {
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && ((ss-1)->statScore < 23200 || (ss-2)->statScore > 30200)
+        && (ss-1)->statScore < 23200
         &&  eval >= beta
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
@@ -1365,6 +1365,7 @@ moves_loop: // When in check, search starts from here
 
       // Don't search moves with negative SEE values
       if (  (!inCheck || evasionPrunable)
+		  && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~pos.side_to_move()) > BishopValueMg )
           && !pos.see_ge(move))
           continue;
 
