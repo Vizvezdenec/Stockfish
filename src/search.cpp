@@ -788,7 +788,7 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !(PvNode && ss->ply < 10)
+    if (   !PvNode
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
@@ -1365,6 +1365,7 @@ moves_loop: // When in check, search starts from here
 
       // Don't search moves with negative SEE values
       if (  (!inCheck || evasionPrunable)
+	  && !(pos.advanced_pawn_push(move) && pos.non_pawn_material(~pos.side_to_move()) <= QueenValueMg )
           && !pos.see_ge(move))
           continue;
 
