@@ -1011,7 +1011,9 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || (ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha && !rootNode)))
+              || ss->staticEval 
+          + (PieceValue[MG][pos.captured_piece()] * int(pos.non_pawn_material())
+            + PieceValue[EG][pos.captured_piece()] * int(MidgameLimit - pos.non_pawn_material())) / int(MidgameLimit) <= alpha))
       {
           Depth r = reduction(improving, depth, moveCount);
 
