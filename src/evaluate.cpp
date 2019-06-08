@@ -382,7 +382,9 @@ namespace {
         }
         
         if (mg_value(currentScore) < -100)
-            currentScore -= make_score((mg_value(currentScore) + 100) / 4, 0);
+            currentScore -= make_score((mg_value(currentScore) + 100) * int(mg_value(currentScore) + 100) / 100, 0);
+        if (eg_value(currentScore) < -100)
+            currentScore -= make_score(0, (eg_value(currentScore) + 100) * int(eg_value(currentScore) + 100) / 100);
         score += currentScore - MobilityBonus[Pt - 2][mob];
     }
     if (T)
