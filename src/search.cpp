@@ -740,7 +740,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23200
-        &&  eval >= beta + std::max(0, 9 * (7 - depth / ONE_PLY))
+        &&  eval >= beta + std::max(0, 5 * (13 - depth / ONE_PLY))
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
         &&  pos.non_pawn_material(us)
@@ -749,7 +749,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 200, 3)) * ONE_PLY;
+        Depth R = ((823 + 67 * depth / ONE_PLY) / 256 + std::min(int(eval - (beta + std::max(0, 5 * (13 - depth / ONE_PLY)))) / 200, 3)) * ONE_PLY;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
