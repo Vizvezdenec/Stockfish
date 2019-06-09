@@ -613,8 +613,6 @@ namespace {
     	queenProtected = (attackedBy[Them][QUEEN] & ~attackedBy2[Them]) | (pos.pieces(Them, QUEEN) & ~attackedBy[Them][ALL_PIECES]);
 
     while (b)
-
-    while (b)
     {
         Square s = pop_lsb(&b);
 
