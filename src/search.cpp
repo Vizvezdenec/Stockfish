@@ -1023,6 +1023,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
+          if (abs(eval) < 100 && (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) >= KnightValueMg))
+              r -= ONE_PLY;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
