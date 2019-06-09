@@ -457,6 +457,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int strongDefence = popcount(attackedBy2[Us] & kingRing[Us]);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -465,6 +467,7 @@ namespace {
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
+                 -       strongDefence * strongDefence
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
@@ -609,9 +612,6 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
-    Bitboard queenProtected;
-    	queenProtected = (attackedBy[Them][QUEEN] & ~attackedBy2[Them]) | (pos.pieces(Them, QUEEN) & ~attackedBy[Them][ALL_PIECES]);
-
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -653,8 +653,7 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 
-                       : !(unsafeSquares & ~queenProtected)? 5 : 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
