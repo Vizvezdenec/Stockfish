@@ -977,8 +977,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)) 
-                  && (type_of(movedPiece) != PAWN || pos.rule50_count() < 6))
+              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
           }
           else if ((!givesCheck || !(pos.blockers_for_king(~us) & from_sq(move)))

@@ -609,6 +609,11 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
+    Bitboard queenProtected;
+    	queenProtected = (attackedBy[Them][QUEEN] & ~attackedBy2[Them]) | (pos.pieces(Them, QUEEN) & ~attackedBy[Them][ALL_PIECES]);
+
+    while (b)
+
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -650,7 +655,8 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 
+                       : !(unsafeSquares & ~queenProtected)? 5 : 0;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
