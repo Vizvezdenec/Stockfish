@@ -977,7 +977,8 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)) 
+                  && (type_of(movedPiece) != PAWN || pos.rule50_count() < 6))
                   continue;
           }
           else if ((!givesCheck || !(pos.blockers_for_king(~us) & from_sq(move)))
@@ -1025,10 +1026,6 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              if (abs(eval) < 20 && (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) >= KnightValueMg))
-                  r -= ONE_PLY;
-
-
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
