@@ -1025,6 +1025,10 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              if (abs(eval) < 100 && (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) >= KnightValueMg))
+                  r -= ONE_PLY;
+
+
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
