@@ -457,6 +457,14 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    b1 = pos.pieces(Them, KNIGHT);
+    while (b1)
+    {
+    Square s = pop_lsb(&b1);
+    if (distance<File>(ksq, s) + distance<Rank>(ksq, s) > 10)
+    	kingDanger -= 50;
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
