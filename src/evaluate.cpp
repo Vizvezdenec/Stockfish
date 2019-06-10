@@ -462,7 +462,7 @@ namespace {
     {
     Square s = pop_lsb(&b1);
     int knDist = distance<File>(ksq, s) + distance<Rank>(ksq, s);
-    kingDanger -= std::max(0, (knDist - 8) * 10);
+    kingDanger -= std::max(0, (knDist - 10) * 14);
     }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
