@@ -461,8 +461,8 @@ namespace {
     while (b1)
     {
     Square s = pop_lsb(&b1);
-    if (distance<File>(ksq, s) + distance<Rank>(ksq, s) > 10)
-    	kingDanger -= 50;
+    int knDist = distance<File>(ksq, s) + distance<Rank>(ksq, s);
+    kingDanger -= std::max(0, (knDist - 8) * 10);
     }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
