@@ -457,14 +457,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = pos.pieces(Them, KNIGHT);
-    while (b1)
-    {
-    Square s = pop_lsb(&b1);
-    int knDist = distance<File>(ksq, s) + distance<Rank>(ksq, s);
-    kingDanger -= std::max(0, (knDist - 10) * 14);
-    }
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -627,6 +619,10 @@ namespace {
 
         Score bonus = PassedRank[r];
 
+        Bitboard notQueenProtected;
+    	notQueenProtected = attackedBy2[Them] | (attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][QUEEN]) |
+                            (pos.pieces(Them) & ~pos.pieces(Them, QUEEN));
+
         if (r > RANK_3)
         {
             int w = (r-2) * (r-2) + 2;
@@ -658,7 +654,9 @@ namespace {
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
+                int k = !unsafeSquares ? 20 : !(unsafeSquares & blockSq) && !(unsafeSquares & notQueenProtected) 
+                        && !(more_than_one(unsafeSquares)) ? 15 :
+                        !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
