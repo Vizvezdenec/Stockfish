@@ -455,7 +455,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int strongDefence = popcount(attackedBy2[Us] & b1);
+    int strongDefence = popcount(attackedBy2[Us] & b1 & ~attackedBy2[Them]);
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
@@ -469,7 +469,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  -       strongDefence * strongDefence / 2
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +   9 * kingFlankAttacks * kingFlankAttacks / 16
+                 +   8 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
