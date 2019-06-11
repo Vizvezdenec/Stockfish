@@ -957,7 +957,7 @@ moves_loop: // When in check, search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning (~30 Elo)
-              if (moveCountPruning && !(pos.advanced_pawn_push(move) && pos.non_pawn_material() < 8000))
+              if (moveCountPruning && !(pos.advanced_pawn_push(move) && pos.non_pawn_material() > 6000))
                   continue;
 
               // Reduced depth of the next LMR search
