@@ -588,10 +588,13 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    b = 0;
     if (DarkSquares & pos.pieces(Us, BISHOP))
-    	score -= make_score(5, 2) * popcount(SpaceMask & DarkSquares & stronglyProtected);
+    	b |= SpaceMask & DarkSquares & stronglyProtected;
+
     if (~DarkSquares & pos.pieces(Us, BISHOP))
-    	score -= make_score(5, 2) * popcount(SpaceMask & ~DarkSquares & stronglyProtected);
+    	b |= SpaceMask & ~DarkSquares & stronglyProtected;
+    score -= make_score(5, 2) * popcount(b);
 
     if (T)
         Trace::add(THREAT, Us, score);
