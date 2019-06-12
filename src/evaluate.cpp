@@ -589,9 +589,9 @@ namespace {
     }
 
     if (DarkSquares & pos.pieces(Us, BISHOP))
-    	score -= make_score(3, 3) * popcount(SpaceMask & DarkSquares & stronglyProtected);
+    	score -= make_score(2, 5) * popcount(SpaceMask & DarkSquares & stronglyProtected);
     if (~DarkSquares & pos.pieces(Us, BISHOP))
-    	score -= make_score(3, 3) * popcount(SpaceMask & ~DarkSquares & stronglyProtected);
+    	score -= make_score(2, 5) * popcount(SpaceMask & ~DarkSquares & stronglyProtected);
 
     if (T)
         Trace::add(THREAT, Us, score);
