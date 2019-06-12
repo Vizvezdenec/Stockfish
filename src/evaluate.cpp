@@ -590,10 +590,10 @@ namespace {
 
     b = 0;
     if (DarkSquares & pos.pieces(Us, BISHOP))
-    	b |= SpaceMask & DarkSquares & stronglyProtected;
+    	b |= SpaceMask & DarkSquares & attackedBy[Them][PAWN];
 
     if (~DarkSquares & pos.pieces(Us, BISHOP))
-    	b |= SpaceMask & ~DarkSquares & stronglyProtected;
+    	b |= SpaceMask & ~DarkSquares & attackedBy[Them][PAWN];
     score -= make_score(5, 2) * popcount(b);
 
     if (T)
