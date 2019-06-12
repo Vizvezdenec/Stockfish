@@ -323,8 +323,7 @@ namespace {
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
-                                     * (1 + popcount(blocked & CenterFiles))
-                         * (4 + std::max(4 - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us)), 0)) / 4;
+                                     * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
@@ -496,6 +495,9 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard SpaceMask =
+      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -585,6 +587,11 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
+
+    if (DarkSquares & pos.pieces(Us, BISHOP))
+    	score -= make_score(3, 3) * popcount(SpaceMask & DarkSquares & stronglyProtected);
+    if (~DarkSquares & pos.pieces(Us, BISHOP))
+    	score -= make_score(3, 3) * popcount(SpaceMask & ~DarkSquares & stronglyProtected);
 
     if (T)
         Trace::add(THREAT, Us, score);
