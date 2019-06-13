@@ -952,9 +952,10 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
-          if (   (!captureOrPromotion || (ss->staticEval + 2 * PieceValue[EG][pos.captured_piece()] + 200 <= alpha))
+          if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
+              && !(type_of(movedPiece) == PAWN && pos.non_pawn_material() <= 2 * RookValueMg))
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
