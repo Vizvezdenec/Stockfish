@@ -739,7 +739,7 @@ namespace {
         &&  eval >= beta
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
-        &&  pos.non_pawn_material(us)
+        && (pos.count<ALL_PIECES>(us) - pos.count<PAWN>(us) > pos.count<KNIGHT>(us) + 1)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -954,7 +954,7 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!(type_of(movedPiece) == PAWN) || pos.non_pawn_material(~us) > BishopValueMg))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
