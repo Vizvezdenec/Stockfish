@@ -526,8 +526,8 @@ namespace {
             score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else
-                score += make_score(7, 0) * (int)relative_rank(Them, s);
+            else 
+                score += make_score(5, 0) * std::min((int)relative_rank(Them, s), 3);
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -537,8 +537,8 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else
-                score += make_score(7, 0) * (int)relative_rank(Them, s);
+            else 
+                score += make_score(5, 0) * std::min((int)relative_rank(Them, s), 3);
         }
 
         if (weak & attackedBy[Us][KING])
