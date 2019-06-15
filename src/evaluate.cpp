@@ -309,9 +309,6 @@ namespace {
             else if (bb & b & ~pos.pieces(Us))
                 score += Outpost / (Pt == KNIGHT ? 1 : 2);
 
-	    else if (bb & b & mobilityArea[Us])
-                score += Outpost / (Pt == KNIGHT ? 2 : 4);
-
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
