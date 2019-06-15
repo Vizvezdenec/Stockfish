@@ -917,6 +917,9 @@ moves_loop: // When in check, search starts from here
           // the hard beta bound.
           else if (cutNode && singularBeta > beta)
               return beta;
+          else if (   eval >= beta
+                   && singularBeta >= beta)
+              return singularBeta;
       }
 
       // Check extension (~2 Elo)
