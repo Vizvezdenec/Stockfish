@@ -877,7 +877,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      bool checkExt = 0;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -923,10 +922,7 @@ moves_loop: // When in check, search starts from here
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
-          {
           extension = ONE_PLY;
-          checkExt = 1;
-          }
 
       // Castling extension
       else if (type_of(move) == CASTLING)
@@ -957,7 +953,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
-              && !checkExt
+              && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning (~30 Elo)
