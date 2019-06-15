@@ -865,7 +865,6 @@ moves_loop: // When in check, search starts from here
           continue;
 
       ss->moveCount = ++moveCount;
-      bool multiCutNode = 0;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth / ONE_PLY
@@ -878,6 +877,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool checkExt = 0;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -917,16 +917,16 @@ moves_loop: // When in check, search starts from here
           // that is multiple moves fail high, and we can prune the whole subtree by returning
           // the hard beta bound.
           else if (cutNode && singularBeta > beta)
-              {
               return beta;
-              multiCutNode = 1;
-              }
       }
 
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
+          {
           extension = ONE_PLY;
+          checkExt = 1;
+          }
 
       // Castling extension
       else if (type_of(move) == CASTLING)
@@ -957,7 +957,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
-              && !givesCheck
+              && !checkExt
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning (~30 Elo)
@@ -1035,9 +1035,6 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += 2 * ONE_PLY;
-
-              if (multiCutNode)
                   r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
