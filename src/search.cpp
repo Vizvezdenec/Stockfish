@@ -915,8 +915,7 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that is multiple moves fail high, and we can prune the whole subtree by returning
           // the hard beta bound.
-          else if ((cutNode || (!cutNode && eval > beta))
-                     && singularBeta > beta)
+          else if (cutNode && singularBeta > beta)
               return beta;
       }
 
@@ -946,7 +945,7 @@ moves_loop: // When in check, search starts from here
       newDepth = depth - ONE_PLY + extension;
 
       // Step 14. Pruning at shallow depth (~170 Elo)
-      if (  !rootNode
+      if (  !(rootNode || (PvNode && depth < 2 * ONE_PLY))
           && pos.non_pawn_material(us)
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
