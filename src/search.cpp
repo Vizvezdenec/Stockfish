@@ -951,8 +951,8 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
-          if ( !rootNode &&
-                   !captureOrPromotion
+          if ( !(rootNode && pos.non_pawn_material() > 2 * QueenValueMg)
+              && !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
