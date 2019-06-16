@@ -944,7 +944,7 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
-      if (!rootNode
+      if (pos.non_pawn_material(us)
           && bestValue > VALUE_MATED_IN_MAX_PLY)
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
