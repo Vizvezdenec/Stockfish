@@ -944,18 +944,15 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
+      // Step 14. Pruning at shallow depth (~170 Elo)
       if (pos.non_pawn_material(us)
           && bestValue > VALUE_MATED_IN_MAX_PLY)
+      {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
-      // Step 14. Pruning at shallow depth (~170 Elo)
-      if (  !rootNode
-          && pos.non_pawn_material(us)
-          && bestValue > VALUE_MATED_IN_MAX_PLY)
-      {
-
-          if (   !captureOrPromotion
+          if (   !rootNode
+              &&  !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
@@ -984,7 +981,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if ((!givesCheck || !extension)
-                  && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
+                  && !pos.see_ge(move, -PawnValueEg * (1 + 3 * rootNode) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
