@@ -895,7 +895,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
+          Value singularBeta = ttValue - 9 * depth / 4 / ONE_PLY;
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -915,8 +915,8 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that is multiple moves fail high, and we can prune the whole subtree by returning
           // the hard beta bound.
-          else if (   eval > beta
-                   && singularBeta > beta)
+          else if (   eval >= beta
+                   && singularBeta >= beta)
               return singularBeta;
       }
 
