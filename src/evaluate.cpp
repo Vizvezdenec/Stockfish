@@ -463,9 +463,9 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 -  94 * bool(b1)
-                 -  33 * bool(b2)
-                 -  20 * bool(b1 & b2)
+                 -  90 * bool(b1)
+                 -  30 * bool(b2)
+                 -  35 * bool(b1 & b2)
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
