@@ -877,6 +877,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool ppext = 0;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -939,7 +940,10 @@ moves_loop: // When in check, search starts from here
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
+          {
           extension = ONE_PLY;
+          ppext = 1;
+          }
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
@@ -954,8 +958,8 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) 
-                  > (pos.pawn_passed(us, to_sq(move)) ? QueenValueMg : BishopValueMg)))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
+              && !ppext)
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
