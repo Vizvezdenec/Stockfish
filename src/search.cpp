@@ -917,7 +917,7 @@ moves_loop: // When in check, search starts from here
           // the hard beta bound.
           else if (   eval >= beta
                    && singularBeta >= beta)
-              return (singularBeta + beta) / 2;
+              return (singularBeta + eval) / 2;
       }
 
       // Check extension (~2 Elo)
