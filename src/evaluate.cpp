@@ -301,6 +301,9 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (relative_rank(Us, s) < RANK_3 && mob < 3 && !(b & ~pos.pieces(Us) & mobilityArea[Us] & forward_ranks_bb(Us, s)))
+            	score -= make_score(20, 5);
+
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them);
             if (bb & s)
@@ -457,15 +460,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
-    b2 = attackedBy[Us][BISHOP] & attackedBy[Us][KING];
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 -  90 * bool(b1)
-                 -  30 * bool(b2)
-                 -  35 * bool(b1 & b2)
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
