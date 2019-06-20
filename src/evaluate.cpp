@@ -457,18 +457,21 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    b1 = (attackedBy2[Us] | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][KING])) & KingFlank[file_of(ksq)] & Camp;
+
+    kingDanger -= 15 * std::max(0, popcount(b1) - kingFlankAttacks);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  20 * bool(attackedBy[Us][KNIGHT] & KingFlank[file_of(ksq)])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   3;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
