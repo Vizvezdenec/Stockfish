@@ -461,13 +461,14 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 -  20 * bool(attackedBy[Us][KNIGHT] & KingFlank[file_of(ksq)])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   7;
+                 -   3;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -605,7 +606,7 @@ namespace {
     };
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
-
+    Bitboard wideUnsafeSquares;
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -639,8 +640,8 @@ namespace {
                 // If there is a rook or queen attacking/defending the pawn from behind,
                 // consider all the squaresToQueen. Otherwise consider only the squares
                 // in the pawn's path attacked or occupied by the enemy.
-                defendedSquares = squaresToQueen = forward_file_bb(Us, s);
-                unsafeSquares = passed_pawn_span(Us, s);
+                defendedSquares = unsafeSquares = squaresToQueen = forward_file_bb(Us, s);
+                wideUnsafeSquares = AllSquares;
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
@@ -649,10 +650,14 @@ namespace {
 
                 if (!(pos.pieces(Them) & bb))
                     unsafeSquares &= attackedBy[Them][ALL_PIECES] | pos.pieces(Them);
+                      
+                if (!unsafeSquares)
+                    wideUnsafeSquares = (attackedBy[Them][ALL_PIECES] | pos.pieces(Them)) 
+                                       & (shift<WEST>(squaresToQueen) | shift<EAST>(squaresToQueen));
 
                 // If there aren't any enemy attacks, assign a big bonus. Otherwise
                 // assign a smaller bonus if the block square isn't attacked.
-                int k = !unsafeSquares ? 35 : !(unsafeSquares & squaresToQueen) ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
+                int k = !wideUnsafeSquares ? 35 : !unsafeSquares ? 20 : !(unsafeSquares & blockSq) ? 9 : 0;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
