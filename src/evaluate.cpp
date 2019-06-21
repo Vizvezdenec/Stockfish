@@ -656,10 +656,7 @@ namespace {
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
-                    k += 5;
-
-                if (k > 5)
-                    k -= 2 * popcount(pos.pieces(Us) & squaresToQueen);
+                    k += 5 - 3 * (r != RANK_7 && !(pos.empty(blockSq + Up))) ;
 
                 bonus += make_score(k * w, k * w);
             }
