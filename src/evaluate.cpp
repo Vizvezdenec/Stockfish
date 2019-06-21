@@ -658,6 +658,9 @@ namespace {
                 if (defendedSquares & blockSq)
                     k += 5;
 
+                if (k > 5)
+                    k -= 2 * popcount(pos.pieces(Us) & squaresToQueen);
+
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
