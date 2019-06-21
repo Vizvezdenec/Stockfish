@@ -656,7 +656,7 @@ namespace {
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
-                    k += 5 - 3 * (r != RANK_7 && !(pos.empty(blockSq + Up))) ;
+                    k += 5;
 
                 bonus += make_score(k * w, k * w);
             }
