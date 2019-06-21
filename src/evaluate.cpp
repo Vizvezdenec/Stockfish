@@ -633,7 +633,7 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus
-            if (!(pos.pieces(Them) & blockSq))
+            if (pos.empty(blockSq))
             {
                 defendedSquares = squaresToQueen = forward_file_bb(Us, s);
                 unsafeSquares = passed_pawn_span(Us, s);
@@ -658,8 +658,8 @@ namespace {
                 if (defendedSquares & blockSq)
                     k += 5;
 
-                if (pos.pieces(Us) & blockSq)
-                    k /= 3;
+                if (!(squaresToQueen & pos.pieces(Us)) && k > 14)
+                    k += 5;
 
                 bonus += make_score(k * w, k * w);
             }
