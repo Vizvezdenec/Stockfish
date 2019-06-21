@@ -658,8 +658,8 @@ namespace {
                 if (defendedSquares & blockSq)
                     k += 5;
 
-                if (!(squaresToQueen & pos.pieces(Us)) && k > 14)
-                    k += 5;
+                if (k > 0)
+                    k -= popcount(pos.pieces(Us) & squaresToQueen);
 
                 bonus += make_score(k * w, k * w);
             }
