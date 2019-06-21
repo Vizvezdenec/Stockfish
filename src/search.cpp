@@ -953,7 +953,7 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
-          if (   (!captureOrPromotion || (promotion_type(move) != QUEEN))
+          if (   !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
@@ -967,8 +967,13 @@ moves_loop: // When in check, search starts from here
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  || (thisThread->mainHistory[us][from_to(move)]
+				  + (*contHist[0])[movedPiece][to_sq(move)]
+				  + (*contHist[1])[movedPiece][to_sq(move)]
+				  + (*contHist[3])[movedPiece][to_sq(move)]
+				  + (*contHist[5])[movedPiece][to_sq(move)] / 2 < -10000 * (1 + lmrDepth))))
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
