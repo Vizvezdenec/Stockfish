@@ -475,7 +475,7 @@ namespace {
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
-        score -= PawnlessFlank + make_score(0, 6) * (pos.count<ROOK>(Them) + 2 * pos.count<QUEEN>(Them));
+        score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
