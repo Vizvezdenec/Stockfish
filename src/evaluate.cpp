@@ -475,7 +475,7 @@ namespace {
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
-        score -= PawnlessFlank;
+        score -= PawnlessFlank + make_score(0, 6) * (pos.count<ROOK>(Them) + 2 * pos.count<QUEEN>(Them));
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
@@ -657,9 +657,6 @@ namespace {
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
                     k += 5;
-
-                if (k > 0)
-                    k -= popcount(pos.pieces(Us) & squaresToQueen);
 
                 bonus += make_score(k * w, k * w);
             }
