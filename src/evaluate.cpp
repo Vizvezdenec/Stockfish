@@ -457,6 +457,9 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    kingDanger += 69 * std::max(kingAttackersCount[Them] + kingAttacksCount[Them] 
+                      - 2 * (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them) - 1), 0) ;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -765,9 +768,6 @@ namespace {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 16 + 4 * pe->passed_count();
-        else if (pos.opposite_bishops() && pos.count<BISHOP>() == 2
-            && (pos.count<ALL_PIECES>() - pos.count<PAWN>() - 2 - pos.count<ROOK>() == 2))
-            sf = std::min(16 + 5 * pos.count<ROOK>() + 8 * pe->passed_count(), sf);
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
