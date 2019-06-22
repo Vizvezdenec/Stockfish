@@ -461,9 +461,8 @@ namespace {
                       - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)) - 6, 0) ;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  69 * kingAttacksCount[Them]
+                 +  69 * (kingAttacksCount[Them] + attackOverload)
                  + 185 * popcount(kingRing[Us] & weak)
-                 +  10 * attackOverload * attackOverload
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
