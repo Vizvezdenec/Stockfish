@@ -654,6 +654,13 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
+                if (r == RANK_7 && k > 0 
+                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s))
+                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s))
+                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s))
+                    && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s)))
+                    k += 25;
+
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
                     k += 5;
@@ -688,7 +695,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.count<ALL_PIECES>() - pos.count<PAWN>() < 12)
+    if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
