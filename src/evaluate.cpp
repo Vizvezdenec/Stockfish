@@ -458,7 +458,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger += 69 * std::max(kingAttackersCount[Them] + kingAttacksCount[Them] 
-                      - 2 * (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them) - 1), 0) ;
+                      - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)) - 5, 0) ;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
