@@ -688,7 +688,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.count<ALL_PIECES>() - pos.count<PAWN>() < 11)
+    if (pos.count<ALL_PIECES>() - pos.count<PAWN>() < 12)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
