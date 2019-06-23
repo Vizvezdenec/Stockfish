@@ -659,7 +659,7 @@ namespace {
                     && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s) & ~attackedBy[Us][PAWN])
                     && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s) & ~attackedBy[Us][PAWN])
                     && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s) & ~attackedBy[Us][ALL_PIECES]))
-                    k += 45;
+                    k += 15;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
