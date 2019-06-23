@@ -457,6 +457,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    Bitboard bishopPinners;
+    if (pos.slider_blockers(pos.pieces(Them, BISHOP), ksq, bishopPinners))
+    	 kingDanger += 70; 
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
