@@ -459,7 +459,7 @@ namespace {
 
     Bitboard bishopPinners;
     if (pos.slider_blockers(pos.pieces(Them, BISHOP), ksq, bishopPinners))
-    	 kingDanger += 40; 
+    	 kingDanger += 22; 
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
