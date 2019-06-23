@@ -605,6 +605,8 @@ namespace {
     };
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
+    Bitboard notStronglyProtected = ~(attackedBy[Us][PAWN]
+                       | (attackedBy2[Us] & ~attackedBy2[Them]));
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -655,9 +657,9 @@ namespace {
                                                              0 ;
 
                 if (r == RANK_7 && k > 0 
-                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & ~attackedBy[Us][PAWN])
-                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s) & ~attackedBy[Us][PAWN])
-                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s) & ~attackedBy[Us][PAWN])
+                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & notStronglyProtected)
+                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s) & notStronglyProtected)
+                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s) & notStronglyProtected)
                     && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s) & ~attackedBy[Us][ALL_PIECES]))
                     k += 15;
 
