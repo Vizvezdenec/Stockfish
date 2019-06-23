@@ -655,11 +655,11 @@ namespace {
                                                              0 ;
 
                 if (r == RANK_7 && k > 0 
-                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s))
-                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s))
-                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s))
-                    && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s)))
-                    k += 25;
+                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & ~attackedBy[Us][PAWN])
+                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s) & ~attackedBy[Us][PAWN])
+                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s) & ~attackedBy[Us][PAWN])
+                    && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s) & ~attackedBy[Us][ALL_PIECES]))
+                    k += 45;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
