@@ -457,6 +457,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    if (kingAttackersWeight[Them] > 154)
+    	kingDanger += 69 * std::max(kingAttackersCount[Them] + kingAttacksCount[Them] 
+                      - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)) - 5, 0) ;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -605,8 +609,6 @@ namespace {
     };
 
     Bitboard b, bb, squaresToQueen, defendedSquares, unsafeSquares;
-    Bitboard notStronglyProtected = ~(attackedBy[Us][PAWN]
-                       | (attackedBy2[Us] & ~attackedBy2[Them]));
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
@@ -655,13 +657,6 @@ namespace {
                         !(unsafeSquares & squaresToQueen) ? 20 :
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
-
-                if (r == RANK_7 && k > 0 
-                    && !(attackedBy[Them][KNIGHT] & pos.attacks_from<KNIGHT>(s) & notStronglyProtected)
-                    && !((attackedBy[Them][BISHOP] | attackedBy[Them][QUEEN]) & pos.attacks_from<BISHOP>(s) & notStronglyProtected)
-                    && !((attackedBy[Them][ROOK] | attackedBy[Them][QUEEN]) & pos.attacks_from<ROOK>(s) & notStronglyProtected)
-                    && !(attackedBy[Them][KING] & pos.attacks_from<KING>(s) & ~attackedBy[Us][ALL_PIECES]))
-                    k += 15;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
