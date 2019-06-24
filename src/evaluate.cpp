@@ -556,6 +556,8 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
+    score += make_score(4, 4) * popcount(b & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
+
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
@@ -737,7 +739,6 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 18 * !((pe->passed_pawns(WHITE) | pe->passed_pawns(BLACK)) & ~(FileABB | FileHBB))
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
