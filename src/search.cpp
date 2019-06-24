@@ -955,6 +955,7 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
+              && !inCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning (~30 Elo)
@@ -973,7 +974,6 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
-                  && !inCheck
                   && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
                   continue;
 
