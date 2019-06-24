@@ -556,8 +556,6 @@ namespace {
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
 
-    score += make_score(2, 4) * popcount(b & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
-
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
@@ -801,10 +799,14 @@ namespace {
     // Probe the pawn hash table
     pe = Pawns::probe(pos);
     score += pe->pawn_score(WHITE) - pe->pawn_score(BLACK);
+    bool lockedPawns = (pe->pawn_camp(WHITE)
+                        && !(pos.pieces(WHITE) & pe->pawn_camp(BLACK))
+                        && !(pos.pieces(BLACK) & pe->pawn_camp(WHITE)));
 
     // Early exit if score is high
     Value v = (mg_value(score) + eg_value(score)) / 2;
-    if (abs(v) > LazyThreshold + pos.non_pawn_material() / 64)
+    if (!lockedPawns &&
+       abs(v) > LazyThreshold + pos.non_pawn_material() / 64)
        return pos.side_to_move() == WHITE ? v : -v;
 
     // Main evaluation begins here
@@ -828,7 +830,13 @@ namespace {
     score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-    ScaleFactor sf = scale_factor(eg_value(score));
+    ScaleFactor sf = SCALE_FACTOR_NORMAL;
+
+    if (lockedPawns) 
+    	sf = SCALE_FACTOR_DRAW;
+    else
+    	sf = scale_factor(eg_value(score));
+
     v =  mg_value(score) * int(me->game_phase())
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 

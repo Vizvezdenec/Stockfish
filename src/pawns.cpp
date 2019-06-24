@@ -71,7 +71,7 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward;
+    bool opposed, backward, locked;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
@@ -81,6 +81,9 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us]   = SQ_NONE;
     e->pawnAttacks[Us]   = pawn_attacks_bb<Us>(ourPawns);
+    e->pawnCamp[Us]   = 0;
+    locked = (pos.count<PAWN>() == 16)
+            && !(shift<NORTH>(pos.pieces(WHITE, PAWN)) & ~pos.pieces(BLACK, PAWN));
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -138,6 +141,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (locked)
+            e->pawnCamp[Us] |= forward_file_bb(Them, s);
     }
 
     return score;
