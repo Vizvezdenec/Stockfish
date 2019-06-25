@@ -75,7 +75,7 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
-  constexpr Value SpaceThreshold = Value(12222);
+  constexpr Value SpaceThreshold = Value(10500);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
@@ -710,7 +710,7 @@ namespace {
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
-    score -= make_score(8, 0) * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
+    score -= make_score(4, 0) * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
 
     if (T)
         Trace::add(SPACE, Us, score);
