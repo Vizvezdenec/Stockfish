@@ -710,8 +710,6 @@ namespace {
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
-    score -= make_score(8, 0) * popcount(attackedBy[Them][ALL_PIECES] & behind & safe)
-             + make_score(8, 0) * popcount(attackedBy2[Them] & behind & safe);
 
     if (T)
         Trace::add(SPACE, Us, score);
@@ -733,8 +731,10 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
+    int complexity =  18 * pe->passed_count(strongSide)
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
@@ -766,7 +766,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 16 + 4 * pe->passed_count();
+            sf = 16 + 4 * (pe->passed_count(strongSide) + pe->passed_count(~strongSide));
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
