@@ -695,8 +695,8 @@ namespace {
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+      (Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB)) | Center;
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
@@ -769,8 +769,7 @@ namespace {
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 16 + 4 * pe->passed_count();
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 1 : 6) * pos.count<PAWN>(strongSide)
-                          + 2 * pe->passed_count_color(strongSide), sf);
+            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
     }
 
