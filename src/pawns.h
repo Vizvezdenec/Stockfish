@@ -38,6 +38,8 @@ struct Entry {
   Bitboard passed_pawns(Color c) const { return passedPawns[c]; }
   Bitboard pawn_attacks_span(Color c) const { return pawnAttacksSpan[c]; }
   int passed_count() const { return popcount(passedPawns[WHITE] | passedPawns[BLACK]); }
+  int passed_count_color(Color c) const { return popcount(passedPawns[c]); }
+
 
   template<Color Us>
   Score king_safety(const Position& pos) {
