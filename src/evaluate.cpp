@@ -734,7 +734,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Value eg = eg_value(score) + mg_value(score) * std::max(int(pos.non_pawn_material() - EndgameLimit), 0) / 3 / MidgameLimit;
+    Value eg = eg_value(score) + mg_value(score) * std::max(int(pos.non_pawn_material() - EndgameLimit), 0) / 5 / MidgameLimit;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
