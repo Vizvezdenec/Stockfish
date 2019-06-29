@@ -620,9 +620,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        if (r > RANK_3)
-        {
-            int w = (r-2) * (r-2) + 2;
+        int r1 = std::max(r, 2);
+
+            int w = (r1-2) * (r1-2) + 2 - (r < 2);
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -661,7 +661,6 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
-        } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
