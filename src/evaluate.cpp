@@ -463,6 +463,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                 +  40 * !(attackedBy[Us][KING] & attackedBy2[Us])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
@@ -620,9 +621,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        int r1 = std::max(r, 2);
-
-            int w = (r1-2) * (r1-2) + 2 - (r < 2);
+        if (r > RANK_3)
+        {
+            int w = (r-2) * (r-2) + 2;
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -661,6 +662,7 @@ namespace {
 
                 bonus += make_score(k * w, k * w);
             }
+        } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
