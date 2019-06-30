@@ -665,10 +665,14 @@ namespace {
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
+        int badPawn = 1;
         if (pos.pieces(PAWN) & forward_file_bb(Us, s))
-            bonus = bonus / 2;
+            badPawn++;
+
         if (!pos.pawn_passed(Us, s + Up))
-            bonus = bonus / 2;
+            badPawn++;
+
+        bonus = bonus / (1 + badPawn);
 
         score += bonus + PassedFile[file_of(s)];
     }
