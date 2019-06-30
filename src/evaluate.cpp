@@ -669,6 +669,9 @@ namespace {
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
+        if (pos.count<ALL_PIECES>(Them) - pos.count<KNIGHT>(Them) - pos.count<PAWN>(Them) < 2)
+            bonus = (bonus * 5) / 4;
+
         score += bonus + PassedFile[file_of(s)];
     }
 
