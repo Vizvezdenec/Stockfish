@@ -464,6 +464,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
+                 +  30 * more_than_one(pos.pieces(Them, ROOK) & KingFlank[file_of(ksq)])
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -709,8 +710,8 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe);
-    int weight = pos.count<ALL_PIECES>() - 2;
-    Score score = make_score(bonus * weight * weight / 64, 0);
+    int weight = pos.count<ALL_PIECES>(Us) - 1;
+    Score score = make_score(bonus * weight * weight / 16, 0);
 
     score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
 
