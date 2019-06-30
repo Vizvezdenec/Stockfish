@@ -669,9 +669,6 @@ namespace {
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
-        if (pos.count<ALL_PIECES>(Them) - pos.count<KNIGHT>(Them) - pos.count<PAWN>(Them) < 2)
-            bonus = (bonus * 5) / 4;
-
         score += bonus + PassedFile[file_of(s)];
     }
 
@@ -712,8 +709,8 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe);
-    int weight = pos.count<ALL_PIECES>(Us) - 1;
-    Score score = make_score(bonus * weight * weight / 16, 0);
+    int weight = pos.count<ALL_PIECES>() - 2;
+    Score score = make_score(bonus * weight * weight / 64, 0);
 
     score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
 
