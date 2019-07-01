@@ -352,6 +352,9 @@ namespace {
             if (relative_rank(Us, s) >= RANK_5)
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
+            if (forward_file_bb(Us, s) & pe->passed_pawns(Us))
+            	score += make_score(0, 25);
+
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[bool(pos.is_on_semiopen_file(Them, s))];
@@ -458,12 +461,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    bool noMinorAttacker = !(kingRing[Us] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - (90 + 30 * noMinorAttacker) * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
