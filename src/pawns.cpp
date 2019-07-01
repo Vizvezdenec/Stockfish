@@ -73,14 +73,14 @@ namespace {
     Bitboard b, neighbours, stoppers, doubled, support, phalanx;
     Bitboard lever, leverPush;
     Square s;
-    bool opposed, backward, weaklyOpposed;
+    bool opposed, backward;
     Score score = SCORE_ZERO;
     const Square* pl = pos.squares<PAWN>(Us);
 
     Bitboard ourPawns   = pos.pieces(  Us, PAWN);
     Bitboard theirPawns = pos.pieces(Them, PAWN);
 
-    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = e->notOpposedPawns[Us] = 0;
+    e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
 
@@ -88,8 +88,6 @@ namespace {
     score += Attacked2Unsupported * popcount(  theirPawns
                                              & pawn_double_attacks_bb<Us>(ourPawns)
                                              & ~pawn_attacks_bb<Them>(theirPawns));
-
-    Bitboard theirDouble = pawn_double_attacks_bb<Them>(theirPawns);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -102,7 +100,6 @@ namespace {
 
         // Flag the pawn
         opposed    = theirPawns & forward_file_bb(Us, s);
-        weaklyOpposed = theirDouble & forward_file_bb(Us, s);
         stoppers   = theirPawns & passed_pawn_span(Us, s);
         lever      = theirPawns & PawnAttacks[Us][s];
         leverPush  = theirPawns & PawnAttacks[Us][s + Up];
@@ -148,9 +145,6 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
-
-        if (!(opposed || weaklyOpposed))
-            e->notOpposedPawns[Us]++;
     }
 
     return score;

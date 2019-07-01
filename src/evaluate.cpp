@@ -650,14 +650,14 @@ namespace {
                 // If there are no enemy attacks on passed pawn span, assign a big bonus.
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
-                int k = !unsafeSquares                    ? 35 :
-                        !(unsafeSquares & squaresToQueen) ? 20 :
-                        !(unsafeSquares & blockSq)        ?  9 :
+                int k = !unsafeSquares                    ? 38 :
+                        !(unsafeSquares & squaresToQueen) ? 22 :
+                        !(unsafeSquares & blockSq)        ? 10 :
                                                              0 ;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
-                    k += 5;
+                    k += 4;
 
                 bonus += make_score(k * w, k * w);
             }
@@ -734,15 +734,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 18 * !(pe->not_opposed_pawns(strongSide))
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
