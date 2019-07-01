@@ -458,10 +458,12 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    bool noMinorAttacker = !(kingRing[Us] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]));
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - (100 + 30 * noMinorAttacker) * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
@@ -650,14 +652,14 @@ namespace {
                 // If there are no enemy attacks on passed pawn span, assign a big bonus.
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
-                int k = !unsafeSquares                    ? 32 :
-                        !(unsafeSquares & squaresToQueen) ? 18 :
-                        !(unsafeSquares & blockSq)        ?  8 :
+                int k = !unsafeSquares                    ? 35 :
+                        !(unsafeSquares & squaresToQueen) ? 20 :
+                        !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
                 // Assign a larger bonus if the block square is defended.
                 if (defendedSquares & blockSq)
-                    k += 6;
+                    k += 5;
 
                 bonus += make_score(k * w, k * w);
             }
