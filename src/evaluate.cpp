@@ -666,7 +666,7 @@ namespace {
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
         if (   !pos.pawn_passed(Us, s + Up)
-            || ((pos.pieces(PAWN) | pos.pieces(Us, ROOK)) & forward_file_bb(Us, s)))
+            || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
@@ -701,6 +701,7 @@ namespace {
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
+                   & ~pos.pieces(Us, KING)
                    & ~attackedBy[Them][PAWN];
 
     // Find all squares which are at most three squares behind some friendly pawn
