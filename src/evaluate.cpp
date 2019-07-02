@@ -356,9 +356,6 @@ namespace {
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[bool(pos.is_on_semiopen_file(Them, s))];
 
-            if (!more_than_one(pe->passed_pawns(Us)) && (forward_file_bb(Them, s) & pe->passed_pawns(Us)))
-            	score -= make_score(0, 35);
-
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
@@ -669,7 +666,7 @@ namespace {
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
         if (   !pos.pawn_passed(Us, s + Up)
-            || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
+            || ((pos.pieces(PAWN) | pos.pieces(Us, ROOK)) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
