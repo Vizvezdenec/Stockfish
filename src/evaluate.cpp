@@ -536,8 +536,6 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
-            else 
-                score += make_score(12, 0) * bool(rank_bb(s) & (pos.pieces(Them, QUEEN) | pos.pieces(Them, KING)));
         }
 
         if (weak & attackedBy[Us][KING])
@@ -578,9 +576,13 @@ namespace {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
+        b = pos.pieces(Us, KNIGHT);
+        while(b)
+        {
+        Square s1 = pop_lsb(&b);
+        if (pos.attacks_from<KNIGHT>(s1) & pos.attacks_from<KNIGHT>(s) & safe)
+            score += KnightOnQueen;
+        }
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
