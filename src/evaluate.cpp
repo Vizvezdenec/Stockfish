@@ -356,6 +356,9 @@ namespace {
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[bool(pos.is_on_semiopen_file(Them, s))];
 
+            if (!more_than_one(pe->passed_pawns(Us)) && (forward_file_bb(Them, s) & pe->passed_pawns(Us)))
+            	score -= make_score(0, 35);
+
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
             {
