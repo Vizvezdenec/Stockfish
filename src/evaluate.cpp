@@ -353,7 +353,7 @@ namespace {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
             if ((forward_file_bb(Us, s) & pe->passed_pawns(Us)) && !(pos.pieces(Them, PAWN) & forward_file_bb(Us, s)))
-            	score += make_score(0, 25);
+            	score += make_score(0, 15);
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
