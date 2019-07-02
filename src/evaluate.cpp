@@ -468,7 +468,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +  10 * (4 - popcount(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -537,6 +536,8 @@ namespace {
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
+            else 
+                score += make_score(12, 0) * bool(rank_bb(s) & (pos.pieces(Them, QUEEN) | pos.pieces(Them, KING)));
         }
 
         if (weak & attackedBy[Us][KING])
