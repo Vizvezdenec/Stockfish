@@ -465,6 +465,7 @@ namespace {
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
+                 + 200 * (!pos.count<QUEEN>(Them) && pos.count<QUEEN>(Us))
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
@@ -705,7 +706,7 @@ namespace {
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= shift<Down>(behind) & ~pos.pieces(Us, KING);
+    behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe);
