@@ -149,7 +149,7 @@ namespace {
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
-  constexpr Score ThreatByRank       = S(  9,  0);
+  constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
@@ -524,20 +524,18 @@ namespace {
         while (b)
         {
             Square s = pop_lsb(&b);
-            int r = (int)relative_rank(Them, s);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank * r + make_score(1, 0) * r * r;
+                score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
         b = weak & attackedBy[Us][ROOK];
         while (b)
         {
             Square s = pop_lsb(&b);
-            int r = (int)relative_rank(Them, s);
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank * r + make_score(1, 0) * r * r;
+                score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
         if (weak & attackedBy[Us][KING])
