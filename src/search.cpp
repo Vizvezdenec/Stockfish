@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              if ((ss-1)->currentMove == MOVE_NULL)
+              if ((ss-1)->currentMove == MOVE_NULL && moveCount < 5)
               	  r -= ONE_PLY;
 
               // Increase reduction if ttMove is a capture (~0 Elo)
