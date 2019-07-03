@@ -133,8 +133,8 @@ namespace {
   };
 
   constexpr Score ThreatByRank[RANK_NB]      = {
-    S( 0,  0), S( 10,  0), S( 23,  0), S( 39,  0),
-    S( 58,  0), S( 80,  0), S( 105,  0), S( 143,  0)
+    S( 0,  0), S(  8,  0), S( 20,  0), S( 36,  0),
+    S( 56,  0), S( 80,  0), S( 108,  0), S( 150,  0)
   };
 
   // Assorted bonuses and penalties
