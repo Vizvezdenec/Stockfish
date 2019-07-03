@@ -1084,11 +1084,11 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
-          if ((ss-1)->currentMove == MOVE_NULL)
-              r -= 2 * ONE_PLY;
-
           if (!captureOrPromotion)
           {
+              if ((ss-1)->currentMove == MOVE_NULL)
+              	  r -= ONE_PLY;
+
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
