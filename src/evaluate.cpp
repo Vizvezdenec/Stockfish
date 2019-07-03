@@ -669,6 +669,9 @@ namespace {
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
+        if (pos.count<ROOK>(Us) == 1 && (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) == 2) && (forward_file_bb(Us, s) & pos.pieces(Us, ROOK)))
+            bonus = bonus / 2;
+
         score += bonus + PassedFile[file_of(s)];
     }
 
