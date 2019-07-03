@@ -1085,7 +1085,7 @@ moves_loop: // When in check, search starts from here
           r -= singularLMR * ONE_PLY;
 
           if ((ss-1)->currentMove == MOVE_NULL)
-              r -= ONE_PLY;
+              r -= 2 * ONE_PLY;
 
           if (!captureOrPromotion)
           {
