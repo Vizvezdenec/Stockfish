@@ -670,7 +670,7 @@ namespace {
             bonus = bonus / 2;
 
         if (pos.count<ROOK>(Us) == 1 && (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) == 2) 
-            && (forward_file_bb(Us, s) & pos.pieces(Us, ROOK)) && !more_than_one(pe->passed_pawns(Us)))
+            && (forward_file_bb(Us, s) & pos.pieces(Us, ROOK)) && (forward_file_bb(Them, s) & pos.pieces(Them, ROOK)))
             bonus = bonus / 2;
 
         score += bonus + PassedFile[file_of(s)];
