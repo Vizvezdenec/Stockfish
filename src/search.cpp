@@ -588,7 +588,6 @@ namespace {
     inCheck = pos.checkers();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = singularLMR = ss->moveCount = 0;
-    int noCaptMoveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -934,8 +933,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      if (!captureOrPromotion)
-          noCaptMoveCount++;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -1065,8 +1062,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  ((!rootNode && moveCount > 1) 
-          ||  (rootNode && noCaptMoveCount > 2))
+          &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
@@ -1087,6 +1083,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
+
+          if ((ss-1)->currentMove == MOVE_NULL)
+              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
