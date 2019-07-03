@@ -669,10 +669,6 @@ namespace {
             || (pos.pieces(PAWN) & forward_file_bb(Us, s)))
             bonus = bonus / 2;
 
-        if (pos.count<ROOK>(Us) == 1 && (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) == 2) 
-            && (forward_file_bb(Us, s) & pos.pieces(Us, ROOK)) && (forward_file_bb(Them, s) & pos.pieces(Them, ROOK)))
-            bonus = bonus / 2;
-
         score += bonus + PassedFile[file_of(s)];
     }
 
@@ -771,7 +767,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 16 + 4 * pe->passed_count();
+            sf = 12 * pe->passed_count();
         else
             sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
