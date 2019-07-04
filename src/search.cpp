@@ -831,8 +831,8 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
-        &&  depth >= (6 - 3 * cutNode) * ONE_PLY
+    if (   !rootNode
+        &&  depth >= (5 + 6 * PvNode) * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value raisedBeta = std::min(beta + 216 - 48 * improving, VALUE_INFINITE);
@@ -848,7 +848,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[pos.moved_piece(move)][to_sq(move)];
 
-                assert(depth >= (6 - 3 * cutNode) * ONE_PLY);
+                assert(depth >= 5 * ONE_PLY);
 
                 pos.do_move(move, st);
 
