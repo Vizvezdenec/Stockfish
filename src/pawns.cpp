@@ -145,6 +145,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (!stoppers)
+            score += make_score(-5, 15);
     }
 
     return score;
