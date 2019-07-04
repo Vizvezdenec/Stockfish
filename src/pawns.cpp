@@ -147,7 +147,7 @@ namespace {
             score -= Doubled;
 
         if (!stoppers)
-            score += make_score(-5, 15);
+            score += make_score(-2, 5) * r;
     }
 
     return score;
