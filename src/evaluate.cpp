@@ -714,7 +714,7 @@ namespace {
 
     score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
 
-    score -= make_score(40, 0) * !(behind & safe & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP] | pos.pieces(Us, KNIGHT, BISHOP)));
+    score -= make_score(10, 0) * popcount(pos.pieces(Us, BISHOP, KNIGHT) & behind & safe);
 
     if (T)
         Trace::add(SPACE, Us, score);
