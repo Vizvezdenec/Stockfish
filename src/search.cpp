@@ -1033,11 +1033,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
                   continue;
 
-              if (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move))
-              	  lmrDepth += 2;
-
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(std::min(-29 * lmrDepth * lmrDepth, -4 * lmrDepth * lmrDepth * lmrDepth))))
                   continue;
           }
           else if ((!givesCheck || !extension)
