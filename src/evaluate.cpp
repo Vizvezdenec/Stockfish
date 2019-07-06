@@ -459,8 +459,8 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    if (strongSide == Them && abs(eg) > 250)
-    	kingDanger += (abs(eg) - 250) * 2;
+    if (strongSide == Them)
+    	kingDanger += abs(eg) / 20;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
