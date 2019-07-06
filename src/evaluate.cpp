@@ -712,7 +712,8 @@ namespace {
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
-    score -= make_score(20, 0) * popcount((attackedBy[Them][QUEEN]) & behind & safe);
+    score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe); 
+    score -= make_score(8, 0) * popcount((attackedBy[Them][QUEEN]) & behind & safe);
 
     if (T)
         Trace::add(SPACE, Us, score);
