@@ -1021,10 +1021,8 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
-              int moveCountReserve = futility_move_count(improving, depth / ONE_PLY) - moveCount;
-
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 - (moveCountReserve > 20))
+              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1088,6 +1086,11 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              int moveCountReserve = futility_move_count(improving, depth / ONE_PLY) - moveCount;
+
+              if (moveCountReserve > 100)
+              	  r -= ONE_PLY;
+
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
