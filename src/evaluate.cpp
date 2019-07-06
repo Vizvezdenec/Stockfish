@@ -737,7 +737,8 @@ namespace {
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     bool easyWin = (pos.non_pawn_material(strongSide) >= pos.non_pawn_material(~strongSide)) 
                    && pos.count<PAWN>(strongSide) > pos.count<PAWN>(~strongSide) + 1
-                   && more_than_one(pe->passed_pawns(strongSide));
+                   && more_than_one(pe->passed_pawns(strongSide))
+                   && !pos.opposite_bishops();
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
