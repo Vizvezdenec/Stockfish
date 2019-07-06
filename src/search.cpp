@@ -1027,10 +1027,12 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              int moveCountReserve = futility_move_count(improving, depth / ONE_PLY) - moveCount;
+
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
                   && !inCheck
-                  && ss->staticEval + 256 + 200 * lmrDepth <= alpha)
+                  && ss->staticEval + 256 + 200 * lmrDepth + moveCountReserve * 3 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
