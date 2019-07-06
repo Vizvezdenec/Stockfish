@@ -460,7 +460,7 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     if (strongSide == Them)
-    	kingDanger += abs(eg) / 20;
+    	kingDanger += abs(eg) / 40;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
