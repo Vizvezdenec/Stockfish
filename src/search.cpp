@@ -1061,11 +1061,12 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= (3 + (moveCount < 4)) * ONE_PLY
+      if (    (depth >= 3 * ONE_PLY
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
+          || (moveCount == 1 && depth > 11 * ONE_PLY && !captureOrPromotion && !PvNode))
       {
           Depth r = reduction(improving, depth, moveCount);
 
