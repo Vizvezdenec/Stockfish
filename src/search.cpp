@@ -897,8 +897,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched.
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    int badStatsCount = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1013,7 +1011,8 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
+              && !th.marked())
           {
               // Move count based pruning (~30 Elo)
               if (moveCountPruning)
@@ -1117,14 +1116,7 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 16384 * ONE_PLY;
-
-              if (ss->statScore < -16384)
-                  badStatsCount++;
-              else if (ss->statScore > 16384)
-                  badStatsCount--;
-
-              r += (badStatsCount / 10) * ONE_PLY;
+              r -= ss->statScore / 20000 * ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
