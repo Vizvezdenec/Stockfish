@@ -1124,7 +1124,7 @@ moves_loop: // When in check, search starts from here
               else if (ss->statScore > 16384)
                   badStatsCount--;
 
-              r -= (badStatsCount / 10) * ONE_PLY;
+              r += (badStatsCount / 10) * ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
