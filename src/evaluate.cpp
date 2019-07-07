@@ -734,21 +734,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
-    bool easyWin = (pos.count<BISHOP>(~strongSide) + pos.count<KNIGHT>(~strongSide) == 0)
-                   && (pos.count<BISHOP>(strongSide) + pos.count<KNIGHT>(strongSide) == 1)
-                   && (pos.count<PAWN>(~strongSide) - pos.count<PAWN>(strongSide) < 3)
-                   && (pos.count<ROOK>(strongSide) + pos.count<QUEEN>(strongSide))
-                   && (pos.non_pawn_material() > 2 * RookValueMg);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 36 * easyWin
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
@@ -757,9 +748,9 @@ namespace {
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
-        Trace::add(INITIATIVE, make_score(0, v));
+        Trace::add(INITIATIVE, make_score(v / (std::max(10, MidgameLimit / (pos.non_pawn_material() + PawnValueMg))), v));
 
-    return make_score(0, v);
+    return make_score(v / (std::max(10, MidgameLimit / (pos.non_pawn_material() + PawnValueMg))), v);
   }
 
 
