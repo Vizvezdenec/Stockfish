@@ -734,15 +734,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool notAdvanced = rank_of(frontmost_sq(WHITE, pos.pieces(WHITE))) < rank_of(frontmost_sq(BLACK, pos.pieces(BLACK)));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 18 * notAdvanced
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting

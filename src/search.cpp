@@ -1125,7 +1125,7 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = (value > alpha && d != newDepth);
       }
       else
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 2 - cutNode;
 
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
