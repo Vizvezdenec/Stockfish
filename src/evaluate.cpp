@@ -735,10 +735,12 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    bool easyWin = (pos.non_pawn_material(strongSide) >= pos.non_pawn_material(~strongSide)) 
-                   && pos.count<PAWN>(strongSide) > pos.count<PAWN>(~strongSide) + 1
-                   && more_than_one(pe->passed_pawns(strongSide))
-                   && !pos.opposite_bishops();
+
+    bool easyWin = (pos.count<BISHOP>(~strongSide) + pos.count<KNIGHT>(~strongSide) == 0)
+                   && (pos.count<BISHOP>(strongSide) + pos.count<KNIGHT>(strongSide) == 1)
+                   && (pos.count<PAWN>(~strongSide) - pos.count<PAWN>(strongSide) < 3)
+                   && (pos.count<ROOK>(strongSide) + pos.count<QUEEN>(strongSide))
+                   && (pos.non_pawn_material() > 2 * RookValueMg);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
