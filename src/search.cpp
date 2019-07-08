@@ -75,8 +75,8 @@ namespace {
     return ((r + 512) / 1024 + (!i && r > 1024)) * ONE_PLY;
   }
 
-  constexpr int futility_move_count(bool improving, int depth) {
-    return (5 + depth * depth) * (1 + improving) / 2;
+  constexpr int futility_move_count(bool improving, int depth, bool marked) {
+    return (5 + depth * depth) * (1 + improving) * (2 + marked) / 4;
   }
 
   // History and stats update bonus, based on depth
@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY, th.marked());
 
           if (   !captureOrPromotion
               && !givesCheck
@@ -1022,7 +1022,7 @@ moves_loop: // When in check, search starts from here
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + 4 * th.marked()
+              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
