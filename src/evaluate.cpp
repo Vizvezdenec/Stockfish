@@ -570,7 +570,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    if (pos.side_to_move() == Us)
+    if (pos.side_to_move() == Us 
+       && !(pos.pieces(Us) & (attackedBy[Them][PAWN] | (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES])) & ~pos.pieces(Us, PAWN)))
     {
     b = ~b & attackedBy[Us][PAWN] & nonPawnEnemies;
     score += ThreatBySafePawn / 4 * bool(b);
