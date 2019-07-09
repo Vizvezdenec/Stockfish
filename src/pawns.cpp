@@ -32,9 +32,9 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score Backward = S( 5, 20);
+  constexpr Score Backward = S( 9, 24);
   constexpr Score Doubled  = S(11, 56);
-  constexpr Score Isolated = S( 4, 12);
+  constexpr Score Isolated = S( 5, 15);
   constexpr Score WeakUnopposed = S( 13, 27);
   constexpr Score Attacked2Unsupported = S( 0, 20);
 
@@ -137,11 +137,11 @@ namespace {
 
             score += make_score(v, v * (r - 2) / 4);
         }
+        else if (!neighbours)
+            score -= Isolated + WeakUnopposed * int(!opposed);
+
         else if (backward)
             score -= Backward + WeakUnopposed * int(!opposed);
-
-        if (!neighbours)
-            score -= Isolated + WeakUnopposed * int(!opposed);
 
         if (doubled && !support)
             score -= Doubled;
