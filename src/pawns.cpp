@@ -140,7 +140,7 @@ namespace {
         else if (backward)
             score -= Backward + WeakUnopposed * int(!opposed);
 
-        else if (!neighbours)
+        if (!neighbours)
             score -= Isolated + WeakUnopposed * int(!opposed);
 
         if (doubled && !support)
