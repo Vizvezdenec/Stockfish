@@ -573,7 +573,7 @@ namespace {
     if (pos.side_to_move() == Us)
     {
     b = ~b & attackedBy[Us][PAWN] & nonPawnEnemies;
-    score += ThreatBySafePawn / 4 * popcount(b);
+    score += ThreatBySafePawn / 4 * bool(b);
     }
 
     // Bonus for threats on the next moves against enemy queen
