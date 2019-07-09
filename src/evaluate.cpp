@@ -574,7 +574,7 @@ namespace {
        && !(pos.pieces(Us) & (attackedBy[Them][PAWN] | (attackedBy[Them][ALL_PIECES] & ~attackedBy[Us][ALL_PIECES])) & ~pos.pieces(Us, PAWN)))
     {
     b = ~b & attackedBy[Us][PAWN] & nonPawnEnemies;
-    score += ThreatBySafePawn / 4 * bool(b);
+    score += ThreatBySafePawn * bool(b);
     }
 
     // Bonus for threats on the next moves against enemy queen
