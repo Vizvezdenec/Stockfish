@@ -1022,9 +1022,9 @@ moves_loop: // When in check, search starts from here
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + std::min(3, (depth / ONE_PLY) / 3) * th.marked()
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + 3 * th.marked()
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold + th.marked()
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold + th.marked())
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
