@@ -137,11 +137,11 @@ namespace {
 
             score += make_score(v, v * (r - 2) / 4);
         }
-        else if (!neighbours && !lever)
-            score -= Isolated + WeakUnopposed * int(!opposed);
-
         else if (backward)
             score -= Backward + WeakUnopposed * int(!opposed);
+
+        else if (!neighbours)
+            score -= Isolated + WeakUnopposed * int(!opposed);
 
         if (doubled && !support)
             score -= Doubled;
