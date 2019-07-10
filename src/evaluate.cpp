@@ -172,7 +172,7 @@ namespace {
     template<Color Us> Score king() const;
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
-    template<Color Us> Score space() const;
+    template<Color Us> Score space();
     ScaleFactor scale_factor(Value eg) const;
     Score initiative(Value eg) const;
 
@@ -181,6 +181,7 @@ namespace {
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+    Score spaceScore[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type. Special "piece types" which
@@ -268,8 +269,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard BishopRanks = (Us == WHITE ? Rank2BB | Rank3BB
-                                                   : Rank6BB | Rank7BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -327,8 +326,6 @@ namespace {
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
-
-                score -= make_score(4, 0) * popcount((pos.pieces(Us, PAWN) | attackedBy[Them][PAWN]) & BishopRanks & CenterFiles);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
@@ -461,6 +458,8 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    kingDanger -= mg_value(spaceScore[Us] - spaceScore[Them]) / 4;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -691,7 +690,7 @@ namespace {
   // improve play on game opening.
 
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::space() const {
+  Score Evaluation<T>::space() {
 
     if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
@@ -717,6 +716,8 @@ namespace {
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
+
+    spaceScore[Us] = score;
 
     if (T)
         Trace::add(SPACE, Us, score);
@@ -825,10 +826,11 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
+    score +=  space<  WHITE>() - space<  BLACK>();
+
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
-            + passed< WHITE>() - passed< BLACK>()
-            + space<  WHITE>() - space<  BLACK>();
+            + passed< WHITE>() - passed< BLACK>();
 
     score += initiative(eg_value(score));
 
