@@ -459,7 +459,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger -= mg_value(spaceScore[Us] - spaceScore[Them]) / 4;
+    kingDanger -= mg_value(spaceScore[Us] - spaceScore[Them]) / 12;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
