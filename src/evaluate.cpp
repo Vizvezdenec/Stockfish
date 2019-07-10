@@ -172,7 +172,7 @@ namespace {
     template<Color Us> Score king() const;
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
-    template<Color Us> Score space();
+    template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
     Score initiative(Value eg) const;
 
@@ -181,7 +181,6 @@ namespace {
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
-    Score spaceScore[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type. Special "piece types" which
@@ -459,8 +458,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger -= mg_value(spaceScore[Us] - spaceScore[Them]) / 12;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -690,7 +687,7 @@ namespace {
   // improve play on game opening.
 
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::space() {
+  Score Evaluation<T>::space() const {
 
     if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
@@ -711,13 +708,16 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
+    if (more_than_one((FileABB | FileBBB) & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN))))
+    	safe &=~FileCBB;
+    if (more_than_one((FileGBB | FileHBB) & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN))))
+    	safe &=~FileFBB;
+
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     score -= AttacksOnSpaceArea * popcount(attackedBy[Them][ALL_PIECES] & behind & safe);
-
-    spaceScore[Us] = score;
 
     if (T)
         Trace::add(SPACE, Us, score);
@@ -826,11 +826,10 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score +=  space<  WHITE>() - space<  BLACK>();
-
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
-            + passed< WHITE>() - passed< BLACK>();
+            + passed< WHITE>() - passed< BLACK>()
+            + space<  WHITE>() - space<  BLACK>();
 
     score += initiative(eg_value(score));
 
