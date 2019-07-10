@@ -1036,6 +1036,12 @@ moves_loop: // When in check, search starts from here
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
+
+              if (type_of(movedPiece) == PAWN 
+                  && relative_rank(us, from_sq(move)) == RANK_2
+                  && relative_rank(us, to_sq(move)) == RANK_3
+                  && !pos.see_ge(move))
+                  continue;
           }
           else if ((!givesCheck || !extension)
                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)

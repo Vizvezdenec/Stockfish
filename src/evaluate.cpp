@@ -708,11 +708,6 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
-    if (more_than_one((FileABB | FileBBB) & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN))))
-    	safe &=~FileCBB;
-    if (more_than_one((FileGBB | FileHBB) & pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them, PAWN))))
-    	safe &=~FileFBB;
-
     int bonus = popcount(safe) + popcount(behind & safe);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
