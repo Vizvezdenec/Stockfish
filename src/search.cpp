@@ -1037,7 +1037,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
 
-              if (type_of(movedPiece) == KING
+              if (lmrDepth < 6
+                  && type_of(movedPiece) == KING
                   && !inCheck
                   && type_of(move) == NORMAL
                   && pos.castling_rights(us)
