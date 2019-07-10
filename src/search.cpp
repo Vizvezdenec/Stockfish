@@ -1036,14 +1036,6 @@ moves_loop: // When in check, search starts from here
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
                   continue;
-
-              if (lmrDepth < 6
-                  && type_of(movedPiece) == KING
-                  && !inCheck
-                  && type_of(move) == NORMAL
-                  && pos.castling_rights(us)
-                  && !pos.blockers_for_king(us))
-                  continue;
           }
           else if ((!givesCheck || !extension)
                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
