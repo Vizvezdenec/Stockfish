@@ -1022,7 +1022,7 @@ moves_loop: // When in check, search starts from here
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 5 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1035,12 +1035,6 @@ moves_loop: // When in check, search starts from here
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
-                  continue;
-
-              if (type_of(movedPiece) == PAWN 
-                  && relative_rank(us, from_sq(move)) == RANK_2
-                  && relative_rank(us, to_sq(move)) == RANK_3
-                  && !pos.see_ge(move))
                   continue;
           }
           else if ((!givesCheck || !extension)
