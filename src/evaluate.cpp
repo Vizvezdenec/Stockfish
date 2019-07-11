@@ -476,7 +476,7 @@ namespace {
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces() & ~pos.pieces(KING) & KingFlank[file_of(ksq)]))
-    	score -= PawnlessFlank * 2;
+    	score -= PawnlessFlank * 3 / 2;
     else if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
 
