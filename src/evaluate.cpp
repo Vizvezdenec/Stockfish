@@ -331,7 +331,7 @@ namespace {
                     score += LongDiagonalBishop;
 
                 if (pos.attacks_from<KING>(s) & pos.pieces(Us, BISHOP))
-                    score += make_score(10, 20);
+                    score += make_score(4, 12);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
