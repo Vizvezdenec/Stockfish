@@ -1009,7 +1009,7 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
-          if (   (!captureOrPromotion || ss->staticEval + 4 * PieceValue[EG][pos.captured_piece()] + 100 <= alpha)
+          if (   !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if ((!givesCheck || !extension)
-                  && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
+                  && !pos.see_ge(move, -(PawnValueEg - 50 * (captureOrPromotion && givesCheck)) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
