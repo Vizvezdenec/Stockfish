@@ -458,9 +458,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (!(more_than_one(kingRing[Us] & ~attackedBy[Them][ALL_PIECES])))
-    	kingDanger += 80;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
