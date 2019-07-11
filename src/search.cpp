@@ -1119,7 +1119,7 @@ moves_loop: // When in check, search starts from here
           }
   
           if (th.marked())
-          	r = std::max(reduction(improving, depth, moveCount) / ONE_PLY - 3, r / ONE_PLY) * ONE_PLY;
+          	r = std::max(reduction(improving, depth, moveCount) / ONE_PLY, r / ONE_PLY) * ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
