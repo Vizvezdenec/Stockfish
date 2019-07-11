@@ -387,7 +387,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -459,7 +458,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger += 15 * popcount(TRank1BB & KingFlank[file_of(ksq)] & attackedBy[Them][ROOK]);
+    if (!(more_than_one(kingRing[Us] & ~attackedBy[Them][ALL_PIECES])))
+    	kingDanger += 80;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
