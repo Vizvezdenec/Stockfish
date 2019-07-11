@@ -1115,11 +1115,11 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore * (1 + 2 * (type_of(movedPiece) == KING)) / 16384 * ONE_PLY;
-
-              if (th.marked())
-                  r = std::max(0, r / ONE_PLY) * ONE_PLY;
+              r -= ss->statScore / 16384 * ONE_PLY;
           }
+  
+          if (th.marked())
+          	r = std::max(reduction(improving, depth, moveCount) / ONE_PLY - 3, r / ONE_PLY) * ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
