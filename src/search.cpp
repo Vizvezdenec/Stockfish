@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 * ONE_PLY
+      if (    newDepth >= 3 * ONE_PLY
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1134,7 +1134,7 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = stat_bonus(depth);
+              int bonus = stat_bonus(newDepth) / 2;
               if (value <= alpha)
                   bonus = -bonus;
 
