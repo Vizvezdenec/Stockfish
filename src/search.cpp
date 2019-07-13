@@ -1135,12 +1135,11 @@ moves_loop: // When in check, search starts from here
           if (doLMR && !captureOrPromotion)
           {
               int bonus = stat_bonus(newDepth);
-              int denom = std::min(48, abs(value - alpha));
               if (value <= alpha)
                   bonus = -bonus;
-              bonus = bonus * denom / 32;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+	      pos.this_thread()->mainHistory[us][from_to(move)] << bonus;
           }
       }
 
