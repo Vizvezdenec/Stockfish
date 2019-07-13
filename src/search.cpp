@@ -753,7 +753,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore / 512;
+            int bonus = -(ss-1)->statScore / 256;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
@@ -1134,9 +1134,8 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth) * 2 :
-                          value == alpha ? -stat_bonus(newDepth) / 2
-                                        : -stat_bonus(newDepth) * 2;
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
