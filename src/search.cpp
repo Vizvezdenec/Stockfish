@@ -1135,7 +1135,7 @@ moves_loop: // When in check, search starts from here
           if (doLMR && !captureOrPromotion)
           {
               int bonus = stat_bonus(newDepth);
-              int denom = std::min(64, abs(value - alpha));
+              int denom = std::min(48, abs(value - alpha));
               if (value <= alpha)
                   bonus = -bonus;
               bonus = bonus * denom / 32;
