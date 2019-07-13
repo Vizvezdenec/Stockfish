@@ -753,7 +753,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = (-(ss-1)->statScore - (ss-1)->statScore * abs((ss-1)->statScore) / 8192) / 512;
+            int bonus = -(ss-1)->statScore / 512;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
