@@ -1134,12 +1134,9 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = stat_bonus(newDepth);
+              int bonus = stat_bonus(newDepth) * 8;
               if (value <= alpha)
                   bonus = -bonus;
-
-              if (value < beta)
-              	  bonus += bonus;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
