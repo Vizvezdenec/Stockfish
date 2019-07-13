@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts from here
                   bonus = -bonus;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-	      pos.this_thread()->mainHistory[us][from_to(move)] << bonus / 4;
+	      pos.this_thread()->mainHistory[us][from_to(move)] << bonus * 3 / 2;
           }
       }
 
