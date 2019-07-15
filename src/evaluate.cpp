@@ -647,8 +647,8 @@ namespace {
                 // If there are no enemy attacks on passed pawn span, assign a big bonus.
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
-                int k = (!unsafeSquares && (pos.count<ALL_PIECES>(Them) - pos.count<KNIGHT>(Them) - pos.count<PAWN>(Them) == 1)) ? 55 :
-                        !unsafeSquares                    ? 35 :!unsafeSquares                    ? 35 :
+                int k = (!unsafeSquares && (pos.count<ALL_PIECES>(Them) - pos.count<KNIGHT>(Them) - pos.count<PAWN>(Them) == 1)) ? 40 :
+                        !unsafeSquares                    ? 30 :
                         !(unsafeSquares & squaresToQueen) ? 20 :
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
