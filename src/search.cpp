@@ -794,7 +794,6 @@ namespace {
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        &&  (pos.pieces(us) & ~(pos.pieces(us, PAWN) | pos.blockers_for_king(us) | pos.pieces(us, KING)))
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1144,6 +1143,11 @@ moves_loop: // When in check, search starts from here
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
+
+              if (move == ss->killers[0])
+              	  bonus += bonus / 2;
+              else if (move == ss->killers[1])
+              	  bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
