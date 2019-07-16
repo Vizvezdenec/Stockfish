@@ -458,6 +458,14 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int maxAttacks = 20;
+
+    if (file_of(ksq) == FILE_A || file_of(ksq) == FILE_H)
+    	maxAttacks = 15;
+
+    if (kingFlankAttacks > maxAttacks)
+    	kingFlankAttacks += kingFlankAttacks - maxAttacks;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
