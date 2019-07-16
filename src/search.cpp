@@ -967,6 +967,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = ONE_PLY;
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth + ONE_PLY));
               singularLMR++;
 
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
