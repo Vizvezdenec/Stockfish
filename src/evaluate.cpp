@@ -460,9 +460,6 @@ namespace {
 
     int maxAttacks = 20;
 
-    if (file_of(ksq) == FILE_A || file_of(ksq) == FILE_H)
-    	maxAttacks = 15;
-
     if (kingFlankAttacks > maxAttacks)
     	kingFlankAttacks += kingFlankAttacks - maxAttacks;
 
