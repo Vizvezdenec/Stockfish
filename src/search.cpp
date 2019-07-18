@@ -969,8 +969,8 @@ moves_loop: // When in check, search starts from here
               extension = ONE_PLY;
               singularLMR++;
 
-              if (!captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth + ONE_PLY) * 5 / 8);
+              if (!captureOrPromotion && move == ss->killers[0])
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth + ONE_PLY));
 
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
                   singularLMR++;
