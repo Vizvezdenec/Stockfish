@@ -91,19 +91,19 @@ namespace {
   // MobilityBonus[PieceType-2][attacked] contains bonuses for middle and end game,
   // indexed by piece type and number of attacked squares in the mobility area.
   constexpr Score MobilityBonus[][32] = {
-    { S(-64,-83), S(-55,-58), S(-14,-32), S( -6,-16), S(  1,  6), S( 11, 13), // Knights
-      S( 20, 21), S( 26, 25), S( 31, 31) },
-    { S(-50,-61), S(-22,-25), S( 14, -5), S( 24, 11), S( 36, 22), S( 49, 40), // Bishops
-      S( 53, 52), S( 61, 55), S( 61, 63), S( 66, 71), S( 79, 76), S( 79, 84),
-      S( 89, 86), S( 96, 95) },
-    { S(-60,-78), S(-29,-20), S(-17, 26), S(-12, 53), S( -7, 67), S( -4, 80), // Rooks
-      S(  7,110), S( 14,116), S( 28,130), S( 27,140), S( 30,153), S( 36,163),
-      S( 44,164), S( 46,167), S( 56,169) },
-    { S(-41,-38), S(-23,-17), S(  1,  6), S(  1, 16), S( 12, 32), S( 20, 52), // Queens
-      S( 26, 59), S( 39, 71), S( 41, 77), S( 46, 90), S( 54, 92), S( 58,102),
-      S( 58,111), S( 64,118), S( 65,121), S( 68,124), S( 69,131), S( 71,134),
-      S( 77,138), S( 86,141), S( 86,146), S( 97,164), S(100,168), S(100,173),
-      S(104,182), S(107,189), S(111,204), S(114,210) }
+    { S(-62,-81), S(-53,-56), S(-12,-30), S( -4,-14), S(  3,  8), S( 13, 15), // Knights
+      S( 22, 23), S( 28, 27), S( 33, 33) },
+    { S(-48,-59), S(-20,-23), S( 16, -3), S( 26, 13), S( 38, 24), S( 51, 42), // Bishops
+      S( 55, 54), S( 63, 57), S( 63, 65), S( 68, 73), S( 81, 78), S( 81, 86),
+      S( 91, 88), S( 98, 97) },
+    { S(-58,-76), S(-27,-18), S(-15, 28), S(-10, 55), S( -5, 69), S( -2, 82), // Rooks
+      S(  9,112), S( 16,118), S( 30,132), S( 29,142), S( 32,155), S( 38,165),
+      S( 46,166), S( 48,169), S( 58,171) },
+    { S(-39,-36), S(-21,-15), S(  3,  8), S(  3, 18), S( 14, 34), S( 22, 54), // Queens
+      S( 28, 61), S( 41, 73), S( 43, 79), S( 48, 92), S( 56, 94), S( 60,104),
+      S( 60,113), S( 66,120), S( 67,123), S( 70,126), S( 71,133), S( 73,136),
+      S( 79,140), S( 88,143), S( 88,148), S( 99,166), S(102,170), S(102,175),
+      S(106,184), S(109,191), S(113,206), S(116,212) }
   };
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is
@@ -179,7 +179,8 @@ namespace {
     const Position& pos;
     Material::Entry* me;
     Pawns::Entry* pe;
-    Bitboard mobilityArea[COLOR_NB];
+    Bitboard mobilityArea[COLOR_NB][PIECE_TYPE_NB];
+    Bitboard mobilityAreaBase[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
@@ -229,11 +230,11 @@ namespace {
     Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
 
     // Find our pawns that are blocked or on the first two ranks
-    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces(Them) | pos.pieces(Us, PAWN)) | LowRanks);
+    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
 
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
-    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
+    mobilityAreaBase[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
 
     // Initialize attackedBy[] for king and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
@@ -275,6 +276,15 @@ namespace {
 
     attackedBy[Us][Pt] = 0;
 
+    if (Pt == KNIGHT)
+    	mobilityArea[Us][Pt] = mobilityAreaBase[Us] | pos.pieces(Them, KNIGHT, BISHOP) | pos.pieces(Them, ROOK, QUEEN);
+    else if (Pt == BISHOP)
+	mobilityArea[Us][Pt] = mobilityAreaBase[Us] | pos.pieces(Them, BISHOP) | pos.pieces(Them, ROOK, QUEEN);
+    else if (Pt == ROOK)
+	mobilityArea[Us][Pt] = mobilityAreaBase[Us] | pos.pieces(Them, ROOK, QUEEN);
+    else
+	mobilityArea[Us][Pt] = mobilityAreaBase[Us] | pos.pieces(Them, QUEEN);
+
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
         // Find attacked squares, including x-ray attacks for bishops and rooks
@@ -296,7 +306,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = popcount(b & mobilityArea[Us]);
+        int mob = popcount(b & mobilityArea[Us][Pt]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -414,7 +424,7 @@ namespace {
     if (rookChecks)
         kingDanger += RookSafeCheck;
     else
-        unsafeChecks |= b1 & attackedBy[Them][ROOK];
+        unsafeChecks |= b1 & attackedBy[Them][ROOK] & mobilityArea[Them][ROOK];
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
@@ -437,7 +447,7 @@ namespace {
     if (bishopChecks)
         kingDanger += BishopSafeCheck;
     else
-        unsafeChecks |= b2 & attackedBy[Them][BISHOP];
+        unsafeChecks |= b2 & attackedBy[Them][BISHOP] & mobilityArea[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
@@ -445,11 +455,7 @@ namespace {
     if (knightChecks & safe)
         kingDanger += KnightSafeCheck;
     else
-        unsafeChecks |= knightChecks;
-
-    // Unsafe or occupied checking squares will also be considered, as long as
-    // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them];
+        unsafeChecks |= knightChecks & mobilityArea[Them][KNIGHT];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -574,7 +580,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
+        safe = mobilityArea[Us][KNIGHT] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
