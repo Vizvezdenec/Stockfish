@@ -179,8 +179,7 @@ namespace {
     const Position& pos;
     Material::Entry* me;
     Pawns::Entry* pe;
-    Bitboard mobilityAreaBase[COLOR_NB];
-    Bitboard mobilityArea[COLOR_NB][PIECE_TYPE_NB];
+    Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
 
     // attackedBy[color][piece type] is a bitboard representing all squares
@@ -234,7 +233,7 @@ namespace {
 
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
-    mobilityAreaBase[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
+    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
 
     // Initialize attackedBy[] for king and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
@@ -275,14 +274,6 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
-    mobilityArea[Us][Pt] = mobilityAreaBase[Us];
-
-    if (Pt == KNIGHT)
-    	mobilityArea[Us][Pt] |= attackedBy[Them][PAWN] & (pos.pieces(Them, KNIGHT, BISHOP) | pos.pieces(Them, ROOK, QUEEN));
-    else if (Pt == ROOK)
-    	mobilityArea[Us][Pt] |= attackedBy[Them][PAWN] & pos.pieces(Them, ROOK, QUEEN);
-    else if (Pt == QUEEN)
-    	mobilityArea[Us][Pt] |= attackedBy[Them][PAWN] & pos.pieces(Them, QUEEN);
 
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
@@ -305,11 +296,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = 0;
-        if (Pt != BISHOP)
-            mob = popcount(b & mobilityArea[Us][Pt]);
-        else 
-            mob = popcount(b & mobilityArea[Us][KNIGHT]);
+        int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -382,7 +369,7 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners) && (queenPinners & ~pos.blockers_for_king(Them)))
                 score -= WeakQueen;
         }
     }
@@ -427,7 +414,7 @@ namespace {
     if (rookChecks)
         kingDanger += RookSafeCheck;
     else
-        unsafeChecks |= b1 & attackedBy[Them][ROOK] & mobilityArea[Them][ROOK];
+        unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
     // Enemy queen safe checks: we count them only if they are from squares from
     // which we can't give a rook check, because rook checks are more valuable.
@@ -450,7 +437,7 @@ namespace {
     if (bishopChecks)
         kingDanger += BishopSafeCheck;
     else
-        unsafeChecks |= b2 & attackedBy[Them][BISHOP] & mobilityArea[Them][KNIGHT];
+        unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
@@ -458,7 +445,11 @@ namespace {
     if (knightChecks & safe)
         kingDanger += KnightSafeCheck;
     else
-        unsafeChecks |= knightChecks & mobilityArea[Them][KNIGHT];
+        unsafeChecks |= knightChecks;
+
+    // Unsafe or occupied checking squares will also be considered, as long as
+    // the square is in the attacker's mobility area.
+    unsafeChecks &= mobilityArea[Them];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -583,7 +574,7 @@ namespace {
     if (pos.count<QUEEN>(Them) == 1)
     {
         Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us][KNIGHT] & ~stronglyProtected;
+        safe = mobilityArea[Us] & ~stronglyProtected;
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
