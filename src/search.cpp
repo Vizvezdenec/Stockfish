@@ -782,7 +782,7 @@ namespace {
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
         &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth, improving) - abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) / 50 >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -969,6 +969,9 @@ moves_loop: // When in check, search starts from here
               extension = ONE_PLY;
               singularLMR++;
 
+              if (!captureOrPromotion)
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth + ONE_PLY) * 5 / 8);
+
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
                   singularLMR++;
           }
@@ -1143,6 +1146,9 @@ moves_loop: // When in check, search starts from here
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
+
+              if (move == ss->killers[0])
+              	  bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
