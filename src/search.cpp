@@ -868,7 +868,7 @@ namespace {
 
                 pos.undo_move(move);
 
-                if (value >= raisedBeta)
+                if (value >= raisedBeta || (move == ss->killers[0] && value > beta))
                     return value;
             }
     }
@@ -1020,22 +1020,19 @@ moves_loop: // When in check, search starts from here
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
-              // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
-              lmrDepth /= ONE_PLY;
-
-              if (move != ss->killers[0])
-              {
               // Move count based pruning
               if (moveCountPruning)
                   continue;
+
+              // Reduced depth of the next LMR search
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
+              lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
-              }
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 7
