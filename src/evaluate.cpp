@@ -470,7 +470,7 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    int KDbonus = std::max(kingDanger - 1024, 0) / 128;
+    int KDbonus = std::max(kingDanger - 1024, 0) / 256;
     kingDanger += KDbonus * KDbonus;
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
