@@ -868,7 +868,7 @@ namespace {
 
                 pos.undo_move(move);
 
-                if (value >= raisedBeta || (move == ss->killers[0] && value > beta))
+                if (value >= raisedBeta || (move == ss->killers[0] && value > (beta + raisedBeta) / 2))
                     return value;
             }
     }
