@@ -455,7 +455,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b1 &= ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN)));
+    b1 &= ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(PAWN) | pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN))));
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
