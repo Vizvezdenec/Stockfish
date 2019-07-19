@@ -870,8 +870,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-                else if ((move == ss->killers[0] || move == ss->killers[1]) && value > beta)
-                    return beta;
             }
     }
 
