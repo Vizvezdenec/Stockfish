@@ -142,6 +142,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (neighbours & pos.attacks_from<KING>(s) & e->passedPawns[Us])
+            score += make_score(5, 5);
     }
 
     // Unsupported friendly pawns attacked twice by the enemy
