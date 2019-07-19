@@ -1000,9 +1000,9 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       // Passed pawn extension
-      else if (   pos.pawn_passed(us, to_sq(move))
-                  && ((move == ss->killers[0] && pos.advanced_pawn_push(move)) || 
-                  (move == ss->killers[1] && relative_rank(us, to_sq(move)) > RANK_6)))
+      else if (   move == ss->killers[0]
+               && pos.advanced_pawn_push(move)
+               && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
       // Calculate new depth for this move
@@ -1256,7 +1256,8 @@ moves_loop: // When in check, search starts from here
         // Quiet best move: update move sorting heuristics
         if (!pos.capture_or_promotion(bestMove))
             update_quiet_stats(pos, ss, bestMove, quietsSearched, quietCount,
-                               stat_bonus(depth + (bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
+                               stat_bonus(depth + (bestValue > beta + 2 * PawnValueMg ? 2 * ONE_PLY 
+                                       : bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
 
         update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth + ONE_PLY));
 
