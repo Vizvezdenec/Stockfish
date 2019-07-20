@@ -1021,11 +1021,7 @@ moves_loop: // When in check, search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning
-              if (moveCountPruning
-                  && !(thisThread->mainHistory[us][from_to(move)] > 0
-                       && (*contHist[0])[movedPiece][to_sq(move)] > 0 
-                       && (*contHist[1])[movedPiece][to_sq(move)] > 0
-                       && (*contHist[3])[movedPiece][to_sq(move)] > 0))
+              if (moveCountPruning)
                   continue;
 
               // Reduced depth of the next LMR search
@@ -1134,6 +1130,9 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
+
+          if (value < alpha - RookValueMg)
+          	update_continuation_histories(ss, movedPiece, to_sq(move), -2 * stat_bonus(newDepth));
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
