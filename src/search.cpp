@@ -1022,9 +1022,10 @@ moves_loop: // When in check, search starts from here
           {
               // Move count based pruning
               if (moveCountPruning
-                  && !((*contHist[0])[movedPiece][to_sq(move)] > 0 
-                    && (*contHist[1])[movedPiece][to_sq(move)] > 0
-                    && (*contHist[3])[movedPiece][to_sq(move)] > 0))
+                  && !(thisThread->mainHistory[us][from_to(move)] > 0
+                       && (*contHist[0])[movedPiece][to_sq(move)] > 0 
+                       && (*contHist[1])[movedPiece][to_sq(move)] > 0
+                       && (*contHist[3])[movedPiece][to_sq(move)] > 0))
                   continue;
 
               // Reduced depth of the next LMR search
