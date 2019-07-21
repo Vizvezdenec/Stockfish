@@ -1008,6 +1008,9 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
+      bool goodHistory = (*contHist[0])[movedPiece][to_sq(move)] >= 0 && (*contHist[1])[movedPiece][to_sq(move)] >= 0 
+          && thisThread->mainHistory[us][from_to(move)] >= 0;
+
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1017,6 +1020,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
+              && !goodHistory
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
@@ -1114,6 +1118,9 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
+	      if (ss->statScore < 0 && goodHistory)
+				  ss->statScore = 0;
+
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
                   r -= ONE_PLY;
@@ -1139,24 +1146,12 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (doLMR)
+          if (doLMR && !captureOrPromotion)
           {
-              if (!captureOrPromotion)
-                  {
-                  int bonus = value > alpha ?  stat_bonus(newDepth)
+              int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
-                  if (move == ss->killers[0])
-              	      bonus += bonus / 4;
-
-                  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-                  }
-              else if (move == ss->killers[0])
-                  {
-                  int bonus = value > alpha ?  stat_bonus(newDepth) / 2
-                                            : -stat_bonus(newDepth) / 2;
-                  thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << bonus;
-                  }
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
       }
 
