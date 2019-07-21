@@ -990,7 +990,20 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       else if (type_of(move) == CASTLING)
-          extension = ONE_PLY;
+          {
+          if (KingSide & to_sq(move))
+              {
+              int sidePieces = popcount(pos.pieces(~us) & KingSide);
+              if (sidePieces * 2 < pos.count<ALL_PIECES>(~us)) 
+              	  extension = ONE_PLY;
+              }
+          else
+              {
+              int sidePieces = popcount(pos.pieces(~us) & QueenSide);
+              if (sidePieces * 2 < pos.count<ALL_PIECES>(~us)) 
+              	  extension = ONE_PLY;
+              }
+          }
 
       // Shuffle extension
       else if (   PvNode
