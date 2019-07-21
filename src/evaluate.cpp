@@ -470,9 +470,9 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    kingDanger = std::max(kingDanger, -256);
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-        score -= make_score(kingDanger * abs(kingDanger) / 4096, kingDanger / 16);
+    if (kingDanger > 100)
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
