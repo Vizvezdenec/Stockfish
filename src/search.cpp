@@ -1118,9 +1118,9 @@ moves_loop: // When in check, search starts from here
               {
               int goodHistoryCount = (thisThread->mainHistory[us][from_to(move)] >= 0)
                                    + ((*contHist[0])[movedPiece][to_sq(move)] >= 0)
-                                   + ((*contHist[1])[movedPiece][to_sq(move)] >= 0)
-                                   + ((*contHist[3])[movedPiece][to_sq(move)] >= 0)
-                                   + ((*contHist[5])[movedPiece][to_sq(move)] >= 0);
+                                   + ((*contHist[1])[movedPiece][to_sq(move)] > 0)
+                                   + ((*contHist[3])[movedPiece][to_sq(move)] > 0)
+                                   + ((*contHist[5])[movedPiece][to_sq(move)] > 0);
               if (goodHistoryCount > 2)
 	          ss->statScore = 0;
               }
