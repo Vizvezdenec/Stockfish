@@ -1121,7 +1121,7 @@ moves_loop: // When in check, search starts from here
                                    + ((*contHist[1])[movedPiece][to_sq(move)] >= 0)
                                    + ((*contHist[3])[movedPiece][to_sq(move)] >= 0)
                                    + ((*contHist[5])[movedPiece][to_sq(move)] >= 0);
-              if (goodHistoryCount > 3)
+              if (goodHistoryCount > 2)
 	          ss->statScore = 0;
               }
 
