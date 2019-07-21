@@ -1008,9 +1008,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
-      bool goodHistory = (*contHist[0])[movedPiece][to_sq(move)] >= 0 && (*contHist[1])[movedPiece][to_sq(move)] >= 0 
-          && thisThread->mainHistory[us][from_to(move)] >= 0;
-
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1020,7 +1017,6 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
-              && !goodHistory
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
@@ -1118,7 +1114,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
-	      if (ss->statScore < 0 && goodHistory)
+			  if (ss->statScore < 0 && (*contHist[0])[movedPiece][to_sq(move)] >= 0 && (*contHist[1])[movedPiece][to_sq(move)] >= 0 && thisThread->mainHistory[us][from_to(move)] >= 0)
 				  ss->statScore = 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
