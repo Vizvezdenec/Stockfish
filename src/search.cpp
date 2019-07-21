@@ -1114,17 +1114,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4000;
 
-	      if (ss->statScore < 0)
-              {
-              int goodHistoryCount = (thisThread->mainHistory[us][from_to(move)] >= 0)
-                                   + ((*contHist[0])[movedPiece][to_sq(move)] >= 0)
-                                   + ((*contHist[1])[movedPiece][to_sq(move)] > 0)
-                                   + ((*contHist[3])[movedPiece][to_sq(move)] > 0)
-                                   + ((*contHist[5])[movedPiece][to_sq(move)] > 0);
-              if (goodHistoryCount > 2)
-	          ss->statScore = 0;
-              }
-
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)
                   r -= ONE_PLY;
@@ -1168,6 +1157,8 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+          if (value < alpha)
+          	update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
