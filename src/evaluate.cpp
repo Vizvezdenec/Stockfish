@@ -470,7 +470,8 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    kingDanger = std::max(kingDanger, -100);
+    if (kingDanger < 0)
+    	kingDanger = std::max(kingDanger / 4, -256);
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     score -= make_score(kingDanger * abs(kingDanger) / 4096, kingDanger / 16);
 
