@@ -289,7 +289,7 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        bool pawnAttacked = (attackedBy[Them][PAWN] & s);
+        bool pawnAttacked = (Pt == KNIGHT) && (pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN]) & s);
 
         if (!pawnAttacked && (b & kingRing[Them]))
         {
