@@ -776,8 +776,9 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =   ss->staticEval >= (ss-2)->staticEval
-               || (ss-2)->staticEval == VALUE_NONE;
+    improving =   (ss->staticEval >= (ss-2)->staticEval
+               || (ss-2)->staticEval == VALUE_NONE)
+                  || ((ss-1)->staticEval != VALUE_NONE && ss->staticEval > - (ss-1)->staticEval + 2 * Eval::Tempo);
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -1269,10 +1270,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 * ONE_PLY || PvNode)
              && !pos.captured_piece())
-        {
-        int bonus = std::min(depth / ONE_PLY + (value < alpha - PawnValueEg), 17);
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(bonus * ONE_PLY));
-        }
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
