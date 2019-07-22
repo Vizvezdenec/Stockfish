@@ -458,10 +458,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kaDifference = kingAttacksCount[Them] - 2 * popcount(attackedBy[Us][KING] & attackedBy2[Us]);
-
-    kingDanger += std::max(kaDifference, 0) * kaDifference * 8;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)

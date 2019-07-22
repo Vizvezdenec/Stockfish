@@ -1018,6 +1018,7 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
+              && !(th.marked() && pos.non_pawn_material(us) <= QueenValueMg)
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning
