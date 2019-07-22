@@ -289,7 +289,9 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        if (b & kingRing[Them])
+        bool pawnAttacked = (attackedBy[Them][PAWN] & s);
+
+        if (!pawnAttacked && (b & kingRing[Them]))
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];

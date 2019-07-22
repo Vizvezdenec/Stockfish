@@ -972,9 +972,6 @@ moves_loop: // When in check, search starts from here
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
                   singularLMR++;
           }
-          else  if (!captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), - stat_bonus(depth + ONE_PLY));
-          	
 
           // Multi-cut pruning
           // Our ttMove is assumed to fail high, and now we failed high also on a reduced
