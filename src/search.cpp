@@ -1157,8 +1157,6 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
-          if (value < alpha)
-          	update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
@@ -1271,7 +1269,10 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 * ONE_PLY || PvNode)
              && !pos.captured_piece())
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        {
+        int bonus = std::min(depth / ONE_PLY + (value < alpha - PawnValueEg), 17);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(bonus * ONE_PLY));
+        }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
