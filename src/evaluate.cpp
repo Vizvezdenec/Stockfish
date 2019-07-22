@@ -460,7 +460,7 @@ namespace {
 
     int kaDifference = kingAttacksCount[Them] - 2 * popcount(attackedBy[Us][KING] & attackedBy2[Us]);
 
-    kingDanger += std::max(kaDifference, 0) * kaDifference * 4;
+    kingDanger += std::max(kaDifference, 0) * kaDifference * 8;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
