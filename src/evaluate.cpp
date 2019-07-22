@@ -289,9 +289,7 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        bool pawnAttacked = (Pt == KNIGHT) && (pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & attackedBy[Them][PAWN] & ~attackedBy[Us][PAWN]) & s);
-
-        if (!pawnAttacked && (b & kingRing[Them]))
+        if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
@@ -459,6 +457,10 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    int kaDifference = kingAttacksCount[Them] - 2 * popcount(attackedBy[Us][KING] & attackedBy2[Us]);
+
+    kingDanger += std::max(kaDifference, 0) * kaDifference * 4;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
