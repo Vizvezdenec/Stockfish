@@ -983,7 +983,7 @@ moves_loop: // When in check, search starts from here
               return singularBeta;
 
           else  if (!captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(halfDepth) / 2);
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(halfDepth));
       }
 
       // Check extension (~2 Elo)
