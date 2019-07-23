@@ -410,7 +410,7 @@ void Thread::search() {
               beta  = std::min(previousScore + delta, VALUE_INFINITE);
 
               // Adjust contempt based on root move's previousScore (dynamic contempt)
-              int dct = ct + 254 * previousScore / (abs(previousScore) + 600);
+              int dct = ct + 88 * previousScore / (abs(previousScore) + 200);
 
               contempt = (us == WHITE ?  make_score(dct, dct / 2)
                                       : -make_score(dct, dct / 2));
@@ -981,6 +981,9 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
+
+          else  if (!captureOrPromotion)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(halfDepth) / 2);
       }
 
       // Check extension (~2 Elo)
