@@ -410,7 +410,7 @@ void Thread::search() {
               beta  = std::min(previousScore + delta, VALUE_INFINITE);
 
               // Adjust contempt based on root move's previousScore (dynamic contempt)
-              int dct = ct + 132 * previousScore / (abs(previousScore) + 300);
+              int dct = ct + 88 * previousScore / (abs(previousScore) + 200);
 
               contempt = (us == WHITE ?  make_score(dct, dct / 2)
                                       : -make_score(dct, dct / 2));
@@ -1032,6 +1032,13 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
+              if (   lmrDepth < 2
+                  && (*contHist[0])[movedPiece][to_sq(move)] == CounterMovePruneThreshold
+		  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold - 1000
+		  && (*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold - 1000
+		  && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold - 1000)
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
