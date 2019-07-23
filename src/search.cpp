@@ -904,6 +904,8 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched.
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    int prunedCount = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -940,8 +942,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      bool ppExt = false;
 
       // Step 13. Extensions (~70 Elo)
 
@@ -1002,13 +1002,15 @@ moves_loop: // When in check, search starts from here
           extension = ONE_PLY;
 
       // Passed pawn extension
-      if (   move == ss->killers[0]
+      else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
-          extension = ONE_PLY, ppExt = true;
+          extension = ONE_PLY;
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
+
+      prunedCount++;
 
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
@@ -1051,6 +1053,8 @@ moves_loop: // When in check, search starts from here
                   continue;
       }
 
+      prunedCount--;
+
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
 
@@ -1071,7 +1075,6 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          && !ppExt
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1093,6 +1096,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
+
+          if (moveCount > 5 && moveCount < prunedCount * 2)
+              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
