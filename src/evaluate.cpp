@@ -458,6 +458,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    if (pos.pieces(Them, PAWN))
+    {
+    Square s = frontmost_sq(Them, pos.pieces(Them, PAWN));
+    if (relative_rank(Us, s) < RANK_5 && (KingFlank[file_of(ksq)] & s))
+    	kingDanger += 20;
+    }
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
