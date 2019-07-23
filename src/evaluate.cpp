@@ -464,7 +464,7 @@ namespace {
     Square s = frontmost_sq(Them, b1);
     Rank r = relative_rank(Us, s);
     if (relative_rank(Us, s) < RANK_5)
-    	kingDanger += 10 * (5 - r) * (5 - r);
+    	kingDanger += 2 * (5 - r) * (5 - r);
     }
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
