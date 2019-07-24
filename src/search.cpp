@@ -904,8 +904,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched.
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    int prunedCount = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1010,8 +1008,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
-      prunedCount++;
-
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1052,8 +1048,6 @@ moves_loop: // When in check, search starts from here
                    && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
-
-      prunedCount--;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
@@ -1096,9 +1090,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
-
-          if (moveCount > 5 && moveCount < prunedCount * 2)
-              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
