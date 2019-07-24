@@ -460,8 +460,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (!more_than_one(~badlyDefended & KingFlank[file_of(ksq)] & Camp))
-    	kingDanger += 200;
+    b1 = ~badlyDefended & KingFlank[file_of(ksq)] & Camp;
+
+    int notBadlyDefCount = std::max(3 - popcount(b1), 0);
+
+    kingDanger += 30 * notBadlyDefCount * notBadlyDefCount;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
