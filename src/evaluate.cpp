@@ -363,13 +363,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
-
-            bb = forward_file_bb(Them, s) & b & pe->passed_pawns(Them);
-            if (bb)
-                {
-                Rank r = relative_rank(Them, frontmost_sq(Them, bb));
-            	score += make_score(0, 3) * (r - 1) * (r - 1);
-                }
         }
 
         if (Pt == QUEEN)

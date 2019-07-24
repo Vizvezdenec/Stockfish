@@ -1041,7 +1041,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-29 * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(std::max(-29 * lmrDepth * lmrDepth, int(-PawnValueEg * (lmrDepth / ONE_PLY))))))
                   continue;
           }
           else if (  (!givesCheck || !extension)
