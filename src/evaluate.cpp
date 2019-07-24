@@ -464,7 +464,7 @@ namespace {
 
     int notBadlyDefCount = std::max(3 - popcount(b1), 0);
 
-    kingDanger += 30 * notBadlyDefCount * notBadlyDefCount;
+    kingDanger += 20 * notBadlyDefCount * notBadlyDefCount;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
