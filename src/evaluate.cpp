@@ -364,8 +364,12 @@ namespace {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
 
-            if (forward_file_bb(Them, s) & b & pe->passed_pawns(Them))
-            	score += make_score(0, 25);
+            bb = forward_file_bb(Them, s) & b & pe->passed_pawns(Them);
+            if (bb)
+                {
+                Rank r = relative_rank(Them, frontmost_sq(Them, bb));
+            	score += make_score(0, 1) * r * r;
+                }
         }
 
         if (Pt == QUEEN)
