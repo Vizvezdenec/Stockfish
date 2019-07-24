@@ -315,7 +315,7 @@ namespace {
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
-            score -= KingProtector * (distance(s, pos.square<KING>(Us)) - bool(b & attackedBy[Us][KING]));
+            score -= KingProtector * distance(s, pos.square<KING>(Us));
 
             if (Pt == BISHOP)
             {
@@ -363,6 +363,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
+
+            if (forward_file_bb(Them, s) & b & pe->passed_pawns(Them))
+            	score += make_score(0, 25);
         }
 
         if (Pt == QUEEN)
