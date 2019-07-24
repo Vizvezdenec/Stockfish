@@ -460,11 +460,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = ~badlyDefended & KingFlank[file_of(ksq)] & Camp;
+    b1 = badlyDefended & KingFlank[file_of(ksq)] & Camp;
 
-    int notBadlyDefCount = std::max(3 - popcount(b1), 0);
+    int badlyDefCount = popcount(b1);
 
-    kingDanger += 20 * notBadlyDefCount * notBadlyDefCount;
+    kingDanger += badlyDefCount * badlyDefCount / 8;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -476,7 +476,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   7;
+                 -  13;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
