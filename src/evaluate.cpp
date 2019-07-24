@@ -368,7 +368,7 @@ namespace {
             if (bb)
                 {
                 Rank r = relative_rank(Them, frontmost_sq(Them, bb));
-            	score += make_score(0, 1) * r * r;
+            	score += make_score(0, 3) * (r - 1) * (r - 1);
                 }
         }
 
