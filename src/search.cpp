@@ -1120,6 +1120,11 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] >= 0
                   && thisThread->mainHistory[us][from_to(move)] >= 0)
                   ss->statScore = 0;
+              else if (ss->statScore > 0
+                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 0
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
+                  ss->statScore = 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= 0 && (ss-1)->statScore < 0)

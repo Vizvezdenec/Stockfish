@@ -136,10 +136,10 @@ namespace {
         }
 
         else if (!neighbours)
-            score -= Isolated + WeakUnopposed * int(!opposed) + make_score(1, 3) * (4-r) * abs(4-r);
+            score -= Isolated + WeakUnopposed * int(!opposed);
 
         else if (backward)
-            score -= Backward + WeakUnopposed * int(!opposed) + make_score(1, 3) * (4-r) * abs(4-r);
+            score -= Backward + WeakUnopposed * int(!opposed);
 
         if (doubled && !support)
             score -= Doubled;
