@@ -1034,8 +1034,8 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-	      if (   lmrDepth == 0
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold - 8000
+	      if (   lmrDepth < 3
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold - 5000 * (1 + lmrDepth)
                   && (*contHist[1])[movedPiece][to_sq(move)] == CounterMovePruneThreshold)
                   continue;
 
