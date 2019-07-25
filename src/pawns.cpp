@@ -37,7 +37,6 @@ namespace {
   constexpr Score Isolated      = S( 5, 15);
   constexpr Score WeakLever     = S( 0, 56);
   constexpr Score WeakUnopposed = S(13, 27);
-  constexpr Score RankbasedBad  = S( 1,  3);
 
   // Connected pawn bonus
   constexpr int Connected[RANK_NB] = { 0, 7, 8, 12, 29, 48, 86 };
@@ -137,10 +136,10 @@ namespace {
         }
 
         else if (!neighbours)
-            score -= Isolated + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 4) * abs(r - 4);
+            score -= Isolated + WeakUnopposed * int(!opposed) + make_score(3, 12) * bool(!more_than_one(ourPawns & rank_bb(s)));
 
         else if (backward)
-            score -= Backward + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 4) * abs(r - 4);
+            score -= Backward + WeakUnopposed * int(!opposed) + make_score(3, 12) * bool(!more_than_one(ourPawns & rank_bb(s)));
 
         if (doubled && !support)
             score -= Doubled;
