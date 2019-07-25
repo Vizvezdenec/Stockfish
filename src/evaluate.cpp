@@ -704,7 +704,8 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
-    int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
+    Bitboard b = ~attackedBy[Them][ALL_PIECES] | (attackedBy2[Us] & ~attackedBy2[Them]);
+    int bonus = popcount(safe) + popcount(behind & safe & b);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
