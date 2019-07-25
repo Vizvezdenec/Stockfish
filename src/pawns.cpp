@@ -137,10 +137,10 @@ namespace {
         }
 
         else if (!neighbours)
-            score -= Isolated + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 5);
+            score -= Isolated + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 4) * abs(r - 4);
 
         else if (backward)
-            score -= Backward + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 5);
+            score -= Backward + WeakUnopposed * int(!opposed) + RankbasedBad * (r - 4) * abs(r - 4);
 
         if (doubled && !support)
             score -= Doubled;
