@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, -(PawnValueEg + 20 - std::min(5 * (depth / ONE_PLY) - 5, 100)) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, -(PawnValueEg + 10 * (depth / ONE_PLY)) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
