@@ -651,9 +651,6 @@ namespace {
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
 
-                if (attackedBy[Us][ALL_PIECES] & s)
-                    k += 2;
-
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
