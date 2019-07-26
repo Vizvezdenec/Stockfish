@@ -452,8 +452,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kingDangerBonus =
-                         kingAttackersCount[Them] * kingAttackersWeight[Them]
+    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -466,9 +465,6 @@ namespace {
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDangerBonus > 0)
-    	kingDanger += kingDangerBonus;
-    
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
@@ -607,6 +603,12 @@ namespace {
     Score score = SCORE_ZERO;
 
     b = pe->passed_pawns(Us);
+
+    int npmBlockers = popcount(pos.pieces(Them) & ~pos.pieces(Them, PAWN) & shift<Up>(b));
+    
+    int blockersMargin = npmBlockers * 2 - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them));
+    if (blockersMargin > 0)
+    	score += make_score(5, 5) * blockersMargin * blockersMargin;
 
     while (b)
     {
