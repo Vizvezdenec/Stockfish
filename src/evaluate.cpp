@@ -406,11 +406,7 @@ namespace {
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
-        {
         kingDanger += RookSafeCheck;
-        if (more_than_one(rookChecks & file_bb(ksq)) || more_than_one(rookChecks & rank_bb(ksq)))
-            kingDanger += RookSafeCheck;
-        }
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -456,7 +452,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+    int kingDangerBonus =
+                         kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -469,7 +466,10 @@ namespace {
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 100)
+    if (kingDangerBonus > 0)
+    	kingDanger += kingDangerBonus;
+    
+    if (kingDanger > 0)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
