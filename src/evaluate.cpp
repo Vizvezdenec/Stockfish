@@ -443,7 +443,7 @@ namespace {
 
     // Unsafe or occupied checking squares will also be considered, as long as
     // the square is in the attacker's mobility area.
-    unsafeChecks &= mobilityArea[Them] & ~pos.pieces();
+    unsafeChecks &= mobilityArea[Them];
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
@@ -452,25 +452,12 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    b1 = pos.blockers_for_king(Us) & pos.pieces(Us);
-
-    constexpr int BlockersDanger[PIECE_TYPE_NB] = { 0, 60, 160, 180, 250, 400};
-
-    while(b1)
-    {
-    Square s = pop_lsb(&b1);
-    kingDanger += BlockersDanger[type_of(pos.piece_on(s))];
-    }
-
-    b1 = pos.blockers_for_king(Us) & pos.pieces(Them);
-    kingDanger += 100 * popcount(b1 & pos.pieces(Them, PAWN)) + 200 * popcount(b1 & ~pos.pieces(Them, PAWN));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 + 150 * popcount(unsafeChecks)
+                 + 150 * popcount(pos.blockers_for_king(Us) | unsafeChecks)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -734,8 +721,8 @@ namespace {
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
-    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
+    bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & (QueenSide & ~FileDBB))
+                            && (pos.pieces(PAWN) & (KingSide & ~FileEBB));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
