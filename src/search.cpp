@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384 * ONE_PLY;
 
 	      if (ss->staticEval + 256 + 400 * depth < beta)
-              	  r -= ONE_PLY;
+              	  r += ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
