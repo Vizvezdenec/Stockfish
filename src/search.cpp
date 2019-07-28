@@ -1164,7 +1164,7 @@ moves_loop: // When in check, search starts from here
               if (!captureOrPromotion)
               	  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
               else
-              	  update_capture_stats(pos, bestMove, capturesSearched, captureCount, bonus / 2);
+              	  update_capture_stats(pos, bestMove, capturesSearched, captureCount, 3 * bonus / 4);
           }
       }
 
