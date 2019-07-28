@@ -813,17 +813,17 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -(beta - depth), -(beta - depth)+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
-        if (nullValue >= beta)
+        if (nullValue >= (beta - depth))
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
+                nullValue = (beta - depth);
 
-            if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 12 * ONE_PLY))
+            if (thisThread->nmpMinPly || (abs((beta - depth)) < VALUE_KNOWN_WIN && depth < 12 * ONE_PLY))
                 return nullValue;
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
