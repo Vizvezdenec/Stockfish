@@ -801,7 +801,6 @@ namespace {
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        &&  pos.non_pawn_material(~us) > KnightValueMg
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -814,17 +813,17 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -(beta + 4 * depth), -(beta + 4 * depth)+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
-        if (nullValue >= beta)
+        if (nullValue >= (beta + 4 * depth))
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
+                nullValue = (beta + 4 * depth);
 
-            if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 12 * ONE_PLY))
+            if (thisThread->nmpMinPly || (abs((beta + 4 * depth)) < VALUE_KNOWN_WIN && depth < 12 * ONE_PLY))
                 return nullValue;
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
