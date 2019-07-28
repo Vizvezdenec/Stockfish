@@ -801,6 +801,7 @@ namespace {
         &&  ss->staticEval >= beta - 36 * depth / ONE_PLY + 225
         && !excludedMove
         &&  pos.non_pawn_material(us)
+        &&  pos.non_pawn_material(~us) > KnightValueMg
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -973,17 +974,11 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              int bonus = stat_bonus(depth + ONE_PLY) / 4;
               extension = ONE_PLY;
               singularLMR++;
 
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
-                  {
                   singularLMR++;
-                  bonus += bonus;
-                  }
-              if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
 
           // Multi-cut pruning
