@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              int bonus = stat_bonus(depth + ONE_PLY) / 2;
+              int bonus = stat_bonus(depth + ONE_PLY);
               extension = ONE_PLY;
               singularLMR++;
 
