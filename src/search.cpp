@@ -973,11 +973,17 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
+              int bonus = stat_bonus(depth + ONE_PLY) / 2;
               extension = ONE_PLY;
               singularLMR++;
 
               if (value < singularBeta - std::min(3 * depth / ONE_PLY, 39))
+                  {
                   singularLMR++;
+                  bonus += bonus;
+                  }
+              if (!captureOrPromotion)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
 
           // Multi-cut pruning
