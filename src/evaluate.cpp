@@ -458,7 +458,7 @@ namespace {
     int ourAttacks = kingAttackersCount[Us] * kingAttackersWeight[Us]
                  +  69 * kingAttacksCount[Us];
     
-    kingDanger -= std::max(0, ourAttacks - theirAttacks - 200) / 4;
+    kingDanger -= std::max(0, ourAttacks - theirAttacks - 400) / 2;
 
     kingDanger +=        theirAttacks
                  + 185 * popcount(kingRing[Us] & weak)
