@@ -1051,8 +1051,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (  (!givesCheck || !extension) && ((ss->staticEval + PieceValue[MG][pos.captured_piece()] <= alpha - RookValueMg) || 
-                     !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY)))) // (~20 Elo)
+          else if (  (!givesCheck || !extension)
+                   && !pos.see_ge(move, -PawnValueEg * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1103,6 +1103,9 @@ moves_loop: // When in check, search starts from here
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
+
+              if ((ss-1)->moveCount > 5 && (pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK) > BishopValueMg))
+              	  r -= ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
