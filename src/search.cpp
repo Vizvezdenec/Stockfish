@@ -1104,7 +1104,7 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r += ONE_PLY;
 
-              if ((ss-1)->moveCount > 5 && (pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK) > BishopValueMg))
+ 	      if ((ss-1)->moveCount > 5 && abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > BishopValueMg)
               	  r -= ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
