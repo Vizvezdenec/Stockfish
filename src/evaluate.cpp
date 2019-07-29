@@ -661,8 +661,6 @@ namespace {
             || (pos.pieces(PAWN) & (s + Up)))
             bonus = bonus / 2;
 
-        if (!pos.non_pawn_material(Them))
-            bonus = bonus * 17 / 16;
         score += bonus - PassedFile * std::min(f, ~f);
     }
 

@@ -1035,10 +1035,19 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
+              int conthistPruning = ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold) * 10
+                                  + ((*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold) * 10
+                                  + ((*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold) * 3
+                                  + ((*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold) * 3
+                                  + (thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold) * 3
+                                  - 30 * (((*contHist[0])[movedPiece][to_sq(move)] > CounterMovePruneThreshold) || 
+                                          ((*contHist[1])[movedPiece][to_sq(move)] > CounterMovePruneThreshold))
+                                  - 20 * ((*contHist[3])[movedPiece][to_sq(move)] > CounterMovePruneThreshold ||
+                                          (*contHist[5])[movedPiece][to_sq(move)] > CounterMovePruneThreshold ||
+                                          thisThread->mainHistory[us][from_to(move)] > CounterMovePruneThreshold);
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 3 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && conthistPruning >= 0)
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
