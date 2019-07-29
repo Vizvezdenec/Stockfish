@@ -205,7 +205,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int mobilityNumber[COLOR_NB];
   };
 
 
@@ -249,7 +248,6 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-    mobilityNumber[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -293,7 +291,6 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
-        mobilityNumber[Us] += mob;
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -455,8 +452,15 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  69 * kingAttacksCount[Them]
+    int theirAttacks = kingAttackersCount[Them] * kingAttackersWeight[Them]
+                 +  69 * kingAttacksCount[Them];
+
+    int ourAttacks = kingAttackersCount[Us] * kingAttackersWeight[Us]
+                 +  69 * kingAttacksCount[Us];
+    
+    kingDanger -= std::max(0, ourAttacks - theirAttacks - 200) / 4;
+
+    kingDanger +=        theirAttacks
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
@@ -548,10 +552,7 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
-    int restriction = popcount(b);
-    score += RestrictedPiece * restriction;
-    if (mobilityNumber[Them] < restriction)
-    	score += make_score(10, 10) * (restriction - mobilityNumber[Them]);
+    score += RestrictedPiece * popcount(b);
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
