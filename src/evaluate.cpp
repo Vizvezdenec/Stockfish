@@ -452,15 +452,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int theirAttacks = kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  69 * kingAttacksCount[Them];
-
-    int ourAttacks = kingAttackersCount[Us] * kingAttackersWeight[Us]
-                 +  69 * kingAttacksCount[Us];
-    
-    kingDanger -= std::max(0, ourAttacks - theirAttacks - 500) / 4;
-
-    kingDanger +=        theirAttacks
+    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+                 +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
