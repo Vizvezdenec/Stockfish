@@ -662,7 +662,7 @@ namespace {
             bonus = bonus / 2;
 
         if (!pos.non_pawn_material(Them))
-            bonus = bonus * 5 / 4;
+            bonus = bonus * 17 / 16;
         score += bonus - PassedFile * std::min(f, ~f);
     }
 
