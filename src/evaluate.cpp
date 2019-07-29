@@ -138,7 +138,7 @@ namespace {
   constexpr Score Outpost            = S( 18,  6);
   constexpr Score PassedFile         = S( 11,  8);
   constexpr Score PawnlessFlank      = S( 17, 95);
-  constexpr Score RestrictedPiece    = S(  7,  7);
+  constexpr Score RestrictedPiece    = S(  8,  8);
   constexpr Score RookOnPawn         = S( 10, 32);
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
@@ -543,7 +543,7 @@ namespace {
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
-       &  attackedBy[Us][ALL_PIECES];
+       &  attackedBy[Us][ALL_PIECES] & ~(Rank1BB | Rank8BB);
 
     score += RestrictedPiece * popcount(b);
 
