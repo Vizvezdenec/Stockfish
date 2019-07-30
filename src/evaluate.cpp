@@ -348,7 +348,7 @@ namespace {
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
-                score += RookOnFile[!(pos.pieces(Them, PAWN) & forward_file_bb(Us, s))];
+                score += RookOnFile[bool(pos.is_on_semiopen_file(Them, s))];
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
@@ -519,7 +519,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            if (type_of(pos.piece_on(s)) != PAWN || (pe->passed_pawns(Them) & s))
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
@@ -528,7 +528,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
-            if (type_of(pos.piece_on(s)) != PAWN)
+            if (type_of(pos.piece_on(s)) != PAWN || (pe->passed_pawns(Them) & s))
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
