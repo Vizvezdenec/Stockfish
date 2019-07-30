@@ -580,15 +580,16 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    Bitboard bb = 0;
     b = pos.pieces(Them, ROOK);
+    safe = ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
     while (b)
     {
     	Square s = pop_lsb(&b);
-    	safe = ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
         
-        Bitboard bb = (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s)) | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
-        score += make_score(15, 5) * popcount(bb & safe);
+        bb |= (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s)) | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
     }
+    score += make_score(15, 5) * popcount(bb & safe);
     if (T)
         Trace::add(THREAT, Us, score);
 
