@@ -590,7 +590,7 @@ namespace {
 
         bb |= (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s)) | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
     }
-    score += make_score(10, 3) * popcount(bb & safe);
+    score += make_score(20, 7) * popcount(bb & safe);
 
     if (T)
         Trace::add(THREAT, Us, score);
