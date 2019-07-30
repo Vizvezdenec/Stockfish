@@ -1073,10 +1073,12 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool badMove = cutNode && (ss-1)->statScore > 30000 && !captureOrPromotion;
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1 + 3 * rootNode
+          &&  moveCount > 1 + 3 * rootNode - badMove
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
@@ -1105,7 +1107,7 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Increase reduction for cut nodes (~5 Elo)
-              if (cutNode)
+              if (cutNode && !badMove)
                   r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
