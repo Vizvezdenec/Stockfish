@@ -1027,8 +1027,10 @@ moves_loop: // When in check, search starts from here
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
+
+              bool singularEndgame = (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) < 3);
               // Move count based pruning
-              if (moveCountPruning && !(type_of(movedPiece) == PAWN && relative_rank(us, to_sq(move)) > RANK_3))
+              if (moveCountPruning && !singularEndgame)
                   continue;
 
               // Reduced depth of the next LMR search
