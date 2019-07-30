@@ -564,32 +564,24 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
-    // Bonus for threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1)
-    {
-        Square s = pos.square<QUEEN>(Them);
-        safe = mobilityArea[Us] & ~stronglyProtected;
-
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
-
-        score += KnightOnQueen * popcount(b & safe);
-
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
-
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-    }
-
+    safe = mobilityArea[Us] & ~stronglyProtected;
+    b = pos.pieces(Them, QUEEN);
     Bitboard bb = 0;
-    b = pos.pieces(Them, ROOK);
-    safe = ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
-    while (b)
+    Bitboard bbb = 0;
+    // Bonus for threats on the next moves against enemy queen
+    while(b)
     {
-    	Square s = pop_lsb(&b);
-        
-        bb |= (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s)) | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
+        Square s = pop_lsb(&b);
+
+        bb |= attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+
+        bbb |=  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
     }
-    score += make_score(15, 5) * popcount(bb & safe);
+
+    score += KnightOnQueen * popcount(bb & safe);
+    score += SliderOnQueen * popcount(bbb & safe & attackedBy2[Us]);
+
     if (T)
         Trace::add(THREAT, Us, score);
 
