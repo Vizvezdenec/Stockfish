@@ -129,7 +129,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S( 10,  0);
+  constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -452,8 +452,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kingFlankDefence = popcount(b1 & ~weak);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -476,8 +474,6 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
-
-    score += make_score(2, 0) * kingFlankDefence;
 
     if (T)
         Trace::add(KING, Us, score);
@@ -584,6 +580,15 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    b = pos.pieces(Them, ROOK);
+    while (b)
+    {
+    	Square s = pop_lsb(&b);
+    	safe = ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]);
+        
+        Bitboard bb = (attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s)) | (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s));
+        score += make_score(15, 5) * popcount(bb & safe);
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
