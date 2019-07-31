@@ -85,6 +85,7 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
+    e->forwardPawns[Us] = 0;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -140,6 +141,9 @@ namespace {
 
         else if (backward)
             score -= Backward + WeakUnopposed * int(!opposed);
+
+        if (r > RANK_4 && !(neighbours & passed_pawn_span(Us, s - Up - Up - Up)))
+            e->forwardPawns[Us] |= s;
 
         if (doubled && !support)
             score -= Doubled;
