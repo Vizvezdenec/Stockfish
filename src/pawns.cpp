@@ -142,7 +142,7 @@ namespace {
         else if (backward)
             score -= Backward + WeakUnopposed * int(!opposed);
 
-        if (r > RANK_4 && !(neighbours & passed_pawn_span(Us, s - Up - Up - Up)))
+        if (r > RANK_4 && !(neighbours & passed_pawn_span(Us, s - Up - Up - Up)) && neighbours)
             e->forwardPawns[Us] |= s;
 
         if (doubled && !support)
