@@ -572,11 +572,7 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        b &= safe;
-
-        score += KnightOnQueen * popcount(b);
-        if (pos.attacks_from<KNIGHT>(pos.square<KING>(Them)) & b)
-             score += KnightOnQueen * 3;
+        score += KnightOnQueen * popcount(b & safe);
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
