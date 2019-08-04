@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if (    depth >= 6 * ONE_PLY
+      if (    depth >= (6 - (move == ss->killers[0])) * ONE_PLY
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
@@ -965,7 +965,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = move == ss->killers[0] ? ttValue - 7 * depth / ONE_PLY / 4: ttValue - 9 * depth / ONE_PLY / 4;
+          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
