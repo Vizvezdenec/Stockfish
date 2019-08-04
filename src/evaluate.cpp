@@ -308,7 +308,7 @@ namespace {
             // Knight and Bishop bonus for being right behind a pawn
             if (bb & s)
                 score += MinorBehindPawn;
-            else if (bb & b & mobilityArea[Us])
+            else if (bb & b & ~(pos.pieces(Us) | attackedBy[Them][PAWN]))
                 score += MinorBehindPawn / 2;
 
             // Penalty if the piece is far from the king
