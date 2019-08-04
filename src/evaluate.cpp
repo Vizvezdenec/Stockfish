@@ -189,6 +189,7 @@ namespace {
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
 
+    int distantDefenders[COLOR_NB];
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
@@ -248,6 +249,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    distantDefenders[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -294,6 +296,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (mob < 3 && distance<Rank>(pos.square<KING>(Us), s) > 3)
+            distantDefenders[Us]++;
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
@@ -304,12 +309,9 @@ namespace {
             else if (bb & b & ~pos.pieces(Us))
                 score += Outpost * (Pt == KNIGHT ? 2 : 1);
 
-            bb = shift<Down>(pos.pieces(PAWN));
             // Knight and Bishop bonus for being right behind a pawn
-            if (bb & s)
+            if (shift<Down>(pos.pieces(PAWN)) & s)
                 score += MinorBehindPawn;
-            else if (bb & b & ~(pos.pieces(Us) | attackedBy[Them][PAWN]))
-                score += MinorBehindPawn / 2;
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
@@ -454,6 +456,8 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    kingDanger += 3 * distantDefenders[Us] * distantDefenders[Us];
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
