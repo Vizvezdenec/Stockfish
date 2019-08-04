@@ -545,9 +545,6 @@ namespace {
        & ~stronglyProtected
        &  attackedBy[Us][ALL_PIECES];
 
-    b |= attackedBy[Them][QUEEN] & ~(attackedBy[Them][BISHOP] | attackedBy[Them][KNIGHT])
-         & (attackedBy[Us][BISHOP] | attackedBy[Us][KNIGHT]);
-
     score += RestrictedPiece * popcount(b);
 
     // Find squares where our pawns can push on the next move
