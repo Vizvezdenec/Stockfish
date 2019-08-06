@@ -452,8 +452,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger -= std::max(popcount(KingFlank[file_of(ksq)] & Camp & attackedBy2[Us]) - kingFlankAttacks, 0) * 5;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
