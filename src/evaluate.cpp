@@ -650,6 +650,8 @@ namespace {
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
+                else if (PawnAttacks[Them][blockSq] & shift<Up>(pos.pieces(Us, PAWN)) & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Them)))
+                    k += 3;
 
                 bonus += make_score(k * w, k * w);
             }
@@ -701,7 +703,7 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    int weight = std::min(pos.count<ALL_PIECES>(Us), pos.count<ALL_PIECES>(Them) + 1) - 1;
+    int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
