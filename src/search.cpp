@@ -596,6 +596,7 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
+    bool nullMove = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -812,6 +813,8 @@ namespace {
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
 
         pos.do_null_move(st);
+
+        nullMove = true;
 
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
@@ -1147,16 +1150,13 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (doLMR && !captureOrPromotion)
+          if (doLMR && !captureOrPromotion && !nullMove)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
-
-              if ((ss-1)->currentMove == MOVE_NULL)
-              	  bonus *= 2;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
