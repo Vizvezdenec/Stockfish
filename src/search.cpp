@@ -798,7 +798,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22661
         &&  eval >= beta
-        &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299
+        &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 330 - improving * 75
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1126,8 +1126,7 @@ moves_loop: // When in check, search starts from here
               if (ss->statScore >= -99 && (ss-1)->statScore < -116)
                   r -= ONE_PLY;
 
-              else if (((ss-1)->statScore >= -117 && ss->statScore < -144)
-                       || (ss->statScore < -99 && (ss-1)->statScore >=5000))
+              else if ((ss-1)->statScore >= -117 && ss->statScore < -144)
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
