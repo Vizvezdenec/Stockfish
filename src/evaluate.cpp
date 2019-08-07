@@ -564,6 +564,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    score += make_score(1, 1) * popcount(mobilityArea[Us] & attackedBy[Us][ALL_PIECES]);
+
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
@@ -650,8 +652,6 @@ namespace {
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
-                else if (PawnAttacks[Them][blockSq] & shift<Up>(pos.pieces(Us, PAWN)) & ~(attackedBy[Them][ALL_PIECES] | pos.pieces(Them)))
-                    k += 3;
 
                 bonus += make_score(k * w, k * w);
             }
