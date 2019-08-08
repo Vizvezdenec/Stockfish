@@ -381,7 +381,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -453,12 +452,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    Bitboard discocheck;
-
-    if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, QUEEN), ksq, discocheck) 
-        & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())))
-    	kingDanger += BishopSafeCheck;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -474,6 +467,11 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    else if (kingDanger > -900)
+    {
+    kingDanger = (kingDanger + 900)/10;
+        score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+    }
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
