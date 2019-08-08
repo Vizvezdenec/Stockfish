@@ -206,6 +206,7 @@ namespace {
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
     bool unstoppablePassed[COLOR_NB];
+    int unstoppableRank[COLOR_NB];
   };
 
 
@@ -254,6 +255,7 @@ namespace {
     kingRing[Us] &= ~dblAttackByPawn;
 
     unstoppablePassed[Us] = false;
+    unstoppableRank[Us] = 0;
   }
 
 
@@ -654,8 +656,11 @@ namespace {
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
 
-                if (!pos.non_pawn_material(Them) && (distance<File>(pos.square<KING>(Them), s) > 9 - r))
-                    unstoppablePassed[Us] = true;
+                if (!pos.non_pawn_material(Them) && (distance<File>(pos.square<KING>(Them), s) > 8 - r))
+                {
+                unstoppablePassed[Us] = true;
+                unstoppableRank[Us] = std::max(unstoppableRank[Us], r);
+                }
 
                 bonus += make_score(k * w, k * w);
             }
@@ -822,7 +827,8 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += make_score(0, 600) * (unstoppablePassed[WHITE] - unstoppablePassed[BLACK]);
+    if (abs(unstoppableRank[WHITE] - unstoppableRank[BLACK]) > 1)
+    	score += make_score(0, 600) * (unstoppablePassed[WHITE] - unstoppablePassed[BLACK]);
 
     score += initiative(eg_value(score));
 
