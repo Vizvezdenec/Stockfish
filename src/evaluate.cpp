@@ -165,7 +165,7 @@ namespace {
     template<Color Us, PieceType Pt> Score pieces();
     template<Color Us> Score king() const;
     template<Color Us> Score threats() const;
-    template<Color Us> Score passed() const;
+    template<Color Us> Score passed();
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
     Score initiative(Value eg) const;
@@ -205,6 +205,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    bool unstoppablePassed[COLOR_NB];
   };
 
 
@@ -251,6 +252,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    unstoppablePassed[Us] = false;
   }
 
 
@@ -590,7 +593,7 @@ namespace {
   // pawns of the given color.
 
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::passed() const {
+  Score Evaluation<T>::passed() {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
@@ -652,7 +655,7 @@ namespace {
                     k += 5;
 
                 if (!pos.non_pawn_material(Them) && (distance<File>(pos.square<KING>(Them), s) > 9 - r))
-                    bonus += make_score(300, 300);
+                    unstoppablePassed[Us] = true;
 
                 bonus += make_score(k * w, k * w);
             }
@@ -818,6 +821,8 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
+
+    score += make_score(300, 300) * (unstoppablePassed[WHITE] - unstoppablePassed[BLACK]);
 
     score += initiative(eg_value(score));
 
