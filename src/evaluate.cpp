@@ -822,7 +822,7 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += make_score(300, 300) * (unstoppablePassed[WHITE] - unstoppablePassed[BLACK]);
+    score += make_score(0, 600) * (unstoppablePassed[WHITE] - unstoppablePassed[BLACK]);
 
     score += initiative(eg_value(score));
 
