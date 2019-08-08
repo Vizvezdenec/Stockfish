@@ -381,6 +381,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
 
     Bitboard weak, b1, b2, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -451,6 +452,12 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    Bitboard discocheck;
+
+    if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP) | pos.pieces(Them, QUEEN), ksq, discocheck) 
+        & pos.pieces(Them) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces())))
+    	kingDanger += BishopSafeCheck;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
