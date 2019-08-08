@@ -581,10 +581,10 @@ namespace {
 
         score += SliderOnQueen * popcount(b);
 
-        b &= (pos.attacks_from<BISHOP>(pos.square<KING>(Them)) & attackedBy[Us][BISHOP])
-          | (pos.attacks_from<ROOK>(pos.square<KING>(Them)) & attackedBy[Us][ROOK]);
+        b &= (attacks_bb<BISHOP>(pos.square<KING>(Them), pos.pieces() ^ pos.pieces(Them, QUEEN)) & attackedBy[Us][BISHOP])
+          | (attacks_bb<ROOK>(pos.square<KING>(Them), pos.pieces() ^ pos.pieces(Them, QUEEN)) & attackedBy[Us][ROOK]);
 
-        score += SliderOnQueen * 2 * popcount(b);
+        score += SliderOnQueen * popcount(b);
     }
 
     if (T)
