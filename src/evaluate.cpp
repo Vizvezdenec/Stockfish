@@ -577,14 +577,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        b &= safe & attackedBy2[Us];
-
-        score += SliderOnQueen * popcount(b);
-
-        b &= (attacks_bb<BISHOP>(pos.square<KING>(Them), pos.pieces() ^ pos.pieces(Them, QUEEN)) & attackedBy[Us][BISHOP])
-          | (attacks_bb<ROOK>(pos.square<KING>(Them), pos.pieces() ^ pos.pieces(Them, QUEEN)) & attackedBy[Us][ROOK]);
-
-        score += SliderOnQueen * popcount(b);
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
@@ -657,6 +650,9 @@ namespace {
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
+
+                if (!pos.non_pawn_material(Them) && (distance<File>(pos.square<KING>(Them), s) > 9 - r))
+                    bonus += make_score(300, 300);
 
                 bonus += make_score(k * w, k * w);
             }
