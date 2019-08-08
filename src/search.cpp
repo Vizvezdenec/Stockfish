@@ -849,7 +849,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 191 - 46 * improving + 23 * std::max((depth - 10 * ONE_PLY) / ONE_PLY, 0), VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -1046,7 +1046,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-239) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
