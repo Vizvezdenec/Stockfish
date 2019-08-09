@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 760;
+  constexpr int RookSafeCheck   = 1060;
+  constexpr int BishopSafeCheck = 615;
+  constexpr int KnightSafeCheck = 770;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -402,13 +402,13 @@ namespace {
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
-    int r = relative_rank(Us, ksq);
+    int r = relative_rank(Us, ksq) * 10;
 
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
-        kingDanger += RookSafeCheck + r * 20;
+        kingDanger += RookSafeCheck + r;
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -421,7 +421,7 @@ namespace {
                  & ~rookChecks;
 
     if (queenChecks)
-        kingDanger += QueenSafeCheck + r * 20;
+        kingDanger += QueenSafeCheck + r;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -431,7 +431,7 @@ namespace {
                   & ~queenChecks;
 
     if (bishopChecks)
-        kingDanger += BishopSafeCheck + r * 20;
+        kingDanger += BishopSafeCheck + r;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
@@ -439,7 +439,7 @@ namespace {
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
     if (knightChecks & safe)
-        kingDanger += KnightSafeCheck + r * 20;
+        kingDanger += KnightSafeCheck + r;
     else
         unsafeChecks |= knightChecks;
 
