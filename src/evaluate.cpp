@@ -732,6 +732,9 @@ namespace {
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
+    if (pos.opposite_bishops() && abs(eg) < 100)
+    	complexity -= (100 - abs(eg)) / 4;
+
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
@@ -811,12 +814,8 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    Score kingEval = king<   WHITE>() - king<   BLACK>();
-    Value mg = mg_value(kingEval) + mg_value(kingEval) / 4 * pos.opposite_bishops();
-    Value eg = eg_value(kingEval) - eg_value(kingEval) / 4 * pos.opposite_bishops();
-    score += make_score(mg, eg);
-
-    score += threats<WHITE>() - threats<BLACK>()
+    score +=  king<   WHITE>() - king<   BLACK>()
+            + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
