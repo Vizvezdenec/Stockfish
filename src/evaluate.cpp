@@ -686,10 +686,18 @@ namespace {
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+    Bitboard SpaceMask = CenterFiles;
 
+    if (file_of(pos.square<KING>(Us)) - file_of(pos.square<KING>(Them)) <= 1)
+    {
+    	if (file_of(pos.square<KING>(Us)) < FILE_E)
+            SpaceMask |= FileBBB;
+        else 
+            SpaceMask |= FileGBB;
+    }
+
+    Us == WHITE ? SpaceMask &= (Rank2BB | Rank3BB | Rank4BB)
+                : SpaceMask &= (Rank7BB | Rank6BB | Rank5BB);
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
