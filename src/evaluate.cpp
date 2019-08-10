@@ -688,12 +688,12 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     Bitboard SpaceMask = CenterFiles;
 
-    if (file_of(pos.square<KING>(Us)) - file_of(pos.square<KING>(Them)) <= 1)
+    if (distance<File>(pos.square<KING>(Us), pos.square<KING>(Them)) <= 1)
     {
     	if (file_of(pos.square<KING>(Us)) < FILE_C || file_of(pos.square<KING>(Them)) < FILE_C)
-            SpaceMask |= FileBBB;
-        else if (file_of(pos.square<KING>(Us)) > FILE_F || file_of(pos.square<KING>(Them)) > FILE_F)
             SpaceMask |= FileGBB;
+        else if (file_of(pos.square<KING>(Us)) > FILE_F || file_of(pos.square<KING>(Them)) > FILE_F)
+            SpaceMask |= FileBBB;
     }
 
     Us == WHITE ? SpaceMask &= (Rank2BB | Rank3BB | Rank4BB)
