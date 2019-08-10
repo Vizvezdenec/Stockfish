@@ -690,9 +690,9 @@ namespace {
 
     if (file_of(pos.square<KING>(Us)) - file_of(pos.square<KING>(Them)) <= 1)
     {
-    	if (file_of(pos.square<KING>(Us)) < FILE_E)
+    	if (file_of(pos.square<KING>(Us)) < FILE_C || file_of(pos.square<KING>(Them)) < FILE_C)
             SpaceMask |= FileBBB;
-        else 
+        else if (file_of(pos.square<KING>(Us)) > FILE_F || file_of(pos.square<KING>(Them)) > FILE_F)
             SpaceMask |= FileGBB;
     }
 
