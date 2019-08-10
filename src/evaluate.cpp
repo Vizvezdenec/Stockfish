@@ -686,18 +686,10 @@ namespace {
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    Bitboard SpaceMask = CenterFiles;
+    constexpr Bitboard SpaceMask =
+      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
+                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
 
-    if (distance<File>(pos.square<KING>(Us), pos.square<KING>(Them)) <= 1)
-    {
-    	if (file_of(pos.square<KING>(Us)) < FILE_C || file_of(pos.square<KING>(Them)) < FILE_C)
-            SpaceMask |= FileHBB;
-        else if (file_of(pos.square<KING>(Us)) > FILE_F || file_of(pos.square<KING>(Them)) > FILE_F)
-            SpaceMask |= FileABB;
-    }
-
-    Us == WHITE ? SpaceMask &= (Rank2BB | Rank3BB | Rank4BB)
-                : SpaceMask &= (Rank7BB | Rank6BB | Rank5BB);
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
@@ -819,8 +811,12 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score +=  king<   WHITE>() - king<   BLACK>()
-            + threats<WHITE>() - threats<BLACK>()
+    Score kingEval = king<   WHITE>() - king<   BLACK>();
+    Value mg = mg_value(kingEval) + mg_value(kingEval) / 4 * pos.opposite_bishops();
+    Value eg = eg_value(kingEval) - eg_value(kingEval) / 4 * pos.opposite_bishops();
+    score += make_score(mg, eg);
+
+    score += threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
