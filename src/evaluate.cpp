@@ -463,7 +463,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +       (restrictedCount[Us] - restrictedCount[Them]) * abs(restrictedCount[Us] - restrictedCount[Them]) / 8
+                 -       (restrictedCount[Us] - restrictedCount[Them]) * abs(restrictedCount[Us] - restrictedCount[Them]) / 8
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
