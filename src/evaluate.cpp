@@ -489,6 +489,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = (Us == WHITE ? NORTH   : SOUTH);
+    constexpr Direction Down     = (Us == BLACK ? NORTH   : SOUTH);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -578,6 +579,14 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
+
+    if (pos.count<BISHOP>(Us) == 1 && pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) == 2)
+    {
+    	if (DarkSquares & pos.pieces(Us, BISHOP))
+            score -= make_score(0, 30) * popcount(pos.pieces(Us, PAWN) & ~DarkSquares & shift<Down>(pos.pieces(Them) & ~pe->pawn_attacks_span(Us)));
+        else 
+            score -= make_score(0, 30) * popcount(pos.pieces(Us, PAWN) & DarkSquares & shift<Down>(pos.pieces(Them) & ~pe->pawn_attacks_span(Us)));        
     }
 
     if (T)
