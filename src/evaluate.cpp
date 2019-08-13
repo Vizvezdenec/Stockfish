@@ -393,7 +393,8 @@ namespace {
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
           & ~attackedBy2[Us]
-          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN] 
+              | pawn_attacks_bb<Us>(pos.blockers_for_king(Us) & pos.pieces(Us, PAWN)));
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -420,8 +421,6 @@ namespace {
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
-    else 
-        unsafeChecks |= (b1 | b2) & attackedBy[Them][QUEEN] & weak & attackedBy[Us][QUEEN];
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
