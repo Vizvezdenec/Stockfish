@@ -615,7 +615,9 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-            int w = std::max(5 * r - 13, 1);
+        if (r > RANK_3)
+        {
+            int w = 5 * r - 13;
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -650,7 +652,8 @@ namespace {
                     k += 5;
 
                 bonus += make_score(k * w, k * w);
-            } // r > RANK_3
+            }
+        } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
@@ -678,9 +681,6 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold)
-        return SCORE_ZERO;
-
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
@@ -699,7 +699,7 @@ namespace {
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
-    Score score = make_score(bonus * weight * weight / 16, 0);
+    Score score = make_score(bonus * weight * weight / 16, bonus * weight);
 
     if (T)
         Trace::add(SPACE, Us, score);
