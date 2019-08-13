@@ -290,11 +290,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
-        int mob = 0;
-        if (Pt == KNIGHT)
-            mob = popcount(b & mobilityArea[Us]);
-        else 
-            mob = popcount(b & (mobilityArea[Us] | (pos.pieces(Us, QUEEN) & ~attackedBy[Them][PAWN])));
+        int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -619,9 +615,7 @@ namespace {
 
         Score bonus = PassedRank[r];
 
-        if (r > RANK_3)
-        {
-            int w = 5 * r - 13;
+            int w = std::max(5 * r - 13, 1);
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
@@ -656,8 +650,7 @@ namespace {
                     k += 5;
 
                 bonus += make_score(k * w, k * w);
-            }
-        } // r > RANK_3
+            } // r > RANK_3
 
         // Scale down bonus for candidate passers which need more than one
         // pawn push to become passed, or have a pawn in front of them.
