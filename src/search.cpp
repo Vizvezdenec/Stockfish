@@ -594,6 +594,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
+    bool doFullDepthSearch2 = false;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
 
@@ -1092,9 +1093,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
-          if (givesCheck && extension && captureOrPromotion)
-	      r -= ONE_PLY;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1141,6 +1139,8 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
+
+          doFullDepthSearch2 = (d != newDepth && value > alpha + (alpha - beta) * 2);
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
@@ -1157,6 +1157,8 @@ moves_loop: // When in check, search starts from here
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
+
+              bonus *= 1 + doFullDepthSearch2;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
