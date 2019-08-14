@@ -724,10 +724,8 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
     // Compute the initiative bonus for the attacking side
-    int complexity =  18 * popcount(pe->passed_pawns(strongSide))
+    int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
