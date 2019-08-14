@@ -421,6 +421,8 @@ namespace {
     if (queenChecks)
         kingDanger += QueenSafeCheck;
 
+    safe |= ~attackedBy2[Us] & attackedBy2[Them] & attackedBy[Us][ROOK];
+
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     bishopChecks =  b2
@@ -454,8 +456,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
-                 +  78 * popcount(pos.blockers_for_king(Us) & pos.pieces(Us))
-                 + 128 * popcount(pos.blockers_for_king(Us) & pos.pieces(Them))
+                 +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
