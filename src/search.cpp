@@ -1133,7 +1133,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384 * ONE_PLY;
           }
           else if (square_bb(to_sq(move)) & to_sq((ss-1)->currentMove))
-              r -= ONE_PLY;
+              r += ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
