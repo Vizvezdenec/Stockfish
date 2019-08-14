@@ -1090,10 +1090,7 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
-          r -= singularLMR * ONE_PLY;
-
-          if (givesCheck && captureOrPromotion)
-              r -= ONE_PLY;
+          r -= singularLMR * (1 + (givesCheck && captureOrPromotion)) * ONE_PLY;
 
           if (!captureOrPromotion)
           {
