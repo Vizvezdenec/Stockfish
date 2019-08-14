@@ -719,17 +719,19 @@ namespace {
   Score Evaluation<T>::initiative(Value eg) const {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
-                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK)) 
-                     * (rank_of(pos.square<KING>(WHITE)) < rank_of(pos.square<KING>(BLACK))) ;
+                     - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
+
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
+                    - 18 * !(pe->passed_pawns(strongSide))
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
