@@ -700,10 +700,9 @@ namespace {
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
 
-    int bonus = popcount(safe) + popcount(behind & safe);
+    int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
-    score -= make_score(8, 0) * popcount(safe & attackedBy[Them][ALL_PIECES]);
 
     if (T)
         Trace::add(SPACE, Us, score);
@@ -725,11 +724,16 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+    bool lesserStrongPieces = ((pos.count<ALL_PIECES>(strongSide) - pos.count<PAWN>(strongSide)) -
+                              (pos.count<ALL_PIECES>(~strongSide) - pos.count<PAWN>(~strongSide))) > 1;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
+                    + 18 * lesserStrongPieces
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
