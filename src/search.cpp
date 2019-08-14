@@ -63,7 +63,7 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 661;
-  Value futility_margin[8][2] = {
+  Value futility_margin[15][2] = {
     { Value(   0), Value(   0) }, // depth 0
     { Value( 381), Value(   0) }, // depth 1
     { Value( 420), Value( 225) }, // depth 2
@@ -72,6 +72,13 @@ namespace {
     { Value( 864), Value( 653) }, // depth 5
     { Value(1081), Value( 787) }, // depth 6
     { Value(1201), Value( 872) }, // depth 7 
+    { Value(1245), Value( 850) }, // depth 8
+    { Value(1493), Value(1164) }, // depth 9
+    { Value(1761), Value(1220) }, // depth 10
+    { Value(2060), Value(1328) }, // depth 11
+    { Value(2034), Value(1301) }, // depth 12
+    { Value(2078), Value(1503) }, // depth 13
+    { Value(2181), Value(1589) }, // depth 14
     };
 
   // Reductions lookup table, initialized at startup
@@ -795,7 +802,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
-        &&  depth < 8 * ONE_PLY
+        &&  depth < 15 * ONE_PLY
         &&  eval - futility_margin[depth / ONE_PLY] [improving] >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
