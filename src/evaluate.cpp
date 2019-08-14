@@ -727,11 +727,10 @@ namespace {
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
+    int complexity =  18 * popcount(pe->passed_pawns(strongSide))
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
-                    - 18 * !(pe->passed_pawns(strongSide))
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
