@@ -794,7 +794,7 @@ namespace {
         return eval;
     else if (!PvNode
         &&  depth > 6 * ONE_PLY
-        &&  eval + 2 * futility_margin(depth, improving) < alpha
+        &&  eval + 500 * depth / ONE_PLY < alpha
         &&  eval > - VALUE_KNOWN_WIN)
         return eval;
 
