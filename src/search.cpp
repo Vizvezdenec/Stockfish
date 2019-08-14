@@ -792,11 +792,6 @@ namespace {
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
-    else if (!PvNode
-        &&  depth > 6 * ONE_PLY
-        &&  eval + 500 * depth / ONE_PLY < alpha
-        &&  eval > - VALUE_KNOWN_WIN)
-        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1137,6 +1132,8 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
+          else if (square_bb(to_sq(move)) & to_sq((ss-1)->currentMove))
+              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
