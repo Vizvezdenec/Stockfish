@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 605;
-  constexpr int KnightSafeCheck = 760;
+  constexpr int QueenSafeCheck  = 760;
+  constexpr int RookSafeCheck   = 1060;
+  constexpr int BishopSafeCheck = 585;
+  constexpr int KnightSafeCheck = 740;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -449,6 +449,8 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    kingDanger += 20 * popcount(rookChecks | queenChecks | bishopChecks | knightChecks);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
