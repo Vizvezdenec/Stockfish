@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 760;
-  constexpr int RookSafeCheck   = 1060;
-  constexpr int BishopSafeCheck = 585;
-  constexpr int KnightSafeCheck = 740;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
+  constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -421,8 +421,6 @@ namespace {
     if (queenChecks)
         kingDanger += QueenSafeCheck;
 
-    safe |= ~attackedBy2[Us] & attackedBy2[Them] & attackedBy[Us][ROOK];
-
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     bishopChecks =  b2
@@ -449,8 +447,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    kingDanger += 20 * popcount(rookChecks | queenChecks | bishopChecks | knightChecks);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -517,6 +513,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
+            score += make_score(distance(s, pos.square<KING>(Them)) - 5, 0);
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -526,6 +523,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
+            score += make_score(distance(s, pos.square<KING>(Them)) - 5, 0);
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
