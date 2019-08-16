@@ -513,7 +513,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
-            score += make_score(distance(s, pos.square<KING>(Them)) - 5, 0);
+            score += make_score(2 * distance(s, pos.square<KING>(Them)) - 10, 0);
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
@@ -523,7 +523,7 @@ namespace {
         {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
-            score += make_score(distance(s, pos.square<KING>(Them)) - 5, 0);
+            score += make_score(2 * distance(s, pos.square<KING>(Them)) - 10, 0);
             if (type_of(pos.piece_on(s)) != PAWN)
                 score += ThreatByRank * (int)relative_rank(Them, s);
         }
