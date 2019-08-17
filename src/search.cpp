@@ -63,9 +63,16 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 661;
-  Value futility_margin(Depth d, bool improving) {
-    return Value((168 - 51 * improving) * d / ONE_PLY);
-  }
+  Value futility_margin[8][2] = {
+    { Value(   0), Value(   0) }, // depth 0
+    { Value( 381), Value(   0) }, // depth 1
+    { Value( 420), Value( 225) }, // depth 2
+    { Value( 484), Value( 376) }, // depth 3
+    { Value( 817), Value( 594) }, // depth 4
+    { Value( 824), Value( 623) }, // depth 5
+    { Value(1121), Value( 817) }, // depth 6
+    { Value(1161), Value( 842) }, // depth 7 
+    };
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
@@ -789,8 +796,8 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
-        &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  depth < 8 * ONE_PLY
+        &&  eval - futility_margin[depth / ONE_PLY] [improving] >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1133,8 +1140,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (move == ss->killers[0])
-              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
