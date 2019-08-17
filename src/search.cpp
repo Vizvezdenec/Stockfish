@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || (ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha && move != ss->killers[0])))
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1133,6 +1133,8 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
+          else if (move == ss->killers[0])
+              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
