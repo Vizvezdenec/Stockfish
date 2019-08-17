@@ -592,8 +592,7 @@ namespace {
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
     auto king_proximity = [&](Color c, Square s) {
-      int maxProximity = file_of(s) < FILE_E ? 4 + FILE_D - file_of(s) : 4 + file_of(s) - FILE_E;
-      return std::min(distance(pos.square<KING>(c), s), maxProximity);
+      return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
     Bitboard b, bb, squaresToQueen, unsafeSquares;
