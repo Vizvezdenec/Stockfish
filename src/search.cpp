@@ -63,9 +63,16 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 661;
-  Value futility_margin(Depth d, bool improving) {
-    return Value((168 - 51 * improving) * d / ONE_PLY);
-  }
+  Value futility_margin[8][2] = {
+    { Value(   0), Value(   0) }, // depth 0
+    { Value( 365), Value( 100) }, // depth 1
+    { Value( 435), Value( 159) }, // depth 2
+    { Value( 548), Value( 404) }, // depth 3
+    { Value( 762), Value( 654) }, // depth 4
+    { Value( 825), Value( 718) }, // depth 5
+    { Value(1073), Value( 748) }, // depth 6
+    { Value(1260), Value( 877) }, // depth 7 
+    };
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
@@ -789,8 +796,8 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
-        &&  depth < 7 * ONE_PLY
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  depth < 8 * ONE_PLY
+        &&  eval - futility_margin[depth / ONE_PLY] [improving] >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1043,7 +1050,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(31 - 3 * ((ss-1)->statScore > 25000) - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  (!givesCheck || !extension)
