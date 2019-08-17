@@ -63,16 +63,9 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 661;
-  Value futility_margin[8][2] = {
-    { Value(   0), Value(   0) }, // depth 0
-    { Value( 381), Value(   0) }, // depth 1
-    { Value( 420), Value( 225) }, // depth 2
-    { Value( 484), Value( 376) }, // depth 3
-    { Value( 817), Value( 594) }, // depth 4
-    { Value( 824), Value( 623) }, // depth 5
-    { Value(1121), Value( 817) }, // depth 6
-    { Value(1161), Value( 842) }, // depth 7 
-    };
+  Value futility_margin(Depth d, bool improving) {
+    return Value((168 - 51 * improving) * d / ONE_PLY);
+  }
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
@@ -796,8 +789,8 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
-        &&  depth < 8 * ONE_PLY
-        &&  eval - futility_margin[depth / ONE_PLY] [improving] >= beta
+        &&  depth < 7 * ONE_PLY
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -857,7 +850,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 141 - 46 * improving + 6 * depth / ONE_PLY, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
