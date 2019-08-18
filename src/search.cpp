@@ -807,7 +807,7 @@ namespace {
     if (type_of(pos.piece_on(from_sq(m))) != PAWN)
         {
     	//nonPawnMoves = true;
-        continue;
+        break;
         }
     }
     pos.undo_null_move();
