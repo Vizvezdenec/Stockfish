@@ -853,7 +853,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 191 - 46 * improving + 23 * worsening, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - worsening * ONE_PLY, DEPTH_ZERO);
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
