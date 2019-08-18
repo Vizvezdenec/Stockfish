@@ -795,21 +795,30 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    //nonPawnMoves = true;
-    if (pos.non_pawn_material(~us) <= QueenValueMg)
+    nonPawnMoves = true;
+    if (!pos.count<QUEEN>(~us) && pos.non_pawn_material(~us) <= 2 * RookValueMg)
     {
+    nonPawnMoves = false;
     pos.do_null_move(st);
-    
-    //nonPawnMoves = false;
 
-    for (const auto& m : MoveList<LEGAL>(pos))
+    Bitboard b = pos.pieces(~us, ALL_PIECES) & ~pos.pieces(~us, PAWN, KING);
+    while (b)
     {
-    if (type_of(pos.piece_on(from_sq(m))) != PAWN)
+    Square s = pop_lsb(&b);
+    Bitboard attacks = 0;
+    PieceType Pt = type_of(pos.piece_on(s));
+    Pt == KNIGHT ? attacks = pos.attacks_from<KNIGHT>(s) :
+    Pt == BISHOP ? attacks = pos.attacks_from<BISHOP>(s) : 
+    Pt == ROOK ? attacks = pos.attacks_from<ROOK>(s) : 
+    attacks = pos.attacks_from<QUEEN>(s);
+    if (!(((pos.blockers_for_king(~us) & s) && !(attacks & pos.pieces(~us, KING)))
+        || !(attacks & ~pos.pieces(~us))))
         {
-    	//nonPawnMoves = true;
+        nonPawnMoves = true;
         break;
         }
     }
+
     pos.undo_null_move();
     }
 
@@ -821,7 +830,8 @@ namespace {
         &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
+        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor)
+        && nonPawnMoves)
     {
         assert(eval - beta >= 0);
 
