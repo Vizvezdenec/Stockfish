@@ -850,7 +850,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 91 - 46 * improving + 12 * depth / ONE_PLY, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -969,10 +969,8 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = ONE_PLY;
-              singularLMR++;
+              singularLMR+= std::min(1 + (singularBeta - value) / (4 * depth / ONE_PLY), 3);
 
-              if (value < singularBeta - std::min(4 * depth / ONE_PLY, 36))
-                  singularLMR++;
           }
 
           // Multi-cut pruning
