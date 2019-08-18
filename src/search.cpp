@@ -595,6 +595,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
+    bool nonPawnMoves;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
 
@@ -794,6 +795,17 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    pos.do_null_move(st);
+    
+    nonPawnMoves = false;
+
+    for (const auto& m : MoveList<LEGAL>(pos))
+    {
+    if (type_of(pos.piece_on(from_sq(m))) != PAWN)
+    	nonPawnMoves = true;
+    }
+    pos.undo_null_move();
+
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -802,7 +814,8 @@ namespace {
         &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
+        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor)
+        && nonPawnMoves)
     {
         assert(eval - beta >= 0);
 
@@ -942,9 +955,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      if ((ss-1)->currentMove == MOVE_NULL && type_of(movedPiece) == PAWN)
-      	  continue;
 
       // Step 13. Extensions (~70 Elo)
 
