@@ -943,6 +943,9 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if ((ss-1)->currentMove == MOVE_NULL && type_of(movedPiece) == PAWN)
+      	  continue;
+
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
