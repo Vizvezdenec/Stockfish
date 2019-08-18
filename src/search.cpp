@@ -982,8 +982,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   eval >= beta
                    && singularBeta >= beta)
-              return (value > ttValue) ? singularBeta : (int (singularBeta - beta) / 2 / (depth / ONE_PLY) * value 
-                     + beta - int (singularBeta - beta) * singularBeta / 2 / (depth / ONE_PLY));
+              return singularBeta;
       }
 
       // Check extension (~2 Elo)
@@ -1034,7 +1033,8 @@ moves_loop: // When in check, search starts from here
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && ((*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  || (!improving && (*contHist[1])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold)))
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
