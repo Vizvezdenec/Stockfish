@@ -982,7 +982,8 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   eval >= beta
                    && singularBeta >= beta)
-              return ttValue;
+              return (value > ttValue) ? singularBeta : (int (singularBeta - beta) / 2 / (depth / ONE_PLY) * value 
+                     + beta - int (singularBeta - beta) * singularBeta / 2 / (depth / ONE_PLY));
       }
 
       // Check extension (~2 Elo)
