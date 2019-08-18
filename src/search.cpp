@@ -796,8 +796,8 @@ namespace {
         return eval;
 
     //nonPawnMoves = true;
-    //if (pos.non_pawn_material(~us) <= QueenValueMg)
-    //{
+    if (pos.non_pawn_material(~us) <= QueenValueMg)
+    {
     pos.do_null_move(st);
     
     //nonPawnMoves = false;
@@ -811,6 +811,7 @@ namespace {
         }
     }
     pos.undo_null_move();
+    }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
