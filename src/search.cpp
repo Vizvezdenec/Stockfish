@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = ONE_PLY;
-              singularLMR+= std::min(1 + (singularBeta - value) / (6 * depth / ONE_PLY), 4);
+              singularLMR+= std::min(1 + (singularBeta - value) / (4 * depth / ONE_PLY), 4);
 
           }
 
