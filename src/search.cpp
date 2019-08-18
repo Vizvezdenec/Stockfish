@@ -796,29 +796,17 @@ namespace {
         return eval;
 
     nonPawnMoves = true;
-    if (!pos.count<QUEEN>(~us) && pos.non_pawn_material(~us) <= 2 * RookValueMg)
+    if (pos.non_pawn_material(~us) <= QueenValueMg)
     {
-    nonPawnMoves = false;
     pos.do_null_move(st);
 
-    Bitboard b = pos.pieces(~us, ALL_PIECES) & ~pos.pieces(~us, PAWN, KING);
-    while (b)
-    {
-    Square s = pop_lsb(&b);
-    Bitboard attacks = 0;
-    PieceType Pt = type_of(pos.piece_on(s));
-    Pt == KNIGHT ? attacks = pos.attacks_from<KNIGHT>(s) :
-    Pt == BISHOP ? attacks = pos.attacks_from<BISHOP>(s) : 
-    Pt == ROOK ? attacks = pos.attacks_from<ROOK>(s) : 
-    attacks = pos.attacks_from<QUEEN>(s);
-    if (!(((pos.blockers_for_king(~us) & s) && !(attacks & pos.pieces(~us, KING)))
-        || !(attacks & ~pos.pieces(~us))))
-        {
-        nonPawnMoves = true;
-        break;
-        }
-    }
+    nonPawnMoves = false;
 
+    for (const auto& m : MoveList<LEGAL>(pos))
+    {
+    if (type_of(pos.piece_on(from_sq(m))) != PAWN)
+    	nonPawnMoves = true;
+    }
     pos.undo_null_move();
     }
 
