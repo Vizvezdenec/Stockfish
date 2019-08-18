@@ -788,7 +788,7 @@ namespace {
     improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
 
-    worsening = ss->staticEval < (ss-2)->staticEval - PawnValueEg;
+    worsening = ss->staticEval < (ss-2)->staticEval - KnightValueMg;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
