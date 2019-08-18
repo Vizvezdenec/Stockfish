@@ -188,6 +188,7 @@ namespace {
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
+    Bitboard immovablePieces[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -248,6 +249,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    immovablePieces[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -291,6 +293,9 @@ namespace {
         }
 
         int mob = popcount(b & mobilityArea[Us]);
+
+        if (mob == 0 && !(b & ~pos.pieces(Us)))
+            immovablePieces[Us] |= SquareBB[s];
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
@@ -559,6 +564,10 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
+
+    if (!(attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES]))
+         && !(pos.pieces(Us) & ~(pos.pieces(Us, PAWN) | pos.pieces(Us, KING) | immovablePieces[Us] | pos.blockers_for_king(Us))))
+        score -= make_score(100, 100);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
