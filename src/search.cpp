@@ -795,16 +795,20 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    //nonPawnMoves = true;
+    //if (pos.non_pawn_material(~us) <= QueenValueMg)
+    //{
     pos.do_null_move(st);
     
-    nonPawnMoves = false;
+    //nonPawnMoves = false;
 
     for (const auto& m : MoveList<LEGAL>(pos))
     {
-    if (type_of(pos.piece_on(from_sq(m))) != PAWN)
-    	nonPawnMoves = true;
+    //if (type_of(pos.piece_on(from_sq(m))) != PAWN)
+    	//nonPawnMoves = true;
     }
     pos.undo_null_move();
+    //}
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -814,8 +818,7 @@ namespace {
         &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor)
-        && nonPawnMoves)
+        && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
 
