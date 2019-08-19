@@ -593,7 +593,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR, worsen;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
@@ -750,6 +750,7 @@ namespace {
     {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        worsen = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -786,6 +787,8 @@ namespace {
 
     improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
+
+    worsen = (ss-2)->staticEval != VALUE_NONE && ss->staticEval < (ss-2)->staticEval - PawnValueMg;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -1027,7 +1030,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - worsen * ONE_PLY, DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
