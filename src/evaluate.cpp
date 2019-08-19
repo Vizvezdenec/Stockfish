@@ -448,13 +448,15 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int blockersCount = popcount(pos.blockers_for_king(Us));
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
-                 +  98 * popcount(pos.blockers_for_king(Us))
+                 +  70 * blockersCount * blockersCount
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -592,7 +594,7 @@ namespace {
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
     auto king_proximity = [&](Color c, Square s) {
-      return std::max(std::min(distance(pos.square<KING>(c), s), 5), distance<Rank>(pos.square<KING>(c), s));
+      return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
     Bitboard b, bb, squaresToQueen, unsafeSquares;
