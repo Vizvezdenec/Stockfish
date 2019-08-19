@@ -1026,9 +1026,8 @@ moves_loop: // When in check, search starts from here
               if (moveCountPruning)
                   continue;
 
-              Depth worsenDepth = (!improving && !inCheck) * ((ss-2)->staticEval - ss->staticEval) / KnightValueMg * ONE_PLY;
               // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - worsenDepth, DEPTH_ZERO);
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
