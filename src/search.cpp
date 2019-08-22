@@ -1134,7 +1134,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0)
+          else if (thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -2000 && cutNode)
               r += ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
