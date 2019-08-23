@@ -75,8 +75,8 @@ namespace {
     return ((r + 520) / 1024 + (!i && r > 999)) * ONE_PLY;
   }
 
-  constexpr int futility_move_count(bool improving, int depth, bool cutnode) {
-    return (5 - 2 * cutnode + depth * depth) * (1 + improving);
+  constexpr int futility_move_count(bool improving, int depth) {
+    return (5 + depth * depth) * (1 + improving) / 2;
   }
 
   // History and stats update bonus, based on depth
@@ -960,7 +960,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
+          Value singularBeta = ttValue - (2 + 2 * cutNode) * depth / ONE_PLY;
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -1016,7 +1016,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY, cutNode);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
               && !givesCheck
