@@ -960,7 +960,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - (2 + 2 * cutNode) * depth / ONE_PLY;
+          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -1068,13 +1068,15 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool badCapture = thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0;
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || (ss->staticEval + (badCapture ? PieceValue[MG][pos.captured_piece()] : PieceValue[EG][pos.captured_piece()]) <= alpha)
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
