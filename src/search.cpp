@@ -1068,15 +1068,13 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool badCapture = thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0;
-
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
           &&  moveCount > 1 + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || (ss->staticEval + (badCapture ? PieceValue[MG][pos.captured_piece()] : PieceValue[EG][pos.captured_piece()]) <= alpha)
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1153,8 +1151,9 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              int bonus = value > beta   ?  stat_bonus(newDepth) :
+                          value <= alpha ? -stat_bonus(newDepth) : 
+                                           0;
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
