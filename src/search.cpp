@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1 + 3 * rootNode
+          &&  moveCount > 1 - (cutNode && (ss->staticEval - 200 - 100 * depth > beta)) + 3 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1151,9 +1151,8 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = value > beta   ?  stat_bonus(newDepth) :
-                          value <= alpha ? -stat_bonus(newDepth) : 
-                                           0;
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
