@@ -1047,7 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 * std::max(0, 3 - (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us)))) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1151,8 +1151,7 @@ moves_loop: // When in check, search starts from here
 
           if (doLMR && !captureOrPromotion)
           {
-              int bonus = value > beta  ?  stat_bonus(newDepth) * 3 / 2 :
-                          value > alpha ?  stat_bonus(newDepth)
+              int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
