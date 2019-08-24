@@ -1047,7 +1047,8 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199 * std::max(1, 4 - (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us)))) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !(PieceValue[MG][pos.piece_on(to_sq(move))] > pos.non_pawn_material() / 4)
+                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
