@@ -1039,7 +1039,8 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
+                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha
+                  && !(ss->staticEval + 350 + 211 * lmrDepth > beta))
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
@@ -1134,8 +1135,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (ss->staticEval + 2 * PieceValue[EG][pos.captured_piece()] < alpha)
-              r += ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
