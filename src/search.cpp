@@ -1047,7 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199 - 49 * std::max(0, 4 - (depth / ONE_PLY))) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-189 - 20 * std::max(0, 10 - (depth / ONE_PLY))) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
