@@ -1047,8 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && ss->staticEval + PieceValue[MG][pos.piece_on(to_sq(move))] - 250 - 50 * (depth / ONE_PLY) < beta
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 - 49 * std::max(0, 4 - (depth / ONE_PLY))) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
