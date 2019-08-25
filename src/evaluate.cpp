@@ -728,10 +728,6 @@ namespace {
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    if (!pos.non_pawn_material(~strongSide) && pos.count<PAWN>(strongSide))
-    	complexity = std::max(complexity, 0);
-
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
