@@ -1039,8 +1039,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha
-                  && !(ss->staticEval + 350 + 211 * lmrDepth > beta))
+                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
@@ -1048,6 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
+                   && ss->staticEval + PieceValue[MG][pos.piece_on(to_sq(move))] - 50 * (depth / ONE_PLY) < beta
                    && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
