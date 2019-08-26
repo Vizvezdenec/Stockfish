@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199 + 50 * badCapture) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-219 + 100 * badCapture) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
