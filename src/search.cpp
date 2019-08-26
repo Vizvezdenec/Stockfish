@@ -1017,7 +1017,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = !givesCheck && (moveCount >= futility_move_count(improving, depth / ONE_PLY));
+          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
           if (   !captureOrPromotion
               && !givesCheck
@@ -1135,6 +1135,8 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
+          else if (moveCountPruning && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0)
+              r += ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
