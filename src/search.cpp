@@ -66,6 +66,8 @@ namespace {
   Value futility_margin(Depth d, bool improving) {
     return Value(198 * (d / ONE_PLY - improving));
   }
+  Value seePruningMargin[11] {
+     Value(0), Value(500), Value(680), Value(860), Value(940), Value(1120), Value(1300), Value(1480), Value(1660), Value(1840), Value(2020)};
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
@@ -1051,7 +1053,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, depth/ONE_PLY > 10 ? Value(-(depth/ONE_PLY) * 200) : -seePruningMargin[depth / ONE_PLY])) // (~20 Elo)
                   continue;
       }
 
@@ -1075,8 +1077,8 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1 + (2 + 2 * thisThread->best_move_count(move)) * rootNode
-          && (!rootNode || thisThread->best_move_count(move) < 2)
+          &&  moveCount > 1 + 2 * rootNode
+          && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
