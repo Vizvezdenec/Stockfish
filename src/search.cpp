@@ -1099,9 +1099,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
-          if (cutNode && moveCount > 14)
-              r += ONE_PLY;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1130,6 +1127,12 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[0])[movedPiece][to_sq(move)] >= 0
                   && (*contHist[1])[movedPiece][to_sq(move)] >= 0
                   && thisThread->mainHistory[us][from_to(move)] >= 0)
+                  ss->statScore = 0;
+
+              else if (ss->statScore > 0
+                  && (*contHist[0])[movedPiece][to_sq(move)] <= 0
+                  && (*contHist[1])[movedPiece][to_sq(move)] <= 0
+                  && thisThread->mainHistory[us][from_to(move)] <= 0)
                   ss->statScore = 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
