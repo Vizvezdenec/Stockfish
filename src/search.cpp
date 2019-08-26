@@ -1019,6 +1019,8 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
 
+          bool badCapture = captureOrPromotion && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0;
+
           if (   !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
@@ -1043,20 +1045,12 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
 
-              if (   lmrDepth < 2
-                  && !inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold
-                  && (*contHist[3])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold
-                  && ss->staticEval + 175 + 150 * lmrDepth <= alpha)
-                  continue;
-
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 + 50 * badCapture) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
