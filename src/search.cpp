@@ -66,8 +66,6 @@ namespace {
   Value futility_margin(Depth d, bool improving) {
     return Value(198 * (d / ONE_PLY - improving));
   }
-  Value seePruningMargin[11] {
-     Value(0), Value(500), Value(680), Value(860), Value(940), Value(1120), Value(1300), Value(1480), Value(1660), Value(1840), Value(2020)};
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
@@ -1053,7 +1051,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, depth/ONE_PLY > 10 ? Value(-(depth/ONE_PLY) * 200) : -seePruningMargin[depth / ONE_PLY])) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1082,7 +1080,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode))
+              || (cutNode && moveCount > 2)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
