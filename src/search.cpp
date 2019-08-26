@@ -847,11 +847,11 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !rootNode
-        &&  depth >= (5 + 6 * PvNode) * ONE_PLY
+    if (   !PvNode
+        &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 191 + 300 * PvNode - 46 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -1041,6 +1041,14 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
+                  continue;
+
+              if (   lmrDepth < 2
+                  && !inCheck
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold
+                  && (*contHist[3])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold
+                  && ss->staticEval + 175 + 150 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
