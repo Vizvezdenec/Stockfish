@@ -800,7 +800,7 @@ namespace {
         && (ss-1)->statScore < 22661
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299 - improving * 30
+        &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 330 - improving * 75
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1135,8 +1135,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (moveCountPruning && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0)
-              r += ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
