@@ -799,18 +799,67 @@ namespace {
     initialize<WHITE>();
     initialize<BLACK>();
 
+    int betterness = 0;
+
     // Pieces should be evaluated first (populate attack tables)
-    score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
+    Score tempScore =  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
             + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
             + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
             + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
-    score += mobility[WHITE] - mobility[BLACK];
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
 
-    score +=  king<   WHITE>() - king<   BLACK>()
-            + threats<WHITE>() - threats<BLACK>()
-            + passed< WHITE>() - passed< BLACK>()
-            + space<  WHITE>() - space<  BLACK>();
+    score += tempScore;
+
+    tempScore = mobility[WHITE] - mobility[BLACK];
+
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
+
+    score += tempScore;
+
+    tempScore = king<   WHITE>() - king<   BLACK>();
+
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
+
+    score += tempScore;
+
+    tempScore = threats<WHITE>() - threats<BLACK>();
+
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
+
+    score += tempScore;
+
+    tempScore = passed< WHITE>() - passed< BLACK>();
+
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
+
+    score += tempScore;
+
+    tempScore = space<  WHITE>() - space<  BLACK>();
+
+    if (mg_value(tempScore) > 0 && eg_value(tempScore) > 0)
+    	betterness++;
+    else if (mg_value(tempScore) < 0 && eg_value(tempScore) < 0)
+    	betterness--;
+
+    score += tempScore;
+
+    score += make_score(1, 1) * betterness * abs(betterness);
 
     score += initiative(eg_value(score));
 
