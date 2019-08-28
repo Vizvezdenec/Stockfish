@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199 - 50 * improving) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-209 + 50 * improving) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
