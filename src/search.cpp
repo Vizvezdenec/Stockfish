@@ -800,7 +800,6 @@ namespace {
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-2)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22661
         &&  eval >= beta
         &&  eval >= ss->staticEval
@@ -1021,7 +1020,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth / ONE_PLY);
+          moveCountPruning = moveCount >= futility_move_count(improving || inCheck, depth / ONE_PLY);
 
           if (   !captureOrPromotion
               && !givesCheck
