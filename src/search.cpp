@@ -854,7 +854,7 @@ namespace {
         &&  depth >= 5 * ONE_PLY
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 191 - 46 * improving + 60 * ((ss-1)->currentMove == MOVE_NULL) , VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -957,7 +957,6 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 6 * ONE_PLY
           &&  move == ttMove
           && !rootNode
-          && (ss-1)->currentMove != MOVE_NULL
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
