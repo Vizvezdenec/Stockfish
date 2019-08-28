@@ -957,6 +957,7 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 6 * ONE_PLY
           &&  move == ttMove
           && !rootNode
+          && (ss-1)->currentMove != MOVE_NULL
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
@@ -1035,7 +1036,7 @@ moves_loop: // When in check, search starts from here
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || (ss-1)->currentMove == MOVE_NULL)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
