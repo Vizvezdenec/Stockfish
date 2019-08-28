@@ -1137,7 +1137,13 @@ moves_loop: // When in check, search starts from here
                   r += ONE_PLY;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore * (2 + cutNode) / 32768 * ONE_PLY;
+              r -= ss->statScore / 16384 * ONE_PLY;
+          }
+          else
+          {
+          int blockedPawns = popcount((pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces())) | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces())));
+          if (blockedPawns > 10)
+              r -= ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
