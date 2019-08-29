@@ -1024,7 +1024,8 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
+              &&  (type_of(movedPiece) == PAWN || pos.non_pawn_material() > BishopValueMg))
           {
               // Move count based pruning
               if (moveCountPruning)
@@ -1432,7 +1433,7 @@ moves_loop: // When in check, search starts from here
       if (   !inCheck
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && (!pos.advanced_pawn_push(move) || pos.non_pawn_material() > 2 * RookValueMg))
+          && !pos.advanced_pawn_push(move))
       {
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
