@@ -1139,6 +1139,12 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
+          else
+          {
+          int blockedPawns = popcount((pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces())) | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces())));
+          if (blockedPawns > 10)
+              r -= (1 + (blockedPawns > pos.count<PAWN>() - 3)) * ONE_PLY;
+          }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
@@ -1160,7 +1166,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-                  bonus += bonus * 3 / 4;
+                  bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
