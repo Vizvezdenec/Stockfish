@@ -1009,7 +1009,10 @@ moves_loop: // When in check, search starts from here
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
+          {
           extension = ONE_PLY;
+          singularLMR++;
+          }
 
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
@@ -1024,8 +1027,7 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
-              && !(pos.rule50_count() > 10 && type_of(movedPiece) == PAWN))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning
               if (moveCountPruning)
