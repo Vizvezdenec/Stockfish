@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 * ONE_PLY
+      if (    depth >= (3 - (cutNode && !captureOrPromotion && moveCount > 5)) * ONE_PLY
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
@@ -1138,12 +1138,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
-          }
-          else
-          {
-          int blockedPawns = popcount((pos.pieces(WHITE, PAWN) & shift<SOUTH>(pos.pieces())) | (pos.pieces(BLACK, PAWN) & shift<NORTH>(pos.pieces())));
-          if (blockedPawns > 10)
-              r -= ONE_PLY;
           }
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
