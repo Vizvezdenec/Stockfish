@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
 
-              if (ss->statScore > 0 && ss->statScore > (ss-2)->statScore)
+              if (ss->statScore > 0 && ss->statScore > (ss-2)->statScore + 10000)
                   r -= ONE_PLY;
           }
 
