@@ -1024,8 +1024,7 @@ moves_loop: // When in check, search starts from here
 
           if (   !captureOrPromotion
               && !givesCheck
-              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
-              &&  (type_of(movedPiece) != PAWN || pos.non_pawn_material() > RookValueMg))
+              && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning
               if (moveCountPruning)
@@ -1048,7 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18) - 10 * (pos.non_pawn_material() <= RookValueMg)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  (!givesCheck || !extension)
