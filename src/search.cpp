@@ -798,8 +798,8 @@ namespace {
         return eval;
     
     if (    PvNode
-        &&  depth < 4 * ONE_PLY
-        &&  eval - futility_margin(depth + 3 * ONE_PLY, improving) >= beta
+        &&  depth < 5 * ONE_PLY
+        &&  eval - futility_margin(depth + 2 * ONE_PLY, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
