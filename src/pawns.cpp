@@ -84,6 +84,7 @@ namespace {
     Bitboard doubleAttackThem = pawn_double_attacks_bb<Them>(theirPawns);
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
+    e->unopposedPawns[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
 
@@ -144,6 +145,9 @@ namespace {
 
         if (doubled && !support)
             score -= Doubled;
+
+        if (!opposed)
+            e->unopposedPawns[Us]++;
     }
 
     // Penalize our unsupported pawns attacked twice by enemy pawns

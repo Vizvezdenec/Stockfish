@@ -720,12 +720,16 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    bool hardToWin = !pe->passed_count() && (pe->unnoposed_count() < 2) 
+                     && (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= BishopValueMg - KnightValueMg);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    - 24 * hardToWin
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
