@@ -721,7 +721,7 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     bool hardToWin = !pe->passed_count() && (pe->unnoposed_count() < 2) 
-                     && (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= BishopValueMg - KnightValueMg);
+                     && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
