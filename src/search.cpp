@@ -1047,7 +1047,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(41 - std::min(lmrDepth, 18) - pos.non_pawn_material(~us) / 512) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  (!givesCheck || !extension)
@@ -1078,9 +1078,10 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || moveCountPruning
+              || (PieceValue[MG][pos.captured_piece()] <= pos.non_pawn_material() / 2 && 
+                 (moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode))
+              || cutNode))))
       {
           Depth r = reduction(improving, depth, moveCount);
 
