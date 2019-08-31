@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
 
           if (!captureOrPromotion && value > beta)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(d));
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus((d + newDepth) / 2));
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
