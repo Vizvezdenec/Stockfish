@@ -1146,7 +1146,7 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
 
-          if (!captureOrPromotion && value > beta)
+          if (!captureOrPromotion && value > beta + futility_margin(d, improving))
               update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus((d + newDepth) / 2));
       }
       else
