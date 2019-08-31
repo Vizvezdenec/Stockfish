@@ -1144,7 +1144,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value > alpha + !cutNode * (beta - alpha) / 16 && d != newDepth), doLMR = true;
+          doFullDepthSearch = (value > alpha + !cutNode * (beta - alpha) / 8 && d != newDepth), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
