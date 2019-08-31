@@ -1093,7 +1093,7 @@ moves_loop: // When in check, search starts from here
               r -= 2 * ONE_PLY;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
-          if ((ss-1)->moveCount > 15)
+          if ((ss-1)->moveCount > 15 + 10 * th.marked())
               r -= ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += (2 - th.marked()) * ONE_PLY;
+                  r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
