@@ -652,8 +652,10 @@ namespace {
     // LMR which are based on the statScore of parent position.
     if (rootNode)
         (ss+4)->statScore = 0;
-    else
+    else if (!cutNode)
         (ss+2)->statScore = 0;
+    else 
+        (ss+1)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -794,12 +796,6 @@ namespace {
     if (   !PvNode
         &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
-
-    if (    PvNode
-        &&  depth < 6 * ONE_PLY
-        &&  eval -  3 * futility_margin(depth + ONE_PLY, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
