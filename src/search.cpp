@@ -655,7 +655,7 @@ namespace {
     else if (!cutNode)
         (ss+2)->statScore = 0;
     else 
-        (ss+1)->statScore = 0;
+        (ss+3)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
