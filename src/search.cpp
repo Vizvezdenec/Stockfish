@@ -1093,7 +1093,7 @@ moves_loop: // When in check, search starts from here
               r -= 2 * ONE_PLY;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
-          if ((ss-1)->moveCount > 15)
+          if (!th.marked() && (ss-1)->moveCount > 15)
               r -= ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
@@ -1144,7 +1144,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value > alpha + !cutNode * (beta - alpha) / 8 && d != newDepth), doLMR = true;
+          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
