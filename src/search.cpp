@@ -596,7 +596,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR, badNullMove;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
@@ -753,7 +753,6 @@ namespace {
     {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
-        badNullMove = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -790,8 +789,6 @@ namespace {
 
     improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
-    
-    badNullMove = false;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -848,8 +845,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else if (nullValue < alpha)
-            badNullMove = true;
     }
 
     // Step 10. ProbCut (~10 Elo)
@@ -1104,9 +1099,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
-          if (badNullMove) 
-              r -= ONE_PLY;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1168,7 +1160,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-                  bonus += bonus / 4;
+                  bonus += bonus * (1 + singularLMR) / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
