@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || (!givesCheck && ss->staticEval + PieceValue[MG][pos.captured_piece()] <= alpha)
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += (2 - (ss->staticEval < alpha)) * ONE_PLY;
+                  r += 2 * ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
