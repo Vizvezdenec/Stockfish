@@ -965,7 +965,22 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - 2 * depth / ONE_PLY;
-          Depth halfDepth = (depth / (2 * ONE_PLY) + (ss->staticEval + PieceValue[EG][pos.captured_piece()] < alpha) ) * ONE_PLY; // ONE_PLY invariant
+          Depth quaterDepth = depth / (4 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, quaterDepth, cutNode);
+          ss->excludedMove = MOVE_NONE;
+
+          if (value < singularBeta - 6 * depth / ONE_PLY)
+          {
+              extension = ONE_PLY;
+              singularLMR++;
+
+              if (value < singularBeta - std::min(4 * depth / ONE_PLY, 36))
+                  singularLMR++;
+          }
+          else
+          {
+          Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -987,6 +1002,7 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
+          }
       }
 
       // Check extension (~2 Elo)
