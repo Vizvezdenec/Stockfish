@@ -1092,15 +1092,14 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= 2 * ONE_PLY;
 
-          // Decrease reduction if opponent's move count is high (~10 Elo)
-          if ((ss-1)->moveCount > 20 - 8 * captureOrPromotion)
-              r -= ONE_PLY;
-
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
           if (!captureOrPromotion)
           {
+              // Decrease reduction if opponent's move count is high (~10 Elo)
+              if ((ss-1)->moveCount > 15)
+                  r -= ONE_PLY;
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r += ONE_PLY;
