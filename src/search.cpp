@@ -964,7 +964,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3 * ONE_PLY
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - (2 * depth - std::max(0, depth / ONE_PLY - 10) * ONE_PLY) / ONE_PLY;
+          Value singularBeta = ttValue - 2 * depth / ONE_PLY;
           Depth halfDepth = depth / (2 * ONE_PLY) * ONE_PLY; // ONE_PLY invariant
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -1009,6 +1009,9 @@ moves_loop: // When in check, search starts from here
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
+          extension = ONE_PLY;
+      else if (   move == ss->killers[1]
+               && relative_rank(us, to_sq(move)) > RANK_6)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
