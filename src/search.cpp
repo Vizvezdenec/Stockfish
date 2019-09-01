@@ -1011,6 +1011,7 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
       else if (   move == ss->killers[1]
+               && type_of(movedPiece) == PAWN
                && relative_rank(us, to_sq(move)) > RANK_6)
           extension = ONE_PLY;
 
