@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-219) * (depth / ONE_PLY - improving))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1108,6 +1108,9 @@ moves_loop: // When in check, search starts from here
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
                   r += 2 * ONE_PLY;
+
+              if (ss->staticEval < alpha && !improving && moveCount > 15)
+                  r += ONE_PLY;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
