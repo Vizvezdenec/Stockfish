@@ -75,13 +75,6 @@ namespace {
     Value( -694), // depth 4
     Value( -972), // depth 5
     Value(-1193), // depth 6
-    Value(-1345), // depth 7
-    Value(-1698), // depth 8
-    Value(-1774), // depth 9
-    Value(-1903), // depth 10
-    Value(-2063), // depth 11
-    Value(-2304), // depth 12
-    Value(-2689), // depth 13
   };
 
   // Reductions lookup table, initialized at startup
@@ -1068,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, (depth / ONE_PLY < 14) ? SeePruneMargin[depth / ONE_PLY] : Value(-5000))) // (~20 Elo)
+                   && !pos.see_ge(move, (depth / ONE_PLY < 7) ? SeePruneMargin[depth / ONE_PLY] : Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
