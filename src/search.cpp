@@ -67,6 +67,23 @@ namespace {
     return Value(198 * (d / ONE_PLY - improving));
   }
 
+  Value SeePruneMargin[14] = {
+    Value(  200), // depth 0, unused
+    Value(  -52), // depth 1
+    Value( -188), // depth 2
+    Value( -563), // depth 3
+    Value( -694), // depth 4
+    Value( -972), // depth 5
+    Value(-1193), // depth 6
+    Value(-1345), // depth 7
+    Value(-1698), // depth 8
+    Value(-1774), // depth 9
+    Value(-1903), // depth 10
+    Value(-2063), // depth 11
+    Value(-2304), // depth 12
+    Value(-2689), // depth 13
+  };
+
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
@@ -1051,7 +1068,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, (depth / ONE_PLY < 14) ? SeePruneMargin[depth / ONE_PLY] : Value(-5000))) // (~20 Elo)
                   continue;
       }
 
@@ -1079,7 +1096,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || (!givesCheck && ss->staticEval + PieceValue[MG][pos.captured_piece()] <= alpha)
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
