@@ -859,7 +859,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode + (depth > 10 * ONE_PLY))
             if (move != excludedMove && pos.legal(move))
             {
                 probCutCount++;
