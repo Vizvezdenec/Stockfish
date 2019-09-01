@@ -975,7 +975,7 @@ moves_loop: // When in check, search starts from here
               extension = ONE_PLY;
               singularLMR++;
 
-              if (value < singularBeta - std::min((4 + 4 * cutNode) * depth / ONE_PLY, 36))
+              if (value < singularBeta - std::min((4 - 2 * cutNode) * depth / ONE_PLY, 36))
                   singularLMR++;
           }
 
