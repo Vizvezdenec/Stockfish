@@ -69,11 +69,11 @@ namespace {
 
   Value SeePruneMargin[14] = {
     Value(  200), // depth 0, unused
-    Value(  -52), // depth 1
-    Value( -188), // depth 2
-    Value( -563), // depth 3
-    Value( -694), // depth 4
-    Value( -972), // depth 5
+    Value( -126), // depth 1
+    Value( -293), // depth 2
+    Value( -580), // depth 3
+    Value( -745), // depth 4
+    Value( -984), // depth 5
     Value(-1193), // depth 6
   };
 
