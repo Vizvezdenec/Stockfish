@@ -299,7 +299,7 @@ namespace {
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (mob == 0 && !(b & ~(attackedBy[Them][PAWN] | (pos.pieces(Us, PAWN) 
-                    & shift<Down>(pos.pieces() | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)))))))
+                    & shift<Down>(pos.pieces() | pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))) & ~pe->pawn_attacks_span(Us)))))
             badPieces[Us] |= SquareBB[s];
 
         if (Pt == BISHOP || Pt == KNIGHT)
