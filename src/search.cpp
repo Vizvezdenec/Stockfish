@@ -881,7 +881,9 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                    return raisedBeta;
+                    return value;
+                else if (value > (raisedBeta + beta) / 2)
+                    return beta;
             }
     }
 
