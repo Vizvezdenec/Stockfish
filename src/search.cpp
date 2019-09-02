@@ -976,11 +976,7 @@ moves_loop: // When in check, search starts from here
               singularLMR++;
 
               if (value < singularBeta - std::min(4 * depth / ONE_PLY, 36))
-              {
                   singularLMR++;
-              if (!captureOrPromotion)
-              	  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth));
-              }
           }
 
           // Multi-cut pruning
