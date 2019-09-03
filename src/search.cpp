@@ -1109,9 +1109,6 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2 * ONE_PLY;
 
-              if (moveCount > 6 * depth / ONE_PLY)
-                  r += ONE_PLY;
-
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~5 Elo)
@@ -1124,6 +1121,10 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4729;
+
+              if (abs((*contHist[5])[movedPiece][to_sq(move)]) > 5000)
+              	  ss->statScore += (*contHist[5])[movedPiece][to_sq(move)] > 0 ? (*contHist[5])[movedPiece][to_sq(move)] - 5000 :
+                                   (*contHist[5])[movedPiece][to_sq(move)] + 5000;
 
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
