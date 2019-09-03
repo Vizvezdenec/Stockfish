@@ -1122,9 +1122,9 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4729;
 
-              if (abs((*contHist[5])[movedPiece][to_sq(move)]) > 5000)
-              	  ss->statScore += (*contHist[5])[movedPiece][to_sq(move)] > 0 ? (*contHist[5])[movedPiece][to_sq(move)] - 5000 :
-                                   (*contHist[5])[movedPiece][to_sq(move)] + 5000;
+              if (abs((*contHist[5])[movedPiece][to_sq(move)]) > 8000)
+              	  ss->statScore += (*contHist[5])[movedPiece][to_sq(move)] > 0 ? (*contHist[5])[movedPiece][to_sq(move)] - 8000 :
+                                   (*contHist[5])[movedPiece][to_sq(move)] + 8000;
 
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
