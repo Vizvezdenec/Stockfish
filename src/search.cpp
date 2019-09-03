@@ -800,7 +800,7 @@ namespace {
         else 
             {
             Value redusedSearch = search<NonPV>(pos, ss, beta-1, beta, depth - 6 * ONE_PLY, cutNode);
-            if (redusedSearch >= eval)
+            if (redusedSearch >= beta + futility_margin(depth - 6 * ONE_PLY, improving))
             	return redusedSearch;
             }
         }
