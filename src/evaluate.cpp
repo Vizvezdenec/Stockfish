@@ -163,12 +163,12 @@ namespace {
   private:
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
-    template<Color Us> Score king();
+    template<Color Us> Score king() const;
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
-    Score initiative(Value eg) const;
+    Score initiative(Value eg, Score kingScore) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -205,7 +205,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int kingDangerr[COLOR_NB];
   };
 
 
@@ -249,7 +248,6 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-    kingDangerr[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -378,7 +376,7 @@ namespace {
 
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::king() {
+  Score Evaluation<T>::king() const {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
@@ -466,8 +464,6 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
-
-    kingDangerr[Us] = kingDanger;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
@@ -716,13 +712,15 @@ namespace {
   // known attacking/defending status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::initiative(Value eg) const {
+  Score Evaluation<T>::initiative(Value eg, Score kingScore) const {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
+
+    Value kingFraction = mg_value(kingScore) / 16;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -735,7 +733,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
+    int v = (((eg + kingFraction) > 0) - ((eg + kingFraction) < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
@@ -811,17 +809,14 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score +=  king<   WHITE>() - king<   BLACK>()
+    Score kingScore = king<   WHITE>() - king<   BLACK>();
+
+    score +=  kingScore
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    if (pos.side_to_move() == WHITE && kingDangerr[BLACK] > 1000 && kingDangerr[WHITE] <= 0)
-    	score += make_score((kingDangerr[BLACK] - 1000) / 16, 0);
-    else if (pos.side_to_move() == BLACK && kingDangerr[WHITE] > 1000 && kingDangerr[BLACK] <= 0)
-        score -= make_score((kingDangerr[WHITE] - 1000) / 16, 0);
-
-    score += initiative(eg_value(score));
+    score += initiative(eg_value(score), kingScore);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
