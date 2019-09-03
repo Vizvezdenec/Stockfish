@@ -1139,8 +1139,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (cutNode && ss->staticEval > beta)
-              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
@@ -1284,6 +1282,8 @@ moves_loop: // When in check, search starts from here
         if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
             && !pos.captured_piece())
                 update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY));
+        else if ((ss-1)->currentMove == (ss-1)->killers[1] && !pos.captured_piece())
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + ONE_PLY) / 2);
 
     }
     // Bonus for prior countermove that caused the fail low
