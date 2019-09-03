@@ -792,10 +792,18 @@ namespace {
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
-        &&  depth < 7 * ONE_PLY
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
+        {
+        if (depth < 7 * ONE_PLY)
+            return eval;
+        else 
+            {
+            Value redusedSearch = search<NonPV>(pos, ss, beta, beta-1, depth - 6 * ONE_PLY, !cutNode);
+            if (redusedSearch >= beta)
+            	return redusedSearch;
+            }
+        }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
