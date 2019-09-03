@@ -168,7 +168,7 @@ namespace {
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
-    Score initiative(Value eg, Score kingScore) const;
+    Score initiative(Value eg) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -660,6 +660,10 @@ namespace {
         score += bonus - PassedFile * std::min(f, ~f);
     }
 
+    int passOverload = popcount(pe->passed_pawns(Us)) - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them) - 1);
+    if (passOverload > 0)
+        score += make_score(0, 5) * passOverload * passOverload;
+
     if (T)
         Trace::add(PASSED, Us, score);
 
@@ -712,15 +716,13 @@ namespace {
   // known attacking/defending status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::initiative(Value eg, Score kingScore) const {
+  Score Evaluation<T>::initiative(Value eg) const {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
-
-    Value kingFraction = mg_value(kingScore) / 8;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -733,7 +735,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = (((eg + kingFraction) > 0) - ((eg + kingFraction) < 0)) * std::max(complexity, -abs(eg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
@@ -809,14 +811,12 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    Score kingScore = king<   WHITE>() - king<   BLACK>();
-
-    score +=  kingScore
+    score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += initiative(eg_value(score), kingScore);
+    score += initiative(eg_value(score));
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
