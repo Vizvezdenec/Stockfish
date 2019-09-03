@@ -1008,7 +1008,8 @@ moves_loop: // When in check, search starts from here
       // Passed pawn extension
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
-               && pos.pawn_passed(us, to_sq(move)))
+               && pos.pawn_passed(us, to_sq(move))
+               && qsearch<NT>(pos, ss, alpha, beta) >= alpha)
           extension = ONE_PLY;
 
       // Calculate new depth for this move
@@ -1119,8 +1120,7 @@ moves_loop: // When in check, search starts from here
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + 3 * (*contHist[3])[movedPiece][to_sq(move)] / 4
-                             + (*contHist[5])[movedPiece][to_sq(move)] / 4
+                             + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4729;
 
               // Reset statScore to zero if negative and most stats shows >= 0
