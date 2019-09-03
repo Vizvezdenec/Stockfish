@@ -720,7 +720,7 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Value kingFraction = mg_value(kingScore) / 32;
+    Value kingFraction = mg_value(kingScore) / 8;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
