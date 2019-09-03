@@ -660,10 +660,6 @@ namespace {
         score += bonus - PassedFile * std::min(f, ~f);
     }
 
-    int passOverload = popcount(pe->passed_pawns(Us)) - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them) - 1);
-    if (passOverload > 0)
-        score += make_score(0, 5) * passOverload * passOverload;
-
     if (T)
         Trace::add(PASSED, Us, score);
 
