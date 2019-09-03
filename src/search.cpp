@@ -799,7 +799,7 @@ namespace {
             return eval;
         else 
             {
-            Value redusedSearch = search<NonPV>(pos, ss, beta, beta-1, depth - 6 * ONE_PLY, !cutNode);
+            Value redusedSearch = search<NonPV>(pos, ss, beta-1, beta, depth - 6 * ONE_PLY, !cutNode);
             if (redusedSearch >= beta)
             	return redusedSearch;
             }
