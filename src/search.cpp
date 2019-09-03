@@ -1008,8 +1008,7 @@ moves_loop: // When in check, search starts from here
       // Passed pawn extension
       else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
-               && pos.pawn_passed(us, to_sq(move))
-               && qsearch<NT>(pos, ss, alpha, beta) >= alpha)
+               && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
       // Calculate new depth for this move

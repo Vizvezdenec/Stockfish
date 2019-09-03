@@ -163,7 +163,7 @@ namespace {
   private:
     template<Color Us> void initialize();
     template<Color Us, PieceType Pt> Score pieces();
-    template<Color Us> Score king() const;
+    template<Color Us> Score king();
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
@@ -205,6 +205,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int kingDangerr[COLOR_NB];
   };
 
 
@@ -248,6 +249,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    kingDangerr[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -376,7 +378,7 @@ namespace {
 
   // Evaluation::king() assigns bonuses and penalties to a king of a given color
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::king() const {
+  Score Evaluation<T>::king() {
 
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
@@ -464,6 +466,8 @@ namespace {
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
+
+    kingDangerr[Us] = kingDanger;
 
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
@@ -811,6 +815,11 @@ namespace {
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
+
+    if (pos.side_to_move() == WHITE && kingDangerr[BLACK] > 1000 && kingDangerr[WHITE] <= 0)
+    	score += make_score((kingDangerr[BLACK] - 1000) / 16, 0);
+    else if (pos.side_to_move() == BLACK && kingDangerr[WHITE] > 1000 && kingDangerr[BLACK] <= 0)
+        score -= make_score((kingDangerr[WHITE] - 1000) / 16, 0);
 
     score += initiative(eg_value(score));
 
