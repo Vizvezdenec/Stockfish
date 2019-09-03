@@ -1119,12 +1119,9 @@ moves_loop: // When in check, search starts from here
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             + 3 * (*contHist[3])[movedPiece][to_sq(move)] / 4
+                             + (*contHist[5])[movedPiece][to_sq(move)] / 4
                              - 4729;
-
-              if (abs((*contHist[5])[movedPiece][to_sq(move)]) > 8000)
-              	  ss->statScore += (*contHist[5])[movedPiece][to_sq(move)] > 0 ? (*contHist[5])[movedPiece][to_sq(move)] - 8000 :
-                                   (*contHist[5])[movedPiece][to_sq(move)] + 8000;
 
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
