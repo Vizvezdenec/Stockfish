@@ -624,6 +624,10 @@ namespace {
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
+            if (!pos.non_pawn_material(Them) && 
+                (r > relative_rank(Us, pos.square<KING>(Them)) + (pos.side_to_move() == Them)))
+                bonus += make_score(0, r * r * 4);
+
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
             {
