@@ -1026,13 +1026,13 @@ moves_loop: // When in check, search starts from here
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
-              // Move count based pruning
-              if (moveCountPruning && ss->staticEval < alpha)
-                  continue;
-
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
+
+              // Move count based pruning
+              if (moveCountPruning && (ss->staticEval - 250 - 211 * lmrDepth <= alpha))
+                  continue;
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
