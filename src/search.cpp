@@ -1011,6 +1011,11 @@ moves_loop: // When in check, search starts from here
                && pos.pawn_passed(us, to_sq(move)))
           extension = ONE_PLY;
 
+      else if (   !captureOrPromotion
+               && (*contHist[0])[movedPiece][to_sq(move)] > 8000
+               && (*contHist[1])[movedPiece][to_sq(move)] > 8000)
+          extension = ONE_PLY;
+
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
@@ -1139,8 +1144,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (cutNode && ss->staticEval > beta + PieceValue[MG][pos.captured_piece()])
-              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
