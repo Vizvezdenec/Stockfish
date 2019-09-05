@@ -788,7 +788,8 @@ namespace {
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =   ss->staticEval >= (ss-2)->staticEval
-               || (ss-2)->staticEval == VALUE_NONE;
+               || (ss-2)->staticEval == VALUE_NONE
+               || ((ss-1)->staticEval != VALUE_NONE && ss->staticEval > -(ss-1)->staticEval + + 2 * Eval::Tempo);
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -1041,8 +1042,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
-              if (   !th.marked()
-                  && lmrDepth < 6
+              if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
