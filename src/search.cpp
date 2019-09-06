@@ -606,7 +606,6 @@ namespace {
     inCheck = pos.checkers();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = singularLMR = ss->moveCount = 0;
-    ss->prunedCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1015,8 +1014,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - ONE_PLY + extension;
 
-      ss->prunedCount++;
-
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1058,8 +1055,6 @@ moves_loop: // When in check, search starts from here
                   continue;
       }
 
-      ss->prunedCount--;
-
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
 
@@ -1099,13 +1094,10 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
           if ((ss-1)->moveCount > 15)
-              r -= ONE_PLY;
+              r -= (1 + (moveCount > 15) ) * ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
-
-          if ((ss-1)->prunedCount > 9)
-              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
