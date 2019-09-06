@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts from here
               r -= ONE_PLY;
 
           if ((ss-1)->doLMR)
-              r -= ONE_PLY;
+              r += ONE_PLY;
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
