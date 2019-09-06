@@ -1098,9 +1098,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
- 
-          if (cutNode && moveCount > 19)
-              r += ONE_PLY;
+
+          if (PvNode && ss->ply < 3 && moveCount < 4)
+              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
