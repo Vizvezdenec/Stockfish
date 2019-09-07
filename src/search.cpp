@@ -1099,6 +1099,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
 
+          if ((ss-1)->currentMove == (ss-1)->killers[0])
+              r -= ONE_PLY;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1114,7 +1117,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~5 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(make_move(to_sq(move), from_sq(move))))
-                  r -= (2 + (type_of(movedPiece) == QUEEN)) * ONE_PLY;
+                  r -= 2 * ONE_PLY;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
