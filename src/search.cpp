@@ -653,7 +653,7 @@ namespace {
     if (rootNode)
         (ss+4)->statScore = 0;
     else
-        (ss+2)->statScore = 0;
+        (ss-1)->statScore == 0 ? (ss+3)->statScore = 0 : (ss+2)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -1046,10 +1046,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
 
-              bool hardImbalance = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > BishopValueMg;
-
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(31 + 10 * hardImbalance - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  (!givesCheck || !extension)
