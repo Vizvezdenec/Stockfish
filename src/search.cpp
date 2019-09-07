@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 + (50 * (ss->staticEval + QueenValueMg < alpha))) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1098,9 +1098,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if move has been singularly extended
           r -= singularLMR * ONE_PLY;
-
-          if ((ss-1)->currentMove == (ss-1)->killers[0])
-              r -= ONE_PLY;
 
           if (!captureOrPromotion)
           {
