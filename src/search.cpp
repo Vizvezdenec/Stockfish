@@ -1144,7 +1144,10 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = ((value > alpha || (value - ss->staticEval > QueenValueMg)) && d != newDepth), doLMR = true;
+          doFullDepthSearch = (value >= alpha && d != newDepth), doLMR = true;
+
+          if (value == alpha)
+              newDepth = std::max(newDepth - 2 * ONE_PLY, ONE_PLY);
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
