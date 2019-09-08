@@ -650,7 +650,7 @@ namespace {
     // starts with statScore = 0. Later grandchildren start with the last calculated
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
-    if (rootNode || (ss-1)->statScore == 0)
+    if (rootNode)
         (ss+4)->statScore = 0;
     else
         (ss+2)->statScore = 0;
@@ -1275,6 +1275,7 @@ moves_loop: // When in check, search starts from here
         if (!pos.capture_or_promotion(bestMove))
             update_quiet_stats(pos, ss, bestMove, quietsSearched, quietCount,
                                stat_bonus(depth + (bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
+        else ss->statScore = 0;
 
         update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth + ONE_PLY));
 
