@@ -1144,10 +1144,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value >= alpha && d != newDepth), doLMR = true;
-
-          if (value == alpha)
-              newDepth = newDepth / 2;
+          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
@@ -1290,7 +1287,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 * ONE_PLY || PvNode)
              && !pos.captured_piece())
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + (bestValue < alpha - PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
