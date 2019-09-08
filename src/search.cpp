@@ -1144,10 +1144,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
-
-          if (value <= alpha && !captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d) / std::max(16 - d / ONE_PLY, 2));
+          doFullDepthSearch = (value > alpha && d != newDepth) || (value == alpha && d == newDepth - ONE_PLY), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
