@@ -596,7 +596,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, doLMR, highDepthLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, singularLMR;
@@ -1144,17 +1144,13 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value >= alpha && d != newDepth), doLMR = true;
-
-          if (value == alpha)
-          {
-              if (d < newDepth - 2 * ONE_PLY)
-                  newDepth = newDepth - 2 * ONE_PLY;
-              else doFullDepthSearch = false;
-          }
+          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
+          
+          if (value < alpha && newDepth > 8 * ONE_PLY && d > newDepth - 3 * ONE_PLY)
+              highDepthLMR = true;
       }
       else
-          doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
+          doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false, highDepthLMR = false;
 
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
@@ -1172,6 +1168,8 @@ moves_loop: // When in check, search starts from here
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
       }
+      else if (highDepthLMR && !captureOrPromotion)
+          update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth - 2 * ONE_PLY));
 
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
