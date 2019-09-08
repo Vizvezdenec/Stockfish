@@ -441,6 +441,9 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
+    if ((KnightSafeCheck | RookSafeCheck | BishopSafeCheck | QueenSafeCheck) & forward_ranks_bb(Them, ksq))
+        kingDanger += 100;
+
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
@@ -448,21 +451,17 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    bool minorAttackers = (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]) & kingRing[Us];
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 -  40 * (!minorAttackers && (attackedBy[Us][ROOK] & attackedBy[Us][KING]))
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +   8 * !minorAttackers
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
