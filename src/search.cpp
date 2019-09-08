@@ -653,7 +653,7 @@ namespace {
     if (rootNode)
         (ss+4)->statScore = 0;
     else
-        (ss-1)->statScore == 0 ? (ss+3)->statScore = 0 : (ss-2)->statScore == 0 ? (ss+2)->statScore = 0 : (ss+1)->statScore = 0;
+        (ss+2)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -1274,7 +1274,7 @@ moves_loop: // When in check, search starts from here
         // Quiet best move: update move sorting heuristics
         if (!pos.capture_or_promotion(bestMove))
             update_quiet_stats(pos, ss, bestMove, quietsSearched, quietCount,
-                               stat_bonus(depth + (bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
+                               stat_bonus(depth + (bestValue > beta + RookValueMg ? 2 * ONE_PLY : bestValue > beta + PawnValueMg ? ONE_PLY : DEPTH_ZERO)));
 
         update_capture_stats(pos, bestMove, capturesSearched, captureCount, stat_bonus(depth + ONE_PLY));
 
