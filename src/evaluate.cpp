@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 770;
-  constexpr int RookSafeCheck   = 1070;
-  constexpr int BishopSafeCheck = 625;
-  constexpr int KnightSafeCheck = 780;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
+  constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -250,7 +250,7 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
-    kingRing[Us] &= ~dblAttackByPawn;
+    kingRing[Us] &= ~(dblAttackByPawn | (pos.pieces(Us, PAWN) & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them)));
   }
 
 
@@ -440,9 +440,6 @@ namespace {
         kingDanger += KnightSafeCheck;
     else
         unsafeChecks |= knightChecks;
-
-    if ((KnightSafeCheck | RookSafeCheck | BishopSafeCheck | QueenSafeCheck) & forward_ranks_bb(Them, ksq))
-        kingDanger += 100;
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
