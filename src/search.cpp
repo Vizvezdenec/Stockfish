@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = (value >= alpha && d != newDepth), doLMR = true;
 
           if (value == alpha)
-              newDepth = std::max(newDepth - 2 * ONE_PLY, ONE_PLY);
+              newDepth = std::max(newDepth - 4 * ONE_PLY, ONE_PLY);
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
