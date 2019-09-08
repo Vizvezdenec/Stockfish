@@ -1139,14 +1139,12 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (ss->staticEval + KnightValueMg < alpha && givesCheck)
-              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
+          doFullDepthSearch = ((value > alpha || (value - ss->staticEval > QueenValueMg)) && d != newDepth), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
