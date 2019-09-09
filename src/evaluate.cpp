@@ -461,7 +461,7 @@ namespace {
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
 
-    kingDanger = std::min(kingDanger, int(pos.non_pawn_material(Them)) / 2);
+    kingDanger = std::min(kingDanger, int(pos.non_pawn_material(Them)));
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
