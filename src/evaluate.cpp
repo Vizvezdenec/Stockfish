@@ -729,7 +729,7 @@ namespace {
                     -103 ;
 
     if (complexity < -50)
-    	complexity += 50 + complexity;
+    	complexity -= (50 + complexity) * (50 + complexity) / 8;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
