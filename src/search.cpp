@@ -787,7 +787,7 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =   ss->staticEval >= (ss-2)->staticEval + abs((ss-2)->staticEval) / 1024
+    improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
 
     // Step 8. Futility pruning: child node (~30 Elo)
@@ -1597,6 +1597,10 @@ moves_loop: // When in check, search starts from here
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
+    else bonus += bonus / 4;
+
+    if (abs(bonus) > 10692)
+    	bonus = 10692 * (2 * (bonus > 0) - 1);
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
