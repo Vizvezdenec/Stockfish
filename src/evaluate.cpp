@@ -592,7 +592,7 @@ namespace {
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
 
     auto king_proximity = [&](Color c, Square s) {
-      return std::min(distance(pos.square<KING>(c), s), 5 + 2 * !pos.non_pawn_material(c));
+      return std::min(distance(pos.square<KING>(c), s), 5);
     };
 
     Bitboard b, bb, squaresToQueen, unsafeSquares;
@@ -727,6 +727,9 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     -103 ;
+
+    if (complexity < -50)
+    	complexity += 50 + complexity;
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
