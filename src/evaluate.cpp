@@ -168,7 +168,7 @@ namespace {
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
-    Score initiative(Value eg) const;
+    Score initiative(Value eg);
 
     const Position& pos;
     Material::Entry* me;
@@ -205,6 +205,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int scaleFactorCorrection;
   };
 
 
@@ -251,6 +252,7 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+    scaleFactorCorrection = 0;
   }
 
 
@@ -712,7 +714,7 @@ namespace {
   // known attacking/defending status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::initiative(Value eg) const {
+  Score Evaluation<T>::initiative(Value eg) {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -727,6 +729,9 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     -103 ;
+    
+    if (complexity < 0)
+    	scaleFactorCorrection = (-16 * complexity) / (50 - complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
@@ -753,9 +758,9 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 16 + 4 * pe->passed_count();
+            sf = 16 + 4 * pe->passed_count() - scaleFactorCorrection;
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide) - scaleFactorCorrection, sf);
 
     }
 
