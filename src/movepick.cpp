@@ -112,6 +112,7 @@ void MovePicker::score() {
 
       else if (Type == QUIETS)
           m.value =  (*mainHistory)[pos.side_to_move()][from_to(m)]
+                   - (type_of(pos.moved_piece(m)) != PAWN) * (*mainHistory)[pos.side_to_move()][from_to(make_move(to_sq(m), from_sq(m)))] / 4
                    + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    + (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    + (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
