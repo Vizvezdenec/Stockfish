@@ -1126,9 +1126,7 @@ moves_loop: // When in check, search starts from here
               if (    ss->statScore < 0
                   && (*contHist[0])[movedPiece][to_sq(move)] >= 0
                   && (*contHist[1])[movedPiece][to_sq(move)] >= 0
-                  && thisThread->mainHistory[us][from_to(move)] >= 0
-                  && ((type_of(pos.moved_piece(move)) == PAWN)
-                  || thisThread->mainHistory[us][from_to(reverse_move(move))] < 0))
+                  && thisThread->mainHistory[us][from_to(move)] >= 0)
                   ss->statScore = 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
@@ -1618,6 +1616,7 @@ moves_loop: // When in check, search starts from here
     for (int i = 0; i < quietCount; ++i)
     {
         thisThread->mainHistory[us][from_to(quiets[i])] << -bonus;
+        thisThread->mainHistory[us][from_to(reverse_move(quiets[i]))] << bonus;
         update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
     }
   }
