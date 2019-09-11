@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 77, 55, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 714;
-  constexpr int RookSafeCheck   = 1032;
-  constexpr int BishopSafeCheck = 621;
-  constexpr int KnightSafeCheck = 769;
+  constexpr int QueenSafeCheck  = 780;
+  constexpr int RookSafeCheck   = 1080;
+  constexpr int BishopSafeCheck = 635;
+  constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -449,17 +449,17 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  72 * kingAttacksCount[Them]
-                 + 179 * popcount(kingRing[Us] & weak)
+                 +  69 * kingAttacksCount[Them]
+                 + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  27 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
-                 + 145 * popcount(unsafeChecks)
-                 + 121 * popcount(pos.blockers_for_king(Us))
-                 - 833 * !pos.count<QUEEN>(Them)
-                 -  21 * mg_value(score) / 32
+                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                 + 148 * popcount(unsafeChecks)
+                 +  98 * popcount(pos.blockers_for_king(Us))
+                 - 873 * !pos.count<QUEEN>(Them)
+                 -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -  14;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -720,12 +720,15 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    bool extraCompReduction = !pe->passed_count() && (outflanking < 0) && !pawnsOnBothFlanks;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
+                    - 24 * extraCompReduction
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
