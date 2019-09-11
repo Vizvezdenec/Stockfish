@@ -47,7 +47,6 @@ struct Stack {
   Move excludedMove;
   Move killers[2];
   Value staticEval;
-  Bitboard goodLandingSquare;
   int statScore;
   int moveCount;
 };
