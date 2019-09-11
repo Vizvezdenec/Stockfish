@@ -167,7 +167,7 @@ namespace {
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
-    ScaleFactor scale_factor(Value eg) const;
+    ScaleFactor scale_factor(Value eg, int scaleFactorCorrection) const;
     Score initiative(Value eg) const;
 
     const Position& pos;
@@ -728,9 +728,6 @@ namespace {
                     + 49 * !pos.non_pawn_material()
                     -103 ;
 
-    if (complexity < 0)
-    	complexity += complexity / 2;
-
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
@@ -746,7 +743,7 @@ namespace {
   // Evaluation::scale_factor() computes the scale factor for the winning side
 
   template<Tracing T>
-  ScaleFactor Evaluation<T>::scale_factor(Value eg) const {
+  ScaleFactor Evaluation<T>::scale_factor(Value eg, int scaleFactorCorrection) const {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
@@ -756,9 +753,9 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 16 + 4 * pe->passed_count();
+            sf = 16 + 4 * pe->passed_count() - scaleFactorCorrection;
         else
-            sf = std::min(40 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
+            sf = std::min(40 - scaleFactorCorrection + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide), sf);
 
     }
 
@@ -815,10 +812,17 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += initiative(eg_value(score));
+    Score initScore = initiative(eg_value(score));
+
+    int scaleFactorCorrection = 0;
+
+    if (abs(eg_value(initScore)) * 2 > abs(eg_value(score)) && (eg_value(initScore) * int(eg_value(score)) < 0))
+    	scaleFactorCorrection = 16 * (abs(eg_value(initScore)) * 2 - abs(eg_value(score))) / int(abs(eg_value(initScore)));
+    	
+    score += initScore;
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
-    ScaleFactor sf = scale_factor(eg_value(score));
+    ScaleFactor sf = scale_factor(eg_value(score), scaleFactorCorrection);
     v =  mg_value(score) * int(me->game_phase())
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
