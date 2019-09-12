@@ -720,15 +720,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool extraCompReduction = !pe->passed_count() && (outflanking < 0) && !pawnsOnBothFlanks;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 36 * extraCompReduction
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
