@@ -1051,9 +1051,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  (!givesCheck || !extension)
-                   && !pos.see_ge(move, Value(-199 
-                             - captureOrPromotion * thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))]/512)
-                             * (depth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1146,7 +1144,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
+          doFullDepthSearch = ((value > alpha || (value == alpha && (ss-1)->staticEval < -alpha - Eval::Tempo)) && d != newDepth), doLMR = true;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
