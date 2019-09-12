@@ -1052,8 +1052,8 @@ moves_loop: // When in check, search starts from here
           }
           else if (  (!givesCheck || !extension)
                    && !pos.see_ge(move, Value(-189 
-                             - 50 * (captureOrPromotion && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))]) < 0)
-                             * (depth / ONE_PLY))) // (~20 Elo)
+                             - 50 * (captureOrPromotion && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                             * (depth / ONE_PLY)))) // (~20 Elo)
                   continue;
       }
 
