@@ -729,13 +729,18 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    bool barelyWinnable = !pe->passed_count()
+                           &&  outflanking < 0
+                           && !almostUnwinnable;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
-                    +  (9 + 3 * !pos.non_pawn_material())  * outflanking
+                    +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
+                    - 12 * barelyWinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
