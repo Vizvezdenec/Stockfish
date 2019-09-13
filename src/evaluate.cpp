@@ -322,7 +322,7 @@ namespace {
                                      * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
-                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
+                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & ~attackedBy[Them][PAWN] & Center))
                     score += LongDiagonalBishop;
             }
 
@@ -348,7 +348,8 @@ namespace {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
             // Bonus for rook on same file as their queen
-            score += RookOnQueenFile * popcount((pos.pieces(Them, QUEEN) | pos.pieces(Them, KING)) & file_bb(s));
+            if (file_bb(s) & pos.pieces(Them, QUEEN))
+                score += RookOnQueenFile;
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
