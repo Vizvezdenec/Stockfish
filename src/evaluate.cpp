@@ -400,8 +400,7 @@ namespace {
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
-   if (pos.non_pawn_material(Them) == QueenValueMg)
-   	weak &= ~attackedBy[Us][QUEEN];
+    weak &= ~(~attackedBy2[Them] & attackedBy[Us][QUEEN] & attackedBy[Them][QUEEN]);
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
