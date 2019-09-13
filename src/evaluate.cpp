@@ -729,15 +729,13 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool rookQueenEg = !pos.count<KNIGHT>() && !pos.count<BISHOP>() && pos.non_pawn_material();
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
-                    +  9 * outflanking
+                    +  (9 + 4 * !pos.non_pawn_material()) * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - (32 + 16 * rookQueenEg) * almostUnwinnable
+                    - 36 * almostUnwinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting
