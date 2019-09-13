@@ -1074,8 +1074,8 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 * ONE_PLY
-          &&  moveCount > 1 + 2 * rootNode + (depth == 3 * ONE_PLY)
+      if (    depth >= (3 - (cutNode && !captureOrPromotion && ss->staticEval < alpha)) * ONE_PLY
+          &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
