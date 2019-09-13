@@ -247,10 +247,8 @@ namespace {
     else if (file_of(ksq) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
-    int pawnAttacks = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttackersCount[Them] = pawnAttacks;
-    kingAttackersWeight[Them] = 2 * pawnAttacks;
-    kingAttacksCount[Them] = 0;
+    kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
+    kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -350,7 +348,7 @@ namespace {
                 score += RookOnPawn * popcount(pos.pieces(Them, PAWN) & PseudoAttacks[ROOK][s]);
 
             // Bonus for rook on same file as their queen
-            if (file_bb(s) & pos.pieces(Them, QUEEN))
+            if (file_bb(s) & (pos.pieces(Them, QUEEN) | pos.pieces(Them, KING)))
                 score += RookOnQueenFile;
 
             // Bonus for rook on an open or semi-open file
