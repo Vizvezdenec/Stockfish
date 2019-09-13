@@ -247,8 +247,10 @@ namespace {
     else if (file_of(ksq) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
-    kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    int pawnAttacks = popcount(kingRing[Us] & pe->pawn_attacks(Them));
+    kingAttackersCount[Them] = pawnAttacks;
+    kingAttackersWeight[Them] = 2 * pawnAttacks;
+    kingAttacksCount[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -729,8 +731,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -743,7 +743,7 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting
     // the sign of the endgame value, and that we carefully cap the bonus so
     // that the endgame score will never change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg) + 2 * (pos.count<PAWN>(strongSide) >= pos.count<PAWN>(~strongSide)) - 1);
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(0, v));
