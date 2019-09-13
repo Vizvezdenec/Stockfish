@@ -320,9 +320,10 @@ namespace {
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (1 + popcount(blocked & CenterFiles));
-                bb = attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center;
+
+                bb = LineBB[SQ_A1][SQ_H8] | LineBB[SQ_A8][SQ_H1];
                 // Bonus for bishop on a long diagonal which can "see" both center squares
-                if (more_than_one(bb) && (bb & ~attackedBy[Them][PAWN]))
+                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center) && more_than_one(b & bb & mobilityArea[Us]))
                     score += LongDiagonalBishop;
             }
 
