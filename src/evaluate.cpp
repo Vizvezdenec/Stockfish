@@ -744,7 +744,7 @@ namespace {
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
     int v1 = 0;
     if (complexity < -50)
-    	v1 = ((mg > 0) - (mg < 0)) * std::max(complexity + 50, -abs(mg));
+    	v1 = ((mg > 0) - (mg < 0)) * std::max((complexity + 50) / 2, -abs(mg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(v1, v));
