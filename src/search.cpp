@@ -1145,12 +1145,6 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
-
-          if (!extension && value > beta 
-                  && thisThread->mainHistory[us][from_to(move)] > 0
-                  && (*contHist[0])[movedPiece][to_sq(move)] > 0
-                  && (*contHist[1])[movedPiece][to_sq(move)] > 0)
-              newDepth += ONE_PLY;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
