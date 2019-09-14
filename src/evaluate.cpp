@@ -127,7 +127,7 @@ namespace {
   };
 
   // Assorted bonuses and penalties
-  constexpr Score BishopPawns        = S(  2,  6);
+  constexpr Score BishopPawns        = S(  2,  4);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
@@ -318,7 +318,7 @@ namespace {
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
-                score -= BishopPawns * (pos.pawns_on_same_color_squares(Us, s) + popcount(blocked & ((DarkSquares & s) ? DarkSquares : ~DarkSquares)))
+                score -= BishopPawns * (pos.pawns_on_same_color_squares(Us, s) + 2 * popcount(blocked & ((DarkSquares & s) ? DarkSquares : ~DarkSquares)))
                                      * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
