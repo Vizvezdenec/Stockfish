@@ -947,6 +947,9 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      bool goodHistory = (*contHist[0])[movedPiece][to_sq(move)] > CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] > CounterMovePruneThreshold;
+
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -954,7 +957,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if (    depth >= 6 * ONE_PLY
+      if (    depth >= (6 - goodHistory) * ONE_PLY
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
@@ -1145,11 +1148,6 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), doLMR = true;
-
-          if (!extension && value > beta && depth >= 6 * ONE_PLY
-                  && (*contHist[0])[movedPiece][to_sq(move)] > 0
-                  && (*contHist[1])[movedPiece][to_sq(move)] > 0)
-              newDepth += ONE_PLY;
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, doLMR = false;
