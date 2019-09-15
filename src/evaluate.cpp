@@ -722,9 +722,8 @@ namespace {
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
-    int moreWhitePieces = (pos.count<ALL_PIECES>(WHITE) - pos.count<PAWN>(WHITE)) - (pos.count<ALL_PIECES>(BLACK) - pos.count<PAWN>(BLACK));
-    mg += (moreWhitePieces > 0) -
-          (moreWhitePieces < 0);
+    int moreWhitePawns = pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK);
+    eg += (moreWhitePawns > 0) - (moreWhitePawns < 0);
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
