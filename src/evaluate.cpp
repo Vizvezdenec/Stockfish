@@ -834,7 +834,7 @@ namespace {
     int sfMg = 64;    
 
     if (mg_value(score) * int(eg_value(score)) < 0)
-    	sfMg -= std::min(abs(eg_value(score)) / int(abs(mg_value(score))), 16);
+    	sfMg -= std::min(abs(eg_value(score)) / int(abs(mg_value(score)) + PawnValueMg / 4), 16);
     
 
     v =  mg_value(score) * int(me->game_phase()) * ScaleFactor(sfMg) / SCALE_FACTOR_NORMAL
