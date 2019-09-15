@@ -741,7 +741,9 @@ namespace {
                     - 36 * almostUnwinnable
                     -103 ;
 
-    complexity += std::min(0, complexity + 80);
+    int maxEval = int(std::max(abs(mg), abs(eg)));
+
+    complexity = std::min(50 + maxEval, complexity);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
