@@ -477,9 +477,6 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
 
-    if ((attackedBy2[Us] & ksq) || ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]) & ksq))
-    	score -= make_score(0, 25);
-
     if (T)
         Trace::add(KING, Us, score);
 
@@ -742,7 +739,8 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    -103 ;
+                    +      abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) / 128
+                    -105 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
