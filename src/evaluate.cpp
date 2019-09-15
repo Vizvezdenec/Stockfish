@@ -722,6 +722,10 @@ namespace {
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
+    int moreWhitePieces = (pos.count<ALL_PIECES>(WHITE) - pos.count<PAWN>(WHITE)) - (pos.count<ALL_PIECES>(BLACK) - pos.count<PAWN>(BLACK));
+    mg += (moreWhitePieces > 0) -
+          (moreWhitePieces < 0);
+
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
@@ -745,7 +749,7 @@ namespace {
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg) + 1);
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
