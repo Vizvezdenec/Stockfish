@@ -687,9 +687,9 @@ namespace {
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
-    constexpr Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+    Bitboard SpaceMask =
+      Us == WHITE ? (CenterFiles | KingFlank[file_of(pos.square<KING>(BLACK))]) & (Rank2BB | Rank3BB | Rank4BB)
+                  : (CenterFiles | KingFlank[file_of(pos.square<KING>(WHITE))]) & (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
@@ -830,14 +830,7 @@ namespace {
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
-
-    int sfMg = 64;    
-
-    if (mg_value(score) * int(eg_value(score)) < 0)
-    	sfMg -= std::min(abs(eg_value(score)) / int(abs(mg_value(score)) + PawnValueMg / 4), 16);
-    
-
-    v =  mg_value(score) * int(me->game_phase()) * ScaleFactor(sfMg) / SCALE_FACTOR_NORMAL
+    v =  mg_value(score) * int(me->game_phase())
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
     v /= PHASE_MIDGAME;
