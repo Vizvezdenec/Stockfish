@@ -456,7 +456,7 @@ namespace {
     int overwhelmingAttackers = std::max(kingAttackersCount[Them] - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1), 0);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +   2 * overwhelmingAttackers * overwhelmingAttackers
+                 +  15 * overwhelmingAttackers * overwhelmingAttackers
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
