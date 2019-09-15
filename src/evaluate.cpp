@@ -833,8 +833,7 @@ namespace {
 
     int sfMg = 64;    
 
-    if (mg_value(score) * int(eg_value(score)) < 0 
-        && !pe->passed_count() 
+    if (!pe->passed_count() 
         && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK) 
         && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK))
     	sfMg = 58;
