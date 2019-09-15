@@ -833,10 +833,8 @@ namespace {
 
     int sfMg = 64;    
 
-    if (!pe->passed_count() 
-        && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK) 
-        && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK))
-    	sfMg = 58;
+    if (mg_value(score) * int(eg_value(score)) < 0)
+    	sfMg -= std::min(abs(eg_value(score)) / int(abs(mg_value(score))), 16);
     
 
     v =  mg_value(score) * int(me->game_phase()) * ScaleFactor(sfMg) / SCALE_FACTOR_NORMAL
