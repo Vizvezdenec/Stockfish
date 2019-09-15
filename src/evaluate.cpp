@@ -290,7 +290,7 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (attacks_bb<Pt>(s, pos.pieces(PAWN)) & kingRing[Them])
+        else if (PseudoAttacks[Pt][s] & pos.pieces(Them, KING))
            kingAttackersWeight[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
