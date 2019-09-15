@@ -722,18 +722,18 @@ namespace {
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
-    int moreWhitePawns = pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK);
-    eg += (moreWhitePawns > 0) - (moreWhitePawns < 0);
-
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    bool pureOcb = pos.opposite_bishops()
+            && pos.non_pawn_material() == 2 * BishopValueMg;
+
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
-                           && !pawnsOnBothFlanks;
+                           && (!pawnsOnBothFlanks || pureOcb);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
