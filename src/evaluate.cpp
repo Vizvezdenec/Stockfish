@@ -290,6 +290,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+        else if (attacks_bb<Pt>(s, pos.pieces(PAWN)) & kingRing[Them])
+           kingAttackersWeight[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -693,7 +695,7 @@ namespace {
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
-                   & ~(pos.pieces(Us, PAWN) & ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)))
+                   & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
     // Find all squares which are at most three squares behind some friendly pawn
