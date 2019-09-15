@@ -477,6 +477,9 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttacks;
 
+    if ((attackedBy2[Us] & ksq) || ((attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][PAWN]) & ksq))
+    	score -= make_score(0, 25);
+
     if (T)
         Trace::add(KING, Us, score);
 
@@ -545,8 +548,6 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
-
-    score += make_score(1, 1) * (popcount(attackedBy[Us][ALL_PIECES] & mobilityArea[Us]) + popcount(attackedBy2[Us] & mobilityArea[Us]));
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
