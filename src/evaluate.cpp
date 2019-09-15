@@ -728,12 +728,9 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool pureOcb = pos.opposite_bishops()
-            && pos.non_pawn_material() == 2 * BishopValueMg;
-
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
-                           && (!pawnsOnBothFlanks || pureOcb);
+                           && !pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -743,6 +740,8 @@ namespace {
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
                     -103 ;
+
+    complexity += std::min(0, complexity + 100);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
