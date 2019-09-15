@@ -546,7 +546,7 @@ namespace {
 
     score += RestrictedPiece * popcount(b);
 
-    score += make_score(2, 2) * (popcount(attackedBy[Us][ALL_PIECES] & mobilityArea[Us]));
+    score += make_score(1, 1) * (popcount(attackedBy[Us][ALL_PIECES] & mobilityArea[Us]) + popcount(attackedBy2[Us] & mobilityArea[Us]));
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
