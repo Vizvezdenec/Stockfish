@@ -567,7 +567,7 @@ namespace {
     score += ThreatByPawnPush * popcount(b);
 
     if (pos.count<BISHOP>(Us) == 2 && pos.count<BISHOP>(Them) < 2)
-    	score += make_score(3, 1) * (8 - blockedCenterCount);
+    	score += make_score(4, 4) * (8 - blockedCenterCount);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
