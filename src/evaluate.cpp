@@ -368,8 +368,9 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
-                score -= WeakQueen;
+            bb = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (bb)
+                score -= WeakQueen * (1 + bool(bb & kingRing[Us]));
         }
     }
     if (T)
@@ -460,7 +461,6 @@ namespace {
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
-                 + 100 * popcount(pos.blockers_for_king(Us) & kingRing[Us] & weak)
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
