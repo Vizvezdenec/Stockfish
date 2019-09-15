@@ -565,6 +565,9 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
+    if (pos.count<BISHOP>(Us) == 2)
+    	score += make_score(5, 2) * (8 - popcount(pos.pieces(PAWN) & CenterFiles & (Rank4BB | Rank5BB)));
+
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
