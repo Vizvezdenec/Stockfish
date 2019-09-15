@@ -206,7 +206,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int blockedCenterCount = popcount(pos.pieces(PAWN) & CenterFiles & (Rank4BB | Rank5BB));
   };
 
 
@@ -565,9 +564,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    if (pos.count<BISHOP>(Us) == 2 && pos.count<BISHOP>(Them) < 2)
-    	score += make_score(4, 4) * (8 - blockedCenterCount);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
