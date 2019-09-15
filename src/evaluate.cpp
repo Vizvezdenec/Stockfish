@@ -453,7 +453,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int overwhelmingAttackers = std::max(kingAttackersCount[Them] - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1), 0);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+                 +   5 * overwhelmingAttackers * overwhelmingAttackers
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -739,8 +742,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    +      abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) / 128
-                    -105 ;
+                    -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
