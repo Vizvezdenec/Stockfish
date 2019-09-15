@@ -688,8 +688,8 @@ namespace {
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     Bitboard SpaceMask =
-      Us == WHITE ? (CenterFiles | KingFlank[file_of(pos.square<KING>(BLACK))]) & (Rank2BB | Rank3BB | Rank4BB)
-                  : (CenterFiles | KingFlank[file_of(pos.square<KING>(WHITE))]) & (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ? SpaceFlank[file_of(pos.square<KING>(BLACK))] & (Rank2BB | Rank3BB | Rank4BB)
+                  : SpaceFlank[file_of(pos.square<KING>(WHITE))] & (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
@@ -703,7 +703,7 @@ namespace {
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
-    Score score = make_score(bonus * weight * weight / 24, 0);
+    Score score = make_score(bonus * weight * weight / 20, 0);
 
     if (T)
         Trace::add(SPACE, Us, score);

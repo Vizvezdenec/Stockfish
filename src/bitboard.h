@@ -68,7 +68,12 @@ constexpr Bitboard Center      = (FileDBB | FileEBB) & (Rank4BB | Rank5BB);
 constexpr Bitboard KingFlank[FILE_NB] = {
   QueenSide ^ FileDBB, QueenSide, QueenSide,
   CenterFiles, CenterFiles,
-  KingSide, KingSide, KingSide ^ FileEBB
+  KingSide, KingSide, KingSide ^ FileEBB };
+
+constexpr Bitboard SpaceFlank[FILE_NB] = {
+  QueenSide | FileEBB, QueenSide| FileEBB, QueenSide| FileEBB,
+  CenterFiles | FileBBB, CenterFiles | FileGBB,
+  KingSide | FileDBB, KingSide | FileDBB, KingSide | FileDBB
 };
 
 extern uint8_t PopCnt16[1 << 16];
