@@ -453,10 +453,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int overwhelmingAttackers = std::max(kingAttackersCount[Them] - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1), 0);
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +       overwhelmingAttackers * overwhelmingAttackers
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -833,7 +830,17 @@ namespace {
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
-    v =  mg_value(score) * int(me->game_phase())
+
+    int sfMg = 64;    
+
+    if (mg_value(score) * int(eg_value(score)) < 0 
+        && !pe->passed_count() 
+        && pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK) 
+        && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK))
+    	sfMg = 58;
+    
+
+    v =  mg_value(score) * int(me->game_phase()) * ScaleFactor(sfMg) / SCALE_FACTOR_NORMAL
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
     v /= PHASE_MIDGAME;
