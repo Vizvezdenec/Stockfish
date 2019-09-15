@@ -454,7 +454,6 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  30 * std::max((kingAttackersCount[Them] - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us) - 1)), 0)
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -546,6 +545,8 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    score += make_score(2, 2) * (popcount(attackedBy[Us][ALL_PIECES] & mobilityArea[Us]));
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
