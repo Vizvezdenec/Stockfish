@@ -693,7 +693,7 @@ namespace {
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
-                   & ~pos.pieces(Us, PAWN)
+                   & ~(pos.pieces(Us, PAWN) & ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)))
                    & ~attackedBy[Them][PAWN];
 
     // Find all squares which are at most three squares behind some friendly pawn
@@ -732,8 +732,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool oppositeScores = mg * int(eg) < 0 && abs(mg) > 50 && abs(eg) > 50;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -741,8 +739,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    -  9 * oppositeScores
-                    -102 ;
+                    -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
