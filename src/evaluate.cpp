@@ -638,7 +638,7 @@ namespace {
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
                 if (!(pos.pieces(Them) & bb))
-                    unsafeSquares &= (attackedBy[Them][ALL_PIECES] & ~attackedBy[Them][PAWN]) | attackedBy2[Them];
+                    unsafeSquares &= attackedBy[Them][ALL_PIECES] & (~attackedBy[Us][PAWN] | PawnAttacks[Us][s]);
 
                 // If there are no enemy attacks on passed pawn span, assign a big bonus.
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
