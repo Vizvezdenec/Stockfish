@@ -829,9 +829,13 @@ namespace {
 
     score += initiative(score);
 
+    int sfMg = 64;    
+
+    sfMg -= std::max(0, (pos.rule50_count() - 20) / 4  );
+
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
-    v =  mg_value(score) * int(me->game_phase())
+    v =  mg_value(score) * int(me->game_phase()) * ScaleFactor(sfMg) / SCALE_FACTOR_NORMAL
        + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
 
     v /= PHASE_MIDGAME;
