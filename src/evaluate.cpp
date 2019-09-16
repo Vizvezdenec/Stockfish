@@ -745,7 +745,7 @@ namespace {
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity + 6 * outflanking, -abs(eg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity + 4 * outflanking, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
