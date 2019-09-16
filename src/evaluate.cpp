@@ -831,7 +831,7 @@ namespace {
 
     int sfMg = 64;    
 
-    sfMg -= std::max(0, (pos.rule50_count() - 20) / 4  );
+    sfMg -= std::max(0, (pos.rule50_count() - 32) / 4  );
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
