@@ -629,8 +629,9 @@ namespace {
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
+            bool queenBlocked = pos.pieces(Them, QUEEN) & blockSq;
             // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq))
+            if (pos.empty(blockSq) || queenBlocked)
             {
                 squaresToQueen = forward_file_bb(Us, s);
                 unsafeSquares = passed_pawn_span(Us, s);
@@ -651,6 +652,9 @@ namespace {
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
+
+                if (queenBlocked)
+                    w /= 2;
 
                 bonus += make_score(k * w, k * w);
             }
@@ -732,16 +736,12 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool distantPawns = (pos.pieces(WHITE, PAWN) & (Rank6BB | Rank7BB)) || 
-                        (pos.pieces(BLACK, PAWN) & (Rank3BB | Rank2BB));
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    + 18 * distantPawns
                     - 36 * almostUnwinnable
                     -103 ;
 
