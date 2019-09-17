@@ -206,7 +206,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    int distantKnight[COLOR_NB];
   };
 
 
@@ -250,8 +249,6 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-
-    distantKnight[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -314,9 +311,6 @@ namespace {
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
-
-            if (distance(s, pos.square<KING>(Them)) > 6)
-            	distantKnight[Us]++;
 
             if (Pt == BISHOP)
             {
@@ -470,7 +464,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -  20 * distantKnight[Them]
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -739,6 +732,11 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    bool barelyWinnable =  pe->passed_count() == 1
+                           && outflanking < 0
+                           && !pawnsOnBothFlanks
+                           && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -746,6 +744,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
+                    -  9 * barelyWinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
