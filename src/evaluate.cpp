@@ -470,7 +470,7 @@ namespace {
                  -   7;
 
     if (knightDefence && bishopDefence && !(attackedBy[Us][KING] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])))
-    	kingDanger -= 50;
+    	kingDanger -= 80;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
