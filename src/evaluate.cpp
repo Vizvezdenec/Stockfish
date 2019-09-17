@@ -682,7 +682,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() + pos.count<PAWN>() * 50 < SpaceThreshold + 14 * 50)
+    if (pos.non_pawn_material() + (pos.count<PAWN>() - 14) * 100 < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
