@@ -448,29 +448,23 @@ namespace {
 
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
-    b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b1 = (attackedBy[Them][ALL_PIECES] | pos.pieces(Them, KNIGHT)) & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    bool knightDefence = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
-    bool bishopDefence = attackedBy[Us][BISHOP] & attackedBy[Us][KING];
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * knightDefence
-                 -  35 * bishopDefence
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 -   6;
-
-    if (knightDefence && bishopDefence && !(attackedBy[Us][KING] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])))
-    	kingDanger -= 25;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
