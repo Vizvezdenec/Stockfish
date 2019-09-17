@@ -453,11 +453,14 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    bool knightDefence = attackedBy[Us][KNIGHT] & attackedBy[Us][KING];
+    bool bishopDefence = attackedBy[Us][BISHOP] & attackedBy[Us][KING];
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                 - 100 * knightDefence
+                 -  35 * bishopDefence
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
@@ -465,6 +468,9 @@ namespace {
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
                  -   7;
+
+    if (knightDefence && bishopDefence && !(attackedBy[Us][KING] & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])))
+    	kingDanger -= 50;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
