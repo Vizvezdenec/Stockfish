@@ -501,7 +501,7 @@ namespace {
 
     // Squares strongly protected by the enemy, either because they defend the
     // square with a pawn, or because they defend the square twice and we don't.
-    stronglyProtected =  attackedBy[Them][PAWN]
+    stronglyProtected =  pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pos.blockers_for_king(Them))
                        | (attackedBy2[Them] & ~attackedBy2[Us]);
 
     // Non-pawn enemies, strongly protected
@@ -732,11 +732,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool barelyWinnable =  pe->passed_count() == 1
-                           && outflanking < 0
-                           && !pawnsOnBothFlanks
-                           && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -744,7 +739,6 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    -  9 * barelyWinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
