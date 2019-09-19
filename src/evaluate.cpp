@@ -698,8 +698,8 @@ namespace {
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= shift<Down>(behind | pos.pieces(Them, PAWN));
-    behind |= shift<Down+Down>(behind | pos.pieces(Them, PAWN));
+    behind |= shift<Down>(behind | pe->semiopen_pawns(Them));
+    behind |= shift<Down+Down>(behind | pe->semiopen_pawns(Them));
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
