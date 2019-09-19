@@ -263,8 +263,6 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB : Rank7BB | Rank6BB);
-
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -364,9 +362,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
-            Bitboard rookPinners;
-            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners) & LowRanks & pos.pieces(Us, PAWN))
-            	score -= make_score(20, 4);
         }
 
         if (Pt == QUEEN)
@@ -703,8 +698,8 @@ namespace {
 
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
-    behind |= shift<Down>(behind);
-    behind |= shift<Down+Down>(behind);
+    behind |= shift<Down>(behind | pos.pieces(Them, PAWN));
+    behind |= shift<Down+Down>(behind | pos.pieces(Them, PAWN));
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
