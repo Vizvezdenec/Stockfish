@@ -697,10 +697,11 @@ namespace {
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
+    Bitboard spaceBlockers = pos.pieces(Us, PAWN) | (pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]);
     // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard ahead = Trank2BB & ~pos.pieces(Us, PAWN);
-    ahead |= shift<Up>(ahead) & ~pos.pieces(Us, PAWN);
-    ahead |= shift<Up+Up>(ahead) & ~shift<Up>(pos.pieces(Us, PAWN));
+    Bitboard ahead = Trank2BB & ~spaceBlockers;
+    ahead |= shift<Up>(ahead) & ~spaceBlockers;
+    ahead |= shift<Up+Up>(ahead) & ~shift<Up>(spaceBlockers);
 
     int bonus = popcount(safe) + popcount(ahead & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
