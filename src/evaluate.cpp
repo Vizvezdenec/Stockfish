@@ -263,6 +263,8 @@ namespace {
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB : Rank7BB | Rank6BB);
+
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -362,6 +364,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
+            Bitboard rookPinners;
+            if (pos.slider_blockers(pos.pieces(Them, BISHOP), s, rookPinners) & LowRanks & pos.pieces(Us, PAWN))
+            	score -= make_score(20, 4);
         }
 
         if (Pt == QUEEN)
@@ -402,8 +407,7 @@ namespace {
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
-    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]) 
-            | (~attackedBy2[Us] & pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & pos.blockers_for_king(Us)));
+    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
