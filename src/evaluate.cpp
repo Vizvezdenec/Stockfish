@@ -562,7 +562,10 @@ namespace {
     b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
-    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    b = pawn_attacks_bb<Us>(b);
+    score += make_score(8, 0) * popcount((b | attackedBy[Us][PAWN]) & kingRing[Them]);
+
+    b &=  nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
@@ -686,26 +689,24 @@ namespace {
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
-    constexpr Direction Up = (Us == BLACK ? SOUTH : NORTH);
+    constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
       Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
                   : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
-    constexpr Bitboard Trank2BB = Us == WHITE ? Rank2BB : Rank7BB;
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
     Bitboard safe =   SpaceMask
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
-    Bitboard spaceBlockers = pos.pieces(Us, PAWN) | (pos.pieces(Them, PAWN) & attackedBy[Them][PAWN]);
     // Find all squares which are at most three squares behind some friendly pawn
-    Bitboard ahead = Trank2BB & ~spaceBlockers;
-    ahead |= shift<Up>(ahead) & ~spaceBlockers;
-    ahead |= shift<Up>(ahead);
+    Bitboard behind = pos.pieces(Us, PAWN);
+    behind |= shift<Down>(behind);
+    behind |= shift<Down+Down>(behind);
 
-    int bonus = popcount(safe) + popcount(ahead & safe & ~attackedBy[Them][ALL_PIECES]);
+    int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
-    Score score = make_score(bonus * weight * weight / 14, 0);
+    Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
         Trace::add(SPACE, Us, score);
