@@ -1025,7 +1025,9 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg)
-              && !(type_of(movedPiece) == PAWN && (PawnAttacks[us][to_sq(move)] & pos.pieces(~us) & ~pos.pieces(~us, PAWN))))
+              && !(type_of(movedPiece) == PAWN 
+                   && (PawnAttacks[~us][to_sq(move)] & pos.pieces(us, PAWN))
+                   && (PawnAttacks[us][to_sq(move)] & pos.pieces(~us) & ~pos.pieces(~us, PAWN))))
           {
               // Move count based pruning
               if (moveCountPruning)
