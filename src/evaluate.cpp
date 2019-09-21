@@ -728,14 +728,10 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
-                           && !pawnsOnBothFlanks;
-
-    bool lowDisbalance = pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide)
-                      || pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) <= BishopValueMg - KnightValueMg;
+                           && !pawnsOnBothFlanks
+                           && (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) <= 1);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -743,7 +739,7 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - (36 + 18 * lowDisbalance) * almostUnwinnable
+                    - 48 * almostUnwinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
