@@ -732,16 +732,13 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool exchangeUp = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) == RookValueMg - KnightValueMg 
-                   || abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) == RookValueMg - BishopValueMg; 
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - (36 + 18 * exchangeUp) * almostUnwinnable
+                    - 36 * almostUnwinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
@@ -775,6 +772,9 @@ namespace {
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
+
+        if (abs(eg_value(me->imbalance())) > abs(eg) + 60)
+            sf -= 8 - pos.count<PAWN>(strongSide);
     }
 
     return ScaleFactor(sf);
