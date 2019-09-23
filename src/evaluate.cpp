@@ -400,9 +400,6 @@ namespace {
           & ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
 
-    Bitboard strong = (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP])
-                   & ~(attackedBy[Them][PAWN] | attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP]);
-
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
@@ -459,7 +456,6 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 -   8 * popcount(kingRing[Us] & strong)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
@@ -468,7 +464,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   5 * kingFlankAttacks * kingFlankAttacks / 16
-                 +   1;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
