@@ -1126,7 +1126,7 @@ moves_loop: // When in check, search starts from here
                              - 4729;
 
               if (type_of(movedPiece) != PAWN)
-              	  ss->statScore += thisThread->mainHistory[us][reverse_move(move)] / 8;
+              	  ss->statScore -= thisThread->mainHistory[us][reverse_move(move)] / 8;
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
                   && (*contHist[0])[movedPiece][to_sq(move)] >= 0
