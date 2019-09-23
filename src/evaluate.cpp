@@ -773,8 +773,9 @@ namespace {
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
 
-        if (abs(eg_value(me->imbalance())) > abs(eg) + 60)
-            sf -= 8 - pos.count<PAWN>(strongSide);
+        int posDisadvantage = abs(eg_value(me->imbalance())) - abs(eg) * (eg_value(me->imbalance()) * int(eg) > 0);
+        if (posDisadvantage > 50)
+            sf -= (16 - 2 * pos.count<PAWN>(strongSide)) * (posDisadvantage - 50) / posDisadvantage;
     }
 
     return ScaleFactor(sf);
