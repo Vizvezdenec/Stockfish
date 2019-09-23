@@ -732,13 +732,16 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    bool exchangeUp = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) == RookValueMg - KnightValueMg 
+                   || abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) == RookValueMg - BishopValueMg; 
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - 36 * almostUnwinnable
+                    - (36 + 18 * exchangeUp) * almostUnwinnable
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
