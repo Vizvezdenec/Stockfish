@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Move count based pruning
-              if (moveCountPruning && type_of(movedPiece) != PAWN)
+              if (moveCountPruning)
                   continue;
 
               // Reduced depth of the next LMR search
