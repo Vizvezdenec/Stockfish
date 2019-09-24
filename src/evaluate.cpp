@@ -225,7 +225,9 @@ namespace {
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
-    Bitboard bb = pawn_attacks_bb<Them>(pos.pieces(Them, PAWN));
+    Bitboard bb = pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pos.blockers_for_king(Them));
+    Bitboard bbb = PseudoAttacks[BISHOP][pos.square<KING>(Them)] & forward_ranks_bb(Them, pos.square<KING>(Them));
+    bb |= pawn_attacks_bb<Them>(bbb) & bb;
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
     mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | bb);
