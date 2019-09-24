@@ -221,10 +221,16 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
 
-    Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    attackedBy[Us][PAWN] = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us));
+    Bitboard b1 = PseudoAttacks[BISHOP][ksq] & forward_ranks_bb(Us, ksq);
+    Bitboard b = pos.blockers_for_king(Us) & pos.pieces(Us, PAWN) & b1;
+    attackedBy[Us][PAWN] |= pawn_attacks_bb<Us>(b) & b1; 
+
+    Bitboard dblAttackByPawn = (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us)))
+                               | (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & b1);
 
     // Find our pawns that are blocked or on the first two ranks
-    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+    b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
     Bitboard bb = pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pos.blockers_for_king(Them));
     Bitboard bbb = PseudoAttacks[BISHOP][pos.square<KING>(Them)] & forward_ranks_bb(Them, pos.square<KING>(Them));
     bb |= pawn_attacks_bb<Them>(bbb) & bb;
@@ -234,10 +240,6 @@ namespace {
 
     // Initialize attackedBy[] for king and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
-    attackedBy[Us][PAWN] = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us));
-    Bitboard b1 = PseudoAttacks[BISHOP][ksq] & forward_ranks_bb(Us, ksq);
-    b = pos.blockers_for_king(Us) & pos.pieces(Us, PAWN) & b1;
-    attackedBy[Us][PAWN] |= pawn_attacks_bb<Us>(b) & b1; 
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us] = dblAttackByPawn | (attackedBy[Us][KING] & attackedBy[Us][PAWN]);
 
