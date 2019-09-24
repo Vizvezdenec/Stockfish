@@ -85,6 +85,7 @@ namespace {
 
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
+    e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)

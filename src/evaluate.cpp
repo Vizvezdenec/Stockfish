@@ -221,25 +221,18 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
 
-    attackedBy[Us][PAWN] = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us));
-    Bitboard b1 = PseudoAttacks[BISHOP][ksq] & forward_ranks_bb(Us, ksq);
-    Bitboard b = pos.blockers_for_king(Us) & pos.pieces(Us, PAWN) & b1;
-    attackedBy[Us][PAWN] |= pawn_attacks_bb<Us>(b) & b1; 
-
-    Bitboard dblAttackByPawn = (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN) & ~pos.blockers_for_king(Us)))
-                               | (pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & b1);
+    Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
 
     // Find our pawns that are blocked or on the first two ranks
-    b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
-    Bitboard bb = pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~pos.blockers_for_king(Them));
-    Bitboard bbb = PseudoAttacks[BISHOP][pos.square<KING>(Them)] & forward_ranks_bb(Them, pos.square<KING>(Them));
-    bb |= pawn_attacks_bb<Them>(bbb) & bb;
+    Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
+
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
-    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | bb);
+    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
 
     // Initialize attackedBy[] for king and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
+    attackedBy[Us][PAWN] = pe->pawn_attacks(Us);
     attackedBy[Us][ALL_PIECES] = attackedBy[Us][KING] | attackedBy[Us][PAWN];
     attackedBy2[Us] = dblAttackByPawn | (attackedBy[Us][KING] & attackedBy[Us][PAWN]);
 
@@ -254,7 +247,7 @@ namespace {
     else if (file_of(ksq) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
-    kingAttackersCount[Them] = popcount(kingRing[Us] & bb);
+    kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
