@@ -732,6 +732,8 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -739,14 +741,13 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
+                    -200 * pe->no_pushes(strongSide)
                     -103 ;
 
-    bool locked = !(pos.pieces(WHITE, PAWN) & ~shift<SOUTH>(pos.pieces() | pawn_double_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)))) 
-               && !(pos.pieces(BLACK, PAWN) & ~shift<NORTH>(pos.pieces() | pawn_double_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN))));
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity - 80 * locked + 50, 0), -abs(mg));
+    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
