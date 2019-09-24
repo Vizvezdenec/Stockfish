@@ -741,10 +741,12 @@ namespace {
                     - 36 * almostUnwinnable
                     -103 ;
 
+    bool locked = !(pos.pieces(WHITE, PAWN) & ~shift<SOUTH>(pos.pieces() | pawn_double_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)))) 
+               && !(pos.pieces(BLACK, PAWN) & ~shift<NORTH>(pos.pieces() | pawn_double_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN))));
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
+    int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity - 80 * locked + 50, 0), -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
