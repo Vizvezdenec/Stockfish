@@ -70,7 +70,6 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Up   = (Us == WHITE ? NORTH : SOUTH);
-    constexpr Direction Down = (Us == BLACK ? NORTH : SOUTH);
 
     Bitboard neighbours, stoppers, support, phalanx;
     Bitboard lever, leverPush;
@@ -87,7 +86,6 @@ namespace {
     e->passedPawns[Us] = e->pawnAttacksSpan[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = pawn_attacks_bb<Us>(ourPawns);
-    e->noPushes[Us] = true;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -107,12 +105,6 @@ namespace {
         neighbours = ourPawns   & adjacent_files_bb(s);
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
-
-        if (e->noPushes[Us] == false 
-            || pos.count<PAWN>(Us) < 6
-            || !((pos.pieces(PAWN) & (s + Up))
-                 || ((doubleAttackThem & forward_file_bb(Us, s)) && !(neighbours & ~shift<Down>(theirPawns)))))
-            e->noPushes[Us] = false;
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance. Phalanx and isolated
