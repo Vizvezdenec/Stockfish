@@ -62,6 +62,10 @@ namespace {
     { V(-10), V( -14), V(  90), V(15), V( 2), V( -7), V(-16) }
   };
 
+  constexpr Score connectedFile[FILE_NB] = {
+    S(-4, -10), S(-2, -5), S(0, 0), S(4, 10), S(4, 10), S(0, 0), S(-2, -5), S(-4, -10)
+  };
+
   #undef S
   #undef V
 
@@ -134,6 +138,8 @@ namespace {
                    + 21 * popcount(support);
 
             score += make_score(v, v * (r - 2) / 4);
+
+            score += connectedFile[file_of(s)];
         }
 
         else if (!neighbours)
