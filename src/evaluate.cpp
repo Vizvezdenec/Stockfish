@@ -741,7 +741,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    -200 * pe->no_pushes(strongSide)
+                    - 80 * pe->no_pushes(strongSide) * (pos.count<PAWN>(strongSide) - 5)
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
