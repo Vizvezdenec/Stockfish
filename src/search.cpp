@@ -813,23 +813,15 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        // Null move dynamic reduction based on depth and value
+        Depth R = ((835 + 70 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 185, 3)) * ONE_PLY;
+
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
 
         pos.do_null_move(st);
 
-        Value nullValue = -qsearch<NonPV>(pos, ss+1, -alpha, -alpha+1);
-        
-        pos.undo_null_move();
-
-        if (nullValue >= alpha)
-        {
-        // Null move dynamic reduction based on depth and value
-        Depth R = ((835 + 70 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 185, 3)) * ONE_PLY;
-
-        pos.do_null_move(st);
-
-        nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -855,7 +847,6 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
-        }
         }
     }
 
