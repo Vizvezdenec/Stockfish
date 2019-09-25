@@ -1619,7 +1619,10 @@ moves_loop: // When in check, search starts from here
     for (int i = 0; i < quietCount; ++i)
     {
         thisThread->mainHistory[us][from_to(quiets[i])] << -bonus;
-        update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
+        if (to_sq(quiets[i]) != to_sq(move))
+            update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus);
+        else 
+            update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus * 5 / 4);
     }
   }
 
