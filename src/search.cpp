@@ -813,6 +813,9 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        ss->currentMove = MOVE_NULL;
+        ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
+
         pos.do_null_move(st);
 
         Value nullValue = -qsearch<NonPV>(pos, ss+1, -alpha, -alpha+1);
@@ -823,9 +826,6 @@ namespace {
         {
         // Null move dynamic reduction based on depth and value
         Depth R = ((835 + 70 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 185, 3)) * ONE_PLY;
-
-        ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[NO_PIECE][0];
 
         pos.do_null_move(st);
 
