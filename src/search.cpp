@@ -825,7 +825,7 @@ namespace {
 
         pos.undo_null_move();
 
-        if (nullValue >= beta)
+        if (nullValue > beta)
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
@@ -847,6 +847,16 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
+        }
+        else if (nullValue == beta)
+        {
+        pos.do_null_move(st);
+        nullValue = -qsearch<NonPV>(pos, ss+1, -beta, -beta+1);
+        pos.undo_null_move();
+        if (nullValue >= VALUE_MATE_IN_MAX_PLY)
+                nullValue = beta;
+        if (nullValue >= beta)
+                return beta;
         }
     }
 
