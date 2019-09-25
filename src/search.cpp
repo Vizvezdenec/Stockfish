@@ -813,6 +813,14 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        pos.do_null_move(st);
+
+        Value nullValue = -qsearch<NonPV>(pos, ss+1, -alpha, -alpha+1);
+        
+        pos.undo_null_move();
+
+        if (nullValue >= alpha)
+        {
         // Null move dynamic reduction based on depth and value
         Depth R = ((835 + 70 * depth / ONE_PLY) / 256 + std::min(int(eval - beta) / 185, 3)) * ONE_PLY;
 
@@ -821,11 +829,11 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
-        if (nullValue > beta)
+        if (nullValue >= beta)
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
@@ -848,15 +856,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else if (nullValue == beta)
-        {
-        pos.do_null_move(st);
-        nullValue = -qsearch<NonPV>(pos, ss+1, -beta, -beta+1);
-        pos.undo_null_move();
-        if (nullValue >= VALUE_MATE_IN_MAX_PLY)
-                nullValue = beta;
-        if (nullValue >= beta)
-                return beta;
         }
     }
 
