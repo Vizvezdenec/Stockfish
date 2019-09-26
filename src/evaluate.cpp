@@ -554,6 +554,10 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatBySafePawn * popcount(b);
 
+    b = pos.pieces(Us, PAWN) & ~safe;
+    b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
+    score += make_score(9, 4) * popcount(b);
+
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
     b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
