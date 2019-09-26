@@ -140,7 +140,7 @@ namespace {
             score -= Isolated + WeakUnopposed * !opposed;
 
         else if (backward)
-            score -= Backward + WeakUnopposed * !opposed;
+            score -= Backward + WeakUnopposed * !opposed + make_score(3, 7) * (file_of(s) == FILE_A || file_of(s) == FILE_H);
 
         if (!support)
             score -=   Doubled * doubled

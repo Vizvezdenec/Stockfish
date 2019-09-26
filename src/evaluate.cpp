@@ -650,7 +650,7 @@ namespace {
 
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
-                    k += 4 + 7 * bool(PawnAttacks[Us][blockSq] & pos.pieces(Them) & ~pos.pieces(Them, PAWN));
+                    k += 5;
 
                 bonus += make_score(k * w, k * w);
             }
