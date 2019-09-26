@@ -874,7 +874,7 @@ namespace {
 
                 pos.do_move(move, st);
 
-                bool alreadyGood = ss->staticEval > beta;
+                bool alreadyGood = ss->staticEval > raisedBeta;
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1);
