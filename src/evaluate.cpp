@@ -121,10 +121,6 @@ namespace {
     S(0, 0), S(0, 24), S(38, 71), S(38, 61), S(0, 38), S(51, 38)
   };
 
-  constexpr Score ThreatByRank[PIECE_TYPE_NB] = {
-    S(0, 0), S(0, 0), S(18, 0), S(14, 0), S(13, 0), S(12, 0)
-  };
-
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
     S(0, 0), S(10, 28), S(17, 33), S(15, 41), S(62, 72), S(168, 177), S(276, 260)
@@ -148,6 +144,7 @@ namespace {
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
+  constexpr Score ThreatByRank       = S( 13,  0);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
@@ -522,7 +519,7 @@ namespace {
             Square s = pop_lsb(&b);
             score += ThreatByMinor[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank[type_of(pos.piece_on(s))] * (int)relative_rank(Them, s);
+                score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
         b = weak & attackedBy[Us][ROOK];
@@ -531,7 +528,7 @@ namespace {
             Square s = pop_lsb(&b);
             score += ThreatByRook[type_of(pos.piece_on(s))];
             if (type_of(pos.piece_on(s)) != PAWN)
-                score += ThreatByRank[type_of(pos.piece_on(s))] * (int)relative_rank(Them, s);
+                score += ThreatByRank * (int)relative_rank(Them, s);
         }
 
         if (weak & attackedBy[Us][KING])
