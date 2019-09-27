@@ -1143,7 +1143,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384 * ONE_PLY;
           }
           else if (rootNode && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 > alpha)
-              r -= 2 * ONE_PLY;
+              r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
 
