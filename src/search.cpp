@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts from here
               if (move == ss->killers[0])
                   bonus += bonus / 4;
 
-              if (bonus < 0 && ss->statScore > 0)
+              if (bonus > 0 && ss->statScore < 0)
                   ss->statScore = 0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
