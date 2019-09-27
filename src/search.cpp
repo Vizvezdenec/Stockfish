@@ -874,14 +874,12 @@ namespace {
 
                 pos.do_move(move, st);
 
-                bool alreadyGood = ss->staticEval > raisedBeta;
-
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, std::max(depth - 4 * ONE_PLY - alreadyGood * ONE_PLY, ONE_PLY), !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4 * ONE_PLY, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1036,7 +1034,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), DEPTH_ZERO);
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) + cutNode * ONE_PLY, DEPTH_ZERO);
               lmrDepth /= ONE_PLY;
 
               // Countermoves based pruning (~20 Elo)
