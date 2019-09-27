@@ -1075,15 +1075,20 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool lowDepthLmr = false;
+
+      if (!PvNode && depth == 2 * ONE_PLY)
+      	  lowDepthLmr = (-qsearch<NonPV>(pos, ss+1, -beta, -alpha) < alpha);
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 * ONE_PLY
+      if (    (depth >= 3 * ONE_PLY
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode))
+              || cutNode)) || lowDepthLmr)
       {
           Depth r = reduction(improving, depth, moveCount);
 
