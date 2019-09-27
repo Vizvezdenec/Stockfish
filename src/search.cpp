@@ -1054,7 +1054,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  !(givesCheck && extension)
-                   && !pos.see_ge(move, Value(-209) * (newDepth / ONE_PLY))) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199) * (depth / ONE_PLY))) // (~20 Elo)
                   continue;
       }
 
@@ -1081,9 +1081,9 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || moveCountPruning
+              || ((moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode))
+              || cutNode) && !rootNode)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
