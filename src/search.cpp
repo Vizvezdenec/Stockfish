@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384 * ONE_PLY;
           }
-          else if (rootNode && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 100 > alpha)
+          else if (moveCount >= futility_move_count(false, depth / ONE_PLY))
               r -= ONE_PLY;
 
           Depth d = clamp(newDepth - r, ONE_PLY, newDepth);
