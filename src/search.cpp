@@ -1082,7 +1082,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * rootNode <= alpha
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1164,9 +1164,6 @@ moves_loop: // When in check, search starts from here
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
-
-              if (bonus > 0 && ss->statScore < 0)
-                  ss->statScore = 0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
