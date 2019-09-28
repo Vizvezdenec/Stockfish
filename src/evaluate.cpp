@@ -732,10 +732,14 @@ namespace {
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
-                    + (48 - 24 * almostUnwinnable) * !pos.non_pawn_material()
+                    + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
                     -103 ;
 
+    if (eg * int(mg) < 0 
+     && complexity > 0
+     && abs(mg) > 8 * abs(eg))
+    	complexity = 0;
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
