@@ -738,8 +738,8 @@ namespace {
 
     if (eg * int(mg) < 0 
      && complexity > 0
-     && abs(mg) > 8 * abs(eg))
-    	complexity = 0;
+     && abs(mg) > 2 * abs(eg) + 50)
+    	complexity = std::max(complexity / 4, complexity - (abs(mg) - 2 * abs(eg) - 50));
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
