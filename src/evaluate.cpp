@@ -766,7 +766,7 @@ namespace {
             sf = 16 + 4 * pe->passed_count();
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide) 
-                   - 20 * (almostUnwinnable && (pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide))));
+                   - 6 * (almostUnwinnable && (pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide))));
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4  );
     }
