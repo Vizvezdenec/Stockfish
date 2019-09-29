@@ -473,7 +473,8 @@ void Thread::search() {
               }
               else
               {
-                  ++rootMoves[pvIdx].bestMoveCount;
+                  if (rootDepth >= 9 * ONE_PLY)
+                      ++rootMoves[pvIdx].bestMoveCount;
                   break;
               }
 
@@ -1101,9 +1102,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended
           r -= singularLMR * ONE_PLY;
-
-          if (to_sq(ttMove) == to_sq(move) && ttMove != move)
-              r += ONE_PLY;
 
           if (!captureOrPromotion)
           {
