@@ -473,8 +473,7 @@ void Thread::search() {
               }
               else
               {
-                  if (rootDepth >= 9 * ONE_PLY)
-                      ++rootMoves[pvIdx].bestMoveCount;
+                  ++rootMoves[pvIdx].bestMoveCount;
                   break;
               }
 
@@ -1083,7 +1082,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + PvNode * std::max(200 - 75 * ss->ply, 0) <= alpha
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
