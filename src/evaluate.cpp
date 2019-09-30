@@ -343,7 +343,7 @@ namespace {
         if (Pt == ROOK)
         {
             // Bonus for rook on the same file as a queen
-            if (file_bb(s) & pos.pieces(QUEEN))
+            if (forward_file_bb(Us, s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
 
             // Bonus for rook on an open or semi-open file
@@ -447,10 +447,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    int kingFlankDefence = popcount(attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp);
-
-    kingDanger -= 10 * std::max(kingFlankDefence - 2 * kingFlankAttacks, 0);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
