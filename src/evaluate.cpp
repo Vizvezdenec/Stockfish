@@ -347,7 +347,7 @@ namespace {
                 score += RookOnQueenFile;
 
             if (rank_bb(s) & kingRing[Them])
-                score += make_score(20, 5);
+                score += make_score(14, 0);
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
