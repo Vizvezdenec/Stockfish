@@ -824,7 +824,7 @@ namespace {
 
         pos.undo_null_move();
 
-        if (nullValue >= beta)
+        if (nullValue >= beta + ((ss-1)->statScore > 0))
         {
             // Do not return unproven mate scores
             if (nullValue >= VALUE_MATE_IN_MAX_PLY)
