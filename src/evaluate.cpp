@@ -448,6 +448,10 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int kingFlankDefence = popcount(attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp);
+
+    kingDanger -= 10 * std::max(kingFlankDefence - 2 * kingFlankAttacks, 0);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
