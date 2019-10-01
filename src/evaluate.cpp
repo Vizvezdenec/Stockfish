@@ -453,8 +453,8 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 +  63 * kingAttacksCount[Them]
-                 +  23 * kingRingAttacksCount[Them]
+                 +  66 * kingAttacksCount[Them]
+                 +  11 * kingRingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
