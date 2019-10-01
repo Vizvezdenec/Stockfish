@@ -745,14 +745,14 @@ namespace {
 
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     int sf = me->scale_factor(pos, strongSide);
-    Bitboard farRanks = (strongSide == WHITE ? Rank5BB | Rank6BB | Rank7BB : Rank4BB | Rank3BB | Rank2BB);
+    Bitboard farRanks = (strongSide == WHITE ? Rank6BB | Rank7BB : Rank3BB | Rank2BB);
 
     // If scale is not already specific, scale down the endgame via general heuristics
     if (sf == SCALE_FACTOR_NORMAL)
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 14 + 4 * pe->passed_count() + 4 * popcount(farRanks & pos.pieces(strongSide, PAWN));
+            sf = 8 + 4 * pe->passed_count() + 8 * popcount(farRanks & pos.pieces(strongSide, PAWN));
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
