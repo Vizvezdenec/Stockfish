@@ -716,6 +716,11 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    almostUnwinnable = almostUnwinnable 
+                    || (!pe->passed_count() 
+                    && pos.opposite_bishops()
+                    && !(pos.count<KNIGHT>() + pos.count<QUEEN>()));
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
