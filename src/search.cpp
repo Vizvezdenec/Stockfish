@@ -799,20 +799,10 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode 
-        &&  depth > 6 * ONE_PLY
-        &&  eval + 150 * depth / ONE_PLY < alpha)
-        {
-        Value verValue = alpha - 150 * depth;
-        Value verSearch = -search<NonPV>(pos, ss+1, -verValue, -verValue+1, (depth - 5 * ONE_PLY) / 2, cutNode);
-            if (verSearch <= eval)
-            	return eval;
-        }
-
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 22661
+        && ((ss-1)->statScore < 22661 || eval > beta + 200 * depth / ONE_PLY)
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 33 * depth / ONE_PLY + 299 - improving * 30
