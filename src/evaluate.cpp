@@ -719,7 +719,7 @@ namespace {
     almostUnwinnable = almostUnwinnable 
                     || (!pe->passed_count() 
                     && pos.opposite_bishops()
-                    && !(pos.count<KNIGHT>() + pos.count<QUEEN>()));
+                    && !(pos.count<KNIGHT>()));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
