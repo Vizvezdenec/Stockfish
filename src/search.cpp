@@ -69,7 +69,6 @@ namespace {
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
-  float logThreads;
 
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d / ONE_PLY] * Reductions[mn];
@@ -191,10 +190,8 @@ namespace {
 
 void Search::init() {
 
-  logThreads = std::log(Threads.size());
-
   for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions[i] = int((23.4 +  logThreads / 2) * std::log(i));
+      Reductions[i] = int((23.4 + std::log(Threads.size()) / 2) * std::log(i));
 }
 
 
@@ -1052,7 +1049,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
-              if (!pos.see_ge(move, Value(-(31 + logThreads - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else if (  !(givesCheck && extension)
