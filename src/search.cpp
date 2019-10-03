@@ -69,7 +69,7 @@ namespace {
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
-  int logThreads;
+  float logThreads;
 
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d / ONE_PLY] * Reductions[mn];
@@ -191,7 +191,7 @@ namespace {
 
 void Search::init() {
 
-  int logThreads = std::log(Threads.size());
+  logThreads = std::log(Threads.size());
 
   for (int i = 1; i < MAX_MOVES; ++i)
       Reductions[i] = int((23.4 +  logThreads / 2) * std::log(i));
