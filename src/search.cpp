@@ -1617,10 +1617,10 @@ moves_loop: // When in check, search starts from here
     // Decrease all the other played quiet moves
     for (int i = 0; i < quietCount; ++i)
     {
-    if (to_sq(quiets[i]) == to_sq(move) && type_of(pos.moved_piece(quiets[i])) != type_of(pos.moved_piece(move)))
+    if (to_sq(quiets[i]) == to_sq(move))
         {
-        thisThread->mainHistory[us][from_to(quiets[i])] << -bonus * 17 / 16;
-        update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus * 17 / 16);
+        thisThread->mainHistory[us][from_to(quiets[i])] << -bonus -1;
+        update_continuation_histories(ss, pos.moved_piece(quiets[i]), to_sq(quiets[i]), -bonus - 1);
         }
     else
         {
