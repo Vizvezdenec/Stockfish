@@ -454,7 +454,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  + 148 * popcount(unsafeChecks)
-                 +  93 * popcount(pos.blockers_for_king(Us) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us))))
+                 + 100 * popcount(pos.blockers_for_king(Us) & ~(pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us))))
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
