@@ -245,12 +245,11 @@ namespace {
     else if (file_of(ksq) == FILE_A)
         kingRing[Us] |= shift<EAST>(kingRing[Us]);
 
+    kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
+    kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
-
-    kingAttacksCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttackersCount[Them] = kingAttackersWeight[Them] = 0;
-
   }
 
 
@@ -447,6 +446,8 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
+
+    kingDanger += 100 * bool((rookChecks | queenChecks | bishopChecks | knightChecks) & safe & pos.pieces(Us));
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
