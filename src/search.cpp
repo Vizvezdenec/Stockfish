@@ -871,6 +871,9 @@ namespace {
 
                 assert(depth >= 5);
 
+                if (pos.gives_check(move))
+                    probCutCount--;
+
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds

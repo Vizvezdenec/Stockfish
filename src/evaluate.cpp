@@ -447,8 +447,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    kingDanger += 100 * bool((rookChecks | queenChecks | bishopChecks | knightChecks) & safe & pos.pieces(Us));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
