@@ -871,7 +871,7 @@ namespace {
 
                 assert(depth >= 5);
 
-                if (pos.gives_check(move))
+                if (probCutCount == 1 && pos.gives_check(move))
                     probCutCount--;
 
                 pos.do_move(move, st);
