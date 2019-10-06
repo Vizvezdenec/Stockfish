@@ -871,9 +871,6 @@ namespace {
 
                 assert(depth >= 5);
 
-                if (probCutCount == 1 && pos.gives_check(move))
-                    probCutCount--;
-
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
@@ -1055,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  !(givesCheck && extension)
-                   && !pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 - 30 * priorCapture) * depth)) // (~20 Elo)
                   continue;
       }
 
