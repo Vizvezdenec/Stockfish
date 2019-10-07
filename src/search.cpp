@@ -651,6 +651,8 @@ namespace {
     // LMR which are based on the statScore of parent position.
     if (rootNode)
         (ss+4)->statScore = 0;
+    else if (priorCapture)
+        (ss+3)->statScore = 0;
     else
         (ss+2)->statScore = 0;
 
@@ -1115,7 +1117,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~5 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + (type_of(movedPiece) == PAWN);
+                  r -= 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
