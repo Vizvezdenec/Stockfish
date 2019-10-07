@@ -722,9 +722,11 @@ namespace {
                     +  9 * outflanking
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
-                    - (32 + abs(eg) / 8) * almostUnwinnable
+                    - 36 * almostUnwinnable
                     -103 ;
 
+    if (almostUnwinnable && abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) < RookValueMg)
+    	complexity = std::min(complexity, -abs(eg) + 392);
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
