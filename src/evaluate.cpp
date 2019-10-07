@@ -617,7 +617,7 @@ namespace {
             if (pos.empty(blockSq))
             {
                 squaresToQueen = forward_file_bb(Us, s);
-                unsafeSquares = passed_pawn_span(Us, s);
+                unsafeSquares = passed_pawn_span(Us, s) & ~attackedBy[Us][PAWN];
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
@@ -627,17 +627,10 @@ namespace {
                 // If there are no enemy attacks on passed pawn span, assign a big bonus.
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
-                int k = 0;
-                if (!unsafeSquares)
-                    k = 40;
-                else
-                {
-                    unsafeSquares &= ~attackedBy[Us][PAWN];
-                    k = !unsafeSquares                    ? 32 :
-                        !(unsafeSquares & squaresToQueen) ? 20 :
+                int k = !unsafeSquares                    ? 32 :
+                        !(unsafeSquares & squaresToQueen) ? 18 :
                         !(unsafeSquares & blockSq)        ?  8 :
-                                                             0;
-                }
+                                                             0 ;
 
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
