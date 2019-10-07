@@ -129,7 +129,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FlankAttacks       = S(  7,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -457,7 +457,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +   3 * kingFlankAttacks * kingFlankAttacks / 8
+                 +       kingFlankAttacks * kingFlankAttacks / 2
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -729,12 +729,6 @@ namespace {
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    if (almostUnwinnable 
-        && abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) < RookValueMg
-        && pos.count<PAWN>(strongSide) < pos.count<PAWN>(~strongSide))
-    	complexity = std::min(complexity, -abs(eg) + 256);
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
