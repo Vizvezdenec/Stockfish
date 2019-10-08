@@ -725,9 +725,6 @@ namespace {
                     - 36 * almostUnwinnable
                     -103 ;
 
-    if (eg * int(mg) < 0)
-    	complexity -= abs(mg) / 64;
-
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
