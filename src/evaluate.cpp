@@ -559,8 +559,8 @@ namespace {
 
         score += KnightOnQueen * popcount(b & safe);
 
-        b =  (attackedBy[Us][BISHOP] & attacks_bb<BISHOP>(s, pos.pieces() ^ pos.pieces(Them, ROOK) ^ pos.pieces(Them, KING)))
-           | (attackedBy[Us][ROOK  ] & attacks_bb<ROOK>(s, pos.pieces() ^ pos.pieces(Them, KING)));
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
