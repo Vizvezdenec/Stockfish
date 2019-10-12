@@ -452,7 +452,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kfad = (kfd - kingFlankAttacks) * abs(kfd - kingFlankAttacks);
+    int kfad = std::min((kfd - kingFlankAttacks), 0) * abs(kfd - kingFlankAttacks);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -465,7 +465,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   3 * kingFlankAttacks * kingFlankAttacks / 8
-                 -   3 * kfad / 8
+                 -       kfad / 4
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
