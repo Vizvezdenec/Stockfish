@@ -452,7 +452,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    int kfad = std::min((kfd - kingFlankAttacks), 0) * abs(kfd - kingFlankAttacks);
+    int kfad = std::max((kfd - kingFlankAttacks), 0) * abs(kfd - kingFlankAttacks);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
