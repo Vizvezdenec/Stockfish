@@ -1013,9 +1013,6 @@ moves_loop: // When in check, search starts from here
       if (type_of(move) == CASTLING)
           extension = 1;
 
-      if (singularLMR && to_sq(move) == to_sq(ttMove) && move!=ttMove)
-      	  extension = 0;
-
       // Calculate new depth for this move
       newDepth = depth - 1 + extension;
 
