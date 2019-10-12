@@ -390,9 +390,14 @@ namespace {
     Score score = pe->king_safety<Us>(pos);
 
     // Attacked squares defended at most once by our queen or king
-    weak =  attackedBy[Them][ALL_PIECES]
-          & ~attackedBy2[Us]
+    weak =  ~attackedBy2[Us]
           & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+
+    b1 = attackedBy[Us][ALL_PIECES] & ~weak & KingFlank[file_of(ksq)] & Camp;
+
+    weak &= attackedBy[Them][ALL_PIECES];
+
+    int kfd = popcount(b1);
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -447,6 +452,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int kfad = (kfd - kingFlankAttacks) * abs(kfd - kingFlankAttacks);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -458,6 +465,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   3 * kingFlankAttacks * kingFlankAttacks / 8
+                 -       kfad / 4
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -728,12 +736,8 @@ namespace {
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
-    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
-
-    complexity -= 6 * outflanking;
-    complexity += 3 * distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
-
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
+    int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
