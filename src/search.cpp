@@ -1016,8 +1016,7 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1 + extension;
 
-      // Reduced depth of the next LMR search
-      int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+      int almostPruned = 0;
 
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
@@ -1035,17 +1034,26 @@ moves_loop: // When in check, search starts from here
               if (moveCountPruning)
                   continue;
 
+              // Reduced depth of the next LMR search
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+              if ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
+              {
+                  almostPruned++;
+                  if (lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1))
+                      continue;
+              }
 
               // Futility pruning: parent node (~2 Elo)
-              if (   lmrDepth < 6
-                  && !inCheck
+              if (!inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
-                  continue;
+              {
+                  almostPruned++;
+                  if (lmrDepth < 6)
+                      continue;
+              }
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
@@ -1110,9 +1118,7 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2;
 
-              if (   lmrDepth >= 6
-                  && !inCheck
-                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
+              if (almostPruned == 2)
                   r++;
 
               // Decrease reduction for moves that escape a capture. Filter out
