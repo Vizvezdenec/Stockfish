@@ -448,7 +448,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     int kfNotWeak = popcount(~weak & KingFlank[file_of(ksq)] & Camp);
-	kingDanger -= kfNotWeak * kfNotWeak / 8;
+	kingDanger -= kfNotWeak * kfNotWeak / 4;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
