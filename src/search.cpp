@@ -1016,6 +1016,9 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1 + extension;
 
+      // Reduced depth of the next LMR search
+      int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+
       // Step 14. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1031,9 +1034,6 @@ moves_loop: // When in check, search starts from here
               // Move count based pruning
               if (moveCountPruning)
                   continue;
-
-              // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
@@ -1109,6 +1109,11 @@ moves_loop: // When in check, search starts from here
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
                   r += 2;
+
+              if (   lmrDepth >= 6
+                  && !inCheck
+                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
+                  r++;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
