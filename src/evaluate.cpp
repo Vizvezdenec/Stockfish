@@ -129,7 +129,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  6,  0);
+  constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -445,7 +445,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2) + popcount(b2 & weak);
+    int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -716,6 +716,10 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+    bool notEnoughNpm = !pos.count<PAWN>(strongSide)
+                     && (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) < RookValueMg);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -723,6 +727,7 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
+                    - 72 * notEnoughNpm
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
