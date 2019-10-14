@@ -445,7 +445,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int kingFlankAttacks = popcount(b1) + popcount(b2) + popcount(b2 & weak);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -457,7 +457,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 +   3 * kingFlankAttacks * kingFlankAttacks / 8
+                 +       kingFlankAttacks * kingFlankAttacks / 4
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
@@ -716,10 +716,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    bool notEnoughNpm = !pos.count<PAWN>(strongSide)
-                     && (pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) < RookValueMg);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -727,7 +723,6 @@ namespace {
                     + 18 * pawnsOnBothFlanks
                     + 49 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    - 36 * notEnoughNpm
                     -103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
