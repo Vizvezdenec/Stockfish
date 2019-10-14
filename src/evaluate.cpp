@@ -75,7 +75,6 @@ namespace {
 
   // Threshold for lazy and space evaluation
   constexpr Value LazyThreshold  = Value(1400);
-  constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
@@ -666,9 +665,6 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold)
-        return SCORE_ZERO;
-
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
@@ -687,7 +683,7 @@ namespace {
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
-    Score score = make_score(bonus * weight * weight / 16, 0);
+    Score score = make_score(bonus * weight * weight / 16 / std::max(8 - weight, 1), 0);
 
     if (T)
         Trace::add(SPACE, Us, score);
