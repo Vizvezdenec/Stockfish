@@ -129,7 +129,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FlankAttacks       = S(  7,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -445,7 +445,7 @@ namespace {
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
 
-    int kingFlankAttacks = popcount(b1) + popcount(b2);
+    int kingFlankAttacks = popcount(b1) + popcount(b2) + popcount(b2 & weak);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
