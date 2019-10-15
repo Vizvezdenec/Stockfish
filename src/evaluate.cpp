@@ -187,6 +187,7 @@ namespace {
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
+    Bitboard weakKD[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -250,6 +251,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    weakKD[Us] = ~attackedBy[Us][PAWN];
   }
 
 
@@ -282,7 +285,11 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        if (b & kingRing[Them])
+        if (Pt != QUEEN)
+            weakKD[Us] |= ~b;
+
+        if (Pt != QUEEN ? (b & kingRing[Them])
+            : b & kingRing[Them] & weakKD[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
@@ -390,9 +397,7 @@ namespace {
     Score score = pe->king_safety<Us>(pos);
 
     // Attacked squares defended at most once by our queen or king
-    weak =  attackedBy[Them][ALL_PIECES]
-          & ~attackedBy2[Us]
-          & (~attackedBy[Us][ALL_PIECES] | attackedBy[Us][KING] | attackedBy[Us][QUEEN]);
+    weak =  attackedBy[Them][ALL_PIECES] & weakKD[Us] & ~attackedBy2[Us];
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
@@ -666,6 +671,9 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
+    if (pos.non_pawn_material() < SpaceThreshold)
+        return SCORE_ZERO;
+
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = (Us == WHITE ? SOUTH : NORTH);
     constexpr Bitboard SpaceMask =
@@ -677,17 +685,12 @@ namespace {
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
-    int bonus = 0;
-    if (pos.non_pawn_material() >= SpaceThreshold)
-    {
     // Find all squares which are at most three squares behind some friendly pawn
     Bitboard behind = pos.pieces(Us, PAWN);
     behind |= shift<Down>(behind);
     behind |= shift<Down+Down>(behind);
-    bonus = popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    }
 
-    bonus += popcount(safe);
+    int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
@@ -803,8 +806,8 @@ namespace {
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
             + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
+    score += pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
