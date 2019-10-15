@@ -78,7 +78,7 @@ namespace {
   constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 12 };
+  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -286,7 +286,7 @@ namespace {
         attackedBy[Us][ALL_PIECES] |= b;
 
         if (Pt != QUEEN)
-            weakKD[Us] |= ~b;
+            weakKD[Us] &= ~b;
 
         if (Pt != QUEEN ? (b & kingRing[Them])
             : b & kingRing[Them] & weakKD[Them])
