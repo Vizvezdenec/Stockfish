@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  !(givesCheck && extension)
-                   && !pos.see_ge(move, Value(-198 - (5 - lmrDepth)) * depth)) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-197 - 10 * (lmrDepth == 0)) * depth)) // (~20 Elo)
                   continue;
       }
 
