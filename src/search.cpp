@@ -70,6 +70,8 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
+  float logThreads;
+
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
     return (r + 520) / 1024 + (!i && r > 999);
@@ -189,8 +191,10 @@ namespace {
 
 void Search::init() {
 
+  float logThreads = std::log(Threads.size());
+
   for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions[i] = int((23.4 + std::log(Threads.size()) / 2) * std::log(i));
+      Reductions[i] = int((23.4 +  logThreads / 2) * std::log(i));
 }
 
 
@@ -1024,9 +1028,6 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-
           if (   !captureOrPromotion
               && !givesCheck
               && (!pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
@@ -1034,6 +1035,9 @@ moves_loop: // When in check, search starts from here
               // Move count based pruning
               if (moveCountPruning)
                   continue;
+
+              // Reduced depth of the next LMR search
+              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
@@ -1052,7 +1056,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  !(givesCheck && extension)
-                   && !pos.see_ge(move, Value(-197 - 10 * (lmrDepth == 0)) * depth)) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 - logThreads * 10) * depth)) // (~20 Elo)
                   continue;
       }
 
