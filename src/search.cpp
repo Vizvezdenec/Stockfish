@@ -1056,7 +1056,7 @@ moves_loop: // When in check, search starts from here
                   continue;
           }
           else if (  !(givesCheck && extension)
-                   && !pos.see_ge(move, Value(-199 + logThreads * 10) * depth)) // (~20 Elo)
+                   && !pos.see_ge(move, Value(-199 + logThreads * 20) * depth)) // (~20 Elo)
                   continue;
       }
 
