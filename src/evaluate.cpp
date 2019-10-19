@@ -281,6 +281,14 @@ namespace {
         if (pos.blockers_for_king(Us) & s)
             b &= LineBB[pos.square<KING>(Us)][s];
 
+        if ((Pt == KNIGHT || Pt == BISHOP) && (b & attackedBy[Us][KING] & ~attackedBy[Us][Pt]))
+        {
+            if (Pt == KNIGHT)
+                kingDef[Us] += 80;
+            else
+                kingDef[Us] += 28;
+        }
+
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
@@ -312,14 +320,6 @@ namespace {
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
-
-            if (b & attackedBy[Us][KING])
-            {
-            	if (Pt == KNIGHT)
-                    kingDef[Us] += 76;
-                else
-                    kingDef[Us] += 27;
-            }
 
             if (Pt == BISHOP)
             {
