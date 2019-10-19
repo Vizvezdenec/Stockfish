@@ -204,6 +204,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int kingDef[COLOR_NB];
   };
 
 
@@ -250,6 +251,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    kingDef[Us] = 0;
   }
 
 
@@ -309,6 +312,14 @@ namespace {
 
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(s, pos.square<KING>(Us));
+
+            if (b & attackedBy[Us][KING])
+            {
+            	if (Pt == KNIGHT)
+                    kingDef[Us] += 80;
+                else
+                    kingDef[Us] += 28;
+            }
 
             if (Pt == BISHOP)
             {
@@ -450,8 +461,7 @@ namespace {
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                 -       kingDef[Us]
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  - 873 * !pos.count<QUEEN>(Them)
