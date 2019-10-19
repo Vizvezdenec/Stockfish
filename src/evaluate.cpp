@@ -316,9 +316,9 @@ namespace {
             if (b & attackedBy[Us][KING])
             {
             	if (Pt == KNIGHT)
-                    kingDef[Us] += 80;
+                    kingDef[Us] += 86;
                 else
-                    kingDef[Us] += 28;
+                    kingDef[Us] += 30;
             }
 
             if (Pt == BISHOP)
