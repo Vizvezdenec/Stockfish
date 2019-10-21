@@ -961,8 +961,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if (    depth >= 6
-          &&  move == ttMove
+      if (     move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -972,6 +971,8 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - 2 * depth;
+          if (depth >= 6)
+          {
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -994,6 +995,14 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
+          }
+          else if (depth <= 2)
+          {
+          value = -qsearch<NonPV>(pos, ss+1, -singularBeta, -singularBeta+1);
+          if (value > singularBeta)
+              extension = 1;
+          }
+          
       }
 
       // Check extension (~2 Elo)
@@ -1606,7 +1615,6 @@ moves_loop: // When in check, search starts from here
 
     if (ss->killers[0] != move)
     {
-        update_continuation_histories(ss, pos.moved_piece(ss->killers[0]), to_sq(ss->killers[0]), -bonus / 4);
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
