@@ -954,17 +954,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      bool extCandidate = move == ttMove
-          && !rootNode
-          && !excludedMove // Avoid recursive singular search
-       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-          &&  abs(ttValue) < VALUE_KNOWN_WIN
-          && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3
-          &&  pos.legal(move);
-
-          Value singularBeta = ttValue - 2 * depth;
-
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -972,8 +961,17 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if ( extCandidate && depth >= 6)
+      if (    depth >= 6
+          &&  move == ttMove
+          && !rootNode
+          && !excludedMove // Avoid recursive singular search
+       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
+          &&  abs(ttValue) < VALUE_KNOWN_WIN
+          && (tte->bound() & BOUND_LOWER)
+          &&  tte->depth() >= depth - 3
+          &&  pos.legal(move))
       {
+          Value singularBeta = ttValue - 2 * depth;
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -995,14 +993,8 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   eval >= beta
                    && singularBeta >= beta)
-              return singularBeta;       
+              return singularBeta;
       }
-      else if (extCandidate && depth <= 2)
-          {
-          value = -qsearch<NonPV>(pos, ss+1, -singularBeta, -singularBeta+1);
-          if (value > singularBeta)
-              extension = 1;
-          }
 
       // Check extension (~2 Elo)
       else if (    givesCheck
@@ -1612,14 +1604,16 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move,
                           Move* quiets, int quietCount, int bonus) {
 
+    Color us = pos.side_to_move();
+    Thread* thisThread = pos.this_thread();
+
     if (ss->killers[0] != move)
     {
+        update_continuation_histories(ss, pos.moved_piece(ss->killers[0]), to_sq(ss->killers[0]), 
+                std::min(0, int(thisThread->mainHistory[us][from_to(ss->killers[0])])));
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
-
-    Color us = pos.side_to_move();
-    Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
