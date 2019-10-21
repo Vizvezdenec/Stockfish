@@ -954,6 +954,17 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      bool extCandidate = move == ttMove
+          && !rootNode
+          && !excludedMove // Avoid recursive singular search
+       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
+          &&  abs(ttValue) < VALUE_KNOWN_WIN
+          && (tte->bound() & BOUND_LOWER)
+          &&  tte->depth() >= depth - 3
+          &&  pos.legal(move);
+
+          Value singularBeta = ttValue - 2 * depth;
+
       // Step 13. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -961,18 +972,8 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if (     move == ttMove
-          && !rootNode
-          && !excludedMove // Avoid recursive singular search
-       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-          &&  abs(ttValue) < VALUE_KNOWN_WIN
-          && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3
-          &&  pos.legal(move))
+      if ( extCandidate && depth >= 6)
       {
-          Value singularBeta = ttValue - 2 * depth;
-          if (depth >= 6)
-          {
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -994,16 +995,14 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (   eval >= beta
                    && singularBeta >= beta)
-              return singularBeta;
-          }
-          else if (depth <= 2)
+              return singularBeta;       
+      }
+      else if (extCandidate && depth <= 2)
           {
           value = -qsearch<NonPV>(pos, ss+1, -singularBeta, -singularBeta+1);
           if (value > singularBeta)
               extension = 1;
           }
-          
-      }
 
       // Check extension (~2 Elo)
       else if (    givesCheck
