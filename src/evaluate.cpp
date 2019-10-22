@@ -291,6 +291,12 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
+        if (mob > 0 && (Pt == BISHOP || Pt == KNIGHT))
+        {
+        Bitboard angles = Us == WHITE ? Rank1BB & (FileABB | FileHBB) : Rank8BB & (FileABB | FileHBB);
+        mob -= bool(angles & b);
+        }
+
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -497,9 +503,6 @@ namespace {
     // square with a pawn, or because they defend the square twice and we don't.
     stronglyProtected =  attackedBy[Them][PAWN]
                        | (attackedBy2[Them] & ~attackedBy2[Us]);
-
-    if (!(stronglyProtected & Center))
-    	score += make_score(40, 15);
 
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
