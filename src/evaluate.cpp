@@ -498,6 +498,9 @@ namespace {
     stronglyProtected =  attackedBy[Them][PAWN]
                        | (attackedBy2[Them] & ~attackedBy2[Us]);
 
+    if (!(stronglyProtected & Center))
+    	score += make_score(40, 15);
+
     // Non-pawn enemies, strongly protected
     defended = nonPawnEnemies & stronglyProtected;
 
@@ -632,9 +635,6 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
-                if (k == 0 && !(pos.pieces(Them, ROOK) & bb) 
-                      && !(unsafeSquares & squaresToQueen & (~(attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES]) | attackedBy2[Them])))
-                    k += 9;
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
