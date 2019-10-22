@@ -447,9 +447,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (!(attackedBy2[Us] & attackedBy[Us][KING]))
-    	kingDanger += 50;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -635,6 +632,9 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
+                if (k == 0 && !(pos.pieces(Them, ROOK) & bb) 
+                      && !(unsafeSquares & squaresToQueen & (~(attackedBy[Them][QUEEN] & attackedBy[Us][ALL_PIECES]) | attackedBy2[Them])))
+                    k += 9;
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
