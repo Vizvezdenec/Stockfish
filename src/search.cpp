@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts from here
                   ss->statScore = 0;
 
               if (move == ss->killers[0])
-                  ss->statScore += ss->statScore / 16;
+                  ss->statScore += ss->statScore / 2;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -99 && (ss-1)->statScore < -116)
