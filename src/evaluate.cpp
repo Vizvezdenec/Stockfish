@@ -447,6 +447,9 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    if (pos.pieces(Them, ROOK) && !(pos.pieces(Them, PAWN) & forward_file_bb(Us, ksq)))
+    	kingDanger += 40;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
