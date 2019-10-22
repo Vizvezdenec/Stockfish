@@ -448,7 +448,7 @@ namespace {
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
     if (!(pos.pieces(Us) & KingFlank[file_of(ksq)] & ~pos.pieces(Us, KING, PAWN)))
-    	kingDanger += 200;
+    	kingDanger += 40;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
