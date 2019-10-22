@@ -291,10 +291,10 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        if (mob > 0 && (Pt == BISHOP || Pt == KNIGHT))
+        if (mob == 1 && (Pt == BISHOP || Pt == KNIGHT))
         {
         Bitboard angles = Us == WHITE ? Rank1BB & (FileABB | FileHBB) : Rank8BB & (FileABB | FileHBB);
-        mob -= bool(angles & b);
+        mob -= bool(angles & b & mobilityArea[Us]);
         }
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
