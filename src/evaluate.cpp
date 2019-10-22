@@ -447,8 +447,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (pos.pieces(Them, ROOK) && !(pos.pieces(Them, PAWN) & forward_file_bb(Us, ksq)))
-    	kingDanger += 20;
+    kingDanger += 10 * popcount(pos.pieces(Us) & ~pos.pieces(Us, PAWN) & ~KingFlank[file_of(ksq)]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
@@ -461,7 +460,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  +   3 * kingFlankAttacks * kingFlankAttacks / 8
-                 -   7;
+                 -  27;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
