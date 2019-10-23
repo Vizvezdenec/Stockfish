@@ -991,6 +991,8 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
+          else if (value > singularBeta)
+              extension = -1;
       }
 
       // Check extension (~2 Elo)
