@@ -461,7 +461,7 @@ namespace {
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 100 - 5 * kingAttackersCount[Them])
+    if (kingDanger > 100 - 5 * pos.count<ALL_PIECES>(Them))
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
