@@ -291,12 +291,6 @@ namespace {
 
         int mob = popcount(b & mobilityArea[Us]);
 
-        if (mob == 1 && (Pt == BISHOP || Pt == KNIGHT))
-        {
-        Bitboard angles = Us == WHITE ? Rank1BB & (FileABB | FileHBB) : Rank8BB & (FileABB | FileHBB);
-        mob -= bool(angles & b & mobilityArea[Us]);
-        }
-
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
         if (Pt == BISHOP || Pt == KNIGHT)
@@ -467,7 +461,7 @@ namespace {
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 100)
+    if (kingDanger > 100 - 5 * kingAttackersCount[Them])
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
