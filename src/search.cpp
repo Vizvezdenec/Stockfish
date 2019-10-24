@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts from here
                    && singularBeta >= beta)
               return singularBeta;
           else if (value > singularBeta
-                   && eval < beta)
+                   && singularBeta < beta)
               extension = -1;
       }
 
