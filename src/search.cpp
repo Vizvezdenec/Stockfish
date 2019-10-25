@@ -981,6 +981,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+              if (!captureOrPromotion)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth));
           }
 
           // Multi-cut pruning
@@ -991,9 +993,6 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
-          else if (value > beta
-                   && eval < beta)
-              extension = -1;
       }
 
       // Check extension (~2 Elo)
