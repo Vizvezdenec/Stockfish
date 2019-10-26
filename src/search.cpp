@@ -992,13 +992,6 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
-
-          if (!captureOrPromotion)
-          {
-              int bonus = value < singularBeta ?  stat_bonus(halfDepth)
-                                        : -stat_bonus(halfDepth);
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
       }
 
       // Check extension (~2 Elo)
@@ -1174,7 +1167,7 @@ moves_loop: // When in check, search starts from here
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
-              if (move == ss->killers[0])
+              if (move == ss->killers[0] || singularLMR)
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
