@@ -1137,6 +1137,9 @@ moves_loop: // When in check, search starts from here
                   && thisThread->mainHistory[us][from_to(move)] >= 0)
                   ss->statScore = 0;
 
+              if (singularLMR && ss->statScore > 0)
+                  r--;
+
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -99 && (ss-1)->statScore < -116)
                   r--;
