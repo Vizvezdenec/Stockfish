@@ -447,12 +447,6 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (!kingAttackersCount[Them]
-     && !(kingRing[Us] & weak)
-     && !unsafeChecks
-     && !pos.blockers_for_king(Us))
-        kingDanger -= 200;
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  +  69 * kingAttacksCount[Them]
                  + 185 * popcount(kingRing[Us] & weak)
