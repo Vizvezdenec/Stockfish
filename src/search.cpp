@@ -982,10 +982,7 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularLMR = true;
               if (!captureOrPromotion)
-              {
-                  int bonus = std::max(int(thisThread->mainHistory[us][from_to(move)]), stat_bonus(depth) / 2);
-                  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-              }
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth) * 3 / 2);
           }
 
           // Multi-cut pruning
