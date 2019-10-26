@@ -992,6 +992,13 @@ moves_loop: // When in check, search starts from here
           else if (   eval >= beta
                    && singularBeta >= beta)
               return singularBeta;
+
+          if (!captureOrPromotion)
+          {
+              int bonus = value < singularBeta ?  stat_bonus(halfDepth)
+                                        : -stat_bonus(halfDepth);
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+          }
       }
 
       // Check extension (~2 Elo)
@@ -1143,9 +1150,6 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -117 && ss->statScore < -144)
                   r++;
-
-              if (singularLMR && ss->statScore < 0)
-                  r--;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
