@@ -981,8 +981,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
-              if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth) * 3 / 2);
           }
 
           // Multi-cut pruning
@@ -1137,6 +1135,9 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] >= 0
                   && thisThread->mainHistory[us][from_to(move)] >= 0)
                   ss->statScore = 0;
+
+              if (singularLMR)
+                  ss->statScore += stat_bonus(depth / 2) * 3;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -99 && (ss-1)->statScore < -116)
