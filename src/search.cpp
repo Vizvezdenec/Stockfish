@@ -1145,7 +1145,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               if (singularLMR && ss->statScore < 0)
-                  r++;
+                  r--;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
