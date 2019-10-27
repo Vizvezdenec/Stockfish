@@ -549,6 +549,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
+    score += ThreatByPawnPush * popcount(pawn_double_attacks_bb<Them>(b));
+
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
