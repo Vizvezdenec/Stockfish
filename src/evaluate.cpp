@@ -239,6 +239,9 @@ namespace {
     if (relative_rank(Us, ksq) == RANK_1)
         kingRing[Us] |= shift<Up>(kingRing[Us]);
 
+    else if (relative_rank(Us, ksq) == RANK_8)
+        kingRing[Us] |= shift<Down>(kingRing[Us]);
+
     if (file_of(ksq) == FILE_H)
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
 
@@ -544,8 +547,6 @@ namespace {
 
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
-
-    score += ThreatByPawnPush * popcount(pawn_double_attacks_bb<Them>(nonPawnEnemies) & b);
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
