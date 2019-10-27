@@ -79,6 +79,7 @@ namespace {
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
+  constexpr int KingAttackWeights2[PIECE_TYPE_NB] = { 0, 0, 85, 54, 46, 11 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -239,9 +240,6 @@ namespace {
     if (relative_rank(Us, ksq) == RANK_1)
         kingRing[Us] |= shift<Up>(kingRing[Us]);
 
-    else if (relative_rank(Us, ksq) == RANK_8)
-        kingRing[Us] |= shift<Down>(kingRing[Us]);
-
     if (file_of(ksq) == FILE_H)
         kingRing[Us] |= shift<WEST>(kingRing[Us]);
 
@@ -288,7 +286,8 @@ namespace {
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            kingAttackersWeight[Us] += relative_rank(Us, pos.square<KING>(Them)) > RANK_3 ? KingAttackWeights[Pt] 
+                                       : KingAttackWeights2[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
 
