@@ -545,11 +545,11 @@ namespace {
     // Keep only the squares which are relatively safe
     b &= ~attackedBy[Them][PAWN] & safe;
 
+    score += ThreatByPawnPush * popcount(pawn_double_attacks_bb<Them>(nonPawnEnemies) & b);
+
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    score += ThreatByPawnPush * popcount(pawn_double_attacks_bb<Them>(b));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
