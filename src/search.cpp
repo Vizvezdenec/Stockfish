@@ -1103,9 +1103,6 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r--;
 
-          if (captureCount >= futility_move_count(improving, depth) / 2)
-              r++;
-
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
@@ -1149,6 +1146,10 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
+
+              if ((*contHist[0])[movedPiece][to_sq(move)] < -10000 
+                  && (*contHist[1])[movedPiece][to_sq(move)] < -10000)
+                  r++;
           }
 
           Depth d = clamp(newDepth - r, 1, newDepth);
