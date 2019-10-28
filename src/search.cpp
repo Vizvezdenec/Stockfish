@@ -1103,8 +1103,8 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r--;
 
-          if (rootNode && !moveCountPruning)
-              r--;
+          if (cutNode && moveCountPruning)
+              r++;
 
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
