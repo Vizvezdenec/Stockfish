@@ -711,9 +711,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
-                           && !pawnsOnBothFlanks;
+                           && !pawnsOnBothFlanks
+                           && (pos.pieces(~strongSide, PAWN) & ~(Rank2BB | Rank7BB));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
