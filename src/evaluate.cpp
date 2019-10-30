@@ -568,7 +568,7 @@ namespace {
        &  attackedBy[Us][ALL_PIECES]
        &  pos.attacks_from<QUEEN>(s)
        & ~stronglyProtected;
-       score += make_score(70, 35) * more_than_one(b);
+       score += make_score(48, 48) * more_than_one(b);
     }
 
     if (T)
