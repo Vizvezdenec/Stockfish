@@ -552,8 +552,8 @@ namespace {
     b =   nonPawnEnemies
        &  attackedBy[Us][ALL_PIECES]
        &  attackedBy[Them][QUEEN]
-       & ~attackedBy2[Them];
-    score += make_score(72, 48) * popcount(b);
+       & ~stronglyProtected;
+    score += make_score(36, 24) * popcount(b);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
