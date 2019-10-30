@@ -549,12 +549,6 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
-    b =   nonPawnEnemies
-       &  attackedBy[Us][ALL_PIECES]
-       &  attackedBy[Them][QUEEN]
-       & ~stronglyProtected;
-    score += make_score(36, 24) * popcount(b);
-
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
@@ -569,6 +563,12 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+       b =   pos.pieces(Them)
+       &  attackedBy[Us][ALL_PIECES]
+       &  pos.attacks_from<QUEEN>(s)
+       & ~stronglyProtected;
+       score += make_score(18, 12) * more_than_one(b);
     }
 
     if (T)
