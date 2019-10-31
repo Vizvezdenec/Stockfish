@@ -448,7 +448,7 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttacks * kingFlankAttacks / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 - (893 - 100 * (pos.count<BISHOP>(Them) == 2)) * !pos.count<QUEEN>(Them)
+                 - (873 - 40 * (pos.count<BISHOP>(Them) == 2)) * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
