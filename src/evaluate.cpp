@@ -563,12 +563,21 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+    }
 
-       b =   pos.pieces(Them)
+    b =   pos.pieces(Them)
        &  attackedBy[Us][ALL_PIECES]
-       &  pos.attacks_from<QUEEN>(s)
+       &  attackedBy[Them][KING]
        & ~stronglyProtected;
-       score += make_score(48, 24) * more_than_one(b);
+
+    while (b)
+    {
+        Square s = pop_lsb(&b);
+        if (~pos.attacks_from<KING>(s) & b)
+        {
+            score += make_score(72, 36);
+            b = 0;
+        }
     }
 
     if (T)
