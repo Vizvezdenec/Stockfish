@@ -132,7 +132,7 @@ namespace {
   constexpr Score FlankAttacks       = S(  8,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
-  constexpr Score KnightOnQueen      = S( 16, 12);
+  constexpr Score KnightOnQueen      = S( 32, 24);
   constexpr Score LongDiagonalBishop = S( 45,  0);
   constexpr Score MinorBehindPawn    = S( 18,  3);
   constexpr Score Outpost            = S( 32, 10);
@@ -140,7 +140,7 @@ namespace {
   constexpr Score PawnlessFlank      = S( 17, 95);
   constexpr Score RestrictedPiece    = S(  7,  7);
   constexpr Score RookOnQueenFile    = S(  7,  6);
-  constexpr Score SliderOnQueen      = S( 59, 18);
+  constexpr Score SliderOnQueen      = S(108, 36);
   constexpr Score ThreatByKing       = S( 24, 89);
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatBySafePawn   = S(173, 94);
@@ -558,12 +558,12 @@ namespace {
 
         b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += KnightOnQueen * popcount(b & safe) / pos.count<QUEEN>(Them);
+        score += KnightOnQueen * popcount(b & safe) / (1 + pos.count<QUEEN>(Them));
 
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]) / pos.count<QUEEN>(Them);
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]) / (1 + pos.count<QUEEN>(Them));
     }
 
     if (T)
