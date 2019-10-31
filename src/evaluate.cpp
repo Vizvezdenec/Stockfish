@@ -441,6 +441,11 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    int disbalance = int (abs(pos.count<KNIGHT>(Us) - pos.count<KNIGHT>(Them)) * KnightValueMg
+                       +  abs(pos.count<BISHOP>(Us) - pos.count<BISHOP>(Them)) * BishopValueMg
+                       +  abs(pos.count<ROOK>(Us) - pos.count<ROOK>(Them)) * RookValueMg  
+                       +  abs(pos.count<QUEEN>(Us) - pos.count<QUEEN>(Them)) * QueenValueMg) / 512;   
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -452,7 +457,8 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -   7;
+                 +       disbalance
+                 -   9;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
