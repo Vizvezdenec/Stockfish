@@ -1085,7 +1085,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || moveCount >= futility_move_count(improving, depth + 2 * singularLMR)
+              || moveCount >= futility_move_count(improving, depth + 2 * extension)
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode))
       {
