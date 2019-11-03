@@ -558,10 +558,10 @@ namespace {
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
 
-       b =   pos.pieces(Them)
+       b =   nonPawnEnemies
        &  attackedBy[Us][ALL_PIECES]
-       &  pos.attacks_from<QUEEN>(s)
-       & ~stronglyProtected;
+       &  attackedBy[Them][QUEEN]
+       & ~attackedBy2[Them];
        while (b)
        {
            Square s1 = pop_lsb(&b);
