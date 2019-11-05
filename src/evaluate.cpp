@@ -310,7 +310,10 @@ namespace {
                 // bishop, bigger when the center files are blocked with pawns.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
-                score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
+                Bitboard bishopColor = DarkSquares & s ? DarkSquares : ~DarkSquares;
+
+                score -= BishopPawns * (pos.pawns_on_same_color_squares(Us, s) 
+                                 + 2 * popcount(bishopColor & pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN))))
                                      * (1 + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
@@ -440,8 +443,6 @@ namespace {
     b2 = b1 & attackedBy2[Them];
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
-
-    kingDanger -= (kingAttackersCount[Us] - kingAttackersCount[Them]) * 20;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
