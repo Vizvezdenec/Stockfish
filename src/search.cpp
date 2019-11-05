@@ -1072,6 +1072,8 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      Depth d = 0;
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1141,7 +1143,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384;
           }
 
-          Depth d = clamp(newDepth - r, 1, newDepth);
+          d = clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1153,7 +1155,8 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          if (!didLMR || d < newDepth - cutNode)
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           if (didLMR && !captureOrPromotion)
           {
