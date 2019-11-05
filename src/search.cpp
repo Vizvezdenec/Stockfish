@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - 2 * depth;
-          Depth halfDepth = (depth + (singularBeta > beta)) / 2;
+          Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -1072,6 +1072,8 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      Depth d = 0;
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1141,7 +1143,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384;
           }
 
-          Depth d = clamp(newDepth - r, 1, newDepth);
+          d = clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1157,8 +1159,11 @@ moves_loop: // When in check, search starts from here
 
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+
+              bool highDepthLMR = d > (newDepth * 3) / 4;
+
+              int bonus = value > alpha ?  stat_bonus(newDepth + highDepthLMR)
+                                        : -stat_bonus(newDepth + highDepthLMR);
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
