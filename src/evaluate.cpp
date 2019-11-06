@@ -517,6 +517,12 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+    b = nonPawnEnemies & ~attackedBy2[Them] & attackedBy[Us][ALL_PIECES];
+
+    b = pawn_double_attacks_bb<Us>(b) & pos.pieces(Them, PAWN);
+
+    score += make_score(20, 20) * popcount(b);
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
