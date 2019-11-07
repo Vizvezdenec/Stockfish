@@ -605,7 +605,7 @@ namespace {
     inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = ss->nonPrunedCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1062,8 +1062,6 @@ moves_loop: // When in check, search starts from here
           continue;
       }
 
-      ss->nonPrunedCount++;
-
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -1098,12 +1096,12 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 15)
               r--;
 
+          else if ((ss-2)->moveCount > 15 && (ss-1)->moveCount == 1)
+              r++;
+
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
-
-          if ((ss-1)->moveCount - (ss-1)->nonPrunedCount > 15)
-              r--;
 
           if (!captureOrPromotion)
           {
