@@ -340,7 +340,6 @@ void Thread::search() {
   ss->pv = pv;
 
   bestValue = delta = alpha = -VALUE_INFINITE;
-  bestMove = MOVE_NONE;
   beta = VALUE_INFINITE;
 
   size_t multiPV = Options["MultiPV"];
@@ -495,7 +494,6 @@ void Thread::search() {
           completedDepth = rootDepth;
 
       if (rootMoves[0].pv[0] != lastBestMove) {
-         bestMove.store(rootMoves[0].pv[0], std::memory_order_relaxed);
          lastBestMove = rootMoves[0].pv[0];
          lastBestMoveDepth = rootDepth;
       }
@@ -607,7 +605,7 @@ namespace {
     inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->nonPrunedCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1064,6 +1062,8 @@ moves_loop: // When in check, search starts from here
           continue;
       }
 
+      ss->nonPrunedCount++;
+
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
-          if (Threads.equal_best_moves(move) > 1)
+          if ((ss-1)->moveCount - (ss-1)->nonPrunedCount > 15)
               r--;
 
           if (!captureOrPromotion)
