@@ -121,10 +121,6 @@ namespace {
     S(0, 0), S(3, 44), S(38, 71), S(38, 61), S(0, 38), S(51, 38)
   };
 
-  constexpr Score Hanging[PIECE_TYPE_NB] = {
-    S(0, 0), S(49, 26), S(59, 31), S(69, 36), S(79, 41), S(89, 46)
-  };
-
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
     S(0, 0), S(10, 28), S(17, 33), S(15, 41), S(62, 72), S(168, 177), S(276, 260)
@@ -134,6 +130,7 @@ namespace {
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
   constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
   constexpr Score LongDiagonalBishop = S( 45,  0);
@@ -517,11 +514,7 @@ namespace {
 
         b =  ~attackedBy[Them][ALL_PIECES]
            | (nonPawnEnemies & attackedBy2[Us]);
-
-        b &= weak;
-
-        while (b)
-            score += Hanging[type_of(pos.piece_on(pop_lsb(&b)))];
+        score += Hanging * popcount(weak & b);
     }
 
     // Bonus for restricting their piece moves
