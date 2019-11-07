@@ -340,6 +340,7 @@ void Thread::search() {
   ss->pv = pv;
 
   bestValue = delta = alpha = -VALUE_INFINITE;
+  bestMove = MOVE_NONE;
   beta = VALUE_INFINITE;
 
   size_t multiPV = Options["MultiPV"];
@@ -494,6 +495,7 @@ void Thread::search() {
           completedDepth = rootDepth;
 
       if (rootMoves[0].pv[0] != lastBestMove) {
+         bestMove.store(rootMoves[0].pv[0], std::memory_order_relaxed);
          lastBestMove = rootMoves[0].pv[0];
          lastBestMoveDepth = rootDepth;
       }
@@ -1099,6 +1101,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
+
+          if (Threads.equal_best_moves(move) > 1)
+              r--;
 
           if (!captureOrPromotion)
           {
