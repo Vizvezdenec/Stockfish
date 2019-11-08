@@ -339,8 +339,9 @@ namespace {
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
 
-            if (file_bb(s) & pos.pieces(Them, KING))
-                score += make_score(9, 0);
+            if (rank_bb(s) & pos.pieces(Them, KING))
+                score += make_score(18,0);
+
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[pos.is_on_semiopen_file(Them, s)];
