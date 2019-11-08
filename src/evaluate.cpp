@@ -441,6 +441,8 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
+    Bitboard stronglyProtected = attackedBy[Us][PAWN] | (attackedBy2[Us] & ~attackedBy2[Them]);
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -451,8 +453,9 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
+                 -  10 * popcount(stronglyProtected & kingRing[Us])
                  -   6 * mg_value(score) / 8
-                 -   7;
+                 +  33;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -659,7 +662,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.count<QUEEN>() + pos.count<ROOK>() + pos.count<BISHOP>() < 7)
+    if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
