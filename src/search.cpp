@@ -982,6 +982,9 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+
+              if (!captureOrPromotion)
+                  update_quiet_stats(pos, ss, move, stat_bonus(halfDepth));
           }
 
           // Multi-cut pruning
