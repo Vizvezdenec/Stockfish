@@ -452,7 +452,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 - 300 * !(pos.non_pawn_material(Them))
+                 - 100 * (pos.non_pawn_material(Them) < RookValueMg)
                  -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
