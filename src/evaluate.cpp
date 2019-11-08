@@ -455,7 +455,7 @@ namespace {
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -  10 * popcount(stronglyProtected & kingRing[Us])
                  -   6 * mg_value(score) / 8
-                 +  33;
+                 +  23;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
