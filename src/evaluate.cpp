@@ -339,9 +339,6 @@ namespace {
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
 
-            if (rank_bb(s) & pos.pieces(Them, KING))
-                score += make_score(27,0);
-
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[pos.is_on_semiopen_file(Them, s)];
@@ -552,14 +549,17 @@ namespace {
         Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s) & safe;
 
-        score += KnightOnQueen * popcount(b & safe);
+        score += KnightOnQueen * popcount(b);
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
-           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
+        Bitboard bb =  ((attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+           | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s))) 
+                      & safe & attackedBy2[Us];
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += SliderOnQueen * popcount(bb);
+
+        score += make_score(10, 5) * popcount((b | bb) & (~attackedBy[Them][ALL_PIECES] | (attackedBy[Them][QUEEN] & ~attackedBy2[Them])));
     }
 
     if (T)
