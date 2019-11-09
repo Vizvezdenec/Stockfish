@@ -1050,6 +1050,9 @@ moves_loop: // When in check, search starts from here
           else if (  !(givesCheck && extension)
                    && !pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
+
+          else if (!givesCheck && ss->staticEval + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] + 1000 + 300 * depth < alpha)
+                  continue;
       }
 
       // Speculative prefetch as early as possible
