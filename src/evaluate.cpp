@@ -454,6 +454,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  -   7;
 
+    kingDanger = std::min(kingDanger, 500 * kingAttackersCount[Them]);
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
@@ -542,9 +543,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    score -= make_score(5, 3) * popcount(nonPawnEnemies & ~pos.pieces(Them, KING) & attackedBy[Them][ALL_PIECES] 
-                                     & (~attackedBy[Them][PAWN] | attackedBy2[Them]));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
