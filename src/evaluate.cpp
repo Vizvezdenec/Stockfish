@@ -543,7 +543,7 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
-    score -= make_score(4, 2) * popcount(nonPawnEnemies & ~pos.pieces(Them, KING) & attackedBy[Them][ALL_PIECES] 
+    score -= make_score(3, 1) * popcount(nonPawnEnemies & ~pos.pieces(Them, KING) & attackedBy[Them][ALL_PIECES] 
                                      & (~attackedBy[Them][PAWN] | attackedBy2[Them]));
 
     // Bonus for threats on the next moves against enemy queen
