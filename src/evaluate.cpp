@@ -454,7 +454,7 @@ namespace {
                  -   6 * mg_value(score) / 8
                  -   7;
 
-    kingDanger = std::min(kingDanger, 500 + 250 * kingAttackersCount[Them]);
+    kingDanger = std::min(kingDanger, 1000 + 250 * kingAttackersCount[Them]);
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
