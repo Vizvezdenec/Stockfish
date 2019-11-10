@@ -800,6 +800,12 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        &&  depth < 7
+        &&  eval + futility_margin(depth, improving) + pos.non_pawn_material(~us) / 2 <= alpha
+        &&  eval > -VALUE_KNOWN_WIN) 
+        return eval; 
+
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1047,10 +1053,6 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!givesCheck && captureOrPromotion 
-                && ss->staticEval + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] + 1000 + 50 * depth * depth < alpha)
-                  continue;
-
           else if (  !(givesCheck && extension)
                    && !pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
