@@ -800,12 +800,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        &&  depth < 7
-        &&  eval + futility_margin(depth + 1, !improving) <= alpha
-        &&  eval > -VALUE_KNOWN_WIN) 
-        return eval; 
-
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1086,6 +1080,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval > beta
               || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
