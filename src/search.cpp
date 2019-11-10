@@ -802,7 +802,7 @@ namespace {
 
     if (   !PvNode
         &&  depth < 7
-        &&  eval + futility_margin(depth + 1, !improving) + pos.non_pawn_material(~us) / 2 <= alpha
+        &&  eval + futility_margin(depth + 1, !improving) <= alpha
         &&  eval > -VALUE_KNOWN_WIN) 
         return eval; 
 
