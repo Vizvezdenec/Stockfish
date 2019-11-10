@@ -1140,14 +1140,15 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
           }
-          else if (ss->staticEval > beta)
-              r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), didLMR = true;
+
+          if (doFullDepthSearch && !captureOrPromotion)
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(d));
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, didLMR = false;
