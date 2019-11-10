@@ -1047,7 +1047,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!givesCheck && ss->staticEval + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] + 800 + 200 * depth < alpha)
+          else if (!givesCheck && captureOrPromotion 
+                && ss->staticEval + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] + 1000 + 50 * depth * depth < alpha)
                   continue;
 
           else if (  !(givesCheck && extension)
