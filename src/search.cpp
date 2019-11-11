@@ -63,8 +63,8 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 661;
-  Value futility_margin(Depth d, bool improving) {
-    return Value(198 * (d - improving));
+  Value futility_margin(Depth d, bool improving, bool greatlyImproving) {
+    return Value((198 - 25 * greatlyImproving) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -595,7 +595,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture, greatlyImproving;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -753,6 +753,7 @@ namespace {
     {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        greatlyImproving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -793,10 +794,12 @@ namespace {
     improving =   ss->staticEval >= (ss-2)->staticEval
                || (ss-2)->staticEval == VALUE_NONE;
 
+    greatlyImproving = (ss-2)->staticEval != VALUE_NONE && ss->staticEval >= (ss-2)->staticEval + PawnValueMg;
+
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
         &&  depth < 7
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving, greatlyImproving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
