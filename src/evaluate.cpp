@@ -441,8 +441,7 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    if (!(attackedBy[Us][KING] & ~attackedBy[Them][ALL_PIECES]))
-        kingDanger += 250;
+    weak &= ~(attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy[Us][QUEEN]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
