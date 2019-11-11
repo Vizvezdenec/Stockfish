@@ -444,7 +444,7 @@ namespace {
     weak &= ~(attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy[Us][QUEEN]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 190 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
