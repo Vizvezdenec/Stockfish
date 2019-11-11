@@ -441,10 +441,13 @@ namespace {
 
     int kingFlankAttacks = popcount(b1) + popcount(b2);
 
-    weak &= ~(attackedBy[Them][QUEEN] & ~attackedBy2[Them] & attackedBy[Us][QUEEN]);
+    Bitboard semiweak = ~weak
+                      & (attackedBy[Them][KNIGHT] | attackedBy[Them][BISHOP])
+                      & ~(attackedBy[Us][PAWN] | attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 190 * popcount(kingRing[Us] & weak)
+                 + 185 * popcount(kingRing[Us] & weak)
+                 +  16 * popcount(kingRing[Us] & semiweak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
@@ -454,7 +457,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -   7;
+                 -  23;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
