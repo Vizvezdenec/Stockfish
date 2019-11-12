@@ -548,8 +548,9 @@ namespace {
      && pos.count<KNIGHT>(Them) == 0
      && pos.count<BISHOP>(Us  ) == 0
      && pos.count<BISHOP>(Them) == 2)
-        score += make_score(3, 0) * popcount((pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)))
-                                           | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us))));
+        score += make_score(6, 0) * popcount(((pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)))
+                                            | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us))))
+                                            &  CenterFiles);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
