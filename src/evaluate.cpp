@@ -443,7 +443,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, and the squares
     // which are attacked twice in that flank.
 
-    Ccamp = relative_rank(Us, ksq) < RANK_5 ? Camp : Camp | shift<Up>(Camp);
+    Ccamp = relative_rank(Us, ksq) < RANK_6 ? Camp : Camp | shift<Up>(Camp);
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Ccamp;
     b2 = b1 & attackedBy2[Them];
 
