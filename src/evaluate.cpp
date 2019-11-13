@@ -244,7 +244,7 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
-    pseudoKingRing[Us] &= kingRing[Us] & ~dblAttackByPawn;
+    pseudoKingRing[Us] = kingRing[Us] & ~dblAttackByPawn;
   }
 
 
