@@ -187,6 +187,7 @@ namespace {
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
+    Bitboard pseudoKingRing[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -243,7 +244,7 @@ namespace {
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
-    kingRing[Us] &= ~dblAttackByPawn;
+    pseudoKingRing[Us] &= kingRing[Us] & ~dblAttackByPawn;
   }
 
 
@@ -279,8 +280,11 @@ namespace {
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
-            kingAttackersWeight[Us] += KingAttackWeights[Pt];
-            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            if (b & pseudoKingRing[Them])
+            {
+                kingAttackersWeight[Us] += KingAttackWeights[Pt];
+                kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            }
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -477,10 +481,9 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::threats() const {
 
-    constexpr Color     Them     =  (Us == WHITE ? BLACK   : WHITE);
-    constexpr Direction Up       =  pawn_push(Us);
-    constexpr Direction Down     = -pawn_push(Us);
-    constexpr Bitboard  TRank3BB =  (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
+    constexpr Direction Up       = pawn_push(Us);
+    constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -543,14 +546,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    if (pos.count<KNIGHT>(Us  ) == 2 
-     && pos.count<KNIGHT>(Them) == 0
-     && pos.count<BISHOP>(Us  ) == 0
-     && pos.count<BISHOP>(Them) == 2)
-        score += make_score(6, 0) * popcount(((pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them)))
-                                            | (pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Us))))
-                                            &  CenterFiles);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
