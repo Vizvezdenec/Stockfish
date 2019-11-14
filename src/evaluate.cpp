@@ -150,7 +150,7 @@ namespace {
   constexpr Score ThreatByPawnPush   = S( 48, 39);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
-  constexpr Score WeakQueen          = S( 47, 13);
+  constexpr Score WeakQueen          = S( 46, 13);
 
 #undef S
 
@@ -323,7 +323,7 @@ namespace {
                     score += LongDiagonalBishop;
 
                 if (PseudoAttacks[BISHOP][s] & pos.pieces(Them, QUEEN))
-                    score += make_score(7, 6);
+                    score += make_score(14, 10);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
