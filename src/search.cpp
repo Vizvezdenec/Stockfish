@@ -854,7 +854,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 5
+        &&  depth >= 5 - cutNode
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
         Value raisedBeta = std::min(beta + 191 - 46 * improving, VALUE_INFINITE);
@@ -866,7 +866,7 @@ namespace {
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
-                assert(depth >= 5);
+                assert(depth >= 5 - cutNode);
 
                 captureOrPromotion = true;
                 probCutCount++;
@@ -884,7 +884,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4 + cutNode, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1010,7 +1010,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - (3 + 2 * cutNode) * depth / 2;
+          Value singularBeta = ttValue - 2 * depth;
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
