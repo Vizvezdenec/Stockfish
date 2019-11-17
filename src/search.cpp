@@ -967,7 +967,8 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           if (   !captureOrPromotion
-              && !givesCheck)
+              && !givesCheck
+              && (!PvNode || !pos.advanced_pawn_push(move) || pos.non_pawn_material(~us) > BishopValueMg))
           {
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1101,7 +1102,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + singularLMR;
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
