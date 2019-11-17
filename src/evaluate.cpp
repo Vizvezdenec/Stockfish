@@ -667,8 +667,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold
-        && pos.count<ALL_PIECES>() - pos.count<PAWN>() < 14)
+    if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
@@ -724,7 +723,7 @@ namespace {
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    - 43 * almostUnwinnable
+                    - (40 + abs(mg + eg) / 8) * almostUnwinnable
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
