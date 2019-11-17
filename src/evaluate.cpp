@@ -564,7 +564,7 @@ namespace {
         b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += (SliderOnQueen + make_score(15, 4) * !pos.count<QUEEN>(Us)) * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
