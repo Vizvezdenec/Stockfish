@@ -1076,6 +1076,8 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool possibleFortress = thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024;
+
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1084,13 +1086,13 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || thisThread->ttHitAverage < 3 * ttHitAverageResolution * ttHitAverageWindow / 8))
+              || cutNode)
+          && !(captureOrPromotion && possibleFortress))
       {
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+          if (possibleFortress)
               r--;
 
           // Reduction if other threads are searching this position.
