@@ -965,6 +965,8 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      bool possibleFortress = thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024;
+
       // Step 13. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -995,7 +997,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
+          else if (!pos.see_ge(move, Value(-199 - 50 * possibleFortress) * depth)) // (~20 Elo)
                   continue;
       }
 
@@ -1076,8 +1078,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool possibleFortress = thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024;
-
       // Step 16. Reduced depth search (LMR). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1086,13 +1086,12 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode)
-          && !(captureOrPromotion && possibleFortress))
+              || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (possibleFortress)
+          if (thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024)
               r--;
 
           // Reduction if other threads are searching this position.
