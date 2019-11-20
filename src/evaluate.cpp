@@ -723,7 +723,7 @@ namespace {
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    - (43 + 25 * (outflanking < -3) ) * almostUnwinnable
+                    - 43 * almostUnwinnable
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
