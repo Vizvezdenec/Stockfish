@@ -965,8 +965,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      bool possibleFortress = thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024;
-
       // Step 13. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -976,7 +974,8 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           if (   !captureOrPromotion
-              && !givesCheck)
+              && !givesCheck
+              && !(pos.pawn_passed(us, to_sq(move)) && type_of(movedPiece) == PAWN && pos.count<ALL_PIECES>() - pos.count<PAWN>() < 5))
           {
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -997,7 +996,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199 - 50 * possibleFortress) * depth)) // (~20 Elo)
+          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
       }
 
