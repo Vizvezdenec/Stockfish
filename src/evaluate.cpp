@@ -205,6 +205,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    bool isOutpost[COLOR_NB][PIECE_TYPE_NB];
   };
 
 
@@ -262,6 +263,7 @@ namespace {
     Score score = SCORE_ZERO;
 
     attackedBy[Us][Pt] = 0;
+    isOutpost[Us][Pt] = 0;
 
     for (Square s = *pl; s != SQ_NONE; s = *++pl)
     {
@@ -290,13 +292,16 @@ namespace {
 
         if (Pt == BISHOP || Pt == KNIGHT)
         {
+            if (!isOutpost[Us][Pt])
+            {
             // Bonus if piece is on an outpost square or can reach one
             bb = OutpostRanks & attackedBy[Us][PAWN] & ~pe->pawn_attacks_span(Them);
             if (bb & s)
-                score += Outpost * (Pt == KNIGHT ? 2 : 1);
+                score += Outpost * (Pt == KNIGHT ? 2 : 1), isOutpost[Us][Pt] = true;
 
             else if (Pt == KNIGHT && bb & b & ~pos.pieces(Us))
                 score += ReachableOutpost;
+            }
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
