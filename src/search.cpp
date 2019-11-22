@@ -962,8 +962,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      bool lowTtHit = thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -997,7 +995,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199 + 30 * lowTtHit) * depth)) // (~20 Elo)
+          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
       }
 
@@ -1087,7 +1085,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || lowTtHit))
+              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
