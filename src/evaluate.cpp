@@ -129,7 +129,7 @@ namespace {
   // Assorted bonuses and penalties
   constexpr Score BishopPawns        = S(  3,  7);
   constexpr Score CorneredBishop     = S( 50, 50);
-  constexpr Score FlankAttacks       = S(  8,  0);
+  constexpr Score FlankAttacks       = S( 10,  0);
   constexpr Score Hanging            = S( 69, 36);
   constexpr Score KingProtector      = S(  7,  8);
   constexpr Score KnightOnQueen      = S( 16, 12);
@@ -442,7 +442,7 @@ namespace {
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3) + popcount(b3 & attackedBy2[Us]);
+    int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -456,7 +456,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 +   9;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -468,6 +468,8 @@ namespace {
 
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttack;
+
+    score += make_score(2, 0) * kingFlankDefense;
 
     if (T)
         Trace::add(KING, Us, score);
