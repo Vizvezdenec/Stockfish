@@ -442,7 +442,7 @@ namespace {
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3) + popcount(b1 & attackedBy2[Us]);
+    int kingFlankDefense = popcount(b3) + popcount(b1 & (attackedBy2[Us] | attackedBy[Us][PAWN]));
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -456,7 +456,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -   3;
+                 +   3;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
