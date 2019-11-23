@@ -442,7 +442,7 @@ namespace {
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3) + popcount(b3 & attackedBy2[Us]);
+    int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -456,7 +456,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -  35 * bool(attackedBy[Us][BISHOP] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 +   3;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -709,9 +709,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool almostUnwinnable =   !pe->passed_count()
+    bool almostUnwinnable =   (!pe->passed_count()
                            &&  outflanking < 0
-                           && !pawnsOnBothFlanks;
+                           && !pawnsOnBothFlanks)
+                           || 
+                              (pos.count<PAWN>()  == 1
+                           &&((FileABB | FileHBB) & pos.pieces(PAWN)));
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
