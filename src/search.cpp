@@ -987,6 +987,7 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
+                  && !pos.advanced_pawn_push(move)
                   && !inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
@@ -1090,7 +1091,7 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (!cutNode && thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+          if (thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024)
               r--;
 
           // Reduction if other threads are searching this position.
