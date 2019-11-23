@@ -625,7 +625,7 @@ namespace {
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
                 int k = !unsafeSquares                    ? 35 :
-                        !(unsafeSquares & squaresToQueen) ? 20 :
+                        !(unsafeSquares & squaresToQueen) ? 20 + 15 * (r = RANK_7) :
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
