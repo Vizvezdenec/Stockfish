@@ -987,7 +987,6 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
-                  && !(pos.advanced_pawn_push(move) && pos.pawn_passed(us, to_sq(move)))
                   && !inCheck
                   && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
