@@ -633,8 +633,6 @@ namespace {
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
 
-                k += !pe->passed_pawns(Them);
-
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
