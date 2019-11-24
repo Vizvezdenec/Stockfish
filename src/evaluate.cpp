@@ -455,8 +455,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -       kingFlankDefense * kingFlankDefense / 4
-                 +  18;
+                 -   7;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -709,12 +708,14 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool almostUnwinnable =   !pe->passed_count()
+    int passcnt = pe->passed_count(WHITE) + pe->passed_count(BLACK);
+
+    bool almostUnwinnable =   !passcnt
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
+    int complexity =   9 * passcnt
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
@@ -748,7 +749,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 22 ;
+            sf = 14 + 6 * pe->passed_count(strongSide);
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
