@@ -747,11 +747,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            {
-            Bitboard advanced = (strongSide == WHITE ? Rank6BB | Rank7BB | Rank8BB
-                                             : Rank3BB | Rank2BB | Rank1BB);
-            sf = 14 + 6 * popcount(advanced & pos.pieces(strongSide, PAWN)) ;
-            }
+            sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
