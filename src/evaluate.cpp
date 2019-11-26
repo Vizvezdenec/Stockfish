@@ -708,14 +708,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    int passcnt = pe->passed_count(WHITE) + pe->passed_count(BLACK);
-
-    bool almostUnwinnable =   !passcnt
+    bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * passcnt
+    int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
@@ -749,7 +747,11 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 12 + 6 * pe->passed_count(strongSide) + pos.count<PAWN>(strongSide);
+            {
+            Bitboard advanced = (strongSide == WHITE ? Rank6BB | Rank7BB | Rank8BB
+                                             : Rank3BB | Rank2BB | Rank1BB);
+            sf = 14 + 6 * popcount(advanced & pos.pieces(strongSide, PAWN)) ;
+            }
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
