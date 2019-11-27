@@ -712,7 +712,7 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool closeToZero = abs(mg) + abs(eg) < 20;
+    int closeToZero = std::min(abs(mg) + abs(eg) - 20, 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -721,7 +721,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 16 * closeToZero
+                    +      closeToZero
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
