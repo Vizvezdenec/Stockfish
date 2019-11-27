@@ -1027,7 +1027,7 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularLMR = true;
               if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth) / 2);
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth + 1) / 2);
           }
 
           // Multi-cut pruning
