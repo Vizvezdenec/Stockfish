@@ -506,7 +506,7 @@ namespace {
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
         if (pos.side_to_move() != Us)
-            b &= ~(pos.pieces(Them, KNIGHT) & ~attackedBy2[Us] & attackedBy[Us][KNIGHT]);
+            b &= ~(pos.pieces(Them, KNIGHT) & attackedBy[Us][KNIGHT]);
         while (b)
             score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
 
