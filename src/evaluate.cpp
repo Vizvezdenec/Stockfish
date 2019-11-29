@@ -712,7 +712,7 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    int closeToZero = std::min(abs(mg) + abs(eg) - 15, 0);
+    int closeToZero = std::min(abs(mg) + abs(eg) - 24, 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
