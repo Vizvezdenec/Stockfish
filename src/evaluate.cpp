@@ -505,8 +505,6 @@ namespace {
     if (defended | weak)
     {
         b = (defended | weak) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]);
-        if (pos.side_to_move() != Us)
-            b &= ~(pos.pieces(Them, KNIGHT) & attackedBy[Us][KNIGHT]);
         while (b)
             score += ThreatByMinor[type_of(pos.piece_on(pop_lsb(&b)))];
 
@@ -714,6 +712,8 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    int closeToZero = std::min(abs(mg) + abs(eg) - 15, 0);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -721,6 +721,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    +      closeToZero
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
