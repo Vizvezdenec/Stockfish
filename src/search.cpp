@@ -1099,10 +1099,6 @@ moves_loop: // When in check, search starts from here
           if (thisThread->ttHitAverage > 544 * ttHitAverageResolution * ttHitAverageWindow / 1024)
               r--;
 
-          if ((captureOrPromotion || type_of(movedPiece) == PAWN)
-              && thisThread->ttHitAverage > 640 * ttHitAverageResolution * ttHitAverageWindow / 1024)
-              r--;
-
           // Reduction if other threads are searching this position.
           if (th.marked())
               r++;
@@ -1119,6 +1115,10 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
+          if (cutNode && (!captureOrPromotion
+              || thisThread->ttHitAverage < 364 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += 2;
+                  r++;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
