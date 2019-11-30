@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           if (cutNode && (!captureOrPromotion
-              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 448 * ttHitAverageResolution * ttHitAverageWindow / 1024))
               r++;
 
           if (!captureOrPromotion)
