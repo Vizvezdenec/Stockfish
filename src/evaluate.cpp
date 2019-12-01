@@ -712,6 +712,12 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
+
+    bool unwinnableOCB = pos.opposite_bishops()
+                          && pos.non_pawn_material() == 2 * BishopValueMg
+                          && !pe->passed_pawns(strongSide);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -719,6 +725,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - 75 * unwinnableOCB
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
@@ -747,10 +754,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            {
-            int pawnDiff = std::max(0, pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide));
-            sf = std::min(14 + 4 * pawnDiff * pawnDiff, sf);
-            }
+            sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
