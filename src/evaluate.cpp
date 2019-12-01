@@ -256,6 +256,8 @@ namespace {
     constexpr Direction Down = -pawn_push(Us);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
+    constexpr Bitboard Corners = (Us == WHITE ? Rank1BB & (FileABB | FileHBB)
+                                              : Rank8BB & (FileABB | FileHBB));
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -317,6 +319,9 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
+
+                if (mob == 0 && (Corners & s))
+                    score -= make_score(20, 70);
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -747,10 +752,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            {
-            int pawnDiff = std::max(0, pos.count<PAWN>(strongSide) - pos.count<PAWN>(~strongSide));
-            sf = std::min(14 + 2 * pawnDiff * pawnDiff, sf);
-            }
+            sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
