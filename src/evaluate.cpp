@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 760;
+  constexpr int RookSafeCheck   = 1060;
+  constexpr int BishopSafeCheck = 615;
+  constexpr int KnightSafeCheck = 770;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -444,6 +444,9 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    int checksCount = popcount(rookChecks | queenChecks | bishopChecks | knightChecks);
+    kingDanger += checksCount * checksCount * 5;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -712,12 +715,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-
-    bool unwinnableOCB = pos.opposite_bishops()
-                          && pos.non_pawn_material() == 2 * BishopValueMg
-                          && !pe->passed_pawns(strongSide);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -725,7 +722,6 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 75 * unwinnableOCB
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
