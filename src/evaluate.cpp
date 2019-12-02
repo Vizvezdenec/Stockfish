@@ -458,7 +458,7 @@ namespace {
                  +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
-    if (kingDanger > 60 + kingFlankDefense * 3)
+    if (kingDanger > 80 + kingFlankDefense * 3)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
     // Penalty when our king is on a pawnless flank
