@@ -466,7 +466,7 @@ namespace {
         score -= PawnlessFlank;
 
     // Penalty if king flank is under attack, potentially moving toward the king
-    if (kingDanger > -700)
+    if (kingDanger > -900)
     	score -= FlankAttacks * kingFlankAttack;
 
     if (T)
