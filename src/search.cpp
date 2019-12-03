@@ -998,7 +998,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199 - ss->captureChain * ss->captureChain * ss->captureChain) * depth)) // (~20 Elo)
+          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
       }
 
@@ -1094,7 +1094,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+          && !(captureOrPromotion && ss->captureChain > 5))
       {
           Depth r = reduction(improving, depth, moveCount);
 
