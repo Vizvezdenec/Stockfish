@@ -609,7 +609,7 @@ namespace {
     inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->captureChain = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -962,6 +962,9 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if (captureOrPromotion && (ss-1)->currentMove != MOVE_NONE)
+          ss->captureChain = (ss-1)->captureChain + 1;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -995,7 +998,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
+          else if (!pos.see_ge(move, Value(-199 - ss->captureChain * ss->captureChain * ss->captureChain) * depth)) // (~20 Elo)
                   continue;
       }
 
