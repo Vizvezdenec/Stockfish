@@ -715,7 +715,7 @@ namespace {
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
-                    +  9 * outflanking
+                    +  (9 + 9 * !pos.non_pawn_material()) * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
@@ -827,7 +827,7 @@ namespace {
     }
 
     return  (pos.side_to_move() == WHITE ? v : -v) // Side to move point of view
-           + Eval::Tempo + 10 * !pos.non_pawn_material();
+           + Eval::Tempo;
   }
 
 } // namespace
