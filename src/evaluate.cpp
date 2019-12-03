@@ -459,7 +459,7 @@ namespace {
                  +  37;
 
     if (checks == 1 && kingDanger < 300)
-    	kingDanger = 0;
+    	kingDanger = kingDanger * 2 - 300;
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
