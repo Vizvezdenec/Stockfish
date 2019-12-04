@@ -381,9 +381,6 @@ namespace {
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
 
-    Bitboard stronglyProtected =  attackedBy[Us][PAWN]
-                       | (attackedBy2[Us] & ~attackedBy2[Them]);
-
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
 
@@ -446,7 +443,6 @@ namespace {
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
-    int kfsd = popcount(stronglyProtected & b1);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -459,8 +455,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 -       kfsd * kfsd
-                 +  47;
+                 +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)

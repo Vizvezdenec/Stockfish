@@ -974,7 +974,9 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           if (   !captureOrPromotion
-              && !givesCheck)
+              && !givesCheck
+              && !(pos.advanced_pawn_push(move)
+               && pos.pawn_passed(us, to_sq(move)) && pos.count<ALL_PIECES>() - pos.count<PAWN>() < 5))
           {
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
