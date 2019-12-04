@@ -546,22 +546,20 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
-    b = pos.pieces(Them, QUEEN);
-
     // Bonus for threats on the next moves against enemy queen
-    while (b)
+    if (pos.count<QUEEN>(Them) == 1)
     {
-        Square s = pop_lsb(&b);
+        Square s = pos.square<QUEEN>(Them);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        Bitboard bb = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += (KnightOnQueen * popcount(bb & safe)) / ((pos.count<QUEEN>(Them) - 1) * 3 + 1);
+        score += KnightOnQueen * popcount(b & safe);
 
-        bb =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += (SliderOnQueen * popcount(bb & safe & attackedBy2[Us])) / ((pos.count<QUEEN>(Them) - 1) * 3 + 1);
+        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
     if (T)
@@ -664,7 +662,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold)
+    if (pos.non_pawn_material() + ((2 - pos.count<QUEEN>()) * QueenValueMg / 2) < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
@@ -684,7 +682,7 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    int weight = pos.count<ALL_PIECES>(Us) - 1;
+    int weight = pos.count<ALL_PIECES>(Us) - 1 - (2 - pos.count<QUEEN>()) * 2;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
