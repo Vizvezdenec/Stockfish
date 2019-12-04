@@ -556,12 +556,12 @@ namespace {
 
         Bitboard bb = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += (KnightOnQueen * popcount(bb & safe)) / pos.count<QUEEN>(Them);
+        score += (KnightOnQueen * popcount(bb & safe)) / ((pos.count<QUEEN>(Them) - 1) * 3 + 1);
 
         bb =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += (SliderOnQueen * popcount(bb & safe & attackedBy2[Us])) / pos.count<QUEEN>(Them);
+        score += (SliderOnQueen * popcount(bb & safe & attackedBy2[Us])) / ((pos.count<QUEEN>(Them) - 1) * 3 + 1);
     }
 
     if (T)
