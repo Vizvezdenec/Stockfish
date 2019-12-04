@@ -546,20 +546,22 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
+    b = pos.pieces(Them, QUEEN);
+
     // Bonus for threats on the next moves against enemy queen
-    if (pos.count<QUEEN>(Them) == 1)
+    while (b)
     {
-        Square s = pos.square<QUEEN>(Them);
+        Square s = pop_lsb(&b);
         safe = mobilityArea[Us] & ~stronglyProtected;
 
-        b = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
+        Bitboard bb = attackedBy[Us][KNIGHT] & pos.attacks_from<KNIGHT>(s);
 
-        score += KnightOnQueen * popcount(b & safe);
+        score += (KnightOnQueen * popcount(bb & safe)) / pos.count<QUEEN>(Them);
 
-        b =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
+        bb =  (attackedBy[Us][BISHOP] & pos.attacks_from<BISHOP>(s))
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
-        score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+        score += (SliderOnQueen * popcount(bb & safe & attackedBy2[Us])) / pos.count<QUEEN>(Them);
     }
 
     if (T)
