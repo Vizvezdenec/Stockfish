@@ -712,10 +712,11 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    int matImb = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK) 
+    int matImb = (pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK) 
                   + (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) * PawnValueMg);
 
-    bool onlyMatAdv = abs(mg) + abs(eg) < matImb / 2;
+    bool onlyMatAdv = ((mg > 0 && eg > 0 && matImb > 0) || (mg < 0 && eg < 0 && matImb < 0))
+                       && (abs(mg) + abs(eg) < abs(matImb) / 2);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
