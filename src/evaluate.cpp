@@ -662,7 +662,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() + ((2 - pos.count<QUEEN>()) * QueenValueMg / 2) < SpaceThreshold)
+    if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
 
     constexpr Color Them     = (Us == WHITE ? BLACK : WHITE);
@@ -682,7 +682,7 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    int weight = pos.count<ALL_PIECES>(Us) - 1 - (2 - pos.count<QUEEN>()) * 2;
+    int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)
@@ -712,6 +712,10 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    int matImb = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
+
+    bool onlyMatAdv = abs(mg) + abs(eg) < matImb / 2;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -719,6 +723,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - onlyMatAdv * (abs(mg) + abs(eg)) / 4
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
