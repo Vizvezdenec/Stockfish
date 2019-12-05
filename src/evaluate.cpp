@@ -712,7 +712,8 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    int matImb = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
+    int matImb = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK) 
+                  + (pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) * PawnValueMg);
 
     bool onlyMatAdv = abs(mg) + abs(eg) < matImb / 2;
 
