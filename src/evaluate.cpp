@@ -562,6 +562,17 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    if ((pos.square<KING>(Us) == relative_square(Us, SQ_B1) || pos.square<KING>(Us) == relative_square(Us, SQ_G1))
+        && !(attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES])))
+    {
+    b = pos.pieces(Us, ROOK) & attackedBy[Us][KING] & (SquareBB[relative_square(Us, SQ_A1)] | SquareBB[relative_square(Us, SQ_H1)]);
+    if (b)
+    	{
+        b = shift<Up>(b) & pos.pieces(Us, PAWN);
+        if (b && shift<Up>(b) & pos.pieces(Them, PAWN))
+            score -= make_score(200, 200);
+        }
+    }
     if (T)
         Trace::add(THREAT, Us, score);
 
