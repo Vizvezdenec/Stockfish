@@ -227,7 +227,7 @@ namespace {
 
     // Squares occupied by those pawns, by our king or queen or controlled by
     // enemy pawns are excluded from the mobility area.
-    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pe->pawn_attacks(Them));
+    mobilityArea[Us] = ~(b | pos.pieces(Us, KING, QUEEN) | pos.blockers_for_king(Us) | pe->pawn_attacks(Them));
 
     // Initialize attackedBy[] for king and pawns
     attackedBy[Us][KING] = pos.attacks_from<KING>(ksq);
@@ -482,7 +482,6 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
-    constexpr Direction Down     = -pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -563,19 +562,6 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    if ((pos.square<KING>(Us) == relative_square(Us, SQ_B1) || pos.square<KING>(Us) == relative_square(Us, SQ_G1))
-        && !(attackedBy[Us][KING] & ~((pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them))) 
-        | attackedBy[Them][ALL_PIECES] | SquareBB[relative_square(Us, SQ_A1)] | SquareBB[relative_square(Us, SQ_H1)] 
-        | pos.blockers_for_king(Us))))
-    {
-    b = pos.pieces(Us, ROOK) & attackedBy[Us][KING] & (SquareBB[relative_square(Us, SQ_A1)] | SquareBB[relative_square(Us, SQ_H1)]);
-    if (b)
-    	{
-        b = shift<Up>(b) & pos.pieces(Us, PAWN);
-        if (b && shift<Up>(b) & pos.pieces(Them, PAWN))
-            score -= make_score(400, 400);
-        }
-    }
     if (T)
         Trace::add(THREAT, Us, score);
 
