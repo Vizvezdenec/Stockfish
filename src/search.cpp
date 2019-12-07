@@ -1114,7 +1114,7 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
-          if (lastCaptureLMR)
+          else if (lastCaptureLMR)
               r--;
 
           if (!captureOrPromotion)
