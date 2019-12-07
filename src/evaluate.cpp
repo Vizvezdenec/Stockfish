@@ -570,7 +570,7 @@ namespace {
     	{
         b = shift<Up>(b) & pos.pieces(Us, PAWN);
         if (b && shift<Up>(b) & pos.pieces(Them, PAWN))
-            score -= make_score(200, 200);
+            score -= make_score(400, 400);
         }
     }
     if (T)
