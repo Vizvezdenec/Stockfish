@@ -999,7 +999,6 @@ moves_loop: // When in check, search starts from here
                   continue;
       }
 
-      bool lastCapture = false;
       // Step 14. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -1054,7 +1053,7 @@ moves_loop: // When in check, search starts from here
       else if (   PvNode
                && PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
-          extension = 1, lastCapture = true;
+          extension = 1;
 
       // Castling extension
       if (type_of(move) == CASTLING)
@@ -1114,9 +1113,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
-              r -= 2;
-
-          if (lastCapture)
               r -= 2;
 
           if (!captureOrPromotion)
