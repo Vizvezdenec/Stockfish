@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
 
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
-               && pos.non_pawn_material() <= 2 * QueenValueMg)
+               && pos.non_pawn_material() <= 2 * BishopValueMg)
           extension = 1;
 
       // Castling extension
