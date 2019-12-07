@@ -482,6 +482,7 @@ namespace {
 
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
+    constexpr Direction Down     = -pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
@@ -563,7 +564,9 @@ namespace {
     }
 
     if ((pos.square<KING>(Us) == relative_square(Us, SQ_B1) || pos.square<KING>(Us) == relative_square(Us, SQ_G1))
-        && !(attackedBy[Us][KING] & ~(pos.pieces(Us) | attackedBy[Them][ALL_PIECES])))
+        && !(attackedBy[Us][KING] & ~((pos.pieces(Us, PAWN) & shift<Down>(pos.pieces(Them))) 
+        | attackedBy[Them][ALL_PIECES] | SquareBB[relative_square(Us, SQ_A1)] | SquareBB[relative_square(Us, SQ_H1)] 
+        | pos.blockers_for_king(Us))))
     {
     b = pos.pieces(Us, ROOK) & attackedBy[Us][KING] & (SquareBB[relative_square(Us, SQ_A1)] | SquareBB[relative_square(Us, SQ_H1)]);
     if (b)
