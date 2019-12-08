@@ -143,7 +143,7 @@ namespace {
   constexpr Score RookOnQueenFile    = S(  7,  6);
   constexpr Score SliderOnQueen      = S( 59, 18);
   constexpr Score ThreatByKing       = S( 24, 89);
-  constexpr Score ThreatByPawnPush   = S( 48, 39);
+  constexpr Score ThreatByPawnPush   = S( 50, 40);
   constexpr Score ThreatBySafePawn   = S(173, 94);
   constexpr Score TrappedRook        = S( 47,  4);
   constexpr Score WeakQueen          = S( 49, 15);
@@ -537,10 +537,10 @@ namespace {
 
     // Find squares where our pawns can push on the next move
     b  = shift<Up>(pos.pieces(Us, PAWN)) & ~pos.pieces();
-    b |= shift<Up>(b & TRank3BB) & ~pos.pieces();
+    b |= shift<Up>(b & TRank3BB & ~attackedBy[Them][PAWN]) & ~pos.pieces();
 
     // Keep only the squares which are relatively safe
-    b &= ~(attackedBy[Them][PAWN] & ~pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN))) & safe;
+    b &= ~attackedBy[Them][PAWN] & safe;
 
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
