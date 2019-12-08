@@ -721,6 +721,9 @@ namespace {
                     - 43 * almostUnwinnable
                     - 95 ;
 
+    if (complexity < 0 && pos.opposite_bishops()
+     && pos.non_pawn_material() == 2 * BishopValueMg)
+    	complexity = (complexity * 3) / 2;
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
