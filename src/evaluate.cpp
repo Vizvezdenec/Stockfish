@@ -716,14 +716,14 @@ namespace {
             && pos.non_pawn_material() == 2 * BishopValueMg;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =  (9 + 27 * pureOcb) * pe->passed_count()
+    int complexity =  (9 + 18 * pureOcb) * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
                     - 95 
-                    - 54 * pureOcb;
+                    - 42 * pureOcb;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
@@ -751,7 +751,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 22 ;
+            sf = 24 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
