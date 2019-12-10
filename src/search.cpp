@@ -72,7 +72,6 @@ namespace {
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
-  double logThreads;
 
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
@@ -194,10 +193,8 @@ namespace {
 
 void Search::init() {
 
-  logThreads = std::log(Threads.size());
-
   for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions[i] = int((23.4 + logThreads / 2) * std::log(i));
+      Reductions[i] = int((23.4 + std::log(Threads.size()) / 2) * std::log(i));
 }
 
 
@@ -821,7 +818,7 @@ namespace {
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
         &&  depth < 7
-        &&  eval - futility_margin(depth, improving) + Value(logThreads * 5 * (depth - 1)) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
