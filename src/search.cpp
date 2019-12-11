@@ -1068,9 +1068,6 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
-      else if (!pos.non_pawn_material(~us) && captureOrPromotion)
-          extension = 1;
-
       // Castling extension
       if (type_of(move) == CASTLING)
           extension = 1;
