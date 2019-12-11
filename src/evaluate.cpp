@@ -562,6 +562,9 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
+    if (pos.square<KING>(Us) == relative_square(Us, SQ_E1) && pos.castling_rights(Us))
+        score += make_score(25, 5);
+
     if (T)
         Trace::add(THREAT, Us, score);
 
@@ -712,22 +715,13 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool heavilyUnwinnable = false;
-    
-    if (almostUnwinnable && mg * int(eg) > 0)
-    {
-        Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-        heavilyUnwinnable = pos.count<PAWN>(~strongSide) > pos.count<PAWN>(strongSide);
-    }
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    - 36 * almostUnwinnable
-                    - 36 * heavilyUnwinnable
+                    - 43 * almostUnwinnable
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
