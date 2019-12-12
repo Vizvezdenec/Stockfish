@@ -465,9 +465,10 @@ namespace {
     while (b1)
     {
     Square s = pop_lsb(&b1);
-    if ((rookChecks & pos.attacks_from<ROOK>(s))
+    if (!(attackedBy[Them][ALL_PIECES] & s) && 
+       ((rookChecks & pos.attacks_from<ROOK>(s))
       | (bishopChecks & pos.attacks_from<BISHOP>(s))
-      | (knightChecks & pos.attacks_from<KNIGHT>(s)))
+      | (knightChecks & pos.attacks_from<KNIGHT>(s))))
     	score -= make_score(100, 80);
     }
 
