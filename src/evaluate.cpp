@@ -220,7 +220,7 @@ namespace {
 
     const Square ksq = pos.square<KING>(Us);
 
-    Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN));
+    Bitboard dblAttackByPawn = pawn_double_attacks_bb<Us>(pos.pieces(Us, PAWN)) & shift<Up>(pos.pieces(Us));
 
     // Find our pawns that are blocked or on the first two ranks
     Bitboard b = pos.pieces(Us, PAWN) & (shift<Down>(pos.pieces()) | LowRanks);
@@ -712,14 +712,6 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool unwinnable = false;
-    if (mg * int(eg) > 0)
-    {
-    Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-    unwinnable = !pos.count<PAWN>(strongSide) 
-               && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) < KnightValueMg;
-    }
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -727,7 +719,6 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 20 * unwinnable
                     - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
