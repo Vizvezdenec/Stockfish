@@ -717,7 +717,7 @@ namespace {
     {
     Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
     unwinnable = !pos.count<PAWN>(strongSide) 
-               && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) < BishopValueMg;
+               && pos.non_pawn_material(strongSide) - pos.non_pawn_material(~strongSide) < KnightValueMg;
     }
 
     // Compute the initiative bonus for the attacking side
