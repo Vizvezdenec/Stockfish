@@ -451,6 +451,7 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
+                 -       (popcount(attackedBy[Us][ALL_PIECES]) - popcount(attackedBy[Them][ALL_PIECES])) * 2
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
@@ -684,7 +685,6 @@ namespace {
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 1;
     Score score = make_score(bonus * weight * weight / 16, 0);
-    score += make_score(4, 0) * popcount(attackedBy[Us][ALL_PIECES]);
 
     if (T)
         Trace::add(SPACE, Us, score);
