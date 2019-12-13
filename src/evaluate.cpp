@@ -461,17 +461,6 @@ namespace {
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
 
-    b1 = pos.pieces(Us, QUEEN);
-    while (b1)
-    {
-    Square s = pop_lsb(&b1);
-    if (!(attackedBy[Them][ALL_PIECES] & s) && 
-       ((rookChecks & pos.attacks_from<ROOK>(s))
-      | (bishopChecks & pos.attacks_from<BISHOP>(s))
-      | (knightChecks & pos.attacks_from<KNIGHT>(s))))
-    	score -= make_score(100, 80);
-    }
-
     // Penalty when our king is on a pawnless flank
     if (!(pos.pieces(PAWN) & KingFlank[file_of(ksq)]))
         score -= PawnlessFlank;
@@ -571,6 +560,9 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        if (!(attackedBy[Them][QUEEN] & ~(attackedBy[Us][ALL_PIECES] | pos.attacks_from<KING>(s))))
+            score += make_score(15, 15);
     }
 
     if (T)
