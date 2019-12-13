@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
-          else if (value == singularBeta)
+          else
           {
           value = search<NonPV>(pos, ss, beta - 1, beta, halfDepth, cutNode);
           if (value >= beta)
