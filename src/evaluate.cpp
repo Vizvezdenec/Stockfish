@@ -584,8 +584,6 @@ namespace {
     Bitboard b, bb, squaresToQueen, unsafeSquares;
     Score score = SCORE_ZERO;
 
-    Bitboard stronglyDefended = attackedBy[Us][PAWN] | (attackedBy2[Us] & ~attackedBy[Them][ALL_PIECES]);
-
     b = pe->passed_pawns(Us);
 
     while (b)
@@ -626,8 +624,7 @@ namespace {
                 // Otherwise assign a smaller bonus if the path to queen is not attacked
                 // and even smaller bonus if it is attacked but block square is not.
                 int k = !unsafeSquares                    ? 35 :
-                        !((~stronglyDefended | squaresToQueen) & unsafeSquares) ? 24 :
-                        !(unsafeSquares & squaresToQueen) ? 19 :
+                        !(unsafeSquares & squaresToQueen) ? 20 :
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
