@@ -1069,7 +1069,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Castling extension
-      if (type_of(move) == CASTLING)
+      if (type_of(move) == CASTLING && pos.count<QUEEN>() > 0)
           extension = 1;
 
       // Add extension to new depth
