@@ -444,6 +444,8 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    kingDanger += bool(attackedBy2[Them] & weak & attackedBy[Us][KING]) * 100;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -610,7 +612,7 @@ namespace {
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
 
             // If the pawn is free to advance, then increase the bonus
-            if (pos.empty(blockSq) || (pos.pieces(Them, QUEEN) & blockSq))
+            if (pos.empty(blockSq))
             {
                 squaresToQueen = forward_file_bb(Us, s);
                 unsafeSquares = passed_pawn_span(Us, s);
@@ -632,8 +634,6 @@ namespace {
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
 
-                if (!pos.empty(blockSq))
-                    k /= 2;
                 bonus += make_score(k * w, k * w);
             }
         } // r > RANK_3
