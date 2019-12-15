@@ -444,18 +444,24 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
-    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+    int kingDangerBonus =  kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
-                 +       mg_value(mobility[Them] - mobility[Us])
-                 - 873 * !pos.count<QUEEN>(Them)
+                 +       mg_value(mobility[Them] - mobility[Us]) ;
+    
+     kingDanger += - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
+
+    if (kingDangerBonus < 100)
+    	kingDangerBonus = 0;
+
+    kingDanger += kingDangerBonus;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -747,7 +753,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = std::min(16 + 4 * pe->passed_count(), 24) ;
+            sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
