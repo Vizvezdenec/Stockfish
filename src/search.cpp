@@ -810,11 +810,7 @@ namespace {
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth < 2
         &&  eval <= alpha - RazorMargin)
-        {
-        Value razorRes = qsearch<NT>(pos, ss, alpha, beta);
-        if (razorRes <= beta)
-            return razorRes;
-        }
+        return std::min(qsearch<NT>(pos, ss, alpha, beta), beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval;
