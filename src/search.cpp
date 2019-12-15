@@ -810,7 +810,7 @@ namespace {
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth < 2
         &&  eval <= alpha - RazorMargin)
-        return std::min(qsearch<NT>(pos, ss, alpha, beta), beta);
+        return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval;
@@ -884,7 +884,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && (probCutCount < 3 || cutNode))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
