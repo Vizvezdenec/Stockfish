@@ -613,7 +613,7 @@ namespace {
             if (pos.empty(blockSq))
             {
                 squaresToQueen = forward_file_bb(Us, s);
-                unsafeSquares = passed_pawn_span(Us, s);
+                unsafeSquares = passed_pawn_span(Us, s) & ~PawnAttacks[Us][s];
 
                 bb = forward_file_bb(Them, s) & pos.pieces(ROOK, QUEEN);
 
@@ -712,14 +712,10 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    int outflComp = std::max(5 - (pos.count<ALL_PIECES>() - pos.count<PAWN>()), 0);
-    
-    outflComp *= outflComp;
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
-                    + (9 + outflComp) * outflanking
+                    +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
