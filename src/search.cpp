@@ -1069,7 +1069,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Castling extension
-      if (type_of(move) == CASTLING && pos.non_pawn_material() > 8000)
+      if (type_of(move) == CASTLING)
           extension = 1;
 
       // Add extension to new depth
