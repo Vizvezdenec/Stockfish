@@ -483,7 +483,6 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -546,9 +545,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    int undevPieces = std::max(popcount(pos.pieces(Us) & ~pos.pieces(Us, KING) & TRank1BB) - 1, 0);
-    score -= make_score(1, 0) * undevPieces * undevPieces * undevPieces;
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
@@ -716,10 +712,14 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    int outflComp = std::max(5 - (pos.count<ALL_PIECES>() - pos.count<PAWN>()), 0);
+    
+    outflComp *= outflComp;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
-                    +  9 * outflanking
+                    + (9 + outflComp) * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
