@@ -547,8 +547,8 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
-    int undevPieces = std::max(popcount(pos.pieces(Us) & ~pos.pieces(Us, KING) & TRank1BB) - 2, 0);
-    score -= make_score(1, 0) * undevPieces * undevPieces * undevPieces * undevPieces;
+    int undevPieces = std::max(popcount(pos.pieces(Us) & ~pos.pieces(Us, KING) & TRank1BB) - 1, 0);
+    score -= make_score(1, 0) * undevPieces * undevPieces * undevPieces;
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
