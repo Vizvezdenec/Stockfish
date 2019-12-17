@@ -446,7 +446,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
   
     int mobilePA = popcount(pawn_attacks_bb<Us>(kingRing[Us]) & pos.pieces(Them, PAWN) & ~shift<Up>(pos.pieces(Us)));
-    kingDanger += 5 * mobilePA * mobilePA * mobilePA;
+    kingDanger += 10 * mobilePA * mobilePA;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -459,7 +459,7 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  32;
+                 +  27;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
