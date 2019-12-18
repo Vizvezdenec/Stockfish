@@ -299,7 +299,7 @@ namespace {
                 score += ReachableOutpost;
 
             if (b & kingRing[Us])
-            	kingAttackersWeight[Them] -= 5 * (1 + 2 * (Pt == KNIGHT));
+            	kingAttackersWeight[Them] -= 7 * (1 + 2 * (Pt == KNIGHT));
 
             // Knight and Bishop bonus for being right behind a pawn
             if (shift<Down>(pos.pieces(PAWN)) & s)
