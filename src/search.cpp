@@ -988,12 +988,12 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
+          // Reduced depth of the next LMR search
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+
           if (   !captureOrPromotion
               && !givesCheck)
           {
-              // Reduced depth of the next LMR search
-              int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1003,15 +1003,24 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~2 Elo)
               if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + 250 + 211 * lmrDepth - 60 * moveCountPruning <= alpha)
+                  && ss->staticEval + 250 + 211 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~10 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
+          else
+          { 
+              if (!pos.see_ge(move, Value(-199) * depth)) // (~20 Elo)
                   continue;
+
+              if (   lmrDepth < 6
+                  && !givesCheck
+                  && !inCheck
+                  && ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] + 250 + 211 * lmrDepth <= alpha)
+                  continue;
+          }
       }
 
       // Step 14. Extensions (~70 Elo)
