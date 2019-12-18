@@ -1121,7 +1121,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~10 Elo)
-          if ((ss-1)->moveCount > 15 && priorCapture)
+          if ((ss-1)->moveCount > 15 && !priorCapture)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended
