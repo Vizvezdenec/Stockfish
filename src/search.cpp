@@ -1058,7 +1058,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   (move == ss->killers[0] || pos.non_pawn_material() <= 2 * QueenValueMg)
+      else if (   (move == ss->killers[0] || pos.non_pawn_material() <= 2 * BishopValueMg)
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
