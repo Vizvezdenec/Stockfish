@@ -1058,7 +1058,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   move == ss->killers[0]
+      else if (   (move == ss->killers[0] || pos.count<ALL_PIECES>() - pos.count<PAWN>() < 5)
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
