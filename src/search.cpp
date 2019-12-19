@@ -1105,7 +1105,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024)
-         && pos.non_pawn_material())
+          && (pos.non_pawn_material() || !captureOrPromotion))
       {
           Depth r = reduction(improving, depth, moveCount);
 
