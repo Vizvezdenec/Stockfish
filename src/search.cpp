@@ -1074,6 +1074,8 @@ moves_loop: // When in check, search starts from here
       if (type_of(move) == CASTLING)
           extension = 1;
 
+      if (alphasingularLMR && move != ttMove && !captureOrPromotion)
+          update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth/2));
       // Add extension to new depth
       newDepth += extension;
 
@@ -1128,7 +1130,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
-              r -= 1 + 2 * !alphasingularLMR;
+              r -= 2;
 
           if (!captureOrPromotion)
           {
