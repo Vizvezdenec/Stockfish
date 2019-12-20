@@ -615,7 +615,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, alphasingularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -940,7 +940,7 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = alphasingularLMR = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving && !alphasingularLMR, depth);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1041,8 +1041,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
-              if (singularBeta < alpha && !captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(halfDepth));
+              if (singularBeta < alpha)
+                  alphasingularLMR = true;
           }
 
           // Multi-cut pruning
