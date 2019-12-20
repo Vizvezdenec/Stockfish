@@ -1127,8 +1127,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended
-          if (singularLMR && !alphasingularLMR)
-              r -= 2;
+          if (singularLMR)
+              r -= 1 + !alphasingularLMR;
 
           if (!captureOrPromotion)
           {
