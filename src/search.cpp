@@ -1130,6 +1130,9 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
+          if (cutNode && (alphasingularLMR && move != ttMove))
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1138,7 +1141,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~5 Elo)
               if (cutNode)
-                  r += 2 + (alphasingularLMR && move != ttMove);
+                  r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
