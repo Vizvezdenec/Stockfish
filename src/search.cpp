@@ -615,7 +615,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, alphasingularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -940,7 +940,7 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    singularLMR = moveCountPruning = alphasingularLMR = false;
+    singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1041,8 +1041,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
-              if (singularBeta <= alpha)
-                  alphasingularLMR = true;
           }
 
           // Multi-cut pruning
@@ -1129,9 +1127,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
-
-          if (cutNode && (alphasingularLMR && move != ttMove))
-              r++;
 
           if (!captureOrPromotion)
           {
