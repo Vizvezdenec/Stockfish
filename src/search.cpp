@@ -980,6 +980,9 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      bool cmhPruning = (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold;
+
       // Step 13. Pruning at shallow depth (~170 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -996,8 +999,7 @@ moves_loop: // When in check, search starts from here
 
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && cmhPruning)
                   continue;
 
               // Futility pruning: parent node (~2 Elo)
@@ -1058,7 +1060,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   (move == ss->killers[0] || !singularLMR)
+      else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
@@ -1099,7 +1101,7 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && (!rootNode || thisThread->best_move_count(move) == 0)
+          && (!rootNode || thisThread->best_move_count(move) == 0 || cmhPruning)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
