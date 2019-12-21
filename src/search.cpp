@@ -615,7 +615,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, alphasingularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -940,7 +940,7 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    singularLMR = moveCountPruning = alphasingularLMR = false;
+    singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1014,6 +1014,8 @@ moves_loop: // When in check, search starts from here
                   continue;
       }
 
+      Value singularBeta = ttValue - 2 * depth;
+
       // Step 14. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -1031,7 +1033,6 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - 2 * depth;
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
@@ -1041,8 +1042,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
-              if (singularBeta <= alpha)
-                  alphasingularLMR = true;
           }
 
           // Multi-cut pruning
@@ -1074,8 +1073,6 @@ moves_loop: // When in check, search starts from here
       if (type_of(move) == CASTLING)
           extension = 1;
 
-      if (alphasingularLMR && move != ttMove && !captureOrPromotion)
-          update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth/2));
       // Add extension to new depth
       newDepth += extension;
 
@@ -1108,7 +1105,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || (singularLMR && singularBeta <= alpha && move != ttMove)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
