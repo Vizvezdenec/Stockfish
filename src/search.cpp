@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + 100 <= alpha
               || cutNode
               || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
