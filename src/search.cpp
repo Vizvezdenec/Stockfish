@@ -1014,6 +1014,9 @@ moves_loop: // When in check, search starts from here
                   continue;
       }
 
+      bool lastCapture = PieceValue[EG][pos.captured_piece()] > PawnValueEg
+               && pos.non_pawn_material() <= 2 * RookValueMg;
+
       // Step 14. Extensions (~70 Elo)
 
       // Singular extension search (~60 Elo). If all moves but one fail low on a
@@ -1064,8 +1067,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
-               && pos.non_pawn_material() <= 2 * RookValueMg)
+      else if (lastCapture)
           extension = 1;
 
       // Castling extension
@@ -1102,7 +1104,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + 100 <= alpha
+              || (!lastCapture && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 100 <= alpha)
               || cutNode
               || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
