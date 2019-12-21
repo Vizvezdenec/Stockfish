@@ -339,7 +339,7 @@ namespace {
             // Bonus for rook on the same file as a queen
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
-            else if (file_bb(s) & ~pos.pieces(Us, KNIGHT, BISHOP))
+            else if (!(file_bb(s) & pos.pieces(Us, KNIGHT, BISHOP)))
                 score += make_score(4, 3);
 
             // Bonus for rook on an open or semi-open file
