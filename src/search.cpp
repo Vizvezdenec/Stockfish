@@ -1091,6 +1091,9 @@ moves_loop: // When in check, search starts from here
                                                                 [captureOrPromotion]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
+      bool noCastlingKingMove = type_of(movedPiece) == KING
+                             && type_of(move) != CASTLING
+                             && pos.castling_rights(us);
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1130,6 +1133,9 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              if (noCastlingKingMove)
+                  r++;
+              
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r++;
@@ -1168,8 +1174,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
           }
-          else if (thisThread->ttHitAverage > 640 * ttHitAverageResolution * ttHitAverageWindow / 1024)
-              r--;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
