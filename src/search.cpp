@@ -774,7 +774,9 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        improving = (ss-2)->staticEval != VALUE_NONE && (ss-4)->staticEval != VALUE_NONE ? 
+                    (ss-2)->staticEval >= (ss-4)->staticEval : 
+                    false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -1064,7 +1066,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
+      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
