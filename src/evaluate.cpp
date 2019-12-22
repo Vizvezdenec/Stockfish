@@ -108,7 +108,7 @@ namespace {
 
   // RookOnFile[semiopen/open] contains bonuses for each rook when there is
   // no (friendly) pawn on the rook file.
-  constexpr Score RookOnFile[] = { S(21, 4), S(47, 25) };
+  constexpr Score RookOnFile[] = { S(21, 4), S(47, 25), S(55, 30) };
 
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
   // which piece type attacks which one. Attacks on lesser pieces which are
@@ -342,7 +342,7 @@ namespace {
 
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
-                score += RookOnFile[pos.is_on_semiopen_file(Them, s)];
+                score += RookOnFile[pos.is_on_semiopen_file(Them, s) + pos.is_on_fully_open_file(s)];
 
             // Penalty when trapped by the king, even more if the king cannot castle
             else if (mob <= 3)
@@ -442,7 +442,7 @@ namespace {
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3) + popcount(b3 & (attackedBy2[Us] | ~attackedBy[Us][KING]));
+    int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -454,8 +454,8 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -   3 * kingFlankDefense
-                 +  45;
+                 -   4 * kingFlankDefense
+                 +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
