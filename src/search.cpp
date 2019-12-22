@@ -1091,9 +1091,6 @@ moves_loop: // When in check, search starts from here
                                                                 [captureOrPromotion]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
-      bool noCastlingKingMove = type_of(movedPiece) == KING
-                             && type_of(move) != CASTLING
-                             && pos.castling_rights(us);
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1131,11 +1128,11 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
+          if (priorCapture && improving)
+              r--;
+
           if (!captureOrPromotion)
           {
-              if (noCastlingKingMove)
-                  r++;
-              
               // Increase reduction if ttMove is a capture (~0 Elo)
               if (ttCapture)
                   r++;
