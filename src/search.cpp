@@ -627,6 +627,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->npm = pos.non_pawn_material();
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -774,9 +775,7 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = (ss-2)->staticEval != VALUE_NONE && (ss-4)->staticEval != VALUE_NONE ? 
-                    (ss-2)->staticEval >= (ss-4)->staticEval : 
-                    false;
+        improving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -814,8 +813,8 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval
-              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval;
+    improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval + ((ss-4)->npm != ss->npm)
+              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval + ((ss-2)->npm != ss->npm);
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
