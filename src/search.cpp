@@ -813,8 +813,8 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval + ((ss-4)->npm != ss->npm)
-              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval + ((ss-2)->npm != ss->npm);
+    improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval + ((ss-4)->npm == ss->npm)
+              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval + ((ss-2)->npm == ss->npm);
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
