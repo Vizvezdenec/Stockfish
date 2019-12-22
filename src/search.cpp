@@ -1128,9 +1128,6 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
-          if (thisThread->ttHitAverage < 304 * ttHitAverageResolution * ttHitAverageWindow / 1024)
-              r++;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~0 Elo)
@@ -1171,6 +1168,8 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
           }
+          else if (thisThread->ttHitAverage > 640 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+              r--;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
