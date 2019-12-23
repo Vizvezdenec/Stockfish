@@ -254,7 +254,6 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = -pawn_push(Us);
-    constexpr Direction Up   =  pawn_push(Us);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -352,9 +351,6 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
-
-            if (relative_rank(Us, s) == RANK_8 && (shift<Up>(pos.pieces(Us, PAWN)) & s))
-                score -= make_score(0, 25);
         }
 
         if (Pt == QUEEN)
