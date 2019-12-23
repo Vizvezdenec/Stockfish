@@ -254,6 +254,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = -pawn_push(Us);
+    constexpr Direction Up   =  pawn_push(Us);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -351,6 +352,9 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
+
+            if (relative_rank(Us, s) == RANK_8 && (shift<Up>(pos.pieces(Us, PAWN)) & s))
+                score -= make_score(0, 25);
         }
 
         if (Pt == QUEEN)
@@ -383,7 +387,6 @@ namespace {
 
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
-    Score theirScore = pe->king_safety<Them>(pos);
 
     // Attacked squares defended at most once by our queen or king
     weak =  attackedBy[Them][ALL_PIECES]
@@ -451,11 +454,10 @@ namespace {
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
-                 +       mg_value(theirScore) / 4
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -       mg_value(score)
+                 -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
 
