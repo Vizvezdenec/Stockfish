@@ -147,7 +147,7 @@ namespace {
                      + WeakUnopposed * !opposed;
 
         if (!support)
-            score -=   (Doubled + make_score(2, 10) * (file_of(s) == FILE_D || file_of(s) == FILE_E)) * doubled
+            score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
     }
 
