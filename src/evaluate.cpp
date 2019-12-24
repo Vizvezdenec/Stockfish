@@ -241,7 +241,7 @@ namespace {
     kingRing[Us] = PseudoAttacks[KING][s] | s;
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttackersCount[Them] += popcount(kingRing[Us] & pawn_attacks_bb<Them>(pos.pieces(Them, PAWN) & ~shift<Up>(pos.pieces())));
+    kingAttackersCount[Them] += popcount(kingRing[Us] & pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN)));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
