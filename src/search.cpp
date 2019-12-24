@@ -671,8 +671,6 @@ namespace {
     // LMR which are based on the statScore of parent position.
     if (rootNode)
         (ss+4)->statScore = 0;
-    else if (PvNode && ss->ply < 2)
-        (ss+3)->statScore = 0;
     else
         (ss+2)->statScore = 0;
 
@@ -1129,6 +1127,8 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
+          else if (extension)
+              r--;
 
           if (!captureOrPromotion)
           {
