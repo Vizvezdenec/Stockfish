@@ -1128,7 +1128,7 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
           else if (extension)
-              r--;
+              r++;
 
           if (!captureOrPromotion)
           {
