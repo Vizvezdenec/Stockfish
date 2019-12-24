@@ -205,6 +205,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    int pawnAttacksCount[COLOR_NB];
   };
 
 
@@ -240,8 +241,9 @@ namespace {
                            clamp(rank_of(ksq), RANK_2, RANK_7));
     kingRing[Us] = PseudoAttacks[KING][s] | s;
 
-    kingAttackersCount[Them] = kingAttacksCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
-    kingAttackersWeight[Them] = 0;
+    kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
+    pawnAttacksCount[Them] = kingAttackersCount[Them];
+    kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -448,14 +450,15 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
-                 +  60 * kingAttacksCount[Them]
+                 +  69 * kingAttacksCount[Them]
+                 +       pawnAttacksCount[Them] * pawnAttacksCount[Them] * pawnAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  37;
+                 +  36;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
