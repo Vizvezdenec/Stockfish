@@ -615,7 +615,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, alphaExtension;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -940,7 +940,7 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = alphaExtension = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1041,6 +1041,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+              if (singularBeta <= alpha)
+                  alphaExtension = true;
           }
 
           // Multi-cut pruning
@@ -1104,7 +1106,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 384 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || alphaExtension))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1127,8 +1130,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
-          else if (extension)
-              r++;
 
           if (!captureOrPromotion)
           {
