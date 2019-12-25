@@ -468,6 +468,9 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttack;
 
+    score += make_score(10, 10) 
+           * popcount((rookChecks | queenChecks | bishopChecks | knightChecks) & pos.pieces(Them));
+
     if (T)
         Trace::add(KING, Us, score);
 
@@ -545,11 +548,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    if (     pos.side_to_move() == Us
-        &&  (pos.pieces(Them, QUEEN) & attackedBy[Us][ALL_PIECES])
-        && !(pos.pieces(Us, QUEEN) & attackedBy[Them][ALL_PIECES]))
-        score += make_score(50, 50);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
