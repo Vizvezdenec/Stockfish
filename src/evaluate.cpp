@@ -114,11 +114,11 @@ namespace {
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(6, 32), S(59, 41), S(79, 56), S(90, 119), S(74, 152)
+    S(0, 0), S(6, 32), S(59, 41), S(79, 56), S(90, 119), S(79, 161)
   };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(3, 44), S(38, 71), S(38, 61), S(0, 38), S(48, 35)
+    S(0, 0), S(3, 44), S(38, 71), S(38, 61), S(0, 38), S(51, 38)
   };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
@@ -501,8 +501,6 @@ namespace {
     // Enemies not strongly protected and under our attack
     weak = pos.pieces(Them) & ~stronglyProtected & attackedBy[Us][ALL_PIECES];
 
-    weak |= pos.pieces(Them, QUEEN) & ~attackedBy[Us][QUEEN] & attackedBy[Us][ALL_PIECES];
-
     // Bonus according to the kind of attacking pieces
     if (defended | weak)
     {
@@ -547,6 +545,11 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
+
+    if (     pos.side_to_move() == Us
+        &&  (pos.pieces(Them, QUEEN) & attackedBy[Us][ALL_PIECES])
+        && !(pos.pieces(Us, QUEEN) & attackedBy[Them][ALL_PIECES]))
+        score += make_score(50, 50);
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
