@@ -469,7 +469,7 @@ namespace {
     score -= FlankAttacks * kingFlankAttack;
 
     if (pos.side_to_move() == Us)
-    score += make_score(100, 100) 
+    score += make_score(40, 40) 
            * bool((rookChecks | bishopChecks | knightChecks) & pos.pieces(Them, QUEEN));
 
     if (T)
