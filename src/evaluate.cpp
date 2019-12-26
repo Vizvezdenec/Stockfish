@@ -468,10 +468,6 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttack;
 
-    if (pos.side_to_move() == Us)
-    score += make_score(40, 40) 
-           * bool((rookChecks | bishopChecks | knightChecks) & pos.pieces(Them, QUEEN));
-
     if (T)
         Trace::add(KING, Us, score);
 
