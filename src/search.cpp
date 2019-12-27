@@ -1042,13 +1042,7 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularLMR = true;
               if (singularBeta <= alpha)
-              {
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, alpha - 1, alpha, (depth * 3) / 4, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value < alpha)
-                      extensionCut = true;
-              }
+                  extensionCut = true;
           }
 
           // Multi-cut pruning
@@ -1112,7 +1106,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || extensionCut))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1134,7 +1129,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
-              r -= 2 * (1 - 2 * (extensionCut && move != ttMove));
+              r -= 2;
 
           if (!captureOrPromotion)
           {
