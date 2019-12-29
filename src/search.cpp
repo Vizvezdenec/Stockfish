@@ -952,6 +952,8 @@ moves_loop: // When in check, search starts from here
     {
       assert(is_ok(move));
 
+      ss->singular = (singularLMR && move != ttMove);
+
       if (move == excludedMove)
           continue;
 
@@ -1127,6 +1129,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
+
+          if ((ss-1)->singular)
+              r--;
 
           if (!captureOrPromotion)
           {
