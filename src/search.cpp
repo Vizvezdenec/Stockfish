@@ -615,9 +615,9 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, singularLMR;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -940,7 +940,8 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    moveCountPruning = false;
+    singularLMR = 0;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1041,7 +1042,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               if ( singularBeta < beta)
-                  singularLMR = true;
+                  singularLMR = 2;
+              else singularLMR = 1;
           }
 
           // Multi-cut pruning
@@ -1126,8 +1128,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended
-          if (singularLMR)
-              r -= 2;
+          r -= singularLMR;
 
           if (!captureOrPromotion)
           {
