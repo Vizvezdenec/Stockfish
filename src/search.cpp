@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              if ( singularBeta >= beta)
+              if ( singularBeta < beta)
                   singularLMR = true;
           }
 
