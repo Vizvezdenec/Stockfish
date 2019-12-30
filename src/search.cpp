@@ -1050,18 +1050,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
-          else
-          {
-          singularBeta = ttValue - depth;
-          if (singularBeta >= beta)
-              {
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (singularBeta >= beta)
-                      return singularBeta;
-              }
-          }
+          else singularLMR = true;
       }
 
       // Check extension (~2 Elo)
