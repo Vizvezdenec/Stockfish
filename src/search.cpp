@@ -615,9 +615,9 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, singularLMR;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -940,8 +940,7 @@ moves_loop: // When in check, search starts from here
                                       ss->killers);
 
     value = bestValue;
-    moveCountPruning = false;
-    singularLMR = 0;
+    singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1034,6 +1033,19 @@ moves_loop: // When in check, search starts from here
       {
           Value singularBeta = ttValue - 2 * depth;
           Depth halfDepth = depth / 2;
+          
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, beta - 1, beta, halfDepth, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          
+          // Multi-cut pruning
+          // Our ttMove is assumed to fail high, and now we failed high also on a reduced
+          // search without the ttMove. So we assume this expected Cut-node is not singular,
+          // that multiple moves fail high, and we can prune the whole subtree by returning
+          // a soft bound.
+          if (value >= beta)
+              return beta;
+
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -1041,18 +1053,8 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              if ( singularBeta < beta)
-                  singularLMR = 3;
-              else singularLMR = 1;
+              singularLMR = true;
           }
-
-          // Multi-cut pruning
-          // Our ttMove is assumed to fail high, and now we failed high also on a reduced
-          // search without the ttMove. So we assume this expected Cut-node is not singular,
-          // that multiple moves fail high, and we can prune the whole subtree by returning
-          // a soft bound.
-          else if (singularBeta >= beta)
-              return singularBeta;
       }
 
       // Check extension (~2 Elo)
@@ -1128,7 +1130,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended
-          r -= singularLMR;
+          if (singularLMR)
+              r -= 2;
 
           if (!captureOrPromotion)
           {
