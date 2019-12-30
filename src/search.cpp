@@ -1021,7 +1021,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
-      if (    depth >= 6
+      if (    depth >= 4
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
@@ -1031,16 +1031,24 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - 2 * depth;
           Depth halfDepth = depth / 2;
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
+          value = search<NonPV>(pos, ss, beta - 1, beta, halfDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
-
+          if (value >= beta)
+              return beta;
+          
+          if (depth >= 6)
+          {
+          Value singularBeta = ttValue - 2 * depth;
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, halfDepth, cutNode);
+          ss->excludedMove = MOVE_NONE; 
           if (value < singularBeta)
           {
               extension = 1;
               singularLMR = true;
+          }
           }
 
           // Multi-cut pruning
@@ -1048,8 +1056,6 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta)
-              return singularBeta;
       }
 
       // Check extension (~2 Elo)
