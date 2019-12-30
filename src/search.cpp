@@ -1042,7 +1042,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               if ( singularBeta < beta)
-                  singularLMR = 2;
+                  singularLMR = 3;
               else singularLMR = 1;
           }
 
