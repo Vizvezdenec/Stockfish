@@ -994,7 +994,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth) + improvingChain * depth;
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1135,9 +1135,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
-
-          if (improvingChain)
-              r--;
 
           if (!captureOrPromotion)
           {
