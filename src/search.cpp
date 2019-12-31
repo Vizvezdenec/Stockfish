@@ -614,7 +614,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture, improvingChain;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -774,7 +774,7 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        improving = improvingChain = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -814,6 +814,14 @@ namespace {
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval;
+
+    improvingChain = (ss-2)->staticEval != VALUE_NONE
+                  && (ss-4)->staticEval != VALUE_NONE
+                  && (ss-6)->staticEval != VALUE_NONE
+                  && (ss-4)->staticEval >= (ss-6)->staticEval
+                  && (ss-2)->staticEval >= (ss-4)->staticEval
+                  && ss->staticEval >= (ss-2)->staticEval
+                  && ss->staticEval > (ss-6)->staticEval;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -1127,6 +1135,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended
           if (singularLMR)
               r -= 2;
+
+          if (improvingChain)
+              r--;
 
           if (!captureOrPromotion)
           {
