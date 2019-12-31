@@ -614,7 +614,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture, improvingChain;
+    bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -705,7 +705,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if ((ss-1)->moveCount <= 3 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -774,7 +774,7 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = improvingChain = false;
+        improving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -814,14 +814,6 @@ namespace {
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval >= (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval >= (ss-2)->staticEval;
-
-    improvingChain = (ss-2)->staticEval != VALUE_NONE
-                  && (ss-4)->staticEval != VALUE_NONE
-                  && (ss-6)->staticEval != VALUE_NONE
-                  && (ss-4)->staticEval >= (ss-6)->staticEval
-                  && (ss-2)->staticEval >= (ss-4)->staticEval
-                  && ss->staticEval >= (ss-2)->staticEval
-                  && ss->staticEval > (ss-6)->staticEval;
 
     // Step 8. Futility pruning: child node (~30 Elo)
     if (   !PvNode
@@ -994,7 +986,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_MATED_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth) + improvingChain * depth;
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           if (   !captureOrPromotion
               && !givesCheck)
