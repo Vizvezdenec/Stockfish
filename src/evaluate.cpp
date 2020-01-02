@@ -643,13 +643,12 @@ namespace {
             || (pos.pieces(PAWN) & (s + Up)))
             bonus = bonus / 2;
 
-        bonus -= PassedFile * map_to_queenside(file_of(s));
-
         if (   pos.opposite_bishops()
                     && pos.non_pawn_material() == 2 * BishopValueMg
                     && (attackedBy2[Them] & blockSq))
-                    bonus = make_score(0, 0);
-        score += bonus; 
+                    bonus = bonus / 2;
+
+        score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
 
     if (T)
