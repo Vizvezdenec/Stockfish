@@ -596,10 +596,11 @@ namespace {
 
         Score bonus = PassedRank[r];
 
+        Square blockSq = s + Up;
+
         if (r > RANK_3)
         {
             int w = 5 * r - 13;
-            Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
             bonus += make_score(0, (  (king_proximity(Them, blockSq) * 19) / 4
@@ -642,7 +643,13 @@ namespace {
             || (pos.pieces(PAWN) & (s + Up)))
             bonus = bonus / 2;
 
-        score += bonus - PassedFile * map_to_queenside(file_of(s));
+        bonus -= PassedFile * map_to_queenside(file_of(s));
+
+        if (   pos.opposite_bishops()
+                    && pos.non_pawn_material() == 2 * BishopValueMg
+                    && (attackedBy2[Them] & blockSq))
+                    bonus = make_score(0, 0);
+        score += bonus; 
     }
 
     if (T)
@@ -712,18 +719,14 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool kingInfiltration = !(rank_of(pos.square<KING>(WHITE)) < RANK_5 
-                           && rank_of(pos.square<KING>(BLACK)) > RANK_4); 
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
-                    + 12 * kingInfiltration
                     - 43 * almostUnwinnable
-                    - 100 ;
+                    - 95 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
