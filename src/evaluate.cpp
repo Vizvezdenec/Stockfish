@@ -645,7 +645,7 @@ namespace {
 
         if (   eg_value(bonus) > 0 
            && ((attackedBy2[Them] & ~attackedBy2[Us]) & blockSq))
-            bonus = (bonus / 4) * 3;
+            bonus = (bonus * 7) / 8;
 
         score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
