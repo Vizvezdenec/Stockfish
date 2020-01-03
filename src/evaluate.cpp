@@ -723,7 +723,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     + 24 * kingInfiltration
                     - 43 * almostUnwinnable
-                    - 105 ;
+                    - 110 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
