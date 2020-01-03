@@ -705,7 +705,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 + 2 * cutNode && !priorCapture)
+                if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1174,6 +1174,9 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), didLMR = true;
+
+          if (singularLMR && !doFullDepthSearch && d != newDepth && !captureOrPromotion)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d));
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, didLMR = false;
