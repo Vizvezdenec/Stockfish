@@ -730,7 +730,7 @@ namespace {
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
 
-    if (eg == 0 && mg != 0)
+    if (eg == 0 && abs(mg) > 200)
     	eg = Value(2 * (mg > 0) - 1);
 
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
