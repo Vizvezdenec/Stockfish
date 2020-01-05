@@ -461,7 +461,6 @@ namespace {
                  +       mg_value(mobility[Them] - mobility[Us])
                  -       kingDefendersCount[Us] * kingDefendersWeight[Us]
                  - 873 * !pos.count<QUEEN>(Them)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
