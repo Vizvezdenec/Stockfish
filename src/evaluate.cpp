@@ -547,7 +547,7 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
-    score += make_score(7, 20) * bool(pos.pieces(Them, QUEEN) & shift<Up>(pe->passed_pawns(Us) & HighRank));
+    score += make_score(4, 14) * bool(pos.pieces(Them, QUEEN) & shift<Up>(pe->passed_pawns(Us) & HighRank));
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
