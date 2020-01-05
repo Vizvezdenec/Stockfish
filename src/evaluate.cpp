@@ -192,14 +192,12 @@ namespace {
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
-    int kingDefendersCount[COLOR_NB];
 
     // kingAttackersWeight[color] is the sum of the "weights" of the pieces of
     // the given color which attack a square in the kingRing of the enemy king.
     // The weights of the individual piece types are given by the elements in
     // the KingAttackWeights array.
     int kingAttackersWeight[COLOR_NB];
-    int kingDefendersWeight[COLOR_NB];
 
     // kingAttacksCount[color] is the number of attacks by the given color to
     // squares directly adjacent to the enemy king. Pieces which attack more
@@ -244,7 +242,6 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
-    kingDefendersCount[Us] = kingDefendersWeight[Them] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -320,11 +317,6 @@ namespace {
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
-            }
-            else if (b & kingRing[Us])
-            {
-            kingDefendersCount[Us]++;
-            kingDefendersWeight[Us] += 20;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -459,9 +451,8 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
-                 -       kingDefendersCount[Us] * kingDefendersWeight[Us]
                  - 873 * !pos.count<QUEEN>(Them)
-                 -  80 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
@@ -721,14 +712,18 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    bool kingInfiltration = !(rank_of(pos.square<KING>(WHITE)) < RANK_5 
+                           && rank_of(pos.square<KING>(BLACK)) > RANK_4); 
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
+                    + 12 * kingInfiltration
                     - 43 * almostUnwinnable
-                    - 95 ;
+                    - 100 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
@@ -756,7 +751,7 @@ namespace {
     {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
-            sf = 22 ;
+            sf = 14 + 6 * pe->passed_count() ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
