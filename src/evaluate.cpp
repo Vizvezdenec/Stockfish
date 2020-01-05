@@ -324,7 +324,7 @@ namespace {
             else if (b & kingRing[Us])
             {
             kingDefendersCount[Us]++;
-            kingDefendersWeight[Us] += 50;
+            kingDefendersWeight[Us] += 20;
             }
 
             // An important Chess960 pattern: A cornered bishop blocked by a friendly
@@ -461,6 +461,7 @@ namespace {
                  +       mg_value(mobility[Them] - mobility[Us])
                  -       kingDefendersCount[Us] * kingDefendersWeight[Us]
                  - 873 * !pos.count<QUEEN>(Them)
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
