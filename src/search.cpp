@@ -660,7 +660,7 @@ namespace {
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->ply = ss->ply + 1;
-    (ss+1)->excludedMove = bestMove = MOVE_NONE;
+    (ss+1)->excludedMove = bestMove = ss->probcutMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
@@ -885,7 +885,7 @@ namespace {
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (move != excludedMove && pos.legal(move))
+            if (move != excludedMove && pos.legal(move) && move != (ss-2)->probcutMove)
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
@@ -912,6 +912,9 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+
+                if (!cutNode)
+                    ss->probcutMove = move;
             }
     }
 
