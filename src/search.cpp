@@ -607,7 +607,7 @@ namespace {
     assert(0 < depth && depth < MAX_PLY);
     assert(!(PvNode && cutNode));
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64], probcutMoves[4];
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -627,6 +627,10 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    probcutMoves[0] = MOVE_NONE;
+    probcutMoves[1] = MOVE_NONE;
+    probcutMoves[2] = MOVE_NONE;
+    probcutMoves[3] = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -892,6 +896,7 @@ namespace {
 
                 captureOrPromotion = true;
                 probCutCount++;
+                probcutMoves[probCutCount] = move;
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -1168,20 +1173,17 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
           }
+          else if (move == probcutMoves[0] 
+                || move == probcutMoves[1] 
+                || move == probcutMoves[2] 
+                || move == probcutMoves[3])
+              r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = (value > alpha && d != newDepth), didLMR = true;
-
-          if (d == newDepth && !captureOrPromotion)
-          {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
-
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
       }
       else
           doFullDepthSearch = !PvNode || moveCount > 1, didLMR = false;
