@@ -914,10 +914,10 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+                }
 
                 if (probCutCount < 2)
                     ss->probcutMove = move;
-                }
             }
     }
 
