@@ -885,7 +885,7 @@ namespace {
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (move != excludedMove && pos.legal(move) && (move != (ss-2)->probcutMove || improving))
+            if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
@@ -893,6 +893,8 @@ namespace {
                 captureOrPromotion = true;
                 probCutCount++;
 
+                if (move != (ss-2)->probcutMove)
+                {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
                                                                           [captureOrPromotion]
@@ -915,6 +917,7 @@ namespace {
 
                 if (probCutCount < 2)
                     ss->probcutMove = move;
+                }
             }
     }
 
