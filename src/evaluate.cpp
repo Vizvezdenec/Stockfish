@@ -439,7 +439,7 @@ namespace {
     // which they attack twice in that flank, and the squares that we defend.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
+    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & forward_ranks_bb(Us, ksq);
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
@@ -545,14 +545,6 @@ namespace {
     // Bonus for safe pawn threats on the next move
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
-
-    if (pos.non_pawn_material(Us) == BishopValueMg)
-    {
-    b = pos.pieces(Us, BISHOP);
-    Square s = pop_lsb(&b);
-    if (!pos.pawns_on_same_color_squares(Them, s))
-        score -= make_score(0, 40);
-    }
 
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
