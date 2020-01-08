@@ -439,10 +439,10 @@ namespace {
     // which they attack twice in that flank, and the squares that we defend.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
     b2 = b1 & attackedBy2[Them];
-    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & forward_ranks_bb(Us, ksq);
+    b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)];
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
-    int kingFlankDefense = popcount(b3);
+    int kingFlankDefense = popcount(b3 & Camp) + popcount(b3 & forward_ranks_bb(Us, ksq));
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
@@ -454,7 +454,7 @@ namespace {
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
-                 -   4 * kingFlankDefense
+                 -   2 * kingFlankDefense
                  +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
