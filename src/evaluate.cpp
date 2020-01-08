@@ -546,6 +546,14 @@ namespace {
     b = pawn_attacks_bb<Us>(b) & nonPawnEnemies;
     score += ThreatByPawnPush * popcount(b);
 
+    if (pos.non_pawn_material(Us) == BishopValueMg)
+    {
+    b = pos.pieces(Us, BISHOP);
+    Square s = pop_lsb(&b);
+    if (!pos.pawns_on_same_color_squares(Them, s))
+        score -= make_score(0, 40);
+    }
+
     // Bonus for threats on the next moves against enemy queen
     if (pos.count<QUEEN>(Them) == 1)
     {
