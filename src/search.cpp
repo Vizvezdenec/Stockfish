@@ -660,9 +660,13 @@ namespace {
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->ply = ss->ply + 1;
-    (ss+1)->excludedMove = bestMove = ss->probcutMove = MOVE_NONE;
+    (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
+    ss->probcutMove[0] = MOVE_NONE;
+    ss->probcutMove[1] = MOVE_NONE;
+    ss->probcutMove[2] = MOVE_NONE;
+    ss->probcutMove[3] = MOVE_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -893,7 +897,10 @@ namespace {
                 captureOrPromotion = true;
                 probCutCount++;
 
-                if (move != (ss-2)->probcutMove)
+                if (move != (ss-2)->probcutMove[0]
+                 && move != (ss-2)->probcutMove[1]
+                 && move != (ss-2)->probcutMove[2]
+                 && move != (ss-2)->probcutMove[3])
                 {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -916,8 +923,7 @@ namespace {
                     return value;
                 }
 
-                if (probCutCount < 2)
-                    ss->probcutMove = move;
+                ss->probcutMove[probCutCount - 1] = move;
             }
     }
 
