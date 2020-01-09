@@ -375,6 +375,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Direction Up       = pawn_push(Us);
 
     Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -414,6 +415,9 @@ namespace {
 
     if (queenChecks)
         kingDanger += QueenSafeCheck;
+
+    if (relative_rank(Us, ksq) == RANK_1 && (queenChecks & (ksq + Up)))
+        kingDanger += 100;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -608,9 +612,6 @@ namespace {
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
                 bonus -= make_score(0, king_proximity(Us, blockSq + Up) * w);
-
-            if (!(pos.pieces(Them, PAWN) & KingFlank[file_of(s)]))
-                bonus += make_score(0, w);
 
             // If the pawn is free to advance, then increase the bonus
             if (pos.empty(blockSq))
