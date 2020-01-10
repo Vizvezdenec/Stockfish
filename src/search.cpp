@@ -1175,7 +1175,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 16384;
           }
           else if (rootNode)
-              r--;
+              r-= 2;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
