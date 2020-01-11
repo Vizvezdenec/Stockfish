@@ -86,6 +86,7 @@ namespace {
     e->passedPawns[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
+    e->pushedPasser[Us] = false;
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -127,7 +128,11 @@ namespace {
         // Passed pawns will be properly scored later in evaluation when we have
         // full attack info.
         if (passed)
+        { 
             e->passedPawns[Us] |= s;
+            if (r > RANK_4)
+                e->pushedPasser[Us] = true;
+        }
 
         // Score this pawn
         if (support | phalanx)
