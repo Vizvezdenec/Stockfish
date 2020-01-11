@@ -708,7 +708,8 @@ namespace {
                        || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
+                            && (pos.pieces(PAWN) & KingSide)
+                            && (pos.pieces(PAWN) & ~CenterFiles);
 
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
