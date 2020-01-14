@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
           if (depth < 8 && moveCount > 2)
               r++;
           
-          r -= (ss-1)->statScore / 32768;
+          r -= (ss-1)->statScore / 16384;
           }
 
           Depth d = clamp(newDepth - r, 1, newDepth);
