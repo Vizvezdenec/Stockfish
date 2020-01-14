@@ -1187,12 +1187,13 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else
+          else 
           {
-          if (depth < 8 && moveCount > 2)
-              r++;
-          
-          r -= (ss-1)->statScore / 16384;
+              if (depth < 8 && moveCount > 2)
+                  r++;
+
+              if ((ss-1)->statScore > 30000)
+                  r++;
           }
 
           Depth d = clamp(newDepth - r, 1, newDepth);
