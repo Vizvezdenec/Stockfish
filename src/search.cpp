@@ -1187,11 +1187,8 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else 
-          {
-          if (depth < 8 && moveCount > 2)
-              r+= (1 + (moveCount > 15));
-          }
+          else if (moveCount > std::max(2, 2 + (depth - 7) * 4))
+              r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
