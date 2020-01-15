@@ -722,7 +722,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = -stat_bonus(depth + (ttValue < alpha));
+                int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1187,8 +1187,11 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else if (depth < 8 && moveCount > 2)
-              r++;
+          else 
+          {
+          if (depth < 8 && moveCount > 2)
+              r+= (1 + (moveCount > 15));
+          }
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
