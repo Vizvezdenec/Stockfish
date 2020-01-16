@@ -1013,19 +1013,21 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              bool badHist = thisThread->mainHistory[us][from_to(move)]
+                    + (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)]
+                    + (*contHist[3])[movedPiece][to_sq(move)] < 25000;
+
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
-                  &&  thisThread->mainHistory[us][from_to(move)]
-                    + (*contHist[0])[movedPiece][to_sq(move)]
-                    + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)] < 25000)
+                  && badHist)
                   continue;
 
               int seeMargin = (32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth;
               // Prune moves with negative SEE (~20 Elo)
-              if ((seeMargin >= PawnValueEg || pos.non_pawn_material() > 2 * RookValueEg) &&
+              if ((seeMargin >= PawnValueEg || badHist) &&
                   !pos.see_ge(move, Value(-seeMargin)))
                   continue;
           }
