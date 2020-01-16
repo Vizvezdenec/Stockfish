@@ -1027,7 +1027,7 @@ moves_loop: // When in check, search starts from here
 
               int seeMargin = (32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth;
               // Prune moves with negative SEE (~20 Elo)
-              if ((seeMargin >= PawnValueEg || history < 30000) &&
+              if ((seeMargin >= PawnValueEg || history < 20000) &&
                   !pos.see_ge(move, Value(-seeMargin)))
                   continue;
           }
