@@ -467,7 +467,7 @@ namespace {
     // Penalty if king flank is under attack, potentially moving toward the king
     score -= FlankAttacks * kingFlankAttack;
 
-    score -= make_score(6, 0) * popcount(kingRing[Us] & attackedBy2[Them]);
+    score -= make_score(10, 0) * popcount(kingRing[Us] & attackedBy2[Them]);
 
     if (T)
         Trace::add(KING, Us, score);
