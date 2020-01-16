@@ -1023,8 +1023,10 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 25000)
                   continue;
 
+              int seeMargin = (32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth;
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if ((seeMargin >= PawnValueEg || pos.non_pawn_material() > 2 * RookValueEg) &&
+                  !pos.see_ge(move, Value(-seeMargin)))
                   continue;
           }
           else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
