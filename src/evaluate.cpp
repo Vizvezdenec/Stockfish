@@ -585,8 +585,6 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
-    int cnt = 0;
-
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -599,8 +597,6 @@ namespace {
 
         if (r > RANK_3)
         {
-            cnt++;
-
             int w = 5 * r - 13;
             Square blockSq = s + Up;
 
@@ -647,9 +643,6 @@ namespace {
 
         score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
-
-    int blockH = std::max(cnt - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)), 0);
-    score += make_score(4, 4) * blockH * blockH;
 
     if (T)
         Trace::add(PASSED, Us, score);
@@ -725,11 +718,11 @@ namespace {
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
-                    + 12 * infiltration
+                    + 20 * infiltration
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 100 ;
+                    - 103 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
