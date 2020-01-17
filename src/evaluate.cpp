@@ -585,6 +585,8 @@ namespace {
 
     b = pe->passed_pawns(Us);
 
+    int cnt = 0;
+
     while (b)
     {
         Square s = pop_lsb(&b);
@@ -597,6 +599,8 @@ namespace {
 
         if (r > RANK_3)
         {
+            cnt++;
+
             int w = 5 * r - 13;
             Square blockSq = s + Up;
 
@@ -643,6 +647,8 @@ namespace {
 
         score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
+
+    score += make_score(5, 5) * std::max(cnt - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)), 0);
 
     if (T)
         Trace::add(PASSED, Us, score);
