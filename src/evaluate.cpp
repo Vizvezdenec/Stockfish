@@ -648,7 +648,7 @@ namespace {
         score += bonus - PassedFile * map_to_queenside(file_of(s));
     }
 
-    score += make_score(5, 5) * std::max(cnt - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)), 0);
+    score += make_score(10, 10) * std::max(cnt - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)), 0);
 
     if (T)
         Trace::add(PASSED, Us, score);
