@@ -451,7 +451,7 @@ namespace {
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
-                 +   7 * kingFlankAttacks[Them] * kingFlankAttacks[Them] / 16
+                 +   5 * kingFlankAttacks[Them] * kingFlankAttacks[Them] / 16
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
