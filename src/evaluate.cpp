@@ -457,7 +457,7 @@ namespace {
                  +  37;
 
     if (kingDanger < 0)
-        kingDanger /= 4;
+        kingDanger /= 16;
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
         score -= make_score(abs(kingDanger) * kingDanger / 4096, kingDanger / 16);
 
