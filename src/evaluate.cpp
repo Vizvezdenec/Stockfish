@@ -281,8 +281,10 @@ namespace {
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
+            kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
+            if (!(b & kingRing[Them] & ~attackedBy[Them][PAWN]))
+                kingAttackersWeight[Us] -= 7;
         }
-        kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -447,7 +449,7 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
-                 +  67 * kingAttacksCount[Them]
+                 +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
