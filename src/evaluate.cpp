@@ -447,7 +447,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     if (dblAttKR[Us] & attackedBy2[Them])
-    	kingDanger += 35;
+    	kingDanger += 69;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
