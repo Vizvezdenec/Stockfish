@@ -1182,12 +1182,16 @@ moves_loop: // When in check, search starts from here
               else if ((ss-1)->statScore >= -116 && ss->statScore < -154)
                   r++;
 
+              if (ss->statScore > 0 && (ss-1)->statScore < -10000
+               && ss->statScore - (ss-1)->statScore + (ss-2)->statScore / 2 > 40000)
+                  r--;
+
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else if ((depth < 7 + moveCount / 8) && moveCount > 2)
+          else if (depth < 8 && moveCount > 2)
               r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
