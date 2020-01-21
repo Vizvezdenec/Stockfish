@@ -1148,7 +1148,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !singularLMR)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1181,10 +1181,6 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -116 && ss->statScore < -154)
                   r++;
-
-              if (ss->statScore > 0 && (ss-1)->statScore < -10000
-               && ss->statScore - (ss-1)->statScore + (ss-2)->statScore / 2 > 40000)
-                  r--;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16384;
