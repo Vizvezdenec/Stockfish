@@ -78,7 +78,7 @@ namespace {
   constexpr Value SpaceThreshold = Value(12222);
 
   // KingAttackWeights[PieceType] contains king attack weights by piece type
-  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 89, 52, 44, 10 };
+  constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
@@ -188,6 +188,7 @@ namespace {
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
+    Bitboard blockerAttacks[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -245,6 +246,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    blockerAttacks[Us] = 0;
   }
 
 
@@ -271,7 +274,10 @@ namespace {
                          : pos.attacks_from<Pt>(s);
 
         if (pos.blockers_for_king(Us) & s)
+        {
+            blockerAttacks[Us] |= b;
             b &= LineBB[pos.square<KING>(Us)][s];
+        }
 
         attackedBy2[Us] |= attackedBy[Us][ALL_PIECES] & b;
         attackedBy[Us][Pt] |= b;
@@ -282,8 +288,6 @@ namespace {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
-            if (!(b & kingRing[Them] & ~attackedBy[Them][PAWN]))
-                kingAttackersWeight[Us] -= 10;
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -392,7 +396,8 @@ namespace {
 
     // Analyse the safe enemy's checks which are possible on next move
     safe  = ~pos.pieces(Them);
-    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
+    safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]) 
+          | (weak & blockerAttacks[Them] & attackedBy[Us][KING]);
 
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
