@@ -482,6 +482,7 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
+    constexpr Bitboard  HighRank = (Us == WHITE ? Rank7BB | Rank8BB : Rank1BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -525,6 +526,8 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
+
+    score += make_score(8, 8) * popcount(attackedBy[Them][ALL_PIECES] & attackedBy[Us][PAWN] & HighRank);
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
