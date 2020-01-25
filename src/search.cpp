@@ -1061,6 +1061,8 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
+              if (cutNode && singularBeta < alpha)
+                  return singularBeta;
               singularLMR = true;
           }
 
