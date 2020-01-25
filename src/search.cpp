@@ -1012,6 +1012,13 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
+              else if (lmrDepth == 0
+                  && thisThread->mainHistory[us][from_to(move)] < 0
+                  && (*contHist[3])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[5])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[0])[movedPiece][to_sq(move)] * (*contHist[1])[movedPiece][to_sq(move)] == 0
+                  && ((*contHist[0])[movedPiece][to_sq(move)] < 0 || (*contHist[1])[movedPiece][to_sq(move)] < 0))
+                  continue;
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
@@ -1061,8 +1068,6 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              if (cutNode && singularBeta < alpha)
-                  return singularBeta;
               singularLMR = true;
           }
 
