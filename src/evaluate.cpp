@@ -188,6 +188,8 @@ namespace {
     // kingRing[color] are the squares adjacent to the king plus some other
     // very near squares, depending on king position.
     Bitboard kingRing[COLOR_NB];
+    Bitboard knightAtt[COLOR_NB];
+    Bitboard pinKn[COLOR_NB];
 
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
@@ -245,6 +247,10 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    knightAtt[Us] = 0;
+
+    pinKn[Us] = 0;
   }
 
 
@@ -331,6 +337,8 @@ namespace {
                                                                                   : CorneredBishop;
                 }
             }
+            else if (!(pinKn[Us] & s))
+                knightAtt[Us] |= b;
         }
 
         if (Pt == ROOK)
@@ -356,8 +364,12 @@ namespace {
         {
             // Penalty if any relative pin or discovered attack against the queen
             Bitboard queenPinners;
-            if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
+            b = pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners);
+            if (b)
+            {
                 score -= WeakQueen;
+                pinKn[Us] |= b & pos.pieces(Us, KNIGHT);
+            }
         }
     }
     if (T)
@@ -451,7 +463,7 @@ namespace {
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
+                 - 100 * bool(knightAtt[Us] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
@@ -482,7 +494,6 @@ namespace {
     constexpr Color     Them     = (Us == WHITE ? BLACK   : WHITE);
     constexpr Direction Up       = pawn_push(Us);
     constexpr Bitboard  TRank3BB = (Us == WHITE ? Rank3BB : Rank6BB);
-    constexpr Bitboard  HighRank = (Us == WHITE ? Rank7BB | Rank8BB : Rank1BB | Rank2BB);
 
     Bitboard b, weak, defended, nonPawnEnemies, stronglyProtected, safe;
     Score score = SCORE_ZERO;
@@ -526,8 +537,6 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
 
     score += RestrictedPiece * popcount(b);
-
-    score += make_score(8, 8) * popcount(attackedBy[Them][ALL_PIECES] & attackedBy[Us][PAWN] & HighRank);
 
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
@@ -800,11 +809,11 @@ namespace {
     initialize<WHITE>();
     initialize<BLACK>();
 
+    score +=  pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
     // Pieces should be evaluated first (populate attack tables)
     score +=  pieces<WHITE, KNIGHT>() - pieces<BLACK, KNIGHT>()
             + pieces<WHITE, BISHOP>() - pieces<BLACK, BISHOP>()
-            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >()
-            + pieces<WHITE, QUEEN >() - pieces<BLACK, QUEEN >();
+            + pieces<WHITE, ROOK  >() - pieces<BLACK, ROOK  >();
 
     score += mobility[WHITE] - mobility[BLACK];
 
