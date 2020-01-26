@@ -1116,13 +1116,14 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool fortress = thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + rootNode + (rootNode && bestValue < alpha)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || captureCount > 7
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
@@ -1131,8 +1132,8 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024)
-              r--;
+          if (fortress)
+              r -= (1 + (captureOrPromotion || type_of(movedPiece) == PAWN));
 
           // Reduction if other threads are searching this position.
           if (th.marked())
