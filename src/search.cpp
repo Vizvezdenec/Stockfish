@@ -1122,6 +1122,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + rootNode + (rootNode && bestValue < alpha)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
+              || captureCount > 7
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
@@ -1191,14 +1192,8 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else 
-          {
-              if (depth < 8 && moveCount > 2)
-                  r++;
-
-              if (captureCount > 8)
-                  r++;
-          }
+          else if (depth < 8 && moveCount > 2)
+              r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
