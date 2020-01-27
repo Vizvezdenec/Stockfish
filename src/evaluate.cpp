@@ -722,7 +722,7 @@ namespace {
                     - 100 ;
 
     // Give more importance to non-material score
-    score = (score * 2 - materialScore + kingScore) / 2;
+    score = (score * 2 - materialScore + kingScore / 2) / 2;
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
