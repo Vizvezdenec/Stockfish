@@ -716,7 +716,8 @@ namespace {
 
     bool RQB = (pos.count<QUEEN>()  == 1
              && pos.count<ROOK>()   == 1
-             && pos.count<BISHOP>() == 1);
+             && pos.count<BISHOP>() == 1
+             && pos.count<KNIGHT>() == 0);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
