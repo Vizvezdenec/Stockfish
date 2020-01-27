@@ -168,7 +168,7 @@ namespace {
     template<Color Us> Score passed() const;
     template<Color Us> Score space() const;
     ScaleFactor scale_factor(Value eg) const;
-    Score initiative(Score score) const;
+    Score initiative(Score score, Score kingScore) const;
 
     const Position& pos;
     Material::Entry* me;
@@ -696,7 +696,7 @@ namespace {
   // known attacking/defending status of the players.
 
   template<Tracing T>
-  Score Evaluation<T>::initiative(Score score) const {
+  Score Evaluation<T>::initiative(Score score, Score kingScore) const {
 
     int outflanking =  distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK))
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
@@ -722,7 +722,7 @@ namespace {
                     - 100 ;
 
     // Give more importance to non-material score
-    score = score - pos.psq_score() / 2;
+    score = score - pos.psq_score() / 2 + kingScore / 2;
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
@@ -807,12 +807,14 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
-    score +=  king<   WHITE>() - king<   BLACK>()
+    Score kingScore = king<   WHITE>() - king<   BLACK>();
+
+    score +=  kingScore
             + threats<WHITE>() - threats<BLACK>()
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += initiative(score);
+    score += initiative(score, kingScore);
 
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
