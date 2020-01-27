@@ -714,14 +714,19 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
+    bool RQB = (pos.count<QUEEN>()  == 1
+             && pos.count<ROOK>()   == 1
+             && pos.count<BISHOP>() == 1);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
-                    + 12 * infiltration
+                    + (12 + 36 * RQB) * infiltration
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - 36 * RQB
                     - 100 ;
 
     // Now apply the bonus: note that we find the attacking side by extracting the
