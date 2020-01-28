@@ -722,8 +722,8 @@ namespace {
                     - 100 ;
 
     // Give more importance to non-material score
-    score = score - pos.psq_score() / 2 + (kingScore * 5) / 8;
-    Value mg = mg_value(score);
+    score = score - pos.psq_score() / 2;
+    Value mg = mg_value(score + kingScore / 2);
     Value eg = eg_value(score);
 
     // Now apply the bonus: note that we find the attacking side by extracting the
