@@ -722,7 +722,7 @@ namespace {
                     - 100 ;
 
     // Give more importance to non-material score
-    score = score - pos.psq_score() / 2 + kingScore / 4;
+    score = score - pos.psq_score() / 2 + (kingScore * 3) / 8;
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
