@@ -1021,7 +1021,7 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 25000
-                  ||  (ss-1)->statScore < -30000))
+                  ||  (ss-1)->statScore < -22500))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
