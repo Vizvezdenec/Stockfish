@@ -526,8 +526,6 @@ namespace {
        &  attackedBy[Us][ALL_PIECES];
     score += RestrictedPiece * popcount(b);
 
-    score += make_score(4, 4) * popcount(b & attackedBy[Them][QUEEN]);
-
     // Protected or unattacked squares
     safe = ~attackedBy[Them][ALL_PIECES] | attackedBy[Us][ALL_PIECES];
 
