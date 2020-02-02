@@ -708,18 +708,18 @@ namespace {
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
 
-    bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_3
-                     || rank_of(pos.square<KING>(BLACK)) < RANK_4;
+    int infiltration =  clamp(-3, rank_of(pos.square<KING>(WHITE)) -
+                        rank_of(pos.square<KING>(BLACK)), 3);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
-                    + 24 * infiltration
+                    +  6 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -115 ;
+                    -110 ;
 
     // Give more importance to non-material score
     Value mg = mg_value(score);
