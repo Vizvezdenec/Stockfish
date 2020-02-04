@@ -892,7 +892,7 @@ namespace {
         &&  depth >= 5
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 199 - 45 * improving - 30 * cutNode, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 189 - 45 * improving, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -1115,7 +1115,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + rootNode + 2 * (rootNode && bestValue < alpha)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
