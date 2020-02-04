@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 740;
+  constexpr int RookSafeCheck   = 1040;
+  constexpr int BishopSafeCheck = 595;
+  constexpr int KnightSafeCheck = 750;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -379,6 +379,7 @@ namespace {
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
     int kingDanger = 0;
     const Square ksq = pos.square<KING>(Us);
+    int katMargin = kingAttackersCount[Them] * kingAttackersCount[Them] * 3;
 
     // Init the score with king shelter and enemy pawns storm
     Score score = pe->king_safety<Us>(pos);
@@ -399,7 +400,7 @@ namespace {
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
 
     if (rookChecks)
-        kingDanger += RookSafeCheck;
+        kingDanger += RookSafeCheck + katMargin;
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -412,7 +413,7 @@ namespace {
                  & ~rookChecks;
 
     if (queenChecks)
-        kingDanger += QueenSafeCheck;
+        kingDanger += QueenSafeCheck + katMargin;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -422,7 +423,7 @@ namespace {
                   & ~queenChecks;
 
     if (bishopChecks)
-        kingDanger += BishopSafeCheck;
+        kingDanger += BishopSafeCheck + katMargin;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
@@ -430,7 +431,7 @@ namespace {
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
 
     if (knightChecks & safe)
-        kingDanger += KnightSafeCheck;
+        kingDanger += KnightSafeCheck + katMargin;
     else
         unsafeChecks |= knightChecks;
 
