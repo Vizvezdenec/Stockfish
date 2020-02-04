@@ -717,8 +717,9 @@ namespace {
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
                     + 51 * !pos.non_pawn_material()
+                    + 36 * infiltration
                     - 43 * almostUnwinnable
-                    - 95 ;
+                    -119 ;
 
     // Give more importance to non-material score
     Value mg = mg_value(score);
@@ -728,8 +729,6 @@ namespace {
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
-
-    complexity += 24 * infiltration - 15;
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
