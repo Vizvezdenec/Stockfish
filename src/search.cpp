@@ -892,7 +892,7 @@ namespace {
         &&  depth >= 5
         &&  abs(beta) < VALUE_MATE_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 189 - 45 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 179 - 45 * improving + 30 * cutNode, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
@@ -1007,22 +1007,20 @@ moves_loop: // When in check, search starts from here
               // Reduced depth of the next LMR search
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
-              int histScore = thisThread->mainHistory[us][from_to(move)]
-                    + (*contHist[0])[movedPiece][to_sq(move)]
-                    + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)];
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && histScore > (ss-1)->statScore - 40000)
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
-                  && histScore < 25000)
+                  &&  thisThread->mainHistory[us][from_to(move)]
+                    + (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)]
+                    + (*contHist[3])[movedPiece][to_sq(move)] < 25000)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
