@@ -71,7 +71,7 @@ namespace {
   }
 
   Value futility_margin2(Depth lmrDepth, bool cutNode) {
-    return Value(235 + 172 * lmrDepth + (100 + 20 * lmrDepth) * cutNode);
+    return Value(235 + 172 * lmrDepth + (27 + 20 * lmrDepth) * cutNode);
   }
 
   // Reductions lookup table, initialized at startup
