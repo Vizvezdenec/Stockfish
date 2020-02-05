@@ -70,6 +70,10 @@ namespace {
     return Value(217 * (d - improving));
   }
 
+  Value futility_margin2(Depth lmrDepth, bool cutNode) {
+    return Value(235 + 172 * lmrDepth + (100 + 20 * lmrDepth) * cutNode);
+  }
+
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
@@ -831,7 +835,7 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 6
-        &&  eval - futility_margin(depth, improving) + (depth - 1) * 20 * cutNode >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1016,7 +1020,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + 235 + 172 * lmrDepth <= alpha
+                  && ss->staticEval + futility_margin2(lmrDepth, cutNode) <= alpha
                   &&  thisThread->mainHistory[us][from_to(move)]
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
