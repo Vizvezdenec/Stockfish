@@ -70,10 +70,6 @@ namespace {
     return Value(217 * (d - improving));
   }
 
-  Value futility_margin2(Depth lmrDepth, bool cutNode) {
-    return Value(235 + 172 * lmrDepth + (27 + 20 * lmrDepth) * cutNode);
-  }
-
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
@@ -1020,7 +1016,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + futility_margin2(lmrDepth, cutNode) <= alpha
+                  && ss->staticEval + 235 + 172 * lmrDepth <= alpha
                   &&  thisThread->mainHistory[us][from_to(move)]
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
