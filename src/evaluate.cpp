@@ -562,7 +562,7 @@ namespace {
         b = nonPawnEnemies & (attackedBy2[Us] | (attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN]));
 
         if (more_than_one(attackedBy[Them][QUEEN] & b & ~attackedBy2[Them]))
-            score += make_score(35, 12);
+            score += make_score(30, 24);
     }
 
     if (T)
