@@ -1027,7 +1027,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-194 - 20 * ttPv) * depth)) // (~25 Elo)
+          else if (!pos.see_ge(move, Value(-194 + 20 * ttPv) * depth)) // (~25 Elo)
               continue;
       }
 
