@@ -1024,10 +1024,10 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 + 2 * ttPv - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+          else if (!pos.see_ge(move, Value(-194 - 20 * ttPv) * depth)) // (~25 Elo)
               continue;
       }
 
