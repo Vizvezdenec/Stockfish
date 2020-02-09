@@ -727,6 +727,9 @@ namespace {
     // sign of the midgame or endgame values, and that we carefully cap the bonus
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
+
+    complexity += std::min(complexity + 65, 0);
+
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
 
     if (T)
