@@ -1020,7 +1020,7 @@ moves_loop: // When in check, search starts from here
                   &&  thisThread->mainHistory[us][from_to(move)]
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)] < 25000)
+                    + (*contHist[3])[movedPiece][to_sq(move)] < 25000 - 10000 * (ttPv && !PvNode))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
