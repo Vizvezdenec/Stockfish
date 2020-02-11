@@ -1014,9 +1014,9 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 7
+              if (   lmrDepth < 6
                   && !inCheck
-                  && ss->staticEval + 235 + 172 * lmrDepth + 500 * std::max(0, lmrDepth - 5) <= alpha
+                  && ss->staticEval + 235 + 172 * lmrDepth + 150 * (ttPv && !PvNode) <= alpha
                   &&  thisThread->mainHistory[us][from_to(move)]
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
