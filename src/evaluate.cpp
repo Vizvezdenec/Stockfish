@@ -192,6 +192,7 @@ namespace {
     // kingAttackersCount[color] is the number of pieces of the given color
     // which attack a square in the kingRing of the enemy king.
     int kingAttackersCount[COLOR_NB];
+    int kingDefendersCount[COLOR_NB];
 
     // kingAttackersWeight[color] is the sum of the "weights" of the pieces of
     // the given color which attack a square in the kingRing of the enemy king.
@@ -242,6 +243,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    kingDefendersCount[Us] = 0;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -283,6 +285,9 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
+
+        if (b & kingRing[Us])
+            kingDefendersCount[Us]++;
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -443,6 +448,9 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    int overDef = std::max(2 + kingDefendersCount[Us] - (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them)), 0);
+    kingDanger -= 20 * overDef * overDef * overDef;
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -454,7 +462,6 @@ namespace {
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 - 100 * (pos.count<ALL_PIECES>(Them) - pos.count<PAWN>(Them) < 3)
                  +  37;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
