@@ -710,6 +710,8 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
+    int pcd = pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK);
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -717,8 +719,9 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
+                    +      pcd * pcd
                     - 43 * almostUnwinnable
-                    -110 ;
+                    -112 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
@@ -750,8 +753,6 @@ namespace {
         if (   pos.opposite_bishops()
             && pos.non_pawn_material() == 2 * BishopValueMg)
             sf = 22 ;
-        else if (pos.count<QUEEN>(strongSide) && !pos.count<QUEEN>(~strongSide))
-            sf = std::min(sf, 10 + 8 * (pe->passed_count() + popcount(pos.pieces(~strongSide) & ~attackedBy[~strongSide][ALL_PIECES])));
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
 
