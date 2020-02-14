@@ -721,7 +721,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     +  4 * pcd * pcd
                     - 43 * almostUnwinnable
-                    -116 ;
+                    -118 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
