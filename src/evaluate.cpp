@@ -704,10 +704,8 @@ namespace {
                             && (pos.pieces(PAWN) & KingSide);
 
     bool almostUnwinnable =   !pe->passed_count()
-                           &&((outflanking < 0
-                           && !pawnsOnBothFlanks)
-                           || (abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) < 2
-                           && (pos.count<PAWN>(WHITE) < 2 || pos.count<PAWN>(BLACK) < 2)));
+                           &&  outflanking < 0
+                           && (!pawnsOnBothFlanks || abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) < 2);
 
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
