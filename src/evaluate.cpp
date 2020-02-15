@@ -710,7 +710,7 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    int pcd = pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK);
+    int pcd = std::max(0, abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) - 1);
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
@@ -721,7 +721,7 @@ namespace {
                     + 51 * !pos.non_pawn_material()
                     +  6 * pcd * pcd
                     - 43 * almostUnwinnable
-                    -115 ;
+                    -112 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
