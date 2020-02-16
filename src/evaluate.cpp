@@ -562,7 +562,7 @@ namespace {
         if (!pos.pieces(Us, QUEEN))
         {
             int defCnt = popcount(pos.pieces(Us) & attackedBy[Us][ALL_PIECES]);
-            score -= make_score(0, 5) * (pos.count<ALL_PIECES>(Us) - 2 * defCnt);
+            score -= make_score(0, 3) * (pos.count<ALL_PIECES>(Us) - 2 * defCnt);
         }
     }
 
