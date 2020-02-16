@@ -1090,13 +1090,6 @@ moves_loop: // When in check, search starts from here
       if (type_of(move) == CASTLING)
           extension = 1;
 
-      if (  !captureOrPromotion  
-          && thisThread->mainHistory[us][from_to(move)] > 10000
-          && (*contHist[0])[movedPiece][to_sq(move)] > 10000
-          && (*contHist[1])[movedPiece][to_sq(move)] > 10000
-          && (*contHist[3])[movedPiece][to_sq(move)] > 10000)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
 
@@ -1143,7 +1136,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ttPv)
-              r -= 2;
+              r -= 2 + (!PvNode && depth < 10);
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 14)
