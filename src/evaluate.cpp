@@ -358,8 +358,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-            score += make_score(2, 3) * std::min((std::max(mob - 10, 0) * std::max(10 - pos.count<PAWN>(), 0)), 20);
         }
     }
     if (T)
@@ -444,6 +442,11 @@ namespace {
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
+
+    int oppositeFlankers = std::max(2 * popcount(pos.pieces(Us) & ~pos.pieces(Us, PAWN) & ~KingFlank[file_of(ksq)])
+                                 - (pos.count<ALL_PIECES>(Us) - pos.count<PAWN>(Us)), 0);
+
+    kingDanger += oppositeFlankers * oppositeFlankers;
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
