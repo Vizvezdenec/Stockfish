@@ -558,12 +558,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        if (!pos.pieces(Us, QUEEN))
-        {
-            int defCnt = popcount(pos.pieces(Us) & attackedBy[Us][ALL_PIECES]);
-            score -= make_score(0, 7) * (pos.count<ALL_PIECES>(Us) - 2 * defCnt);
-        }
     }
 
     if (T)
