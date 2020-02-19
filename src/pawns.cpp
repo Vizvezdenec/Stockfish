@@ -149,6 +149,9 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
+
+        if (more_than_one(ourPawns & forward_file_bb(Us, s)))
+            score -= make_score(8, 43);
     }
 
     return score;
