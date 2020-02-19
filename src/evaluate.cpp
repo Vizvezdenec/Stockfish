@@ -359,7 +359,7 @@ namespace {
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
 
-            score += make_score(2, 3) * std::min((std::max(mob - 14, 0) * std::max(8 - pos.count<PAWN>(), 0)), 20);
+            score += make_score(3, 5) * (std::max(mob - 20, 0) * std::max(6 - pos.count<PAWN>(), 0));
         }
     }
     if (T)
