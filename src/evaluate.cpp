@@ -358,6 +358,8 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
+
+            score += make_score(4, 6) * (std::max(mob - 14, 0) * std::max(6 - pos.count<PAWN>(), 0) / 4);
         }
     }
     if (T)
