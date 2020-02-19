@@ -151,7 +151,7 @@ namespace {
                      + WeakLever * more_than_one(lever);
 
         if (more_than_one(ourPawns & forward_file_bb(Us, s)))
-            score -= make_score(12, 33);
+            score -= make_score(4, 62);
     }
 
     return score;
