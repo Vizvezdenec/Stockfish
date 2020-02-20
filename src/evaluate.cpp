@@ -519,6 +519,9 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+    if (weak & pos.pieces(Them, PAWN) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]) & shift<Up>(pos.pieces(Us)))
+        score += make_score(5, 27);
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
@@ -703,15 +706,12 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
-                     || rank_of(pos.square<KING>(BLACK)) < RANK_5;
-
-    pawnsOnBothFlanks &= (pos.pieces(PAWN) & ~CenterFiles)
-                       || pe->passed_count();
-
     bool almostUnwinnable =   !pe->passed_count()
                            &&  outflanking < 0
                            && !pawnsOnBothFlanks;
+
+    bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
+                     || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
