@@ -519,6 +519,9 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+    if (weak & pos.pieces(Them, PAWN) & (attackedBy[Us][KNIGHT] | attackedBy[Us][BISHOP]) & shift<Up>(pos.pieces(Us)))
+        score += make_score(10, 20);
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
