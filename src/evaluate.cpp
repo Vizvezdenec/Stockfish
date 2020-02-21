@@ -254,6 +254,7 @@ namespace {
 
     constexpr Color     Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Direction Down = -pawn_push(Us);
+    constexpr Direction Up = pawn_push(Us);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
     const Square* pl = pos.squares<Pt>(Us);
@@ -318,6 +319,9 @@ namespace {
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
 
+                if (PseudoAttacks[BISHOP][s] & (shift<Up>(pos.pieces(Us, BISHOP)) | shift<Down>(pos.pieces(Us, BISHOP))))
+                    score += make_score(5, 14);
+
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
                 // when that pawn is also blocked.
@@ -358,9 +362,6 @@ namespace {
             Bitboard queenPinners;
             if (pos.slider_blockers(pos.pieces(Them, ROOK, BISHOP), s, queenPinners))
                 score -= WeakQueen;
-
-            if (mob > 13 && pos.count<PAWN>() < 9)
-		score += make_score(20, 30);
         }
     }
     if (T)
