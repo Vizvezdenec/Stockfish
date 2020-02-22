@@ -1123,7 +1123,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
-              || excludedMove))
+              || (excludedMove && moveCount > 3)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction for captures/promotions if late move and at low depth
           else if (depth < 8 && moveCount > 2)
-              r+= (1 + excludedMove);
+              r++;
 
           Depth d = clamp(newDepth - r, 1, newDepth);
 
