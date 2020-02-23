@@ -1175,8 +1175,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4926;
 
-              if (ss->ply < MAX_LPH)
-                  ss->statScore += thisThread->lowPlyHistory[ss->ply][from_to(move)];
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
                   && (*contHist[0])[movedPiece][to_sq(move)] >= 0
@@ -1704,7 +1702,11 @@ moves_loop: // When in check, search starts from here
     }
 
     if (depth > 12 && ss->ply < MAX_LPH)
+    {
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+        if (type_of(pos.moved_piece(move)) != PAWN)
+            thisThread->lowPlyHistory[ss->ply][from_to(reverse_move(move))] << -stat_bonus(depth - 7);
+    }
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
