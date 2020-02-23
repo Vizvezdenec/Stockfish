@@ -1152,9 +1152,6 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
-          if (excludedMove)
-              r++;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1178,6 +1175,8 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4926;
 
+              if (ss->ply < MAX_LPH)
+                  ss->statScore += thisThread->lowPlyHistory[ss->ply][from_to(move)];
               // Reset statScore to zero if negative and most stats shows >= 0
               if (    ss->statScore < 0
                   && (*contHist[0])[movedPiece][to_sq(move)] >= 0
