@@ -1015,7 +1015,7 @@ moves_loop: // When in check, search starts from here
               int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || excludedMove)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1702,11 +1702,7 @@ moves_loop: // When in check, search starts from here
     }
 
     if (depth > 12 && ss->ply < MAX_LPH)
-    {
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
-        if (type_of(pos.moved_piece(move)) != PAWN)
-            thisThread->lowPlyHistory[ss->ply][from_to(reverse_move(move))] << -stat_bonus(depth - 7);
-    }
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
