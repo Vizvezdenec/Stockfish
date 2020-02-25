@@ -795,12 +795,6 @@ namespace {
         improving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
-    else if (excludedMove)
-    {
-        improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
-                  || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
-        goto moves_loop;
-    }
     else if (ttHit)
     {
         // Never assume anything about values stored in TT
@@ -853,6 +847,7 @@ namespace {
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 32 * depth - 30 * improving + 120 * ttPv + 292
+        && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
@@ -902,13 +897,13 @@ namespace {
         &&  depth >= 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = std::min(beta + 189 - 45 * improving, VALUE_INFINITE);
+        Value raisedBeta = std::min(beta + 159 - 45 * improving + pos.non_pawn_material() / 512, VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (pos.legal(move))
+            if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
@@ -1133,8 +1128,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
-              || excludedMove))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
