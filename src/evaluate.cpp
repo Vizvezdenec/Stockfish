@@ -518,6 +518,9 @@ namespace {
         score += Hanging * popcount(weak & b);
     }
 
+    int overload = popcount(weak & attackedBy[Them][QUEEN]);
+    score += make_score(6, 0) * overload * overload;
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
