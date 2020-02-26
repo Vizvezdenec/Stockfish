@@ -519,7 +519,7 @@ namespace {
     }
 
     int overload = popcount(weak & attackedBy[Them][QUEEN]);
-    score += make_score(10, 0) * overload * overload;
+    score += make_score(8, 0) * overload * overload;
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
