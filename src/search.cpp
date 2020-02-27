@@ -788,8 +788,6 @@ namespace {
         }
     }
 
-    bool lowHitrate = thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024;
-
     // Step 6. Static evaluation of the position
     if (inCheck)
     {
@@ -904,7 +902,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + lowHitrate + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1130,7 +1128,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || lowHitrate))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
