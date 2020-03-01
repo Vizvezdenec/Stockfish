@@ -114,11 +114,11 @@ namespace {
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(5, 32), S(57, 41), S(77, 56), S(88, 119), S(79, 161)
+    S(0, 0), S(4, 32), S(55, 41), S(75, 56), S(86, 119), S(79, 161)
   };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(2, 44), S(36, 71), S(36, 61), S(0, 38), S(51, 38)
+    S(0, 0), S(1, 44), S(34, 71), S(34, 61), S(0, 38), S(51, 38)
   };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
@@ -146,7 +146,7 @@ namespace {
   constexpr Score ThreatBySafePawn    = S(173, 94);
   constexpr Score TrappedRook         = S( 52, 10);
   constexpr Score WeakQueen           = S( 49, 15);
-  constexpr Score WeakQueenProtection = S( 14,  0);
+  constexpr Score WeakQueenProtection = S( 28,  0);
 
 #undef S
 
