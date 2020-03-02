@@ -1152,7 +1152,7 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
-          if (moveCount >= futility_move_count(improving, depth))
+          if (moveCount >= futility_move_count(improving, depth + 1))
               r++;
 
           if (!captureOrPromotion)
