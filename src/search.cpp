@@ -1152,6 +1152,9 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 2;
 
+          if (moveCount >= futility_move_count(improving, depth))
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
