@@ -626,7 +626,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, moveCountPruning2, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -960,7 +960,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = moveCountPruning2 = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1007,6 +1007,7 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning2 = moveCount >= futility_move_count(improving, depth + 1);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1122,7 +1123,6 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          && (pos.non_pawn_material(us) || depth > 11)
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
@@ -1132,6 +1132,9 @@ moves_loop: // When in check, search starts from here
               || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
+
+          if (moveCountPruning2)
+              r++;
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024)
