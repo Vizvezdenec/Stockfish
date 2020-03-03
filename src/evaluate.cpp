@@ -715,13 +715,13 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
-                    + 11 * pos.count<PAWN>()
+                    + 12 * pos.count<PAWN>()
                     +  9 * outflanking
-                    + 21 * pawnsOnBothFlanks
+                    + 24 * pawnsOnBothFlanks
                     + 24 * infiltration
-                    + 51 * !pos.non_pawn_material()
-                    - 43 * almostUnwinnable
-                    -110 ;
+                    + 48 * !pos.non_pawn_material()
+                    - 48 * almostUnwinnable
+                    -111 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
@@ -755,10 +755,6 @@ namespace {
             sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
-
-        if (   pos.count<QUEEN>() == 1
-            && pos.rule50_count() > 0)
-            sf -= 10;
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
     }
