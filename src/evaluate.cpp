@@ -758,7 +758,7 @@ namespace {
 
         if (pos.count<QUEEN>(strongSide) == 1 
          && pos.count<QUEEN>(~strongSide) == 0)
-            sf -= 10 * std::max(2 - popcount(pe->passed_pawns(strongSide)), 0);
+            sf -= 15 * std::max(2 - popcount(pe->passed_pawns(strongSide)), 0);
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
     }
