@@ -437,7 +437,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b2 = b1 & (attackedBy2[Them] | attackedBy[Them][KNIGHT]);
+    b2 = b1 & attackedBy2[Them];
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
@@ -755,6 +755,10 @@ namespace {
             sf = 22 ;
         else
             sf = std::min(sf, 36 + (pos.opposite_bishops() ? 2 : 7) * pos.count<PAWN>(strongSide));
+
+        if (pos.count<QUEEN>(strongSide) == 1 
+         && pos.count<QUEEN>(~strongSide) == 0)
+            sf -= 10 * std::max(2 - popcount(pe->passed_pawns(strongSide)), 0);
 
         sf = std::max(0, sf - (pos.rule50_count() - 12) / 4);
     }
