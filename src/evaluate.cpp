@@ -437,7 +437,7 @@ namespace {
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
-    b2 = b1 & attackedBy2[Them];
+    b2 = b1 & (attackedBy2[Them] | attackedBy[Them][KNIGHT]);
     b3 = attackedBy[Us][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
 
     int kingFlankAttack = popcount(b1) + popcount(b2);
@@ -715,13 +715,13 @@ namespace {
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
-                    + 12 * pos.count<PAWN>()
+                    + 11 * pos.count<PAWN>()
                     +  9 * outflanking
-                    + 24 * pawnsOnBothFlanks
+                    + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
-                    + 48 * !pos.non_pawn_material()
-                    - 48 * almostUnwinnable
-                    -111 ;
+                    + 51 * !pos.non_pawn_material()
+                    - 43 * almostUnwinnable
+                    -110 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
