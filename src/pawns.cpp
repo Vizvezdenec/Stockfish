@@ -149,9 +149,6 @@ namespace {
         if (!support)
             score -=   Doubled * doubled
                      + WeakLever * more_than_one(lever);
-
-        if (r < RANK_4 && blocked)
-            score -=   make_score(12, 0) * (3 - r);
     }
 
     return score;
