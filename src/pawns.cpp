@@ -151,7 +151,7 @@ namespace {
                      + WeakLever * more_than_one(lever);
 
         if (r < RANK_4 && blocked)
-            score -=   make_score(0, 12) * (3 - r);
+            score -=   make_score(12, 0) * (3 - r);
     }
 
     return score;
