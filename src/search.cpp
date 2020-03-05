@@ -1082,7 +1082,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   move == ss->killers[0]
+      else if (  (move == ss->killers[0] || !pos.non_pawn_material())
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
@@ -1150,7 +1150,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
-              r -= 1 + (moveCount < 11);
+              r -= 2;
 
           if (!captureOrPromotion)
           {
