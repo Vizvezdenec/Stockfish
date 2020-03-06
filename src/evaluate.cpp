@@ -146,7 +146,7 @@ namespace {
   constexpr Score ThreatBySafePawn    = S(173, 94);
   constexpr Score TrappedRook         = S( 52, 10);
   constexpr Score WeakQueen           = S( 49, 15);
-  constexpr Score WeakQueenProtection = S( 14,  0);
+  constexpr Score WeakQueenProtection = S( 11,  0);
 
 #undef S
 
@@ -522,6 +522,8 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
+    score += make_score(3, 0) * popcount(attackedBy[Us][ALL_PIECES] & ~stronglyProtected & attackedBy[Them][QUEEN]);
+
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
@@ -561,9 +563,6 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
-
-        if (!(attackedBy[Them][QUEEN] & ~attackedBy2[Us] & ~pos.pieces(Them) & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN])))
-            score -= make_score(40, 40);
     }
 
     if (T)
