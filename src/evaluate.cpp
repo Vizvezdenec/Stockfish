@@ -288,6 +288,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
+        if (more_than_one(pos.pieces(PAWN) & forward_file_bb(Us, s)))
+            score -= make_score(14, 0);
+
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
