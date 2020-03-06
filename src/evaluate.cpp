@@ -331,8 +331,6 @@ namespace {
                                                                                   : CorneredBishop;
                 }
             }
-            else if (more_than_one(pos.pieces(PAWN) & forward_file_bb(Us, s)))
-            	score -= make_score(14, 0);
         }
 
         if (Pt == ROOK)
@@ -563,6 +561,9 @@ namespace {
            | (attackedBy[Us][ROOK  ] & pos.attacks_from<ROOK  >(s));
 
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
+
+        if (!(attackedBy[Them][QUEEN] & ~attackedBy2[Us] & ~pos.pieces(Them) & ~(attackedBy[Us][ALL_PIECES] & ~attackedBy[Us][QUEEN])))
+            score -= make_score(40, 40);
     }
 
     if (T)
