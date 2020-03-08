@@ -1128,7 +1128,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || to_sq(move) == to_sq(ttMove)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1196,11 +1197,11 @@ moves_loop: // When in check, search starts from here
           // Increase reduction for captures/promotions if late move and at low depth
           else 
           {
-              if (depth < 8 && moveCount > 2)
-                  r++;
+          if (depth < 8 && moveCount > 2)
+              r++;
 
-              if (to_sq(move) == to_sq(ttMove))
-                  r++;
+          if (to_sq(move) == to_sq(ttMove))
+              r--;
           }
 
           Depth d = clamp(newDepth - r, 1, newDepth);
