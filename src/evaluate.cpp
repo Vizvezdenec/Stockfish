@@ -374,6 +374,7 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
+    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
 
     Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -443,6 +444,8 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    int uselessDefenders = popcount(TRank1BB & ~KingFlank[file_of(ksq)] & pos.pieces(Us));
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
@@ -450,12 +453,12 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
+                 +       uselessDefenders * uselessDefenders * uselessDefenders
                  - 873 * !pos.count<QUEEN>(Them)
-                 -  60 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  60 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING] & ~forward_ranks_bb(Them, ksq))
+                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  37;
+                 +  33;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
