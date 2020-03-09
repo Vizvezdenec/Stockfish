@@ -455,7 +455,7 @@ namespace {
                  -  12 * popcount(kingRing[Us] & attackedBy2[Us])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  71;
+                 +  59;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
