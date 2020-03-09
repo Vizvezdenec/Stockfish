@@ -452,10 +452,10 @@ namespace {
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
-                 -  12 * popcount(kingRing[Us] & attackedBy2[Us])
+                 -   8 * popcount(kingRing[Us] & attackedBy2[Us])
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
-                 +  59;
+                 +  56;
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
