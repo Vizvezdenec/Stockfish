@@ -374,7 +374,6 @@ namespace {
     constexpr Color    Them = (Us == WHITE ? BLACK : WHITE);
     constexpr Bitboard Camp = (Us == WHITE ? AllSquares ^ Rank6BB ^ Rank7BB ^ Rank8BB
                                            : AllSquares ^ Rank1BB ^ Rank2BB ^ Rank3BB);
-    constexpr Bitboard  TRank1BB = (Us == WHITE ? Rank1BB : Rank8BB);
 
     Bitboard weak, b1, b2, b3, safe, unsafeChecks = 0;
     Bitboard rookChecks, queenChecks, bishopChecks, knightChecks;
@@ -444,14 +443,12 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
-    int uselessDefenders = popcount(TRank1BB & ~KingFlank[file_of(ksq)] & pos.pieces(Us));
-
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
-                 +   3 * kingFlankAttack * kingFlankAttack * (32 + uselessDefenders * uselessDefenders) / 256 
+                 +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
