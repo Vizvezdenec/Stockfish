@@ -1116,6 +1116,15 @@ moves_loop: // When in check, search starts from here
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
+      bool captLMR = moveCountPruning
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || cutNode
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024;
+
+      bool seeLMR = false;
+
+      if (captureOrPromotion && !captLMR)
+          seeLMR = !pos.see_ge(move, Value(-97) * depth);
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
@@ -1125,10 +1134,8 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || captLMR
+              || seeLMR))
       {
           Depth r = reduction(improving, depth, moveCount);
 
