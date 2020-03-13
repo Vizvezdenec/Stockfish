@@ -447,6 +447,8 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
+                 + 100 * bool(pos.blockers_for_king(Us) & pos.pieces(Us, ROOK, QUEEN) 
+                           & (attackedBy[Them][BISHOP] | attackedBy[Them][KNIGHT]))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -455,8 +457,6 @@ namespace {
                  -   6 * mg_value(score) / 8
                  -   4 * kingFlankDefense
                  +  37;
-
-    kingDanger += (pos.side_to_move() != Us) * std::max(kingDanger - 1000, 0);
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
