@@ -447,8 +447,6 @@ namespace {
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
-                 + 100 * bool(pos.blockers_for_king(Us) & pos.pieces(Us, ROOK, QUEEN) 
-                           & (attackedBy[Them][BISHOP] | attackedBy[Them][KNIGHT]))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
@@ -723,7 +721,8 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -110 ;
+                    - 15 * (almostUnwinnable && !infiltration)
+                    -105 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
