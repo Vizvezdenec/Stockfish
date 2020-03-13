@@ -721,8 +721,8 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 30 * (almostUnwinnable && !infiltration)
-                    -107 ;
+                    - 18 * (almostUnwinnable && !infiltration)
+                    -106 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
