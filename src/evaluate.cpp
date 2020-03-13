@@ -456,6 +456,8 @@ namespace {
                  -   4 * kingFlankDefense
                  +  37;
 
+    kingDanger += (pos.side_to_move() != Us) * std::max(kingDanger - 1000, 0);
+
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
         score -= make_score(kingDanger * kingDanger / 4096, kingDanger / 16);
@@ -721,8 +723,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 18 * (almostUnwinnable && !infiltration)
-                    -106 ;
+                    -110 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
