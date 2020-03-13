@@ -1124,7 +1124,7 @@ moves_loop: // When in check, search starts from here
       bool seeLMR = false;
 
       if (captureOrPromotion && !captLMR)
-          seeLMR = !pos.see_ge(move, Value(-97) * depth);
+          seeLMR = !pos.see_ge(move, Value(-60) * depth);
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
