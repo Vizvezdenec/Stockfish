@@ -629,6 +629,9 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
+                if (k == 9 && r < RANK_6)
+                    k += 4 * bool(!(unsafeSquares & (blockSq + Up)));
+
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
@@ -721,8 +724,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 15 * (almostUnwinnable && !infiltration)
-                    -105 ;
+                    -110 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
