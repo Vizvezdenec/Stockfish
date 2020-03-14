@@ -629,9 +629,6 @@ namespace {
                         !(unsafeSquares & blockSq)        ?  9 :
                                                              0 ;
 
-                if (k > 0)
-                    k += 2 * bool(pawn_attacks_bb<Them>(pos.pieces(Them)) & blockSq);
-
                 // Assign a larger bonus if the block square is defended
                 if ((pos.pieces(Us) & bb) || (attackedBy[Us][ALL_PIECES] & blockSq))
                     k += 5;
