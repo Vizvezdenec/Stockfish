@@ -854,7 +854,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (854 + 68 * depth + 240 * ttPv) / 258 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (854 + 68 * depth) / 258 + std::min(int(eval - beta) / 192, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1141,7 +1141,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ttPv)
-              r -= 2;
+              r -= 1 + !PvNode;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 14)
