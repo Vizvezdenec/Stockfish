@@ -924,7 +924,10 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
+                {
+                    Depth pieceTypeDepth = type_of(pos.captured_piece()) == QUEEN ? 2 : type_of(pos.captured_piece()) != PAWN ? 1 : 0;
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, std::max(depth - 4 - pieceTypeDepth, 1), !cutNode);
+                }
 
                 pos.undo_move(move);
 
