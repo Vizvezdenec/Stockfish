@@ -893,7 +893,7 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !ttPv
+    if (   !PvNode
         &&  depth >= 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
@@ -925,9 +925,10 @@ namespace {
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
                 {
-                    Depth pieceTypeDepth = type_of(pos.captured_piece()) != PAWN;
+                    Depth pieceTypeDepth = type_of(pos.captured_piece()) == QUEEN ? 2 : type_of(pos.captured_piece()) != PAWN ? 1 : 0;
                     value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, std::max(depth - 4 - pieceTypeDepth, 1), !cutNode);
                 }
+
 
                 pos.undo_move(move);
 
