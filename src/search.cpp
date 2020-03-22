@@ -1055,7 +1055,7 @@ moves_loop: // When in check, search starts from here
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - (((ttPv && !PvNode) + 4) * depth) / 2;
-          if (singularBeta < beta)
+          if (singularBeta < beta && ttValue > beta)
           {
               Depth singularDepth = (depth - 1) / 2;
               ss->excludedMove = move;
