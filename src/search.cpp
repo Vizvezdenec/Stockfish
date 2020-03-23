@@ -1054,7 +1054,13 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          Value singularBeta = ttValue - (((ttPv && !PvNode) + 4) * depth) / 2;
+          int histScore = (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)]
+                    + (*contHist[3])[movedPiece][to_sq(move)];
+          bool badHist = false;
+          if (!captureOrPromotion && histScore < -25000)
+              badHist = true;
+          Value singularBeta = ttValue - (((ttPv && !PvNode) + 4 + badHist) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * (ttPv && !PvNode)) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
