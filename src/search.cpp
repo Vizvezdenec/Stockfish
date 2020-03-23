@@ -924,7 +924,8 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, 
+                                           std::max(depth - 4 - 3 * (type_of(pos.captured_piece()) == QUEEN), 1), !cutNode);
 
                 pos.undo_move(move);
 
@@ -1033,26 +1034,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else 
-          {
-          bool doubleCheck = false;
-          if (pos.is_discovery_check_on_king(~us, move))
-              {
-              pos.do_move(move, st, givesCheck);
-              if (more_than_one(pos.checkers()))
-                  doubleCheck = true;
-              else
-                  {
-                  Bitboard b = pos.checkers();
-                  Square s = pop_lsb(&b);
-                  if (!(pos.attackers_to(s) & pos.pieces(~us)))
-                      doubleCheck = true;
-                  }
-              pos.undo_move(move);
-              }
-              if (!doubleCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
-                  continue;
-          }
+          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              continue;
       }
 
       // Step 14. Extensions (~75 Elo)
