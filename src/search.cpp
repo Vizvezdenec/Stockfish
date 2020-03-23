@@ -1033,8 +1033,29 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
-              continue;
+          else 
+          {
+          bool doubleCheck = false;
+          if (pos.is_discovery_check_on_king(~us, move) && pos.legal(move))
+              {
+              pos.do_move(move, st, givesCheck);
+              if (more_than_one(pos.checkers()))
+                  doubleCheck = true;
+              else
+                  {
+                  Bitboard b = pos.checkers();
+                  if (b)
+                  {
+                  Square s = pop_lsb(&b);
+                  if (!(pos.attackers_to(s) & pos.pieces(~us)))
+                      doubleCheck = true;
+                  }
+                  }
+              pos.undo_move(move);
+              }
+              if (!doubleCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+                  continue;
+          }
       }
 
       // Step 14. Extensions (~75 Elo)
@@ -1054,13 +1075,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          int histScore = (*contHist[0])[movedPiece][to_sq(move)]
-                    + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)];
-          bool badHist = false;
-          if (!captureOrPromotion && histScore < -25000)
-              badHist = true;
-          Value singularBeta = ttValue - (((ttPv && !PvNode) + 4 + badHist) * depth) / 2;
+          Value singularBeta = ttValue - (((ttPv && !PvNode) + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * (ttPv && !PvNode)) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
