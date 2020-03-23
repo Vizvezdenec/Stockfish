@@ -1041,6 +1041,13 @@ moves_loop: // When in check, search starts from here
               pos.do_move(move, st, givesCheck);
               if (more_than_one(pos.checkers()))
                   doubleCheck = true;
+              else
+                  {
+                  Bitboard b = pos.checkers();
+                  Square s = pop_lsb(&b);
+                  if (!(pos.attackers_to(s) & pos.pieces(~us)))
+                      doubleCheck = true;
+                  }
               pos.undo_move(move);
               }
               if (!doubleCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
