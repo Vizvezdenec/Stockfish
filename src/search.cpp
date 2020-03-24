@@ -849,8 +849,6 @@ namespace {
         &&  ss->staticEval >= beta - 32 * depth - 30 * improving + 120 * ttPv + 292
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (pos.count<ALL_PIECES>(us) - pos.count<PAWN>(us) 
-          - popcount(pos.blockers_for_king(us) & ~pos.pieces(us, PAWN) & pos.pieces(us)) > 1)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1026,6 +1024,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
+                  && thisThread->mainHistory[us][from_to(move)] < 10000
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
