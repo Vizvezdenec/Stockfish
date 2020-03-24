@@ -1024,7 +1024,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
-                  && thisThread->mainHistory[us][from_to(move)] < 8000
+                  && thisThread->mainHistory[us][from_to(move)] < 9000
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
