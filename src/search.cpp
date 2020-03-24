@@ -1024,7 +1024,6 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
-                  && thisThread->mainHistory[us][from_to(move)] < 10500
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
@@ -1122,7 +1121,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + 2 * rootNode + (ttPv && !PvNode)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
