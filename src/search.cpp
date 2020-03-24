@@ -1024,6 +1024,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 6
                   && !inCheck
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
+                  && thisThread->mainHistory[us][from_to(move)] < 8000
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
@@ -1033,29 +1034,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else 
-          {
-          bool doubleCheck = false;
-          if (pos.is_discovery_check_on_king(~us, move) && pos.legal(move))
-              {
-              pos.do_move(move, st, givesCheck);
-              if (more_than_one(pos.checkers()))
-                  doubleCheck = true;
-              else
-                  {
-                  Bitboard b = pos.checkers();
-                  if (b)
-                  {
-                  Square s = pop_lsb(&b);
-                  if (!(pos.attackers_to(s) & pos.pieces(~us)))
-                      doubleCheck = true;
-                  }
-                  }
-              pos.undo_move(move);
-              }
-              if (!doubleCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
-                  continue;
-          }
+          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              continue;
       }
 
       // Step 14. Extensions (~75 Elo)
