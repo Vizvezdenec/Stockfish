@@ -114,11 +114,11 @@ namespace {
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(5, 32), S(57, 41), S(77, 56), S(88, 119), S(79, 161)
+    S(0, 0), S(4, 27), S(57, 41), S(77, 56), S(88, 119), S(79, 161)
   };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(2, 44), S(36, 71), S(36, 61), S(0, 38), S(51, 38)
+    S(0, 0), S(1, 37), S(36, 71), S(36, 61), S(0, 38), S(51, 38)
   };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
@@ -523,7 +523,7 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
-    score += make_score(1, 14) * popcount(weak & pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
+    score += make_score(2, 16) * popcount(weak & pos.pieces(Them, PAWN) & shift<Up>(pos.pieces()));
 
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
