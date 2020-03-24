@@ -850,7 +850,7 @@ namespace {
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (pos.count<ALL_PIECES>(us) - pos.count<PAWN>(us) 
-          - popcount(pos.blockers_for_king(us) & ~pos.pieces(us, PAWN)) > 1)
+          - popcount(pos.blockers_for_king(us) & ~pos.pieces(us, PAWN) & pos.pieces(us)) > 1)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
