@@ -930,7 +930,7 @@ namespace {
 
                 if (value >= raisedBeta)
                 {
-                    if (!priorCapture && (ss-1)->moveCount == 1)
+                    if (!priorCapture)
                         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
                 }
