@@ -931,7 +931,7 @@ namespace {
                 if (value >= raisedBeta)
                 {
                     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth);
+                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 4);
                     return value;
                 }
             }
