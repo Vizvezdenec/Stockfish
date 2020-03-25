@@ -523,8 +523,6 @@ namespace {
         score += WeakQueenProtection * popcount(weak & attackedBy[Them][QUEEN]);
     }
 
-    score += make_score(2, 28) * popcount(weak & pos.pieces(Them, PAWN) & shift<Up>(pos.pieces(Them, PAWN)));
-
     // Bonus for restricting their piece moves
     b =   attackedBy[Them][ALL_PIECES]
        & ~stronglyProtected
