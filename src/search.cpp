@@ -930,8 +930,8 @@ namespace {
 
                 if (value >= raisedBeta)
                 {
-                    if (!priorCapture && (ss-1)->moveCount < 3)
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth);
                     return value;
                 }
             }
