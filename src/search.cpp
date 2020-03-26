@@ -622,7 +622,7 @@ namespace {
     StateInfo st;
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove, probcutMove[2];
+    Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
@@ -638,8 +638,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    probcutMove[0] = MOVE_NONE;
-    probcutMove[1] = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -932,8 +930,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-                else if (!cutNode && ss->staticEval >= raisedBeta)
-                    probcutMove[probCutCount - 1] = move;
             }
     }
 
@@ -1131,9 +1127,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
-              || move == probcutMove[0]
-              || move == probcutMove[1]))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1192,15 +1186,8 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else 
-          {
-              if (depth < 8 && moveCount > 2)
-                  r++;
-
-              if (move == probcutMove[0]
-              || move == probcutMove[1])
-                  r++;
-          }
+          else if (depth < 8 && moveCount > 2)
+              r++;
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
