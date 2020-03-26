@@ -707,9 +707,9 @@ namespace {
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                             && (pos.pieces(PAWN) & KingSide);
 
-    bool almostUnwinnable =    outflanking < 0
-                           && (!pawnsOnBothFlanks ||
-                           !(pos.pieces(PAWN) & ~CenterFiles));
+    bool almostUnwinnable =   !pe->passed_count()
+                           &&  outflanking < 0
+                           && !pawnsOnBothFlanks;
 
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;

@@ -622,7 +622,7 @@ namespace {
     StateInfo st;
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove;
+    Move ttMove, move, excludedMove, bestMove, probcutMove[2];
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
@@ -638,6 +638,8 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    probcutMove[0] = MOVE_NONE;
+    probcutMove[1] = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -930,6 +932,8 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+                else if (!cutNode && ss->staticEval >= raisedBeta + 189)
+                    probcutMove[probCutCount - 1] = move;
             }
     }
 
@@ -1127,7 +1131,9 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || move == probcutMove[0]
+              || move == probcutMove[1]))
       {
           Depth r = reduction(improving, depth, moveCount);
 
