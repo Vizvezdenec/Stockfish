@@ -705,11 +705,11 @@ namespace {
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide)
-                            &&  pos.pieces(PAWN) & ~CenterFiles;
+                            && (pos.pieces(PAWN) & KingSide);
 
     bool almostUnwinnable =    outflanking < 0
-                           && !pawnsOnBothFlanks;
+                           && (!pawnsOnBothFlanks ||
+                           !(pos.pieces(PAWN) & ~CenterFiles));
 
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
