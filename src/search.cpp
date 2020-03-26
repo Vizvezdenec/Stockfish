@@ -1192,8 +1192,15 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else if (depth < 8 && moveCount > 2)
-              r++;
+          else 
+          {
+              if (depth < 8 && moveCount > 2)
+                  r++;
+
+              if (move == probcutMove[0]
+              || move == probcutMove[1])
+                  r++;
+          }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
