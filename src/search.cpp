@@ -932,7 +932,7 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-                else if (!cutNode && ss->staticEval >= (raisedBeta + beta) / 2)
+                else if (!cutNode && ss->staticEval >= raisedBeta)
                     probcutMove[probCutCount - 1] = move;
             }
     }
@@ -1050,6 +1050,7 @@ moves_loop: // When in check, search starts from here
       // result is lower than ttValue minus a margin then we will extend the ttMove.
       if (    depth >= 6
           &&  move == ttMove
+          &&  move != probcutMove[0]
           && !rootNode
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1131,9 +1132,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
-              || move == probcutMove[0]
-              || move == probcutMove[1]))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
