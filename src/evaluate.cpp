@@ -705,7 +705,8 @@ namespace {
                      - distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK));
 
     bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                            && (pos.pieces(PAWN) & KingSide);
+                            && (pos.pieces(PAWN) & KingSide)
+                            &&  pos.pieces(PAWN) & ~CenterFiles;
 
     bool almostUnwinnable =    outflanking < 0
                            && !pawnsOnBothFlanks;
