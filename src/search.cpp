@@ -1224,9 +1224,8 @@ moves_loop: // When in check, search starts from here
           {
           
               CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
-              captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << bonus;
+              if (value > alpha)
+                  captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(newDepth);
 
           }
       }
