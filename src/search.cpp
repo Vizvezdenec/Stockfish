@@ -1144,7 +1144,8 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
-          r-= (ss-1)->moveCount / 15;
+          if ((ss-1)->moveCount > 14)
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
@@ -1217,6 +1218,16 @@ moves_loop: // When in check, search starts from here
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+          }
+
+          else if (didLMR && captureOrPromotion)
+          {
+          
+              CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
+              captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << bonus;
+
           }
       }
 
