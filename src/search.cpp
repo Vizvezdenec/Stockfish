@@ -935,7 +935,7 @@ namespace {
                 if (value >= raisedBeta)
                     return value;
 
-                else if (ss->staticEval >= raisedBeta)
+                else 
                     probcutMove[probCutCount - 1] = move;
             }
     }
