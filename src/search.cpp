@@ -622,7 +622,7 @@ namespace {
     StateInfo st;
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove, probcutMove[4];
+    Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
@@ -638,10 +638,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    probcutMove[0] = MOVE_NONE;
-    probcutMove[1] = MOVE_NONE;
-    probcutMove[2] = MOVE_NONE;
-    probcutMove[3] = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -934,9 +930,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-
-                else 
-                    probcutMove[probCutCount - 1] = move;
             }
     }
 
@@ -1227,16 +1220,14 @@ moves_loop: // When in check, search starts from here
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
 
-          else if (didLMR && value <= alpha && 
-                  (move == probcutMove[0]
-                || move == probcutMove[1] 
-                || move == probcutMove[2]
-                || move == probcutMove[3]))
+          else if (didLMR && captureOrPromotion)
           {
+
               CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-              captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << - stat_bonus(newDepth);
+              if (value <= alpha)
+                  captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << - stat_bonus(newDepth);
+
           }
-              
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
