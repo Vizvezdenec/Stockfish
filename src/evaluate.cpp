@@ -721,7 +721,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 36 * almostUnwinnable
-                    - 18 *(almostUnwinnable && !pe->passed_count() && !infiltration)
+                    - 36 *(almostUnwinnable && !pe->passed_count() && !infiltration)
                     -110 ;
 
     Value mg = mg_value(score);
