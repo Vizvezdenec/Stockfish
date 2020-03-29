@@ -935,7 +935,7 @@ namespace {
                 if (value >= raisedBeta)
                     return value;
 
-                else if (!cutNode && ss->staticEval >= raisedBeta)
+                else if (ss->staticEval >= raisedBeta)
                     probcutMove[probCutCount - 1] = move;
             }
     }
