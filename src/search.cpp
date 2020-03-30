@@ -1033,8 +1033,13 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+          else
+          {
+          CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+          int captureStats = captureOrPromotion? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512 : 0;
+          if (!pos.see_ge(move, Value(-194 - captureStats) * depth)) // (~25 Elo)
               continue;
+          }
       }
 
       // Step 14. Extensions (~75 Elo)
