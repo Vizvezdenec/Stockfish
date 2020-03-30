@@ -1036,8 +1036,8 @@ moves_loop: // When in check, search starts from here
           else
           {
           CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-          int captureStats = captureOrPromotion? std::min(captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 128, 0) : 0;
-          if (!pos.see_ge(move, Value(-194 - captureStats) * depth)) // (~25 Elo)
+          bool badCapture = captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0;
+          if (!pos.see_ge(move, Value(-194 + 40 * badCapture) * depth)) // (~25 Elo)
               continue;
           }
       }
