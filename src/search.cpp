@@ -1037,7 +1037,7 @@ moves_loop: // When in check, search starts from here
           {
           CapturePieceToHistory& captureHistory = thisThread->captureHistory;
           bool badCapture = captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0;
-          if (!pos.see_ge(move, Value(-194 + 40 * badCapture) * depth)) // (~25 Elo)
+          if (!pos.see_ge(move, Value(-204 + 40 * badCapture) * depth)) // (~25 Elo)
               continue;
           }
       }
