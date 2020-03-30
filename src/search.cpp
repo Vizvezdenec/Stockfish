@@ -1114,6 +1114,7 @@ moves_loop: // When in check, search starts from here
                                                                 [captureOrPromotion]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
+      CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1127,7 +1128,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0))
       {
           Depth r = reduction(improving, depth, moveCount);
 
