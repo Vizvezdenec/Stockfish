@@ -1034,21 +1034,8 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else 
-          {
-          if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
               continue;
-
-          Value margin = alpha - PieceValue[EG][pos.captured_piece()] - 200 * depth;
-          if (!givesCheck && ss->staticEval <= margin && pos.legal(move))
-              {
-              pos.do_move(move, st, givesCheck);
-              value = -search<NonPV>(pos, ss+1, -(margin + 1), -margin, depth/2, cutNode);
-              pos.undo_move(move);
-              if (value < alpha)
-                  continue;
-              }
-          }
       }
 
       // Step 14. Extensions (~75 Elo)
@@ -1203,8 +1190,14 @@ moves_loop: // When in check, search starts from here
           }
 
           // Increase reduction for captures/promotions if late move and at low depth
-          else if (depth < 8 && moveCount > 2)
+          else 
+          {
+          if (depth < 8 && moveCount > 2)
               r++;
+
+          if (!givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
+              r++;
+          }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
