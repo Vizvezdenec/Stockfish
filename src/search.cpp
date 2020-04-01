@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              ||(formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -1000)
+              ||(formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] <= 0)
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
