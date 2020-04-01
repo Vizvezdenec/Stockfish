@@ -1039,9 +1039,11 @@ moves_loop: // When in check, search starts from here
           if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
               continue;
 
-          if (!givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
+          if (!givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha && pos.legal(move))
               {
-              value = search<NonPV>(pos, ss, alpha - 1, alpha, depth/2, cutNode);
+              pos.do_move(move, st, givesCheck);
+              value = -search<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth/2, cutNode);
+              pos.undo_move(move);
               if (value < alpha)
                   continue;
               }
