@@ -1034,8 +1034,18 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+          else 
+          {
+          if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
               continue;
+
+          if (!givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
+              {
+              value = search<NonPV>(pos, ss, alpha - 1, alpha, depth/2, cutNode);
+              if (value < alpha)
+                  continue;
+              }
+          }
       }
 
       // Step 14. Extensions (~75 Elo)
