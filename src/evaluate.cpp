@@ -205,7 +205,6 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
-    bool badTR[COLOR_NB];
   };
 
 
@@ -246,8 +245,6 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
-
-    badTR[Us] = false;
   }
 
 
@@ -352,10 +349,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                    badTR[Us] = badTR[Us] || (SQ_F1 == relative_square(Us, s));
-                }
             }
         }
 
@@ -737,9 +731,6 @@ namespace {
     // so that the midgame and endgame scores do not change sign after the bonus.
     int u = ((mg > 0) - (mg < 0)) * std::max(std::min(complexity + 50, 0), -abs(mg));
     int v = ((eg > 0) - (eg < 0)) * std::max(complexity, -abs(eg));
-
-    Color strongSide = mg > VALUE_DRAW ? WHITE : BLACK;
-    u += ((mg > 0) - (mg < 0)) * 50 * badTR[~strongSide];
 
     if (T)
         Trace::add(INITIATIVE, make_score(u, v));
