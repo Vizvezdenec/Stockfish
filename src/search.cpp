@@ -1162,7 +1162,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularLMR)
+          if (singularLMR && !(ttQuiet
+                && ttStats > 25000))
               r -= 1 + formerPv;
 
           if (!captureOrPromotion)
@@ -1207,10 +1208,6 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r++;
-
-            if (   ttQuiet
-                && ttStats > 25000)
                 r++;
           }
 
