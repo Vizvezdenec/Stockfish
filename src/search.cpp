@@ -1077,6 +1077,24 @@ moves_loop: // When in check, search starts from here
               return singularBeta;
       }
 
+      else if (depth >= 10
+          && moveCount == 1
+          && !ttMove
+          && !rootNode
+          && !excludedMove
+          && pos.legal(move))
+     {
+          Depth extensionDepth = (depth - 1) / 2;
+          value = search<NonPV>(pos, ss, beta - 1, beta, extensionDepth, cutNode);
+          if (value >= beta)
+          {
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, beta - 1, beta, extensionDepth, cutNode);
+              if (value < beta)
+                  extension = 1;
+          }
+     }
+
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
