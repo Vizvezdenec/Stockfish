@@ -1211,7 +1211,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (   ttQuiet
-                && ttStats > 28000)
+                && ttStats > 20000)
                 r++;
           }
 
