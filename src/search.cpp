@@ -1090,6 +1090,7 @@ moves_loop: // When in check, search starts from here
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, extensionDepth, cutNode);
+              ss->excludedMove = MOVE_NONE;
               if (value < beta)
                   extension = 1;
           }
