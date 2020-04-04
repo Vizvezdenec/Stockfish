@@ -194,7 +194,7 @@ namespace {
 void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions[i] = int((24.8 + 5 * std::log(Threads.size()) / 4) * std::log(i));
+      Reductions[i] = int((24.8 + std::log(Threads.size()) / 2) * std::log(i));
 }
 
 
@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, failedExt;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -961,7 +961,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = failedExt = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
@@ -1073,8 +1073,13 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta)
+          else 
+          {
+          if (singularBeta >= beta)
               return singularBeta;
+          else 
+              failedExt = true;
+          }
       }
 
       // Check extension (~2 Elo)
@@ -1227,6 +1232,9 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
+                  bonus += bonus / 4;
+
+              if (value > alpha && failedExt)
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
