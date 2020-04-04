@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, failedExt;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -961,7 +961,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = failedExt = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
@@ -1077,7 +1077,14 @@ moves_loop: // When in check, search starts from here
           {
           if (singularBeta >= beta)
               return singularBeta;
-          else singularLMR = true;
+          else 
+              {
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, ttValue - 1, ttValue, singularDepth, cutNode);
+              ss->excludedMove = MOVE_NONE;
+              if (value >= ttValue)
+                  failedExt = true;
+              }
           }
       }
 
@@ -1127,7 +1134,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          && (moveCount > 1 + 2 * rootNode || (moveCount == 1 && failedExt))
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
