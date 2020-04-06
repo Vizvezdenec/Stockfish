@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move) || inCheck))
+               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
           extension = 1;
 
       // Passed pawn extension
@@ -1160,7 +1160,8 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r+= 1 + (!givesCheck
+                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha);
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
