@@ -1131,7 +1131,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(improving, depth + th.marked(), moveCount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024)
@@ -1198,7 +1198,7 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r+= 1 + 2 * cutNode;
+                r++;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
