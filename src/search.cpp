@@ -905,8 +905,8 @@ namespace {
         CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && (probCutCount < 2 + 2 * cutNode 
-                || captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0))
+               && probCutCount < 2 + 2 * cutNode 
+                && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] >= 0)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
