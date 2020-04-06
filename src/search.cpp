@@ -1005,8 +1005,7 @@ moves_loop: // When in check, search starts from here
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && move != countermove)
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
@@ -1200,6 +1199,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (type_of(pos.moved_piece(move)) != PAWN && type_of(pos.moved_piece(move)) != KING && !pos.see_ge(reverse_move(move)))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
