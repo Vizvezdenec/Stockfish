@@ -1208,7 +1208,7 @@ moves_loop: // When in check, search starts from here
                 move == probcutMove[1] ||
                 move == probcutMove[2] ||  
                 move == probcutMove[3]   )
-                r += 2;              
+                r++;              
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
