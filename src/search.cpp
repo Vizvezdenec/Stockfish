@@ -1120,8 +1120,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool heavyLMR = false;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1205,14 +1203,11 @@ moves_loop: // When in check, search starts from here
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
-          if (d == 1)
-              heavyLMR = true;
-
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          didLMR = true;
+          didLMR = (d > 1);
       }
       else
       {
@@ -1228,8 +1223,8 @@ moves_loop: // When in check, search starts from here
 
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth - heavyLMR)
-                                        : -stat_bonus(newDepth - heavyLMR);
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
