@@ -1205,7 +1205,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
-          if (d < 3 * (newDepth - 1) / 4)
+          if (d == 1)
               heavyLMR = true;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
