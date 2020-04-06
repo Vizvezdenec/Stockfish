@@ -1201,7 +1201,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (type_of(pos.moved_piece(move)) != PAWN && type_of(pos.moved_piece(move)) != KING && !pos.see_ge(reverse_move(move)))
-                r--;
+                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
