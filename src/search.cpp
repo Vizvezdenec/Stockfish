@@ -1131,7 +1131,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth + th.marked(), moveCount);
+          Depth r = reduction(improving, depth + th.marked() * (depth / 2), moveCount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024)
