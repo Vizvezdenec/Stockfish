@@ -623,7 +623,7 @@ namespace {
     StateInfo st;
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove, probcutMove[4];
+    Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
@@ -639,7 +639,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    probcutMove[0] = probcutMove[1] = probcutMove[2] = probcutMove[3] = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -903,8 +902,11 @@ namespace {
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &thisThread->captureHistory);
         int probCutCount = 0;
 
+        CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && (probCutCount < 2 + 2 * cutNode 
+                || captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -932,9 +934,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-
-                if (cutNode) 
-                    probcutMove[probCutCount - 1] = move;
             }
     }
 
@@ -1203,12 +1202,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (move == probcutMove[0] ||
-                move == probcutMove[1] ||
-                move == probcutMove[2] ||  
-                move == probcutMove[3]   )
-                r++;              
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
