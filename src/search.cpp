@@ -836,7 +836,7 @@ namespace {
             return qsearch<NT>(pos, ss, alpha, beta);
 
         Value ralpha = alpha - RazorMargin;
-        value = qsearch<NT>(pos, ss, alpha, alpha + 1);
+        value = qsearch<NT>(pos, ss, ralpha, ralpha + 1);
         if (value <= ralpha)
             return value;
     }
