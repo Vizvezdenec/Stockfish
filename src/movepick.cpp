@@ -89,8 +89,6 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePiece
 
   assert(!pos.checkers());
 
-  threshold -= (*captureHistory)[pos.moved_piece(ttm)][to_sq(ttm)][type_of(pos.piece_on(to_sq(ttm)))] / 32;
-
   stage = PROBCUT_TT;
   ttMove =   ttm
           && pos.capture(ttm)
