@@ -1037,11 +1037,11 @@ moves_loop: // When in check, search starts from here
           }
           else 
           {
-          if (captureOrPromotion)
+          if (!givesCheck)
               {
                   CapturePieceToHistory& captureHistory = thisThread->captureHistory;
                   // Capture history pruning
-                  if (   lmrDepth < 1 
+                  if (   lmrDepth < 1 + th.marked()
                       && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                       continue;
               }
