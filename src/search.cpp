@@ -828,18 +828,10 @@ namespace {
     }
 
     // Step 7. Razoring (~1 Elo)
-    if (   !ttPv // The required rootNode PV handling is not available in qsearch
-        &&  depth < 4
+    if (   !rootNode // The required rootNode PV handling is not available in qsearch
+        &&  depth == 1
         &&  eval <= alpha - RazorMargin)
-    {
-        if (depth == 1)
-            return qsearch<NT>(pos, ss, alpha, beta);
-
-        Value ralpha = alpha - RazorMargin;
-        value = qsearch<NT>(pos, ss, ralpha, ralpha + 1);
-        if (value <= ralpha)
-            return value;
-    }
+        return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
@@ -1205,7 +1197,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 16434;
+              r -= ss->statScore * (1 + (ss->ply / 8)) / 16434;
           }
           else
           {
