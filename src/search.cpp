@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, failPC;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -639,6 +639,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    failPC = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -932,6 +933,9 @@ namespace {
                 if (value >= raisedBeta)
                     return value;
             }
+
+        if (ss->staticEval > raisedBeta)
+            failPC = true;
     }
 
     // Step 11. Internal iterative deepening (~1 Elo)
@@ -1162,6 +1166,9 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
+              if (failPC)
+                  r--;
+
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1207,7 +1214,7 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          didLMR = (d > 1);
+          didLMR = true;
       }
       else
       {
