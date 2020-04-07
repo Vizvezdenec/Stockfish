@@ -828,7 +828,7 @@ namespace {
     }
 
     // Step 7. Razoring (~1 Elo)
-    if (   !rootNode // The required rootNode PV handling is not available in qsearch
+    if (   !ttPv // The required rootNode PV handling is not available in qsearch
         &&  depth < 4
         &&  eval <= alpha - RazorMargin)
     {
