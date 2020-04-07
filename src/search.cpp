@@ -933,17 +933,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-
-                if (ss->staticEval > alpha)
-                {
-                    pos.do_move(move, st);
-                    value = -search<NonPV>(pos, ss+1, -alpha - 1, -alpha, depth / 2, !cutNode);
-                    pos.undo_move(move);
-                    if (value <= alpha)
-                    {
-                        captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << - stat_bonus(depth);
-                    }
-                }
             }
     }
 
