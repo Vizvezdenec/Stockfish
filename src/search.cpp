@@ -967,6 +967,8 @@ moves_loop: // When in check, search starts from here
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
+    Move PrevCounter = MOVE_NONE;
+
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
@@ -1004,11 +1006,16 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      if (PrevCounter)
+          thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
+
+      if (move == countermove)
+          PrevCounter = move;
+
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !(move == countermove && pos.capture_or_promotion(move)))
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
@@ -1300,6 +1307,8 @@ moves_loop: // When in check, search starts from here
       if (value > bestValue)
       {
           bestValue = value;
+
+          PrevCounter = MOVE_NONE;
 
           if (value > alpha)
           {
