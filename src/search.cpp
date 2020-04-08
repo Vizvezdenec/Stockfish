@@ -731,6 +731,11 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
+            else if (ttValue <= alpha)
+            {
+                CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
+            }
         }
 
         if (pos.rule50_count() < 90)
