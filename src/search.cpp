@@ -1018,6 +1018,11 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck)
           {
+
+              if (   lmrDepth < 1
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
+                  continue;
+
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1042,11 +1047,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
-
-              if (   !givesCheck
-                  && lmrDepth < 1
-                  && ss->staticEval + 500 + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
