@@ -1046,7 +1046,7 @@ moves_loop: // When in check, search starts from here
 
               if (   !givesCheck
                   && lmrDepth < 1
-                  && ss->staticEval + 300 + 200 * lmrDepth + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && ss->staticEval + 500 + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
