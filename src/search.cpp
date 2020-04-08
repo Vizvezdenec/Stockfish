@@ -1004,6 +1004,8 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      bool LMRcapture = false;
+
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1040,12 +1042,15 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && newDepth < reduction(improving, depth, moveCount)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
+
+              if (lmrDepth == 1 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  LMRcapture = true;
           }
       }
 
@@ -1139,7 +1144,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || LMRcapture))
       {
           Depth r = reduction(improving, depth, moveCount);
 
