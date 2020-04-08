@@ -444,6 +444,8 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
+    unsafeChecks &= ~pawn_double_attacks_bb<Them>(pos.pieces(Them, PAWN));
+
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
