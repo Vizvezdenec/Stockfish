@@ -1106,7 +1106,7 @@ moves_loop: // When in check, search starts from here
       else if (   captureOrPromotion
                && type_of(pos.piece_on(to_sq(move))) != PAWN
                && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) == 2
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] >= 0)
+               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0)
           extension = 1;
 
       // Castling extension
