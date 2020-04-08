@@ -731,11 +731,6 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
-            else if (ttValue < beta - PieceValue[EG][pos.piece_on(to_sq(ttMove))])
-            {
-                CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
-            }
         }
 
         if (pos.rule50_count() < 90)
@@ -938,6 +933,9 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+
+                if (ss->staticEval >= raisedBeta)
+                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(depth - 4);
             }
     }
 
