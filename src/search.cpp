@@ -1044,6 +1044,12 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   !givesCheck
+                  && lmrDepth < 3
+                  && ss->staticEval + 300 + 200 * lmrDepth + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] <= 0)
+                  continue;
+
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
@@ -1101,12 +1107,6 @@ moves_loop: // When in check, search starts from here
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
-          extension = 1;
-
-      else if (   captureOrPromotion
-               && type_of(pos.piece_on(to_sq(move))) != PAWN
-               && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) == 2
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0)
           extension = 1;
 
       // Castling extension
