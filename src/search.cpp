@@ -933,9 +933,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-
-                if (ss->staticEval >= raisedBeta)
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(depth - 4);
             }
     }
 
@@ -1043,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && newDepth < reduction(improving, depth, moveCount)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
