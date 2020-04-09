@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1 + !priorCapture
+                  && lmrDepth < 1 - priorCapture
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
