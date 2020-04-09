@@ -1044,8 +1044,7 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              if (   !(captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 8000)
-                  && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1518,6 +1517,11 @@ moves_loop: // When in check, search starts from here
               continue;
           }
       }
+
+      CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+      if (   pos.capture_or_promotion(move) && !givesCheck && depth == 0
+          && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+          continue;
 
       // Detect non-capture evasions that are candidates to be pruned
       evasionPrunable =    inCheck
