@@ -1040,7 +1040,8 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && newDepth - reduction(false, depth, moveCount) <= 0
+                  && !inCheck
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
