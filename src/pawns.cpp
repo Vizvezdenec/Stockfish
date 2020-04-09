@@ -70,7 +70,6 @@ namespace {
 
     constexpr Color     Them = ~Us;
     constexpr Direction Up   = pawn_push(Us);
-    constexpr Direction Down   = pawn_push(Them);
 
     Bitboard neighbours, stoppers, support, phalanx, opposed;
     Bitboard lever, leverPush, blocked;
@@ -87,9 +86,6 @@ namespace {
     e->passedPawns[Us] = 0;
     e->kingSquares[Us] = SQ_NONE;
     e->pawnAttacks[Us] = e->pawnAttacksSpan[Us] = pawn_attacks_bb<Us>(ourPawns);
-    e->lockedArea[Us] = 0;
-    Bitboard theirDoubleAtt = pawn_double_attacks_bb<Them>(theirPawns);
-    Bitboard lockedPawns = ourPawns & shift<Down>(theirPawns | theirDoubleAtt);
 
     // Loop through all pawns of the current color and score each pawn
     while ((s = *pl++) != SQ_NONE)
@@ -109,10 +105,6 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
 
-        if (    (lockedPawns & s) 
-            && !(ourPawns & shift<Up>(passed_pawn_span(Us, s))))
-            e->lockedArea[Us] |= forward_file_bb(Them, s + Up);
-            
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
         backward =  !(neighbours & forward_ranks_bb(Them, s + Up))

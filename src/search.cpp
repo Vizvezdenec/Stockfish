@@ -1205,10 +1205,19 @@ moves_loop: // When in check, search starts from here
             if (depth < 8 && moveCount > 2)
                 r++;
 
-            // Unless giving check, this capture is likely bad
-            if (   !givesCheck
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
+            if (   !givesCheck)
+            {
+                // Unless giving check, this capture is likely bad
+                if (ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
+                    r++;
+
+                 if ( captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0 
+                 && (ss-1)->statScore > 0)
                 r++;
+                else if (captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0 
+                 && (ss-1)->statScore < 0)
+                r--;
+            }
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
