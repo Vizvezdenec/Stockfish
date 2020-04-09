@@ -1041,12 +1041,8 @@ moves_loop: // When in check, search starts from here
           {
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
-
-              if (   !givesCheck
-                  && lmrDepth < 1
-                  && ss->staticEval + 800 + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0 
+                   + (ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha))
                   continue;
 
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
