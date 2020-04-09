@@ -1041,7 +1041,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1 + 2 * ttCheck
+                  && lmrDepth < 1 + (ttCheck && singularLMR)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
