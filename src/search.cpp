@@ -1045,9 +1045,8 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   !captureOrPromotion
-                  && lmrDepth < 2
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && lmrDepth < 1
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
