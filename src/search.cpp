@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, ttCheck, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -965,7 +965,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttCheck = ttMove && pos.gives_check(ttMove);
     bool formerPv = ttPv && !PvNode;
 
     // Mark this node as being searched
@@ -1041,11 +1040,12 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1 + (ttCheck && singularLMR)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (   !(captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 8000)
+                  && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1171,7 +1171,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r+= 1;
+                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
