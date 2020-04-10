@@ -933,6 +933,11 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+
+                if (move == ttMove
+                 && ss->staticEval >= raisedBeta
+                 && ttValue < beta)
+                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(depth);
             }
     }
 
