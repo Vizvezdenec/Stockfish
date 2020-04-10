@@ -933,11 +933,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-
-                if (move == ttMove
-                 && ss->staticEval >= raisedBeta
-                 && ttValue < beta)
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(depth);
             }
     }
 
@@ -1080,7 +1075,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularLMR = true;
+              singularLMR = tte->depth() < depth;
           }
 
           // Multi-cut pruning
