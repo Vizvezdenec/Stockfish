@@ -81,10 +81,10 @@ namespace {
   constexpr int KingAttackWeights[PIECE_TYPE_NB] = { 0, 0, 81, 52, 44, 10 };
 
   // Penalties for enemy's safe checks
-  constexpr int QueenSafeCheck  = 780;
-  constexpr int RookSafeCheck   = 1080;
-  constexpr int BishopSafeCheck = 635;
-  constexpr int KnightSafeCheck = 790;
+  constexpr int QueenSafeCheck  = 788;
+  constexpr int RookSafeCheck   = 1083;
+  constexpr int BishopSafeCheck = 641;
+  constexpr int KnightSafeCheck = 783;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -715,7 +715,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    -110 ;
+                    -118 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);

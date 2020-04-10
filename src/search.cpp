@@ -970,8 +970,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    int bestMoveCapture = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1174,9 +1172,6 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (bestMoveCapture + ttCapture > 1)
-                  r++;
-
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1242,7 +1237,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-                  bonus += bonus / 4;
+                  bonus += bonus / 2;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
@@ -1308,9 +1303,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              if (captureOrPromotion)
-                  bestMoveCapture++;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
