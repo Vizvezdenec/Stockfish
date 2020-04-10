@@ -627,9 +627,9 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, singularLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, ttCapture;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -964,7 +964,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    ttCapture = 2 * (ttMove && pos.capture_or_promotion(ttMove));
     bool formerPv = ttPv && !PvNode;
 
     // Mark this node as being searched
@@ -1169,8 +1169,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
-                  r += 3;
+              r += ttCapture;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1304,8 +1303,8 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (!captureOrPromotion && ttCapture)
-                  ttCapture = false;
+              if (!captureOrPromotion)
+                  ttCapture = std::max(ttCapture - 1, 0);
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
