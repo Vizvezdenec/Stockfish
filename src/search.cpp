@@ -1174,8 +1174,8 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (bestMoveCapture > 1)
-                  r+= 1 + ttCapture;
+              if (bestMoveCapture + ttCapture > 1)
+                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
