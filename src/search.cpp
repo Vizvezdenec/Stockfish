@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1 + (depth < 8 && moveCount > 2)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1237,7 +1237,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-                  bonus += bonus / 4;
+                  bonus += bonus / 2;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
