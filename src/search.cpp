@@ -1174,8 +1174,8 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (bestMoveCapture > 0)
-                  r++;
+              if (bestMoveCapture > 1)
+                  r+= 1 + ttCapture;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1311,8 +1311,6 @@ moves_loop: // When in check, search starts from here
 
               if (captureOrPromotion)
                   bestMoveCapture++;
-              else 
-                  bestMoveCapture--;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
