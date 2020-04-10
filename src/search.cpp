@@ -627,9 +627,9 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, ttCapture;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -964,7 +964,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularLMR = moveCountPruning = false;
-    ttCapture = 2 * (ttMove && pos.capture_or_promotion(ttMove));
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
     // Mark this node as being searched
@@ -1139,7 +1139,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || ss->ply >= depth))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1169,7 +1170,8 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              r += ttCapture;
+              if (ttCapture)
+                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1302,9 +1304,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              if (!captureOrPromotion)
-                  ttCapture = std::max(ttCapture - 1, 0);
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
