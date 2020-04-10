@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, ttQuiet, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -965,7 +965,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttQuiet = ttMove && !pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
     // Mark this node as being searched
@@ -1041,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && (lmrDepth < 1 || moveCountPruning)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1140,8 +1139,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
-              || (ttQuiet && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
