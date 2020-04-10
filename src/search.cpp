@@ -627,9 +627,9 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, ttCapture;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -685,6 +685,8 @@ namespace {
         (ss+4)->statScore = 0;
     else
         (ss+2)->statScore = 0;
+
+    ss->captureStat = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -847,6 +849,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23397
+        && (ss-1)->captureStat < 10000
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 32 * depth - 30 * improving + 120 * ttPv + 292
@@ -964,7 +967,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularLMR = moveCountPruning = false;
-    ttCapture = 3 * (ttMove && pos.capture_or_promotion(ttMove));
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     bool formerPv = ttPv && !PvNode;
 
     // Mark this node as being searched
@@ -1000,6 +1003,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+
+      ss->captureStat = captureOrPromotion? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] : 0;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1169,7 +1174,8 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              r += ttCapture;
+              if (ttCapture)
+                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1302,9 +1308,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              if (!captureOrPromotion)
-                  ttCapture = std::max(ttCapture - 1, 0);
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
