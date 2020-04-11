@@ -686,6 +686,7 @@ namespace {
     else
         (ss+2)->statScore = 0;
 
+
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
@@ -704,45 +705,49 @@ namespace {
     thisThread->ttHitAverage =   (ttHitAverageWindow - 1) * thisThread->ttHitAverage / ttHitAverageWindow
                                 + ttHitAverageResolution * ttHit;
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ttHit
+        && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
     {
-        if (tte->depth() >= depth)
-        {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
         {
-            if (ttValue >= beta)
+            if (!pos.capture_or_promotion(ttMove))
             {
-                if (!pos.capture_or_promotion(ttMove))
+                if (ttValue >= beta)
+                {
+                
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
-                // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    // Extra penalty for early quiet moves of the previous ply
+                    if ((ss-1)->moveCount <= 2 && !priorCapture)
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                }
+                // Penalty for a quiet ttMove that fails low
+                else if (!pos.capture_or_promotion(ttMove))
+                {
+                    int penalty = -stat_bonus(depth);
+                    thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                    update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                }
             }
-            // Penalty for a quiet ttMove that fails low
-            else if (!pos.capture_or_promotion(ttMove))
+            else if (tte->depth() > depth + 1)
             {
-                int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                int bonus = ttValue >= beta ?  stat_bonus(depth)
+                                            : -stat_bonus(depth);
+
+                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << bonus;
             }
         }
 
         if (pos.rule50_count() < 90)
             return ttValue;
-        }
-        else if (ttMove && tte->depth() >= depth / 2 && !pos.capture_or_promotion(ttMove))
-        {
-            int bonus = ttValue >= beta ? stat_bonus(tte->depth()) :
-                                        - stat_bonus(tte->depth()) ;
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), bonus);
-        }
     }
 
     // Step 5. Tablebases probe
@@ -796,8 +801,6 @@ namespace {
             }
         }
     }
-
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
     if (inCheck)
