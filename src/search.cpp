@@ -737,7 +737,7 @@ namespace {
                     update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
                 }
             }
-            else if (tte->depth() > depth + 1)
+            else if (tte->depth() > depth + 3)
             {
                 int bonus = ttValue >= beta ?  stat_bonus(depth)
                                             : -stat_bonus(depth);
