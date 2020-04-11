@@ -741,7 +741,6 @@ namespace {
         {
             int bonus = ttValue >= beta ? stat_bonus(tte->depth()) :
                                         - stat_bonus(tte->depth()) ;
-            thisThread->mainHistory[us][from_to(ttMove)] << bonus;
             update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), bonus);
         }
     }
