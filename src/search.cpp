@@ -686,6 +686,8 @@ namespace {
     else
         (ss+2)->statScore = 0;
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
@@ -731,6 +733,8 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
+            else if (tte->depth() > depth + 1)
+                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
         }
 
         if (pos.rule50_count() < 90)
@@ -788,8 +792,6 @@ namespace {
             }
         }
     }
-
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
     if (inCheck)
@@ -1237,7 +1239,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-                  bonus += bonus / 2;
+                  bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
