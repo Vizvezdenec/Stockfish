@@ -106,7 +106,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
 
-        e->spaceWeight[Us] += bool(blocked);
+        e->spaceWeight[Us] += file_of(s) > FILE_B && file_of(s) < FILE_G && blocked;
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
