@@ -712,7 +712,7 @@ namespace {
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
     {
-        int highTte = (tte->depth() > depth + 1);
+        int highTte = (tte->depth() > depth + 3);
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
         {
