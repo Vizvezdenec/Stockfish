@@ -1169,8 +1169,8 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
-                  r++;
+              if (ttCapture && (ttValue >= alpha))
+                  r += 2;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
