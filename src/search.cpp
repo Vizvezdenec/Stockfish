@@ -1262,9 +1262,9 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
 
-          if (extension == 2 && captureOrPromotion && value <= alpha)
-               captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(newDepth);
       }
+      if (extension == 2 && captureOrPromotion && value <= alpha)
+          captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(newDepth);
 
       // Step 18. Undo move
       pos.undo_move(move);
