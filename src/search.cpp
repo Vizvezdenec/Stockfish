@@ -1148,7 +1148,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || !(PvNode || cutNode)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1261,10 +1262,7 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
-
       }
-      if (extension == 2 && captureOrPromotion && value <= alpha)
-          captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(newDepth);
 
       // Step 18. Undo move
       pos.undo_move(move);
