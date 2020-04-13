@@ -686,6 +686,8 @@ namespace {
     else
         (ss+2)->statScore = 0;
 
+    ss->captHist = 0;
+
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
@@ -796,8 +798,7 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = (ss-2)->staticEval!=VALUE_NONE && 
-                    (ss-2)->staticEval > -(ss-1)->staticEval + Tempo;
+        improving = false;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
@@ -819,7 +820,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore / 512;
+            int bonus = priorCapture? -(ss-1)->captHist / 128 : -(ss-1)->statScore / 512;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
@@ -1219,6 +1220,8 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            ss->captHist = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))];
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
