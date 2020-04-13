@@ -707,8 +707,6 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    int auwI = 25 * (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= BishopValueMg - KnightValueMg);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -716,7 +714,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
-                    -(43 + auwI) * almostUnwinnable
+                    - 43 * almostUnwinnable
                     -110 ;
 
     Value mg = mg_value(score);

@@ -796,7 +796,8 @@ namespace {
     if (inCheck)
     {
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        improving = (ss-2)->staticEval!=VALUE_NONE && 
+                    (ss-2)->staticEval > (ss-1)->staticEval + 2 * Tempo;
         goto moves_loop;  // Skip early pruning when in check
     }
     else if (ttHit)
