@@ -658,7 +658,7 @@ namespace {
   template<Tracing T> template<Color Us>
   Score Evaluation<T>::space() const {
 
-    if (pos.non_pawn_material() < SpaceThreshold)
+    if (pos.non_pawn_material() < SpaceThreshold - PawnValueMg * pe->blocked_count())
         return SCORE_ZERO;
 
     constexpr Color Them     = ~Us;
@@ -678,7 +678,7 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    int weight = pos.count<ALL_PIECES>(Us) - 2 + std::min(pe->blocked_count() / 2, 4);
+    int weight = pos.count<ALL_PIECES>(Us) - 2 + pe->blocked_count() / 2;
     Score score = make_score(bonus * weight * weight / 16, 0);
 
     if (T)

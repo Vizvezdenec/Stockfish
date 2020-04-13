@@ -106,7 +106,7 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
 
-        e->blockedCount[Us] += bool(blocked || more_than_one(leverPush));
+        e->blockedCount[Us] += bool(blocked);
         
 
         // A pawn is backward when it is behind all pawns of the same color on
