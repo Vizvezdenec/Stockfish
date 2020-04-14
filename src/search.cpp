@@ -908,7 +908,7 @@ namespace {
 
         if (    ttMove
             && (tte->bound() & BOUND_LOWER)
-            &&  tte->depth() >= depth - 3
+            &&  tte->depth() >= depth - 4
             &&  pos.legal(ttMove)
             &&  ttValue >= beta)
         {
