@@ -907,8 +907,7 @@ namespace {
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode 
-               && !(move == ttMove && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 4 && ttValue < raisedBeta))
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1219,6 +1218,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if ((givesCheck || ss->staticEval + PieceValue[MG][pos.captured_piece()] > alpha) && !(PvNode || cutNode))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
