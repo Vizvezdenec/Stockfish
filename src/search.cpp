@@ -903,18 +903,16 @@ namespace {
     {
         Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
-        if (!(         ttMove
-                    && (tte->bound() & BOUND_LOWER)
-                    && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta
-                    && pos.legal(ttMove)))
-        {
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (move != excludedMove && pos.legal(move))
+            if (       move != excludedMove && pos.legal(move) 
+                    && !(   move == ttMove
+                    && (tte->bound() & BOUND_LOWER)
+                    && tte->depth() >= depth - 4
+                    && ttValue < raisedBeta))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
@@ -942,7 +940,6 @@ namespace {
                 if (value >= raisedBeta)
                     return value;
             }
-        }
     }
 
     // Step 11. Internal iterative deepening (~1 Elo)
