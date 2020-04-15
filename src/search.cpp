@@ -903,7 +903,7 @@ namespace {
     {
         Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
-        if (!(   pos.capture_or_promotion(ttMove)
+        if (!(         ttMove
                     && (tte->bound() & BOUND_LOWER)
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta
