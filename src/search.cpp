@@ -908,17 +908,20 @@ namespace {
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (       move != excludedMove && pos.legal(move) 
-                    && !(   move == ttMove
-                    && (tte->bound() & BOUND_LOWER)
-                    && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta))
+
+            if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
 
                 captureOrPromotion = true;
                 probCutCount++;
+
+                if (!(   move == ttMove
+                    && (tte->bound() & BOUND_LOWER)
+                    && tte->depth() >= depth - 4
+                    && ttValue < raisedBeta))
+                {
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -939,6 +942,7 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
+                }
             }
     }
 
