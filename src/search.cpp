@@ -903,20 +903,12 @@ namespace {
     {
         Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
-
-        if (    ttMove
-            && (tte->bound() & BOUND_LOWER)
-            &&  tte->depth() >= depth - 4
-            && !pos.capture_or_promotion(ttMove)
-            &&  pos.legal(ttMove)
-            &&  ttValue >= beta)
-            raisedBeta = std::min(ttValue, raisedBeta);
-
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
         while (  (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode 
+               && !(move == ttMove && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 4 && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
