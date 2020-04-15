@@ -907,7 +907,9 @@ namespace {
         bool badTtMove = false;
         if  (    ttMove 
              && (tte->bound() & BOUND_LOWER) 
-              && tte->depth() >= depth - 4)
+              && tte->depth() >= depth - 4
+              && pos.capture_or_promotion(ttMove)
+              && pos.legal(ttMove))
         {
             if (ttValue >= raisedBeta)
                 return raisedBeta;
