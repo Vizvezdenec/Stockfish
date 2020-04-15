@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, ttGoodQuiet, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -907,8 +907,11 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
-
+               && probCutCount < 2 + 2 * cutNode
+               && !(   move == ttMove
+                    && (tte->bound() & BOUND_LOWER)
+                    && tte->depth() >= depth - 4
+                    && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -916,12 +919,6 @@ namespace {
 
                 captureOrPromotion = true;
                 probCutCount++;
-
-                if (!(   move == ttMove
-                    && (tte->bound() & BOUND_LOWER)
-                    && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta))
-                {
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[inCheck]
@@ -942,7 +939,6 @@ namespace {
 
                 if (value >= raisedBeta)
                     return value;
-                }
             }
     }
 
@@ -975,6 +971,11 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    ttGoodQuiet = ttMove 
+               && !pos.capture_or_promotion(ttMove) 
+               && tte->depth() >= depth / 2
+               && ttValue >= beta 
+               && (tte->bound() & BOUND_LOWER);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1050,7 +1051,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + ttGoodQuiet
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
