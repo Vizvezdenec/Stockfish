@@ -909,15 +909,11 @@ namespace {
              && (tte->bound() & BOUND_LOWER) 
               && tte->depth() >= depth - 4
               && pos.capture_or_promotion(ttMove)
-              && pos.legal(ttMove))
+              && pos.legal(ttMove)
+              && ttValue < raisedBeta)
         {
-            if (ttValue >= raisedBeta)
-                return raisedBeta;
-            else
-                {
-                raisedBeta = std::max(beta, ttValue);
+                raisedBeta = std::max((beta + raisedBeta) / 2, (ttValue + beta) / 2);
                 badTtMove = true;
-                }
         }
         
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
