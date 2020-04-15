@@ -914,7 +914,10 @@ namespace {
             if (ttValue >= raisedBeta)
                 return raisedBeta;
             else
+                {
+                raisedBeta = std::max(beta, ttValue);
                 badTtMove = true;
+                }
         }
         
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
