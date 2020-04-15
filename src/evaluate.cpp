@@ -435,6 +435,8 @@ namespace {
     else
         unsafeChecks |= knightChecks;
 
+    unsafeChecks &= ~(attackedBy[Us][PAWN] & attackedBy2[Us]);
+
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
     b1 = attackedBy[Them][ALL_PIECES] & KingFlank[file_of(ksq)] & Camp;
