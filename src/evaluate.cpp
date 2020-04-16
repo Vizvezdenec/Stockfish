@@ -681,11 +681,12 @@ namespace {
     constexpr Color Them     = ~Us;
     constexpr Direction Down = -pawn_push(Us);
     constexpr Bitboard SpaceMask =
-      Us == WHITE ? CenterFiles & (Rank2BB | Rank3BB | Rank4BB)
-                  : CenterFiles & (Rank7BB | Rank6BB | Rank5BB);
+      Us == WHITE ?  (Rank2BB | Rank3BB | Rank4BB)
+                  :  (Rank7BB | Rank6BB | Rank5BB);
 
     // Find the available squares for our pieces inside the area defined by SpaceMask
-    Bitboard safe =   SpaceMask
+    Bitboard safe =   CenterFiles 
+                   &  SpaceMask
                    & ~pos.pieces(Us, PAWN)
                    & ~attackedBy[Them][PAWN];
 
@@ -695,8 +696,10 @@ namespace {
     behind |= shift<Down+Down>(behind);
 
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
-    int weight = pos.count<ALL_PIECES>(Us) - 4 + std::min(3 * pe->blocked_count(), 26) / 2;
+    int weight = pos.count<ALL_PIECES>(Us) - 3 + std::min(pe->blocked_count(), 9);
     Score score = make_score(bonus * weight * weight / 16, 0);
+
+    score += make_score(popcount(behind & ~CenterFiles & ~attackedBy[Them][ALL_PIECES]) * weight, 0);
 
     if (T)
         Trace::add(SPACE, Us, score);
