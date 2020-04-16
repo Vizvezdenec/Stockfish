@@ -1053,7 +1053,7 @@ moves_loop: // When in check, search starts from here
                                 || givesCheck;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-194 - 15 * goodCheckCapt) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194 - 35 * goodCheckCapt) * depth)) // (~25 Elo)
                   continue;
           }
       }
