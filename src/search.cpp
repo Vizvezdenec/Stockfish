@@ -903,6 +903,14 @@ namespace {
     {
         Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
+
+        if (   ttMove
+            && pos.capture_or_promotion(ttMove)
+            && tte->depth() >= depth - 4
+            && (tte->bound() & BOUND_LOWER)
+            && ttValue >= raisedBeta)
+            return raisedBeta;
+
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
@@ -1243,7 +1251,7 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if ((didLMR || (moveCount == 1 && singularLMR && value > alpha)) && !captureOrPromotion)
+          if (didLMR && !captureOrPromotion)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
