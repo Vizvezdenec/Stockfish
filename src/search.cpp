@@ -1040,6 +1040,7 @@ moves_loop: // When in check, search starts from here
 
               if (   ttCapture
                   && ttValue > alpha
+                  && (tte->bound() & BOUND_LOWER)
                   && tte->depth() > lmrDepth
                   && (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
