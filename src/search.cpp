@@ -1049,10 +1049,8 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              bool goodCheckCapt = captureOrPromotion && (captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0 
-                                || givesCheck);
               // See based pruning
-              if (!pos.see_ge(move, Value(-189 - 25 * goodCheckCapt) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1240,6 +1238,12 @@ moves_loop: // When in check, search starts from here
           didLMR = false;
       }
 
+      if (moveCount == 1 && !captureOrPromotion)
+          ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             - 4926;
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
