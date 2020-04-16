@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3 + formerPv
+          &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
@@ -1096,7 +1096,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
+               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move) || !(PvNode || cutNode)))
           extension = 1;
 
       // Passed pawn extension
