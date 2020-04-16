@@ -907,12 +907,13 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode
-               && !(   move == ttMove
-                    && (tte->bound() & BOUND_LOWER)
+               && probCutCount < 2 + 2 * cutNode)
+
+            if (       move != excludedMove && pos.legal(move) 
+                    && !(   move == ttMove
+                    && (tte->bound() & BOUND_UPPER)
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
-            if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
@@ -1046,7 +1047,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1 + (ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
