@@ -907,8 +907,7 @@ namespace {
         if (   ttMove
             && pos.capture_or_promotion(ttMove)
             && tte->depth() >= depth - 4
-            && (tte->bound() & BOUND_LOWER)
-            && ttValue >= raisedBeta + 40 * (depth - tte->depth()))
+            && ttValue >= raisedBeta)
             return raisedBeta;
 
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
