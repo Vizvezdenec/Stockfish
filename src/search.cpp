@@ -1046,7 +1046,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + (ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1222,9 +1222,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (givesCheck && !cutNode)
-                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
