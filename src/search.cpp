@@ -1049,10 +1049,10 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              int captStats = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 128;
-                                
+              bool goodCheckCapt = captureOrPromotion && (captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0 
+                                || givesCheck);
               // See based pruning
-              if (!pos.see_ge(move, Value(-194 - captStats * !givesCheck) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194 - 25 * goodCheckCapt) * depth)) // (~25 Elo)
                   continue;
           }
       }
