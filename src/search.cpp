@@ -1243,7 +1243,7 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if ((didLMR || (moveCount == 1 && singularLMR)) && !captureOrPromotion)
+          if ((didLMR || (moveCount == 1 && singularLMR && value > alpha)) && !captureOrPromotion)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
