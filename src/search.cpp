@@ -1041,10 +1041,7 @@ moves_loop: // When in check, search starts from here
               if (   ttCapture
                   && ttValue > alpha
                   && (tte->bound() & BOUND_LOWER)
-                  && tte->depth() > lmrDepth
-                  && thisThread->mainHistory[us][from_to(move)] < 0
-                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[1])[movedPiece][to_sq(move)] < 0)
+                  && lmrDepth < 1)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
