@@ -725,7 +725,9 @@ namespace {
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     bool knightBishop = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) ==
-                        BishopValueMg - KnightValueMg;
+                        BishopValueMg - KnightValueMg 
+                    && pos.non_pawn_material(WHITE) + pos.non_pawn_material(BLACK) ==
+                        BishopValueMg + KnightValueMg;
 
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
