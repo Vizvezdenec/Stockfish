@@ -1009,9 +1009,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      // Reduced depth of the next LMR search
-      int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1019,6 +1016,9 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+
+          // Reduced depth of the next LMR search
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1036,6 +1036,13 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
+                  continue;
+
+              if (   ttCapture
+                  && tte->depth() > lmrDepth
+                  && (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)]
+                    + (*contHist[3])[movedPiece][to_sq(move)] < 0)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1182,7 +1189,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture && lmrDepth <= tte->depth())
+              if (ttCapture)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
