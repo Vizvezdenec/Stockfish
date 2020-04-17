@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts from here
           else if (singularBeta > alpha)
           {
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, beta - 1, beta, tte->depth(), cutNode);
+          value = search<NonPV>(pos, ss, beta - 1, beta, std::max(tte->depth() - 1, depth / 2), cutNode);
           ss->excludedMove = MOVE_NONE;
           if (value >= beta)
               return beta;
