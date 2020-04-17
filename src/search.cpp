@@ -1055,22 +1055,6 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      if (    depth >= 10
-          &&  move == ttMove
-          && !rootNode
-          && !excludedMove
-          &&  abs(ttValue) < VALUE_KNOWN_WIN
-          && (tte->bound() & BOUND_UPPER)
-          &&  tte->depth() >= depth - 3
-          &&  pos.legal(move)
-          && ttValue < alpha)
-      {
-          ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, alpha - 1, alpha, tte->depth(), cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value < alpha)
-             return alpha;
-      }
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1107,6 +1091,15 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
+
+          else if (singularBeta > alpha && ttValue >= beta)
+          {
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value >= beta)
+              return beta;
+          }
       }
 
       // Check extension (~2 Elo)
