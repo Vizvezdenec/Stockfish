@@ -450,6 +450,7 @@ namespace {
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
+                 +   2 * kingFlankAttack * std::max(pe->blocked_count() - 10, 0)
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
@@ -724,17 +725,15 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
-    int infiltrationC = 24 + 4 * std::max(pe->blocked_count() - 8, 0);
-
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
                     +  9 * outflanking
                     + 21 * pawnsOnBothFlanks
-                    - infiltrationC * !infiltration
+                    + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 86 ;
+                    -110 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
