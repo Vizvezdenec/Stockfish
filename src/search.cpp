@@ -1091,15 +1091,6 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
-
-          else if (ttValue >= beta)
-          {
-          ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, beta - 1, beta, depth - 3, cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value >= beta)
-              return beta;
-          }
       }
 
       // Check extension (~2 Elo)
@@ -1186,6 +1177,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
+
+          if (givesCheck && !PvNode && !cutNode)
+              r -= 2;
 
           if (!captureOrPromotion)
           {
