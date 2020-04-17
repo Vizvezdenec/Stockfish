@@ -166,7 +166,7 @@ namespace {
     template<Color Us> Score king() const;
     template<Color Us> Score threats() const;
     template<Color Us> Score passed() const;
-    template<Color Us> Score space() const;
+    template<Color Us> Score space();
     ScaleFactor scale_factor(Value eg) const;
     Score initiative(Score score) const;
 
@@ -175,6 +175,7 @@ namespace {
     Pawns::Entry* pe;
     Bitboard mobilityArea[COLOR_NB];
     Score mobility[COLOR_NB] = { SCORE_ZERO, SCORE_ZERO };
+    int spaceScore[COLOR_NB];
 
     // attackedBy[color][piece type] is a bitboard representing all squares
     // attacked by a given color and piece type. Special "piece types" which
@@ -245,6 +246,8 @@ namespace {
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
+
+    spaceScore[Us] = 0;
   }
 
 
@@ -451,6 +454,7 @@ namespace {
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
                  +       mg_value(mobility[Them] - mobility[Us])
+                 +       (spaceScore[Them] - spaceScore[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
                  -   6 * mg_value(score) / 8
@@ -673,7 +677,7 @@ namespace {
   // improve play on game opening.
 
   template<Tracing T> template<Color Us>
-  Score Evaluation<T>::space() const {
+  Score Evaluation<T>::space() {
 
     if (pos.non_pawn_material() < SpaceThreshold)
         return SCORE_ZERO;
@@ -697,6 +701,8 @@ namespace {
     int bonus = popcount(safe) + popcount(behind & safe & ~attackedBy[Them][ALL_PIECES]);
     int weight = pos.count<ALL_PIECES>(Us) - 3 + std::min(pe->blocked_count(), 9);
     Score score = make_score(bonus * weight * weight / 16, 0);
+
+    spaceScore[Us] = mg_value(score);
 
     if (T)
         Trace::add(SPACE, Us, score);
@@ -823,10 +829,12 @@ namespace {
 
     score += mobility[WHITE] - mobility[BLACK];
 
+    
+    score += space<  WHITE>() - space<  BLACK>();
+
     score +=  king<   WHITE>() - king<   BLACK>()
             + threats<WHITE>() - threats<BLACK>()
-            + passed< WHITE>() - passed< BLACK>()
-            + space<  WHITE>() - space<  BLACK>();
+            + passed< WHITE>() - passed< BLACK>();
 
     score += initiative(score);
 
