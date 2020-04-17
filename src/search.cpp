@@ -908,8 +908,7 @@ namespace {
 
         bool badTtMove = ttMove
                     && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta
-                    && (tte->bound() & BOUND_UPPER);
+                    && ttValue < raisedBeta;
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
