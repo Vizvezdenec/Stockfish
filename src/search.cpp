@@ -906,11 +906,14 @@ namespace {
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
+        bool badTtMove = ttMove
+                    && tte->depth() >= depth - 4
+                    && ttValue < raisedBeta
+                    && (tte->bound() & BOUND_UPPER);
+
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
-               && !(   move == ttMove
-                    && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta))
+               && !(badTtMove  && move == ttMove))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -937,7 +940,15 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    if (badTtMove)
+                    {
+                        int penalty = -stat_bonus(tte->depth());
+                        thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                        update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                    }
                     return value;
+                }
             }
     }
 
@@ -1177,9 +1188,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (givesCheck && !PvNode && !cutNode)
-              r -= 2;
 
           if (!captureOrPromotion)
           {
