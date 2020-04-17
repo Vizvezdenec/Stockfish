@@ -1080,6 +1080,14 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
+              if (singularBeta < alpha)
+              {
+              pos.do_move(move, st, givesCheck);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, (depth * 3) / 4, !cutNode);
+              pos.undo_move(move);
+              if (value <= alpha)
+                  return alpha;
+              }
               extension = 1;
               singularLMR = true;
           }
@@ -1091,15 +1099,6 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
-
-          else if (singularBeta > alpha)
-          {
-          ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, beta - 1, beta, std::max(tte->depth() - 1, depth / 2), cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value >= beta)
-              return beta;
-          }
       }
 
       // Check extension (~2 Elo)
