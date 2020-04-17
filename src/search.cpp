@@ -876,7 +876,16 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                if (ttHit
+                 && tte->depth() >= depth
+                 && ttValue != VALUE_NONE
+                 && ttMove
+                 && (ss-1)->moveCount <= 2 
+                 && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -906,13 +915,11 @@ namespace {
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
-        bool badTtMove = ttMove
-                    && tte->depth() >= depth - 4
-                    && ttValue < raisedBeta;
-
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
-               && !(badTtMove  && move == ttMove))
+               && !(   move == ttMove
+                    && tte->depth() >= depth - 4
+                    && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -939,14 +946,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    if (badTtMove && ttValue < beta)
-                    {
-                        int penalty = -stat_bonus(tte->depth());
-                        update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                    }
                     return value;
-                }
             }
     }
 
