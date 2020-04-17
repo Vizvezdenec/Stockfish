@@ -907,7 +907,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 3 * cutNode
+               && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
@@ -1010,6 +1010,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
+          && !(givesCheck && inCheck)
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
