@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, ttQuiet, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -970,8 +970,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttQuiet = ttMove && !pos.capture_or_promotion(ttMove);
-    bool captLMR = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1094,8 +1092,14 @@ moves_loop: // When in check, search starts from here
           else if (singularBeta >= beta)
               return singularBeta;
 
-          else if (singularBeta <= alpha && ttQuiet)
-              captLMR = true;
+          else if (singularBeta > alpha)
+          {
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, beta - 1, beta, tte->depth(), cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value >= beta)
+              return beta;
+          }
       }
 
       // Check extension (~2 Elo)
@@ -1225,9 +1229,6 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r++;
-
-            if (captLMR && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                 r++;
           }
 
