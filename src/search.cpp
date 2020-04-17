@@ -941,7 +941,7 @@ namespace {
 
                 if (value >= raisedBeta)
                 {
-                    if (badTtMove)
+                    if (badTtMove && ttValue < beta)
                     {
                         int penalty = -stat_bonus(tte->depth());
                         update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
