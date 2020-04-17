@@ -907,7 +907,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode
+               && probCutCount < 2 + cutNode
                && !(   move == ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
