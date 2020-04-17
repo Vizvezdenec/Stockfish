@@ -305,6 +305,9 @@ namespace {
             // Penalty if the piece is far from the king
             score -= KingProtector * distance(pos.square<KING>(Us), s);
 
+            if (relative_rank(Us, s) < RANK_3 && !(b & mobilityArea[Us] & forward_ranks_bb(Us, s)))
+                score -= make_score(20, 20) * (1 + (relative_rank(Us, s) == RANK_1));
+
             if (Pt == BISHOP)
             {
                 // Penalty according to number of pawns on the same color square as the
@@ -450,7 +453,6 @@ namespace {
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
-                 +       kingFlankAttack * std::max(pe->blocked_count() - 10, 0) / 2
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
