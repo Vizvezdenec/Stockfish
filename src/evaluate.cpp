@@ -83,8 +83,8 @@ namespace {
   // Penalties for enemy's safe checks
   constexpr int QueenSafeCheck  = 780;
   constexpr int RookSafeCheck   = 1078;
-  constexpr int BishopSafeCheck = 620;
-  constexpr int KnightSafeCheck = 770;
+  constexpr int BishopSafeCheck = 635;
+  constexpr int KnightSafeCheck = 790;
 
 #define S(mg, eg) make_score(mg, eg)
 
@@ -415,27 +415,34 @@ namespace {
         kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3/2
                                                  : QueenSafeCheck;
 
-    safe |= ~attackedBy2[Us] & attackedBy2[Them] & attackedBy[Us][ROOK] & ~pos.pieces(Them);
+    Bitboard almostSafe = ~attackedBy2[Us] & attackedBy2[Them] & attackedBy[Us][ROOK] & ~pos.pieces(Them);
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
     bishopChecks =  b2
                   & attackedBy[Them][BISHOP]
-                  & safe
                   & ~queenChecks;
-    if (bishopChecks)
+    if (bishopChecks & safe)
         kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
                                                   : BishopSafeCheck;
     else
+    {
+        if (bishopChecks & almostSafe)
+            kingDanger += BishopSafeCheck / 4;
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
+    }
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (knightChecks & safe)
         kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3/2
                                                          : KnightSafeCheck;
-    else
+    else 
+    {
+        if (knightChecks & almostSafe)
+            kingDanger += KnightSafeCheck / 4;
         unsafeChecks |= knightChecks;
+    }
 
     // Find the squares that opponent attacks in our king flank, the squares
     // which they attack twice in that flank, and the squares that we defend.
