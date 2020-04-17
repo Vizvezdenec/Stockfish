@@ -428,7 +428,7 @@ namespace {
     else
     {
         if (bishopChecks & almostSafe)
-            kingDanger += BishopSafeCheck / 8;
+            kingDanger += BishopSafeCheck / 2;
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
     }
 
@@ -440,7 +440,7 @@ namespace {
     else 
     {
         if (knightChecks & almostSafe)
-            kingDanger += KnightSafeCheck / 8;
+            kingDanger += KnightSafeCheck / 2;
         unsafeChecks |= knightChecks;
     }
 
