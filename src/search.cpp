@@ -944,7 +944,6 @@ namespace {
                     if (badTtMove)
                     {
                         int penalty = -stat_bonus(tte->depth());
-                        thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                         update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
                     }
                     return value;
