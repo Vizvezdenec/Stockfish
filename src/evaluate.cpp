@@ -450,7 +450,7 @@ namespace {
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
                  +   3 * kingFlankAttack * kingFlankAttack / 8
-                 +   2 * kingFlankAttack * std::max(pe->blocked_count() - 10, 0)
+                 +       kingFlankAttack * std::max(pe->blocked_count() - 10, 0) / 2
                  +       mg_value(mobility[Them] - mobility[Us])
                  - 873 * !pos.count<QUEEN>(Them)
                  - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])
