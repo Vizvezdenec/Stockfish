@@ -901,7 +901,7 @@ namespace {
         &&  depth >= 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 189 - 45 * improving;
+        Value raisedBeta = beta + 189 - 45 * improving - 30 * cutNode;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1366,7 +1366,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + cutNode));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
