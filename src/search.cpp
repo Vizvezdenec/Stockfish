@@ -1055,7 +1055,7 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      if (    depth >= 6
+      if (    depth >= 10
           &&  move == ttMove
           && !rootNode
           && !excludedMove
