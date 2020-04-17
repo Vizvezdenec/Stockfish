@@ -399,8 +399,7 @@ namespace {
     // Enemy rooks checks
     rookChecks = b1 & safe & attackedBy[Them][ROOK];
     if (rookChecks)
-        kingDanger += more_than_one(rookChecks) ? RookSafeCheck * 3/2
-                                                : RookSafeCheck;
+        kingDanger += popcount(rookChecks) * RookSafeCheck / 2 + RookSafeCheck / 2;
     else
         unsafeChecks |= b1 & attackedBy[Them][ROOK];
 
@@ -412,8 +411,7 @@ namespace {
                  & ~attackedBy[Us][QUEEN]
                  & ~rookChecks;
     if (queenChecks)
-        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3/2
-                                                 : QueenSafeCheck;
+        kingDanger += popcount(queenChecks) * QueenSafeCheck / 2 + QueenSafeCheck / 2;
 
     // Enemy bishops checks: we count them only if they are from squares from
     // which we can't give a queen check, because queen checks are more valuable.
@@ -422,16 +420,14 @@ namespace {
                   & safe
                   & ~queenChecks;
     if (bishopChecks)
-        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
-                                                  : BishopSafeCheck;
+        kingDanger += popcount(bishopChecks) * BishopSafeCheck / 2 + BishopSafeCheck / 2;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
     // Enemy knights checks
     knightChecks = pos.attacks_from<KNIGHT>(ksq) & attackedBy[Them][KNIGHT];
     if (knightChecks & safe)
-        kingDanger += more_than_one(knightChecks & safe) ? KnightSafeCheck * 3/2
-                                                         : KnightSafeCheck;
+        kingDanger += popcount(knightChecks) * KnightSafeCheck / 2 + KnightSafeCheck / 2;
     else
         unsafeChecks |= knightChecks;
 
