@@ -848,8 +848,8 @@ namespace {
                   && tte->depth() >= depth - 2
                   && ttValue != VALUE_NONE // Possible in case of TT access race
                   && tte->bound() & BOUND_LOWER
-                  && ttValue >= beta + futility_margin(tte->depth(), improving))
-            return beta + futility_margin(tte->depth(), improving);
+                  && ttValue >= beta + futility_margin(depth + 2, improving))
+            return beta + futility_margin(depth, improving);
     }
 
     // Step 9. Null move search with verification search (~40 Elo)
