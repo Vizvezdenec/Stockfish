@@ -845,10 +845,11 @@ namespace {
         if (depth < 6)
             return eval;
         else if (    ttHit
+                  && cutNode
                   && depth < 11
                   && tte->depth() >= depth - 1
                   && ttValue != VALUE_NONE // Possible in case of TT access race
-                  && tte->bound() & BOUND_LOWER
+                  && (tte->bound() & BOUND_LOWER)
                   && ttValue >= beta + futility_margin(depth + 2, improving)
                   && beta + futility_margin(depth, improving) < VALUE_KNOWN_WIN)
             return beta + futility_margin(depth, improving);
