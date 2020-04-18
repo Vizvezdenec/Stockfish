@@ -875,8 +875,16 @@ namespace {
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
                 nullValue = beta;
 
-            if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                if (ttHit
+                 && tte->depth() >= depth
+                 && ttValue != VALUE_NONE
+                 && ttMove
+                 && (ss-1)->moveCount < 2 
+                 && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
