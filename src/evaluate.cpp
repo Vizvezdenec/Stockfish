@@ -732,6 +732,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - 12 * !infiltration * std::max(0, pe->blocked_count() - 10)
                     -110 ;
 
     Value mg = mg_value(score);
