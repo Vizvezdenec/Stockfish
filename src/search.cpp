@@ -1048,17 +1048,9 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
-              
-              bool discoCheck = false;
-              if (givesCheck && pos.legal(move))
-              {
-                   pos.do_move(move, st, givesCheck);
-                   discoCheck = more_than_one(pos.checkers());
-                   pos.undo_move(move);
-              }
-              
+
               // See based pruning
-              if (!discoCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1110,6 +1102,14 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+          }
+          else if (ttValue <= alpha && PvNode)
+          {
+              pos.do_move(move, st, givesCheck);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 4, cutNode);
+              pos.undo_move(move);
+              if (value <= alpha)
+                  return alpha;
           }
       }
 
