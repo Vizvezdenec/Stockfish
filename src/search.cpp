@@ -839,19 +839,10 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if (depth < 6)
-            return eval;
-        else if (    ttHit
-                  && tte->depth() >= depth - 3
-                  && ttValue != VALUE_NONE // Possible in case of TT access race
-                  && tte->bound() & BOUND_LOWER
-                  && ttMove
-                  && ttValue >= beta)
-            return beta;
-    }
+        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1111,6 +1102,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else singularLMR = true;
           }
       }
 
