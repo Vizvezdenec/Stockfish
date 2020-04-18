@@ -902,16 +902,6 @@ namespace {
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 189 - 45 * improving;
-
-        if (  ttHit
-           && tte->depth() >= depth - 4
-           && ttValue != VALUE_NONE // Possible in case of TT access race
-           && (tte->bound() & BOUND_LOWER)  
-           && ttMove 
-           && pos.capture_or_promotion(ttMove)
-           && ttValue > raisedBeta + std::max((depth - tte->depth()) * 200, 0))
-            return raisedBeta;
-
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1033,7 +1023,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || !(PvNode || cutNode))
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
