@@ -937,7 +937,11 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    if (!priorCapture && prevSq == to_sq(move))
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
+                }
             }
     }
 
