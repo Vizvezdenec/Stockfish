@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (!(givesCheck && pos.is_discovery_check_on_king(~us, move)) && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1102,14 +1102,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
-          else if (ttValue <= alpha && PvNode)
-          {
-              pos.do_move(move, st, givesCheck);
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 3, cutNode);
-              pos.undo_move(move);
-              if (value <= alpha)
-                  return alpha;
           }
       }
 
