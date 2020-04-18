@@ -1102,6 +1102,8 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else if (!captureOrPromotion)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(tte->depth()));
           }
       }
 
