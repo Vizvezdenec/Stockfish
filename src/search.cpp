@@ -842,11 +842,7 @@ namespace {
         &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if (!priorCapture && depth > 1 && (ss-1)->moveCount <= 2)
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
         return eval;
-    }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -880,8 +876,16 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                if (ttHit
+                 && tte->depth() >= depth - R
+                 && ttValue != VALUE_NONE
+                 && ttMove
+                 && (ss-1)->moveCount <= 2 
+                 && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                 return nullValue;
-
+            }
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
             // Do verification search at high depths, with null move pruning disabled
