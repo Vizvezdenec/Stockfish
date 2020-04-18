@@ -312,7 +312,7 @@ namespace {
                 // when the bishop is outside the pawn chain.
                 Bitboard blocked = pos.pieces(Us, PAWN) & shift<Down>(pos.pieces());
 
-                score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
+                score -= BishopPawns * std::max(pos.pawns_on_same_color_squares(Us, s), pe->blocked_count() - 8)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
@@ -732,7 +732,6 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
-                    - 12 * !infiltration * std::max(0, pe->blocked_count() - 10)
                     -110 ;
 
     Value mg = mg_value(score);
