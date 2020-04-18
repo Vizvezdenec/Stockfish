@@ -846,10 +846,10 @@ namespace {
             return eval;
         else if (    ttHit
                   && depth < 11
-                  && tte->depth() >= depth - 3
+                  && tte->depth() >= depth - 2
                   && ttValue != VALUE_NONE // Possible in case of TT access race
                   && tte->bound() & BOUND_LOWER
-                  && ttValue >= beta + futility_margin(depth + 2 * std::max(depth - tte->depth(), 0) + 2, improving)
+                  && ttValue >= beta + futility_margin(depth + 2, improving)
                   && beta + futility_margin(depth, improving) < VALUE_KNOWN_WIN)
             return beta + futility_margin(depth, improving);
     }
