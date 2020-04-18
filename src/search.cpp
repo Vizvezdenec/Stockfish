@@ -839,18 +839,10 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if (depth < 6)
-            return eval;
-        else if (    ttHit
-                  && tte->depth() >= depth - 2
-                  && ttValue != VALUE_NONE // Possible in case of TT access race
-                  && tte->bound() & BOUND_LOWER
-                  && ttValue >= beta + futility_margin(depth + 2, improving))
-            return beta + futility_margin(depth, improving);
-    }
+        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1053,7 +1045,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + ((ss-1)->moveCount == 1 && priorCapture)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
