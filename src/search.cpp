@@ -970,6 +970,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool failedMulticut = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1102,8 +1103,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(tte->depth()));
+              else failedMulticut = true;
           }
       }
 
@@ -1191,6 +1191,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
+
+          if (failedMulticut)
+              r++;
 
           if (!captureOrPromotion)
           {
