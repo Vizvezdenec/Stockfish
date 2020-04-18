@@ -845,11 +845,11 @@ namespace {
         if (depth < 6)
             return eval;
         else if (    ttHit
-                  && tte->depth() >= (3 * depth) / 4
+                  && tte->depth() >= depth - 2
                   && ttValue != VALUE_NONE // Possible in case of TT access race
                   && tte->bound() & BOUND_LOWER
-                  && ttValue >= beta + futility_margin(depth, improving))
-            return beta + futility_margin(depth, improving);
+                  && ttValue >= beta + futility_margin(tte->depth(), improving))
+            return beta + futility_margin(tte->depth(), improving);
     }
 
     // Step 9. Null move search with verification search (~40 Elo)
