@@ -698,8 +698,6 @@ namespace {
     int weight = pos.count<ALL_PIECES>(Us) - 3 + std::min(pe->blocked_count(), 9);
     Score score = make_score(bonus * weight * weight / 16, 0);
 
-    score += make_score(mg_value(score) * int(mg_value(mobility[Us])) / 256, 0);
-
     if (T)
         Trace::add(SPACE, Us, score);
 

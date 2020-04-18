@@ -1041,7 +1041,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (pos.rule50_count() <= 80 || !captureOrPromotion)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
