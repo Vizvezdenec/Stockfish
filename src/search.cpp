@@ -909,7 +909,7 @@ namespace {
            && (tte->bound() & BOUND_LOWER)  
            && ttMove 
            && pos.capture_or_promotion(ttMove)
-           && ttValue > raisedBeta + std::max((depth - tte->depth()) * 100, 0))
+           && ttValue > raisedBeta + std::max((depth - tte->depth()) * 200, 0))
             return raisedBeta;
 
         assert(raisedBeta < VALUE_INFINITE);
