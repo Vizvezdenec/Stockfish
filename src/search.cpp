@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts from here
               r -= 1 + formerPv;
 
           if (failedMulticut)
-              r++;
+              r--;
 
           if (!captureOrPromotion)
           {
