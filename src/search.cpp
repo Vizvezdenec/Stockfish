@@ -937,11 +937,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    if (!priorCapture && prevSq == to_sq(move))
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 1));
                     return value;
-                }
             }
     }
 
@@ -1106,6 +1102,14 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+          }
+          else if (ttValue < alpha)
+          {
+              pos.do_move(move, st, givesCheck);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 3, true);
+              pos.undo_move(move);
+              if (value <= alpha)
+                  return alpha;
           }
       }
 
