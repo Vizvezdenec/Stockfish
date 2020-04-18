@@ -1165,7 +1165,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || failedMulticut))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1191,9 +1192,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (failedMulticut && formerPv)
-              r--;
 
           if (!captureOrPromotion)
           {
