@@ -846,7 +846,7 @@ namespace {
             return eval;
         else if (    ttHit
                   && depth < 11
-                  && tte->depth() >= depth - 2
+                  && tte->depth() >= depth - 1
                   && ttValue != VALUE_NONE // Possible in case of TT access race
                   && tte->bound() & BOUND_LOWER
                   && ttValue >= beta + futility_margin(depth + 2, improving)
