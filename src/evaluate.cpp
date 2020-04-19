@@ -445,8 +445,7 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 180 * popcount(kingRing[Us] & weak)
-                 +  15 * popcount(attackedBy[Us][KING] & weak)
+                 + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
@@ -725,6 +724,9 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
+    bool rookEndgame = pos.non_pawn_material(WHITE) == RookValueMg 
+                    && pos.non_pawn_material(BLACK) == RookValueMg;
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -732,7 +734,7 @@ namespace {
                     + 21 * pawnsOnBothFlanks
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
-                    - 43 * almostUnwinnable
+                    - (40 + 20 * rookEndgame) * almostUnwinnable
                     -110 ;
 
     Value mg = mg_value(score);
