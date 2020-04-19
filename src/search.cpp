@@ -1103,25 +1103,11 @@ moves_loop: // When in check, search starts from here
               if (value >= beta)
                   return beta;
           }
-          else if (ttValue <= alpha && PvNode)
-          {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, alpha - 1, alpha, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value <= alpha)
-              {
-              pos.do_move(move, st, givesCheck);
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 4, cutNode);
-              pos.undo_move(move);
-              if (value <= alpha)
-                  return alpha;
-              }
-          }
       }
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
+               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move) || inCheck))
           extension = 1;
 
       // Passed pawn extension
