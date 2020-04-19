@@ -1004,11 +1004,9 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      if (captureOrPromotion 
-       && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-       && ss->statScore > 0)
-          ss->statScore = 0;
+      if (captureOrPromotion
+       && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0)
+          captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -((ss-1)->statScore < 0);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
