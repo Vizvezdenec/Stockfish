@@ -1005,6 +1005,11 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if (captureOrPromotion 
+       && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0
+       && ss->statScore < 0)
+          ss->statScore = 0;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1233,10 +1238,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0
-             && ss->statScore < 0)
-                ss->statScore = 0;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
