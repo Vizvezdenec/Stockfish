@@ -1154,6 +1154,13 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool captLMR =  captureOrPromotion
+                  && ttMove
+                  && (tte->bound() & BOUND_LOWER)
+                  &&  tte->depth() >= depth
+                  &&  pos.legal(ttMove)
+                  &&  ss->staticEval + PieceValue[EG][pos.captured_piece()] <= ttValue;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1163,7 +1170,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || captLMR))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1189,12 +1197,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (tte->depth() >= newDepth
-           && ttMove
-           && (tte->bound() & BOUND_UPPER)
-           && ttValue < alpha)
-              r--;
 
           if (!captureOrPromotion)
           {
