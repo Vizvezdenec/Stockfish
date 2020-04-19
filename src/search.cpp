@@ -1119,14 +1119,14 @@ moves_loop: // When in check, search starts from here
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
-          extension = 1 + (pos.rule50_count() > 80);
+          extension = 1;
 
       // Castling extension
       if (type_of(move) == CASTLING)
           extension = 1;
 
       // Late irreversible move extension
-      if (   move == ttMove
+      if (   (move == ttMove || (thisThread->ttHitAverage > 600 * ttHitAverageResolution * ttHitAverageWindow / 1024))
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
