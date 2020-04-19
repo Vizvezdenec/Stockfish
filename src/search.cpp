@@ -1029,6 +1029,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   lmrDepth < 1
+                  && type_of(pos.moved_piece(move)) != PAWN
                   && thisThread->mainHistory[us][from_to(reverse_move(move))] > 6000)
                   continue;
 
