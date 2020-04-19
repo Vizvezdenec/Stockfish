@@ -1190,6 +1190,12 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 1 + formerPv;
 
+          if (tte->depth() >= depth
+           && ttMove
+           && (tte->bound() & BOUND_UPPER)
+           && ttValue < alpha)
+              r--;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1233,14 +1239,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-
-            if (tte->depth() >= newDepth
-             && ttMove
-             && (tte->bound() & BOUND_UPPER)
-             && ttValue < alpha
-             && !ttCapture)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
