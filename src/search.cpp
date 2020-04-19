@@ -1029,7 +1029,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   lmrDepth < 1
-                  && thisThread->mainHistory[us][from_to(reverse_move(move))] > 0)
+                  && thisThread->mainHistory[us][from_to(reverse_move(move))] > 6000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
