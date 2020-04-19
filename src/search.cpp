@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts from here
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
-              || (ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha && !givesCheck)
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
       {
@@ -1233,6 +1233,14 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+
+            if (tte->depth() >= newDepth
+             && ttMove
+             && (tte->bound() & BOUND_UPPER)
+             && ttValue < alpha
+             && !ttCapture)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
