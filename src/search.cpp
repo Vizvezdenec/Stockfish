@@ -1004,9 +1004,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      if (captureOrPromotion
-       && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0)
-          captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -((ss-1)->statScore < 0);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1107,7 +1104,23 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-
+      else if (    PvNode
+               &&  depth >= 9
+               &&  move == ttMove
+               && !rootNode
+               && !excludedMove // Avoid recursive singular search
+               &&  abs(ttValue) < VALUE_KNOWN_WIN
+               && (tte->bound() & BOUND_UPPER)
+               &&  tte->depth() >= depth
+               &&  pos.legal(move))
+      {
+           ss->excludedMove = move;
+           value = search<NonPV>(pos, ss, alpha - 1, alpha, (depth + 3) / 2, cutNode);
+           ss->excludedMove = MOVE_NONE;
+           if (value <= alpha)
+               return alpha;
+      }
+ 
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
