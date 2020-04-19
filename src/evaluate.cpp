@@ -277,14 +277,11 @@ namespace {
         attackedBy[Us][Pt] |= b;
         attackedBy[Us][ALL_PIECES] |= b;
 
-        bool KA = false;
-
         if (b & kingRing[Them])
         {
             kingAttackersCount[Us]++;
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
-            KA = true;
         }
 
         int mob = popcount(b & mobilityArea[Us]);
@@ -306,7 +303,7 @@ namespace {
                 score += MinorBehindPawn;
 
             // Penalty if the piece is far from the king
-            score -= (KingProtector - make_score(5, 0) * KA) * distance(pos.square<KING>(Us), s);
+            score -= KingProtector * distance(pos.square<KING>(Us), s);
 
             if (Pt == BISHOP)
             {
@@ -448,7 +445,8 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
-                 + 185 * popcount(kingRing[Us] & weak)
+                 + 180 * popcount(kingRing[Us] & weak)
+                 +  15 * popcount(attackedBy[Us][KING] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
                  +  69 * kingAttacksCount[Them]
