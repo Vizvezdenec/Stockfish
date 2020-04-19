@@ -1031,7 +1031,8 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 1
                   && type_of(pos.moved_piece(move)) != PAWN
                   && type_of(move) == NORMAL
-                  && thisThread->mainHistory[us][from_to(reverse_move(move))] > 0)
+                  && thisThread->mainHistory[us][from_to(reverse_move(move))] > 0
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
