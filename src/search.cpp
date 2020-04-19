@@ -279,16 +279,24 @@ void MainThread::search() {
   {
       std::map<Move, int64_t> votes;
       Value minScore = this->rootMoves[0].score;
+      int minDepth = MAX_PLY, maxDepth = 0;
 
       // Find minimum score
       for (Thread* th: Threads)
+      {
           minScore = std::min(minScore, th->rootMoves[0].score);
+          minDepth = std::min(minDepth, int(th->completedDepth));
+          maxDepth = std::max(maxDepth, int(th->completedDepth));
+      }
 
       // Vote according to score and depth, and select the best thread
       for (Thread* th : Threads)
       {
+          // Normalise depth from range found into range 100-200
+          int normDepth = maxDepth == minDepth ? 150
+                          : 100 + 100 * (int(th->completedDepth) - minDepth) / (maxDepth - minDepth);
           votes[th->rootMoves[0].pv[0]] +=
-              (th->rootMoves[0].score - minScore + 14) * int(th->completedDepth);
+              (th->rootMoves[0].score - minScore + 14) * normDepth;
 
           if (abs(bestThread->rootMoves[0].score) >= VALUE_TB_WIN_IN_MAX_PLY)
           {
@@ -1323,9 +1331,6 @@ moves_loop: // When in check, search starts from here
       if (value > bestValue)
       {
           bestValue = value;
-
-          if (!captureOrPromotion)
-              ttCapture = false;
 
           if (value > alpha)
           {
