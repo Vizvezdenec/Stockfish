@@ -1082,6 +1082,14 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+              if (ttValue <= alpha && PvNode)
+              {
+                  pos.do_move(move, st, givesCheck);
+                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1, cutNode);
+                  pos.undo_move(move);
+                  if (value <= alpha)
+                  return alpha;
+              }
           }
 
           // Multi-cut pruning
@@ -1102,14 +1110,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
-          else if (ttValue <= alpha && PvNode)
-          {
-              pos.do_move(move, st, givesCheck);
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1, !cutNode);
-              pos.undo_move(move);
-              if (value <= alpha)
-                  return alpha;
           }
       }
 
