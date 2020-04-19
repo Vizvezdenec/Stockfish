@@ -838,9 +838,9 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   !rootNode
+    if (   !PvNode
         &&  depth < 6
-        &&  eval - futility_margin(depth, improving) - PvNode * 200 * std::max(20 - ss->ply, 0) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1189,6 +1189,13 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
+
+          if (PvNode
+           && tte->depth() >= depth
+           && ttMove
+           && (tte->bound() & BOUND_UPPER)
+           && ttValue < alpha)
+              r--;
 
           if (!captureOrPromotion)
           {
