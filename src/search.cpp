@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move) || inCheck))
+               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
           extension = 1;
 
       // Passed pawn extension
@@ -1378,7 +1378,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + ((ss-1)->moveCount > 14)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
