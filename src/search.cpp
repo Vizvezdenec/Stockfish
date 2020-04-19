@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, ttCheck;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -706,9 +706,9 @@ namespace {
                                 + ttHitAverageResolution * ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !PvNode
+    if (  !rootNode
         && ttHit
-        && tte->depth() >= depth
+        && tte->depth() >= depth + PvNode * (ss->ply + 2)
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -970,7 +970,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttCheck = ttMove && pos.gives_check(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1024,7 +1023,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + (ttCheck && ttCapture && !givesCheck)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
