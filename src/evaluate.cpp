@@ -316,9 +316,9 @@ namespace {
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
                 if (DarkSquares & s)
-                    score += make_score(0, 6) * pe->dark_backward(Them);
+                    score += make_score(0, 4) * pe->dark_backward(Them) * pe->dark_backward(Them);
                 else
-                    score += make_score(0, 6) * pe->light_backward(Them);
+                    score += make_score(0, 4) * pe->light_backward(Them) * pe->light_backward(Them);
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
