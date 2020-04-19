@@ -315,6 +315,11 @@ namespace {
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
+                if (DarkSquares & s)
+                    score += make_score(0, 6) * pe->dark_backward(Them);
+                else
+                    score += make_score(0, 6) * pe->light_backward(Them);
+
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
                     score += LongDiagonalBishop;
@@ -736,17 +741,6 @@ namespace {
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
-
-    if (pos.non_pawn_material() == BishopValueMg + KnightValueMg)
-    {
-        Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
-        if (pos.count<BISHOP>(strongSide) == 1)
-        {
-            Bitboard b = pos.pieces(BISHOP);
-            Square s = pop_lsb(&b);
-            complexity -= 60 * (!pe->passed_pawns(strongSide) && !pos.pawns_on_same_color_squares(~strongSide, s));
-        }
-    }
 
     // Now apply the bonus: note that we find the attacking side by extracting the
     // sign of the midgame or endgame values, and that we carefully cap the bonus
