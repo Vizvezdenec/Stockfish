@@ -1190,18 +1190,11 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 1 + formerPv;
 
-          if (PvNode
-           && tte->depth() >= depth + 1
-           && ttMove
-           && (tte->bound() & BOUND_UPPER)
-           && ttValue < alpha)
-              r--;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + (from_sq(move) == from_sq(ttMove));
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
