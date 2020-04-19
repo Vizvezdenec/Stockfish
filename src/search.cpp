@@ -1126,7 +1126,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Late irreversible move extension
-      if (   (move == ttMove || (thisThread->ttHitAverage > 600 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+      if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
@@ -1168,7 +1168,7 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 500 * ttHitAverageResolution * ttHitAverageWindow / 1024)
+          if (thisThread->ttHitAverage > (500 - 40 * (pos.rule50_count() > 80)) * ttHitAverageResolution * ttHitAverageWindow / 1024)
               r--;
 
           // Reduction if other threads are searching this position.
