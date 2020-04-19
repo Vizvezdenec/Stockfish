@@ -1066,7 +1066,7 @@ moves_loop: // When in check, search starts from here
                &&  pos.legal(move))
       {
            ss->excludedMove = move;
-           value = search<NonPV>(pos, ss, alpha - 1, alpha, (depth + 3) / 2, cutNode);
+           value = search<NonPV>(pos, ss, alpha - 1, alpha, depth - 2, cutNode);
            ss->excludedMove = MOVE_NONE;
            if (value < alpha)
                return alpha;
