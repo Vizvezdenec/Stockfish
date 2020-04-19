@@ -706,9 +706,9 @@ namespace {
                                 + ttHitAverageResolution * ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !rootNode
+    if (  !PvNode
         && ttHit
-        && tte->depth() >= depth + PvNode * (ss->ply + 2)
+        && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -838,9 +838,9 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   !PvNode
+    if (   !rootNode
         &&  depth < 6
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) - PvNode * 200 * std::max(20 - ss->ply, 0) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
