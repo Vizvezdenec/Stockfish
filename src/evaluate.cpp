@@ -741,7 +741,11 @@ namespace {
     {
         Color strongSide = eg > VALUE_DRAW ? WHITE : BLACK;
         if (pos.count<BISHOP>(strongSide) == 1)
-            complexity -= 70 * (!pawnsOnBothFlanks && outflanking < 0 && !pe->passed_pawns(strongSide));
+        {
+            Bitboard b = pos.pieces(BISHOP);
+            Square s = pop_lsb(&b);
+            complexity -= 60 * (!pe->passed_pawns(strongSide) && !pos.pawns_on_same_color_squares(~strongSide, s));
+        }
     }
 
     // Now apply the bonus: note that we find the attacking side by extracting the
