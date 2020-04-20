@@ -279,24 +279,16 @@ void MainThread::search() {
   {
       std::map<Move, int64_t> votes;
       Value minScore = this->rootMoves[0].score;
-      int minDepth = MAX_PLY, maxDepth = 0;
 
       // Find minimum score
       for (Thread* th: Threads)
-      {
           minScore = std::min(minScore, th->rootMoves[0].score);
-          minDepth = std::min(minDepth, int(th->completedDepth));
-          maxDepth = std::max(maxDepth, int(th->completedDepth));
-      }
 
       // Vote according to score and depth, and select the best thread
       for (Thread* th : Threads)
       {
-          // Normalise depth from range found into range 100-200
-          int normDepth = maxDepth == minDepth ? 150
-                          : 100 + 100 * (int(th->completedDepth) - minDepth) / (maxDepth - minDepth);
           votes[th->rootMoves[0].pv[0]] +=
-              (th->rootMoves[0].score - minScore + 14) * normDepth;
+              (th->rootMoves[0].score - minScore + 14) * int(th->completedDepth);
 
           if (abs(bestThread->rootMoves[0].score) >= VALUE_TB_WIN_IN_MAX_PLY)
           {
@@ -1380,8 +1372,13 @@ moves_loop: // When in check, search starts from here
                    :     inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
+        {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+
+        if (bestValue >= beta && to_sq(bestMove) == prevSq && !priorCapture)
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
+        }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
