@@ -639,6 +639,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->extendedMove = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -980,6 +981,8 @@ moves_loop: // When in check, search starts from here
     {
       assert(is_ok(move));
 
+      ss->extendedMove = false;
+
       if (move == excludedMove)
           continue;
 
@@ -1082,6 +1085,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+              ss->extendedMove = true;
           }
 
           // Multi-cut pruning
@@ -1233,10 +1237,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (!PvNode && !cutNode
-                && (givesCheck || ss->staticEval + PieceValue[MG][pos.captured_piece()] - 20 * depth > alpha))
-                r-= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1376,8 +1376,12 @@ moves_loop: // When in check, search starts from here
                    :     inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
+    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        if ((ss-1)->extendedMove && bestValue >= beta && !priorCapture)
+             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
