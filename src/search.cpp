@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-180) * depth - Value(14) * lmrDepth * lmrDepth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1127,9 +1127,9 @@ moves_loop: // When in check, search starts from here
 
       // Late irreversible move extension
       if (   move == ttMove
-          && pos.rule50_count() > 80
+          && pos.rule50_count() > 40
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 2;
+          extension = 1 + (pos.rule50_count() > 80);
 
       // Add extension to new depth
       newDepth += extension;
