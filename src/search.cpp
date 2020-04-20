@@ -1235,7 +1235,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (!PvNode && !cutNode
-                && (givesCheck || ss->staticEval + PieceValue[MG][pos.captured_piece()] - 40 * depth > alpha))
+                && (ss->staticEval + PieceValue[MG][pos.captured_piece()] - 20 * depth > alpha))
                 r-= 2;
           }
 
