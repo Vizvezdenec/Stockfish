@@ -150,7 +150,10 @@ namespace {
 
         else if (backward)
             score -=   Backward
-                     + WeakUnopposed * !opposed * (1 + bool(forward_file_bb(Them, s) & ourPawns));
+                     + WeakUnopposed * !opposed;
+
+        if (!neighbours && backward && (forward_file_bb(Them, s) & ourPawns) && !opposed)
+            score -= WeakUnopposed;
 
         if (!support)
             score -=   Doubled * doubled
