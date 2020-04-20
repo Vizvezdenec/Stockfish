@@ -1233,6 +1233,10 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (!PvNode && !cutNode
+                && (givesCheck || ss->staticEval + PieceValue[MG][pos.captured_piece()] - 20 * depth > alpha))
+                r-= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1376,7 +1380,7 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   ((depth >= 2 + 2 * !cutNode) || PvNode)
+    else if (   (depth >= 3 || PvNode)
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
