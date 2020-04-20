@@ -1127,9 +1127,9 @@ moves_loop: // When in check, search starts from here
 
       // Late irreversible move extension
       if (   move == ttMove
-          && pos.rule50_count() > 40
+          && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 1 + (pos.rule50_count() > 80);
+          extension = 2;
 
       // Add extension to new depth
       newDepth += extension;
