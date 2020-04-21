@@ -409,10 +409,10 @@ namespace {
     queenChecks =  (b1 | b2)
                  & attackedBy[Them][QUEEN]
                  & safe
-                 & ~attackedBy[Us][QUEEN]
-                 & ~rookChecks;
-    if (queenChecks)
-        kingDanger += more_than_one(queenChecks) ? QueenSafeCheck * 3/2
+                 & ~attackedBy[Us][QUEEN];
+    if (queenChecks & ~rookChecks)
+        kingDanger += more_than_one(queenChecks & ~rookChecks) ? QueenSafeCheck * 3/2 :
+                      more_than_one(queenChecks) ? QueenSafeCheck * 5/4
                                                  : QueenSafeCheck;
 
     // Enemy bishops checks: we count them only if they are from squares from
