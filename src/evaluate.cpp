@@ -419,11 +419,11 @@ namespace {
     // which we can't give a queen check, because queen checks are more valuable.
     bishopChecks =  b2
                   & attackedBy[Them][BISHOP]
-                  & safe
-                  & ~queenChecks;
-    if (bishopChecks)
-        kingDanger += more_than_one(bishopChecks) ? BishopSafeCheck * 3/2
-                                                  : BishopSafeCheck;
+                  & safe;
+    if (bishopChecks & ~queenChecks)
+        kingDanger += more_than_one(bishopChecks & ~queenChecks) ? BishopSafeCheck * 3/2 :
+                      more_than_one(bishopChecks) ? BishopSafeCheck * 5/4
+                                                 : BishopSafeCheck;
     else
         unsafeChecks |= b2 & attackedBy[Them][BISHOP];
 
