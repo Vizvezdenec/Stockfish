@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, inCheck, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, multicutLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -639,6 +639,12 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+
+    Bitboard pawnDef = 0;
+    if (us == WHITE)
+        pawnDef = pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN));
+    else 
+        pawnDef = pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -968,7 +974,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = multicutLMR = false;
+    singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1102,8 +1108,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else 
-                  multicutLMR = true;
           }
       }
 
@@ -1165,7 +1169,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * ttHitAverageResolution * ttHitAverageWindow / 1024
+              || ((pawnDef & to_sq(move)) && (PieceValue[MG][pos.captured_piece()] - PieceValue[MG][movedPiece] < -100))))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1191,9 +1196,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (multicutLMR && !formerPv)
-              r++;
 
           if (!captureOrPromotion)
           {
