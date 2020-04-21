@@ -393,8 +393,6 @@ namespace {
     safe  = ~pos.pieces(Them);
     safe &= ~attackedBy[Us][ALL_PIECES] | (weak & attackedBy2[Them]);
 
-    safe |= pawn_attacks_bb<Us>(pos.pieces(Us, PAWN) & pos.blockers_for_king(Us)) & ~attackedBy2[Us];
-
     b1 = attacks_bb<ROOK  >(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
     b2 = attacks_bb<BISHOP>(ksq, pos.pieces() ^ pos.pieces(Us, QUEEN));
 
