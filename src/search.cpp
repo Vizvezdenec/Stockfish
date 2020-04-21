@@ -903,16 +903,6 @@ namespace {
     {
         Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
-
-        if (ttHit
-         && ttMove
-         && tte->depth() >= depth - 4
-         && ttValue != VALUE_NONE // Possible in case of TT access race
-         && ttValue >= raisedBeta 
-         && (tte->bound() & BOUND_LOWER)
-         && pos.capture_or_promotion(ttMove))
-             return ttValue;
-
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
