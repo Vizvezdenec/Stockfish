@@ -1072,7 +1072,6 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          bool highTteDepth = tte->depth() > depth;
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
@@ -1098,11 +1097,22 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 4 - 2 * highTteDepth) / 2, cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
                   return beta;
+          }
+          else if (ttValue <= alpha)
+          {
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, alpha, alpha + 1, (depth + 3) / 2, cutNode);
+              ss->excludedMove = MOVE_NONE;
+              if (value > alpha)
+              {
+                  ss->moveCount = --moveCount;
+                  continue;
+              }
           }
       }
 
