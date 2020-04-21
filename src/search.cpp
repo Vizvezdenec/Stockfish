@@ -910,7 +910,7 @@ namespace {
          && ttValue != VALUE_NONE // Possible in case of TT access race
          && ttValue >= raisedBeta 
          && (tte->bound() & BOUND_LOWER)
-         && to_sq(ttMove) == prevSq)
+         && pos.capture_or_promotion(ttMove))
              return ttValue;
 
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
