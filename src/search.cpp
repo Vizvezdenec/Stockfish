@@ -1103,17 +1103,31 @@ moves_loop: // When in check, search starts from here
               if (value >= beta)
                   return beta;
           }
-          else if (ttValue <= alpha)
+      }
+
+      else if (    depth >= 6
+          &&  move == ttMove
+          && !rootNode
+          && !excludedMove // Avoid recursive singular search
+       /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
+          &&  abs(ttValue) < VALUE_KNOWN_WIN
+          && (tte->bound() & BOUND_UPPER)
+          &&  tte->depth() >= depth - 3
+          &&  pos.legal(move)
+          && ttValue <= alpha)
+      {
+          Value singularAlpha = ttValue + 2 * depth;
+          Depth singularDepth = depth / 2;
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, singularAlpha - 1, singularAlpha, singularDepth, cutNode);
+          ss->excludedMove = MOVE_NONE;
+
+          if (value >= singularAlpha)
           {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, alpha, alpha + 1, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value > alpha)
-              {
-                  ss->moveCount = --moveCount;
-                  continue;
-              }
+              ss->moveCount = --moveCount;
+              continue;
           }
+      
       }
 
       // Check extension (~2 Elo)
