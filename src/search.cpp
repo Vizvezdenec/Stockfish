@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 1 + formerPv;
 
-          if (multicutLMR && formerPv)
+          if (multicutLMR && !formerPv)
               r++;
 
           if (!captureOrPromotion)
