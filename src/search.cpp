@@ -902,6 +902,7 @@ namespace {
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 189 - 45 * improving;
+        assert(raisedBeta < VALUE_INFINITE);
 
         if (ttHit
          && ttMove
@@ -910,9 +911,8 @@ namespace {
          && ttValue >= raisedBeta 
          && (tte->bound() & BOUND_LOWER)
          && to_sq(ttMove) == prevSq)
-             return raisedBeta;
+             return ttValue;
 
-        assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
