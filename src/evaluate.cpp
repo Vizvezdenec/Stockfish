@@ -294,10 +294,9 @@ namespace {
 
         bb &= ~pos.pieces(Us, PAWN);
 
-        if (mob <= 2)
+        if (!more_than_one(bb))
         {
             volatile int hist = 0;
-            int nhist = 0;
             while (bb)
             {
                 Square to = pop_lsb(&bb);
@@ -308,11 +307,8 @@ namespace {
                 else
                     h = thisThread->mainHistory[movedPiece][to];
                 hist += h;
-                nhist++;
             }
-            if (nhist)
-                score += make_score(hist / (nhist * 1024), hist / (nhist * 1024));
-
+            score += make_score(hist / 256, hist / 256);
         }
 
         if (Pt == BISHOP || Pt == KNIGHT)
