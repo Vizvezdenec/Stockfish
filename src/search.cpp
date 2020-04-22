@@ -847,7 +847,7 @@ namespace {
         else
         {
             Value futilityBeta = beta + futility_margin(depth, improving);
-            Value futilityValue = search<NonPV>(pos, ss, futilityBeta - 1, futilityBeta, depth - 5, cutNode);
+            Value futilityValue = search<NonPV>(pos, ss, futilityBeta - 1, futilityBeta, (depth + 4) / 2, cutNode);
             if (futilityValue >= futilityBeta)
                 return futilityValue;
         }
