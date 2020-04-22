@@ -626,7 +626,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
-    bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
+    bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -634,7 +634,7 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
-    priorCapture = pos.captured_piece();
+    ss->priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
@@ -722,7 +722,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if ((ss-1)->moveCount <= 2 && !ss->priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -954,7 +954,7 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
@@ -1377,7 +1377,7 @@ moves_loop: // When in check, search starts from here
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
-             && !priorCapture)
+             && !ss->priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (PvNode)
@@ -1497,7 +1497,7 @@ moves_loop: // When in check, search starts from here
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
     // Initialize a MovePicker object for the current position, and prepare
@@ -1709,9 +1709,9 @@ moves_loop: // When in check, search starts from here
 
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
-    for (int i : {1, 2, 3, 4, 6})
+    for (int i : {1, 2, 4, 6})
     {
-        if (ss->inCheck && i > 2)
+        if ((ss->inCheck || ss->priorCapture) && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
