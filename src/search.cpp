@@ -639,6 +639,11 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    int mostWorthPiece = pos.count<QUEEN>(~us) ? QueenValueMg :
+                         pos.count<ROOK>(~us) ? RookValueMg :
+                         pos.count<BISHOP>(~us) ? BishopValueMg :
+                         pos.count<KNIGHT>(~us) ? KnightValueMg :
+                                                  PawnValueMg;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -898,7 +903,8 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 6
+        &&  depth >= 5
+        &&  eval >= beta + 189 - 45 * improving - mostWorthPiece
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 189 - 45 * improving;
