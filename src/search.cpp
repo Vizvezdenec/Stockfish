@@ -73,13 +73,15 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
+  int futMC[MAX_PLY];
+
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
     return (r + 511) / 1024 + (!i && r > 1007);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return (4 + depth * depth) / (2 - improving);
+  int futility_move_count(bool improving, Depth depth) {
+    return futMC[depth] / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
@@ -195,6 +197,9 @@ void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
       Reductions[i] = int((24.8 + std::log(Threads.size())) * std::log(i));
+
+  for (int i = 1; i < MAX_PLY; ++i)
+      futMC[i] = int(4 + i * i + i * std::log(Threads.size()));
 }
 
 
@@ -1025,8 +1030,7 @@ moves_loop: // When in check, search starts from here
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (ss->inCheck || (*contHist[3])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold))
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
