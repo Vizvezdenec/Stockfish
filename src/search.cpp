@@ -73,13 +73,15 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
+  int futMC[MAX_PLY];
+
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
     return (r + 511) / 1024 + (!i && r > 1007);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return (4 + depth * depth) / (2 - improving);
+  int futility_move_count(bool improving, Depth depth) {
+    return futMC[depth] / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
@@ -195,6 +197,9 @@ void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
       Reductions[i] = int((24.8 + std::log(Threads.size())) * std::log(i));
+
+  for (int i = 1; i < MAX_PLY; ++i)
+      futMC[i] = int(4 + i * i - i * std::log(Threads.size()) / 6);
 }
 
 
@@ -954,7 +959,7 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
@@ -1497,7 +1502,7 @@ moves_loop: // When in check, search starts from here
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
     // Initialize a MovePicker object for the current position, and prepare
@@ -1709,7 +1714,7 @@ moves_loop: // When in check, search starts from here
 
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
-    for (int i : {1, 2, 3, 4, 6})
+    for (int i : {1, 2, 4, 6})
     {
         if (ss->inCheck && i > 2)
             break;
