@@ -309,7 +309,7 @@ namespace {
                     h = thisThread->mainHistory[movedPiece][to];
 	        hist = std::max(h, hist);
             }
-	        score += make_score(hist / 512, hist / 512);
+	        score += make_score(hist / 256, hist / 256);
         }
 
         if (Pt == BISHOP || Pt == KNIGHT)
