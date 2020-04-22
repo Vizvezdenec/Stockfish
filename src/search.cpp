@@ -839,19 +839,10 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if (depth < 6)
-            return eval;
-        else
-        {
-            Value futilityBeta = beta + futility_margin(depth, improving);
-            Value futilityValue = search<NonPV>(pos, ss, futilityBeta - 1, futilityBeta, (depth + 4) / 2, cutNode);
-            if (futilityValue >= futilityBeta)
-                return futilityValue;
-        }
-    }
+        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -907,7 +898,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 5
+        &&  depth >= 6
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 189 - 45 * improving;
