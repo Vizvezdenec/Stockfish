@@ -292,7 +292,9 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob <= 2)
+        bb &= ~pos.pieces(Us, PAWN);
+
+        if (!more_than_one(bb))
         {
             volatile int hist = -std::max(thisThread->mainHistory.divisor, thisThread->captureHistory.divisor);
             while (bb)
