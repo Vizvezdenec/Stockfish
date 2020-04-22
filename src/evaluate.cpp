@@ -294,22 +294,25 @@ namespace {
 
         bb &= ~pos.pieces(Us, PAWN);
 
-        if (mob <= 2 && bb)
+        if (mob <= 2)
         {
-            volatile int hist = -std::max(thisThread->mainHistory.divisor, thisThread->captureHistory.divisor);
+            volatile int hist = 0;
+            int nhist = 0;
             while (bb)
             {
                 Square to = pop_lsb(&bb);
                 Piece captured = pos.piece_on(to);
-	        volatile int h;
-
+                volatile int h;
                 if (captured)
                     h = thisThread->captureHistory[movedPiece][to][type_of(captured)];
                 else
                     h = thisThread->mainHistory[movedPiece][to];
-	        hist = std::max(h, hist);
+                hist += h;
+                nhist++;
             }
-	        score += make_score(hist / 256, hist / 256);
+            if (nhist)
+                score += make_score(hist / (nhist * 1024), hist / (nhist * 1024));
+
         }
 
         if (Pt == BISHOP || Pt == KNIGHT)
