@@ -294,7 +294,7 @@ namespace {
 
         bb &= ~pos.pieces(Us, PAWN);
 
-        if (!more_than_one(bb))
+        if (mob <= 2)
         {
             volatile int hist = -std::max(thisThread->mainHistory.divisor, thisThread->captureHistory.divisor);
             while (bb)
