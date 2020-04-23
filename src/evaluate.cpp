@@ -315,9 +315,25 @@ namespace {
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
+                bb = attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center;
                 // Bonus for bishop on a long diagonal which can "see" both center squares
-                if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
-                    score += LongDiagonalBishop;
+                if (more_than_one(bb))
+                {
+                    constexpr Piece movedPiece = make_piece(Us, Pt);
+                    Thread *thisThread = pos.this_thread();
+                    while (bb)
+                    {
+                         Square to = pop_lsb(&bb);
+                         Piece captured = pos.piece_on(to);
+                         int h = captured ? thisThread->captureHistory[movedPiece][to][type_of(captured)] :
+                               thisThread->mainHistory[movedPiece][to];
+                         if (h > 0)
+                         {
+                             score += LongDiagonalBishop;
+                             break;
+                         }
+                    }
+                }
 
                 // An important Chess960 pattern: a cornered bishop blocked by a friendly
                 // pawn diagonally in front of it is a very serious problem, especially
