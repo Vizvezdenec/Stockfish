@@ -731,6 +731,9 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+
+                if (!priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
             }
         }
 
@@ -1712,8 +1715,6 @@ moves_loop: // When in check, search starts from here
     for (int i : {1, 2, 4, 6})
     {
         if (ss->inCheck && i > 2)
-            break;
-        if ((ss-2)->inCheck && (ss-1)->currentMove != MOVE_NULL && i > 4)
             break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
