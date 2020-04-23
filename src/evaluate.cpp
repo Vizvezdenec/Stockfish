@@ -133,7 +133,7 @@ namespace {
   constexpr Score Hanging             = S( 69, 36);
   constexpr Score KingProtector       = S(  7,  8);
   constexpr Score KnightOnQueen       = S( 16, 11);
-  constexpr Score LongDiagonalBishop  = S( 60,  0);
+  constexpr Score LongDiagonalBishop  = S( 32,  0);
   constexpr Score MinorBehindPawn     = S( 18,  3);
   constexpr Score Outpost             = S( 30, 21);
   constexpr Score PassedFile          = S( 11,  8);
@@ -328,10 +328,7 @@ namespace {
                          int h = captured ? thisThread->captureHistory[movedPiece][to][type_of(captured)] :
                                thisThread->mainHistory[movedPiece][to];
                          if (h > 0)
-                         {
                              score += LongDiagonalBishop;
-                             break;
-                         }
                     }
                 }
 
