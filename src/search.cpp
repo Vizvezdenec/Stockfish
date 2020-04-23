@@ -932,7 +932,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4 + pos.gives_check(move), !cutNode);
 
                 pos.undo_move(move);
 
@@ -1210,7 +1210,7 @@ moves_loop: // When in check, search starts from here
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)] * !ss->inCheck
+                             + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
