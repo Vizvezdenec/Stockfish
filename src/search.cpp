@@ -1713,8 +1713,6 @@ moves_loop: // When in check, search starts from here
     {
         if (ss->inCheck && i > 2)
             break;
-        if ((ss-i)->currentMove == MOVE_NULL)
-            break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
     }
