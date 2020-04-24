@@ -970,6 +970,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool histExt = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1121,12 +1122,16 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
-      else if (PvNode 
-           && !captureOrPromotion
+      else if (!captureOrPromotion
+           && moveCount <= 4
            && (*contHist[0])[movedPiece][to_sq(move)] > 10000
            && (*contHist[1])[movedPiece][to_sq(move)] > 10000
+           && !histExt
            && lmrDepth > depth / 2)
+      {
+          histExt = true;
           extension = 1;
+      }
 
       // Castling extension
       if (type_of(move) == CASTLING)
