@@ -937,10 +937,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth);
                     return value;
-                }
             }
     }
 
@@ -1011,6 +1008,9 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      // Reduced depth of the next LMR search
+      int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1018,9 +1018,6 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-
-          // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1122,6 +1119,13 @@ moves_loop: // When in check, search starts from here
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
+          extension = 1;
+
+      else if (PvNode 
+           && !captureOrPromotion
+           && (*contHist[0])[movedPiece][to_sq(move)] > 10000
+           && (*contHist[1])[movedPiece][to_sq(move)] > 10000
+           && lmrDepth > depth / 2)
           extension = 1;
 
       // Castling extension
