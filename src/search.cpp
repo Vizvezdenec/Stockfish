@@ -1022,13 +1022,8 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck)
           {
-              bool castlingBreaker = pos.castling_rights(us)
-                                  && ss->inCheck
-                                  && type_of(movedPiece) == KING
-                                  && type_of(move) == NORMAL;
-
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || castlingBreaker)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1237,7 +1232,7 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r++;
+                r += 1 + cutNode;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
