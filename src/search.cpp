@@ -1103,13 +1103,15 @@ moves_loop: // When in check, search starts from here
               if (value >= beta)
                   return beta;
           }
-          else if (ttValue <= alpha)
+          else if (ttValue <= alpha - 2 * depth)
           {
               pos.do_move(move, st);
               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 3, !cutNode);
               pos.undo_move(move);
               if (value <= alpha)
                   return alpha;
+              else 
+                  extension = 1;
           }
       }
 
