@@ -1037,11 +1037,8 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
-              int counterHist = ((*contHist[0])[movedPiece][to_sq(move)] +
-                                 (*contHist[1])[movedPiece][to_sq(move)]) / 16384;
-
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 + counterHist - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1236,6 +1233,8 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            r -= captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] / 8192;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
