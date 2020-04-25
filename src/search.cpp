@@ -1221,7 +1221,8 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 16434;
+              r -= ((*contHist[0])[movedPiece][to_sq(move)]
+                  + (*contHist[1])[movedPiece][to_sq(move)]) / 8192;
           }
           else
           {
@@ -1233,8 +1234,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            r -= captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] / 8192;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
