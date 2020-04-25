@@ -1022,8 +1022,12 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck)
           {
+              bool badCountermove = ss->inCheck 
+                                 && (*contHist[0])[movedPiece][to_sq(move)] < -10000
+                                 && (*contHist[1])[movedPiece][to_sq(move)] < -10000;
+
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + badCountermove
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
