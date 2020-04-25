@@ -1038,10 +1038,10 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               int counterHist = ((*contHist[0])[movedPiece][to_sq(move)] +
-                                 (*contHist[1])[movedPiece][to_sq(move)]) / 10000;
+                                 (*contHist[1])[movedPiece][to_sq(move)]) / 8192;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 + counterHist- std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 + counterHist - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
