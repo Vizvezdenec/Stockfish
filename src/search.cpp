@@ -1022,8 +1022,12 @@ moves_loop: // When in check, search starts from here
           if (   !captureOrPromotion
               && !givesCheck)
           {
+              bool castlingBreaker = pos.castling_rights(us)
+                                  && type_of(movedPiece) == KING
+                                  && type_of(move) == NORMAL;
+
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || castlingBreaker)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1102,16 +1106,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
-          else if (ttValue <= alpha - 2 * depth)
-          {
-              pos.do_move(move, st);
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 3, !cutNode);
-              pos.undo_move(move);
-              if (value <= alpha)
-                  return alpha;
-              else 
-                  extension = 1;
           }
       }
 
