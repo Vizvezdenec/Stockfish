@@ -1037,8 +1037,11 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
+              bool goodCounterHist = (*contHist[0])[movedPiece][to_sq(move)] > 0
+                                  && (*contHist[1])[movedPiece][to_sq(move)] > 0;
+
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 + 3 * goodCounterHist - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1072,11 +1075,8 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
-          bool goodTtMove = !captureOrPromotion ? (*contHist[0])[movedPiece][to_sq(move)] > 0
-                                               && (*contHist[1])[movedPiece][to_sq(move)] > 0 :
-                             captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0;
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 - goodTtMove + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
