@@ -1023,6 +1023,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               bool castlingBreaker = pos.castling_rights(us)
+                                  && ss->inCheck
                                   && type_of(movedPiece) == KING
                                   && type_of(move) == NORMAL;
 
