@@ -1037,11 +1037,8 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
-              bool goodCounterHist = (*contHist[0])[movedPiece][to_sq(move)] > 0
-                                  && (*contHist[1])[movedPiece][to_sq(move)] > 0;
-
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 + 3 * goodCounterHist - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1105,6 +1102,14 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+          }
+          else if (ttValue <= alpha)
+          {
+              pos.do_move(move, st);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 3, !cutNode);
+              pos.undo_move(move);
+              if (value <= alpha)
+                  return alpha;
           }
       }
 
