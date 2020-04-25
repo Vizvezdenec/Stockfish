@@ -1208,9 +1208,9 @@ moves_loop: // When in check, search starts from here
                   r -= 2 + ttPv;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + ((*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]) * (2 + ss->inCheck) / 2
-                             + (*contHist[3])[movedPiece][to_sq(move)] * !ss->inCheck
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
@@ -1233,6 +1233,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (ss->statScore < -20000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0)
+                ss->statScore = 0;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
