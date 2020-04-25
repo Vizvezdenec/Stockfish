@@ -1072,8 +1072,11 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
+          bool goodTtMove = !captureOrPromotion ? (*contHist[0])[movedPiece][to_sq(move)] > 0
+                                               && (*contHist[1])[movedPiece][to_sq(move)] > 0 :
+                             captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0;
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 - goodTtMove + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -1233,9 +1236,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (ss->statScore < -20000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0)
-                ss->statScore = 0;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
