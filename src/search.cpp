@@ -1236,9 +1236,10 @@ moves_loop: // When in check, search starts from here
 
             int captHist = captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())];
 
-            if ((ss->statScore > 0 && ss->statScore + captHist < 0)
-             || (ss->statScore < 0 && ss->statScore + captHist > 0))
-               ss->statScore = 0;
+            if (ss->statScore < 0 && captHist > 0)
+                ss->statScore = std::min(ss->statScore + 2 * captHist, 0);
+            else if (ss->statScore > 0 && captHist < 0)
+                ss->statScore = std::max(ss->statScore + 2 * captHist, 0);
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
