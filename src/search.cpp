@@ -746,6 +746,8 @@ namespace {
         && ttValue >= beta + PawnValueEg
         && pos.rule50_count() < 90)
     {
+        if (!pos.capture_or_promotion(ttMove))
+             update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
         return beta;
     }
 
