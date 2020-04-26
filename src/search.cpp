@@ -1094,6 +1094,8 @@ moves_loop: // When in check, search starts from here
           {
               if (!pos.capture_or_promotion(ss->singularMove))
                   update_continuation_histories(ss, pos.moved_piece(ss->singularMove), to_sq(ss->singularMove), stat_bonus(depth));
+              else 
+                  captureHistory[pos.moved_piece(ss->singularMove)][to_sq(ss->singularMove)][type_of(pos.piece_on(to_sq(ss->singularMove)))] << stat_bonus(depth);
               return singularBeta;
           }
 
