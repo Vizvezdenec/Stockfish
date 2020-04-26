@@ -737,6 +737,19 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
+    else if (  !PvNode
+        && ttHit
+        && tte->depth() == depth - 1
+        && depth > 7
+        && ttValue != VALUE_NONE // Possible in case of TT access race
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue >= beta + KnightValueMg
+        && pos.rule50_count() < 90)
+    {
+        if (!pos.capture_or_promotion(ttMove))
+             update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
+        return beta;
+    }
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
