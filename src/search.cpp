@@ -737,20 +737,6 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
-    else if (  !PvNode
-        && ttHit
-        && tte->depth() == depth - 1
-        && depth > 7
-        && ttValue != VALUE_NONE // Possible in case of TT access race
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue >= beta + PawnValueEg
-        && pos.rule50_count() < 90)
-    {
-        if (!pos.capture_or_promotion(ttMove))
-             update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), stat_bonus(depth - 1));
-        return beta;
-    }
-
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
