@@ -1231,8 +1231,8 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r++;
+                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + (200 - 100 * cutNode) * depth <= alpha)
+                r += 1 + 2 * cutNode;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
