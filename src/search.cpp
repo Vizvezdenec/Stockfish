@@ -747,7 +747,7 @@ namespace {
         && pos.rule50_count() < 90)
     {
         if (!pos.capture_or_promotion(ttMove))
-             update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), stat_bonus(depth));
+             update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), stat_bonus(depth - 1));
         return beta;
     }
 
