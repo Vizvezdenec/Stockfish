@@ -673,6 +673,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
+    ss->singularMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
@@ -736,19 +737,6 @@ namespace {
 
         if (pos.rule50_count() < 90)
             return ttValue;
-    }
-    else if (  !PvNode
-        && ttHit
-        && tte->depth() == depth - 1
-        && depth > 7
-        && ttValue != VALUE_NONE // Possible in case of TT access race
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue >= beta + KnightValueMg
-        && pos.rule50_count() < 90)
-    {
-        if (!pos.capture_or_promotion(ttMove))
-             update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
-        return beta;
     }
 
     // Step 5. Tablebases probe
@@ -1103,7 +1091,11 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
+          {
+              if (!pos.capture_or_promotion(ss->singularMove))
+                  update_continuation_histories(ss, pos.moved_piece(ss->singularMove), to_sq(ss->singularMove), stat_bonus(depth));
               return singularBeta;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
@@ -1340,6 +1332,9 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (excludedMove && value >= beta)
+                  ss->singularMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
