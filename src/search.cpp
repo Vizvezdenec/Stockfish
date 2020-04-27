@@ -639,6 +639,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->singularMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1090,18 +1091,25 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
+          {
+              update_continuation_histories(ss, pos.moved_piece(ss->singularMove), to_sq(ss->singularMove), stat_bonus(singularDepth));
               return singularBeta;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
           else if (ttValue >= beta)
           {
+              singularDepth = (depth + 3) / 2;
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
+              {
+                  update_continuation_histories(ss, pos.moved_piece(ss->singularMove), to_sq(ss->singularMove), stat_bonus(singularDepth));
                   return beta;
+              }
           }
       }
 
@@ -1328,9 +1336,6 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (excludedMove && !captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth));
-
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1340,6 +1345,8 @@ moves_loop: // When in check, search starts from here
               {
                   assert(value >= beta); // Fail high
                   ss->statScore = 0;
+                  if (excludedMove)
+                      ss->singularMove = move;
                   break;
               }
           }
