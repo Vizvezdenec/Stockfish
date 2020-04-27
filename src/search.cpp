@@ -673,7 +673,6 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    ss->singularMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
@@ -1091,13 +1090,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if (!pos.capture_or_promotion(ss->singularMove))
-                  update_continuation_histories(ss, pos.moved_piece(ss->singularMove), to_sq(ss->singularMove), stat_bonus(singularDepth));
-              else 
-                  captureHistory[pos.moved_piece(ss->singularMove)][to_sq(ss->singularMove)][type_of(pos.piece_on(to_sq(ss->singularMove)))] << stat_bonus(singularDepth);
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
@@ -1335,8 +1328,8 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (excludedMove && value >= beta)
-                  ss->singularMove = move;
+              if (excludedMove && !captureOrPromotion)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth));
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
