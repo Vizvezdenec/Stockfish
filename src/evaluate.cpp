@@ -256,7 +256,6 @@ namespace {
     constexpr Direction Down = -pawn_push(Us);
     constexpr Bitboard OutpostRanks = (Us == WHITE ? Rank4BB | Rank5BB | Rank6BB
                                                    : Rank5BB | Rank4BB | Rank3BB);
-    constexpr Bitboard LowRanks = (Us == WHITE ? Rank2BB | Rank3BB : Rank7BB | Rank6BB);
     const Square* pl = pos.squares<Pt>(Us);
 
     Bitboard b, bb;
@@ -350,12 +349,7 @@ namespace {
             {
                 File kf = file_of(pos.square<KING>(Us));
                 if ((kf < FILE_E) == (file_of(s) < kf))
-                {
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
-                    if (!pos.castling_rights(Us)
-                     && (b & pos.pieces(Us, PAWN) & LowRanks & shift<Down>(pos.pieces(Them, PAWN) | attackedBy[Them][PAWN])))
-                    score -= TrappedRook * 2;
-                }
             }
         }
 
