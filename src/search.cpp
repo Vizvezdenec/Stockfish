@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 350 + 264 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]<= alpha)
+                  && ss->staticEval + 600 + 450 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]<= alpha)
                   continue;
 
               // See based pruning
