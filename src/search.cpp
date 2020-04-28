@@ -1081,7 +1081,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularLMR = singularBeta >= alpha;
+              singularLMR = true;
           }
 
           // Multi-cut pruning
