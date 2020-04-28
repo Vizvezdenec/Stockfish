@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts from here
           // a soft bound.
           else if (singularBeta >= beta)
           {
-              if ((ss-1)->moveCount == 1 && !priorCapture)
+              if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
               return singularBeta;
           }
@@ -1106,7 +1106,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
               {
-                  if ((ss-1)->moveCount == 1 && !priorCapture)
+                  if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                   return beta;
               }
