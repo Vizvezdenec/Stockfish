@@ -1023,7 +1023,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   ((lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)) || excludedMove)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1090,11 +1090,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if ((ss-1)->moveCount == 1 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
@@ -1105,11 +1101,7 @@ moves_loop: // When in check, search starts from here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-              {
-                  if ((ss-1)->moveCount == 1 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
                   return beta;
-              }
           }
       }
 
