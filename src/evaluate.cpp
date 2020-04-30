@@ -288,12 +288,6 @@ namespace {
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
 
-        if (mob <= 3)
-        {
-            int bmp = (4 - mob) * std::max(pe->blocked_count() - 8, 0);
-            score -= make_score(bmp, bmp);
-        }
-
         if (Pt == BISHOP || Pt == KNIGHT)
         {
             // Bonus if piece is on an outpost square or can reach one
