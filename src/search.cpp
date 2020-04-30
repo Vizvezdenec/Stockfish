@@ -1052,9 +1052,8 @@ moves_loop: // When in check, search starts from here
               // Futility pruning for captures
               if (   !givesCheck
                   && lmrDepth < 6
-                  && !(pos.blockers_for_king(~us) & to_sq(move))
                   && !ss->inCheck
-                  && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && ss->staticEval + 270 + (384 - 80 * cutNode) * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               // See based pruning
