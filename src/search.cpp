@@ -637,6 +637,7 @@ namespace {
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
+    ss->singularMove = MOVE_NONE;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1051,7 +1052,7 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning for captures
               if (   !givesCheck
-                  && (lmrDepth < 6 || th.marked())
+                  && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
@@ -1097,7 +1098,13 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
+          {
+              if (!captureOrPromotion)
+                  ss->killers[0] = move;
+              if (!pos.capture_or_promotion(ss->singularMove))
+                  ss->killers[1] = ss->singularMove;
               return singularBeta;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
@@ -1334,6 +1341,9 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (excludedMove)
+                  ss->singularMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
