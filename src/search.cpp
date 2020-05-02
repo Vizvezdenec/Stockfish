@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts from here
           else
           {
             // Increase reduction for captures/promotions if late move and at low depth
-            if (depth < 8 && moveCount > 2 && (PvNode || cutNode || !givesCheck))
+            if (depth < 8 && moveCount > 2)
                 r++;
 
             // Unless giving check, this capture is likely bad
@@ -1741,7 +1741,7 @@ moves_loop: // When in check, search starts from here
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
-    if (type_of(pos.moved_piece(move)) != PAWN)
+    if (type_of(pos.moved_piece(move)) != PAWN && !ss->inCheck)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     if (is_ok((ss-1)->currentMove))
