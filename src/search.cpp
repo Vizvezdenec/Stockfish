@@ -1124,8 +1124,8 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
-               && pos.non_pawn_material() <= 2 * RookValueMg)
+      else if (   PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] > PawnValueEg
+               && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) < 3)
           extension = 1;
 
       // Castling extension
@@ -1690,8 +1690,6 @@ moves_loop: // When in check, search starts from here
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            if (type_of(pos.moved_piece(quietsSearched[i])) != PAWN && !ss->inCheck)
-                thisThread->mainHistory[us][from_to(reverse_move(quietsSearched[i]))] << stat_bonus(depth);
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
