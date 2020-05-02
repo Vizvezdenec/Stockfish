@@ -1124,8 +1124,8 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] > PawnValueEg
-               && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) < 3)
+      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
+               && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
       // Castling extension
@@ -1240,6 +1240,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (!pos.see_ge(reverse_move(move)))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
