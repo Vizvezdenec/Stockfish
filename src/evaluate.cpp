@@ -208,6 +208,7 @@ namespace {
     // a white knight on g5 and black's king is on g8, this white knight adds 2
     // to kingAttacksCount[WHITE].
     int kingAttacksCount[COLOR_NB];
+    bool noCpawns[COLOR_NB];
   };
 
 
@@ -245,6 +246,7 @@ namespace {
 
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
+    noCpawns[Us] = false;
 
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
@@ -317,6 +319,8 @@ namespace {
 
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
+
+                noCpawns[Them] = (pos.pawns_on_same_color_squares(Us, s) == pos.count<PAWN>(Us));
 
                 // Bonus for bishop on a long diagonal which can "see" both center squares
                 if (more_than_one(attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & Center))
@@ -727,6 +731,13 @@ namespace {
     bool infiltration = rank_of(pos.square<KING>(WHITE)) > RANK_4
                      || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
+    bool unwinOcb = pos.opposite_bishops() 
+                 && pos.non_pawn_material(WHITE) == BishopValueMg
+                 && pos.non_pawn_material(BLACK) == BishopValueMg
+                 && noCpawns[WHITE]
+                 && noCpawns[BLACK]
+                 && !pe->passed_count();
+
     // Compute the initiative bonus for the attacking side
     int complexity =   9 * pe->passed_count()
                     + 11 * pos.count<PAWN>()
@@ -735,6 +746,7 @@ namespace {
                     + 24 * infiltration
                     + 51 * !pos.non_pawn_material()
                     - 43 * almostUnwinnable
+                    - 30 * unwinOcb
                     -110 ;
 
     Value mg = mg_value(score);
