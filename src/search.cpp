@@ -1125,7 +1125,7 @@ moves_loop: // When in check, search starts from here
 
       // Last captures extension
       else if (   PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] > PawnValueEg
-               && pos.non_pawn_material() <= 2 * RookValueMg)
+               && pos.non_pawn_material() <= 2 * QueenValueMg)
           extension = 1;
 
       // Castling extension
