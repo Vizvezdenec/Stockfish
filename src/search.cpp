@@ -1186,7 +1186,7 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= 2;
 
-          if (moveCountPruning && !formerPv)
+          if (moveCountPruning && !formerPv && !givesCheck)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1213,9 +1213,6 @@ moves_loop: // When in check, search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ttPv;
-
-              if (givesCheck && ss->staticEval + 200 + 100 * depth < alpha)
-                  r--;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
