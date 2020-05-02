@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
 
-            if (!pos.see_ge(reverse_move(move)))
+            if (!cutNode && !pos.see_ge(reverse_move(move)))
                 r -= 2;
           }
 
