@@ -730,7 +730,7 @@ namespace {
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                if (type_of(pos.moved_piece(ttMove)) != PAWN)
+                if (type_of(pos.moved_piece(ttMove)) != PAWN && !ss->inCheck)
                     thisThread->mainHistory[us][from_to(reverse_move(ttMove))] << -penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
