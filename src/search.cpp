@@ -844,6 +844,14 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        && depth < 6
+        && ttHit
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue - futility_margin(depth, improving) >= beta
+        && ttValue < VALUE_KNOWN_WIN)
+        return ttValue;
+
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1240,11 +1248,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (   !givesCheck
-                && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0
-                && (ss-1)->statScore < 0)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
