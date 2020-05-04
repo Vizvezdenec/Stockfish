@@ -844,15 +844,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        && !cutNode
-        && ttHit
-        && tte->depth() >= depth / 2
-        && (tte->bound() & BOUND_UPPER)
-        && ttValue + futility_margin(depth, improving) < alpha
-        && abs(ttValue) < VALUE_KNOWN_WIN)
-        return ttValue;
-
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1277,6 +1268,9 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
+                  bonus += bonus / 4;
+
+              if ((ss-1)->currentMove == MOVE_NULL && bonus > 0)
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
