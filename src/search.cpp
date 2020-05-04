@@ -1204,8 +1204,8 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              if (extended50)
-                  r += 1 - 2 * (type_of(movedPiece) == PAWN);
+              if (extended50 && type_of(movedPiece) != PAWN)
+                  r++;
 
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
@@ -1248,6 +1248,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (extended50)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
