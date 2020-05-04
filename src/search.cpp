@@ -1270,9 +1270,6 @@ moves_loop: // When in check, search starts from here
               if (move == ss->killers[0])
                   bonus += bonus / 4;
 
-              if ((ss-1)->currentMove == MOVE_NULL && bonus > 0)
-                  bonus += bonus / 4;
-
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
       }
@@ -1682,7 +1679,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg || (ss-1)->currentMove == MOVE_NULL ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
