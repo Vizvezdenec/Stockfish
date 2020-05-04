@@ -790,6 +790,14 @@ namespace {
         }
     }
 
+    if (   !PvNode
+        && ttHit
+        && tte->depth() >= (depth * 3) / 4
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue - futility_margin(depth, improving) >= beta
+        && ttValue < VALUE_KNOWN_WIN)
+        return ttValue;
+
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
@@ -1679,7 +1687,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg || (ss-1)->currentMove == MOVE_NULL ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
