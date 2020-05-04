@@ -1205,7 +1205,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               if (extended50 && type_of(movedPiece) != PAWN)
-                  r++;
+                  r += 2;
 
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
