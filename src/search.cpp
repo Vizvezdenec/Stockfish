@@ -845,8 +845,9 @@ namespace {
         return eval;
 
     if (   !PvNode
-        && depth < 6
+        && depth < 11
         && ttHit
+        && tte->depth() >= (depth + 3) / 2
         && (tte->bound() & BOUND_LOWER)
         && ttValue - futility_margin(depth, improving) >= beta
         && ttValue < VALUE_KNOWN_WIN)
