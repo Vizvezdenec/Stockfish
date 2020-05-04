@@ -845,11 +845,12 @@ namespace {
         return eval;
 
     if (   !PvNode
+        && !cutNode
         && ttHit
         && tte->depth() >= depth / 2
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue - futility_margin(depth, improving) >= beta
-        && ttValue < VALUE_KNOWN_WIN)
+        && (tte->bound() & BOUND_UPPER)
+        && ttValue + futility_margin(depth, improving) < alpha
+        && abs(ttValue) < VALUE_KNOWN_WIN)
         return ttValue;
 
     // Step 9. Null move search with verification search (~40 Elo)
