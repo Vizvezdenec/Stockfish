@@ -790,14 +790,6 @@ namespace {
         }
     }
 
-    if (   !PvNode
-        && ttHit
-        && tte->depth() >= (depth * 3) / 4
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue - futility_margin(depth, improving) >= beta
-        && ttValue < VALUE_KNOWN_WIN)
-        return ttValue;
-
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
@@ -1277,6 +1269,9 @@ moves_loop: // When in check, search starts from here
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
+
+              if ((ss-1)->currentMove == MOVE_NULL && bonus > 0)
+                  bonus += bonus / 8;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
