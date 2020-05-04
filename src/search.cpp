@@ -974,6 +974,8 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    bool extended50 = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1136,7 +1138,10 @@ moves_loop: // When in check, search starts from here
       if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
+      {
           extension = 2;
+          extended50 = true;
+      }
 
       // Add extension to new depth
       newDepth += extension;
@@ -1199,6 +1204,9 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              if (extended50)
+                  r += 1 - 2 * (type_of(movedPiece) == PAWN);
+
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
@@ -1269,9 +1277,6 @@ moves_loop: // When in check, search starts from here
 
               if (move == ss->killers[0])
                   bonus += bonus / 4;
-
-              if ((ss-1)->currentMove == MOVE_NULL && bonus > 0)
-                  bonus += 3 * bonus / 8;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
