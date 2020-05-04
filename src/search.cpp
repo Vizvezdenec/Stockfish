@@ -714,7 +714,7 @@ namespace {
                             : (tte->bound() & BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
-        if (ttMove)
+        if (ttMove && pos.rule50_count() < 90)
         {
             if (ttValue >= beta)
             {
@@ -722,7 +722,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && (!priorCapture || !pos.capture_or_promotion(ttMove)))
+                if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -732,10 +732,8 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
-        }
-
-        if (pos.rule50_count() < 90)
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
