@@ -846,9 +846,9 @@ namespace {
 
     if (   !PvNode
         && ttHit
-        && tte->depth() >= (depth + 3) / 2
+        && tte->depth() >= depth / 2
         && (tte->bound() & BOUND_LOWER)
-        && ttValue - futility_margin(depth, improving) * 3 / 2 >= beta
+        && ttValue - futility_margin(depth, improving) * 2 >= beta
         && ttValue < VALUE_KNOWN_WIN)
         return ttValue;
 
