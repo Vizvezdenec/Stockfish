@@ -1270,10 +1270,10 @@ moves_loop: // When in check, search starts from here
               if (move == ss->killers[0])
                   bonus += bonus / 4;
 
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+              if ((ss-1)->currentMove == MOVE_NULL && bonus > 0)
+                  bonus += 3 * bonus / 8;
 
-              if (!ss->inCheck)
-                  thisThread->mainHistory[us][from_to(move)] << bonus;
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
       }
 
