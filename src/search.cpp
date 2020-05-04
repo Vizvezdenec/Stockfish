@@ -848,7 +848,7 @@ namespace {
         && ttHit
         && tte->depth() >= depth / 2
         && (tte->bound() & BOUND_LOWER)
-        && ttValue - futility_margin(depth, improving) * 2 >= beta
+        && ttValue - futility_margin(depth, improving) >= beta
         && ttValue < VALUE_KNOWN_WIN)
         return ttValue;
 
