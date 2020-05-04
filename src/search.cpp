@@ -1242,9 +1242,9 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (   !givesCheck
-                && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0
-                && (ss-1)->statScore > 0)
-                r++;
+                && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0
+                && (ss-1)->statScore < 0)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
