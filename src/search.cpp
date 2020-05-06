@@ -1244,7 +1244,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
-          if (d + pos.rule50_count() > 100)
+          if (d + pos.rule50_count() > 100 && !captureOrPromotion && type_of(movedPiece) != PAWN)
               d = std::max(1, 101 - pos.rule50_count());
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
