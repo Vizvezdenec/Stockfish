@@ -319,7 +319,7 @@ namespace {
                 score -= BishopPawns * pos.pawns_on_same_color_squares(Us, s)
                                      * (!(attackedBy[Us][PAWN] & s) + popcount(blocked & CenterFiles));
 
-                score -= make_score(12, 20) * bool(forward_ranks_bb(Us, s) & blocked & b);
+                score -= make_score(20, 30) * bool(forward_ranks_bb(Us, s) & blocked & b);
 
                 // Penalty for all enemy pawns x-rayed
                 score -= BishopXRayPawns * popcount(PseudoAttacks[BISHOP][s] & pos.pieces(Them, PAWN));
