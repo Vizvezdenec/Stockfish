@@ -1245,7 +1245,7 @@ moves_loop: // When in check, search starts from here
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
 
           if (d + pos.rule50_count() > 100)
-              d = std::max(1, 100 - pos.rule50_count());
+              d = std::max(1, 101 - pos.rule50_count());
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
