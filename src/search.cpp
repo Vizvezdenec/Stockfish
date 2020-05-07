@@ -1201,9 +1201,6 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              if (lowSbeta && ss->staticEval <= alpha && !givesCheck) 
-                  r++;
-
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
@@ -1244,7 +1241,7 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
-                r++;
+                r += 1 + lowSbeta;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
