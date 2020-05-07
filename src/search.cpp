@@ -1015,7 +1015,7 @@ moves_loop: // When in check, search starts from here
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !(!captureOrPromotion && type_of(movedPiece) == PAWN && (pawnAttacks & to_sq(move))))
+          && !(!captureOrPromotion && type_of(movedPiece) == PAWN && (pawnAttacks & to_sq(move)) && pos.advanced_pawn_push(move)))
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
