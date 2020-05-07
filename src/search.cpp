@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, lowSbeta;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -838,8 +838,7 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   (!PvNode || (!rootNode && ttHit && (tte->bound() & BOUND_LOWER)
-        && tte->depth() > depth))
+    if (   !PvNode
         &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -969,7 +968,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = moveCountPruning = lowSbeta = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1090,6 +1089,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularLMR = true;
+              if (singularBeta <= alpha)
+                  lowSbeta = true;
           }
 
           // Multi-cut pruning
@@ -1200,6 +1201,9 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              if (lowSbeta && ss->staticEval <= alpha && !givesCheck) 
+                  r++;
+
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
