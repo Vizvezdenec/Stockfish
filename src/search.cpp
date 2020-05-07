@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
+    bool captureOrPromotion, doFullDepthSearch, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -639,6 +639,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->moveCountPruning = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -968,7 +969,7 @@ moves_loop: // When in check, search starts from here
                                       depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
-    singularLMR = moveCountPruning = false;
+    singularLMR = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -976,7 +977,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(ss->moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1014,7 +1015,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          ss->moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1167,7 +1168,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
-              || moveCountPruning
+              || ss->moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024))
@@ -1186,11 +1187,11 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= 2;
 
-          if (moveCountPruning && !formerPv)
+          if (ss->moveCountPruning && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
-          if ((ss-1)->moveCount > 14)
+          if ((ss-1)->moveCount > 14 || (ss-1)->moveCountPruning)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
