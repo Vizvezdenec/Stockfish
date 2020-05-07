@@ -846,10 +846,13 @@ namespace {
             return eval;
         else
         {
-            Value futBeta = beta + futility_margin(depth, improving);
+            Value futBeta = beta + 2 * futility_margin(depth, improving);
+            if (futBeta < VALUE_KNOWN_WIN)
+            {
             value = search<NonPV>(pos, ss, futBeta - 1, futBeta, depth - 5, cutNode);
             if (value >= futBeta)
                 return value;
+            }
         }
     }
 
