@@ -639,6 +639,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->firstQuiet = 0;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -722,7 +723,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if (((ss-1)->firstQuiet < 2 || (ss-1)->moveCount <= 2) && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1002,6 +1003,8 @@ moves_loop: // When in check, search starts from here
 
       extension = 0;
       captureOrPromotion = pos.capture_or_promotion(move);
+      if (!captureOrPromotion)
+          ss->firstQuiet++;
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
