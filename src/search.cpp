@@ -1160,7 +1160,9 @@ moves_loop: // When in check, search starts from here
 
       bool badCapt = !givesCheck
                   && captureOrPromotion
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0;
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
+                  && moveCount >= depth;
+
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
