@@ -846,8 +846,9 @@ namespace {
             return eval;
         else
         {
-            value = search<NonPV>(pos, ss, eval - 1, eval, depth - 5, cutNode);
-            if (value >= eval)
+            Value futBeta = beta + futility_margin(depth, improving);
+            value = search<NonPV>(pos, ss, futBeta - 1, futBeta, depth - 5, cutNode);
+            if (value >= futBeta)
                 return value;
         }
     }
