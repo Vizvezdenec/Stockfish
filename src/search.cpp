@@ -1191,6 +1191,9 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
+          if ((ss-1)->moveCount > 14)
+              r--;
+
           if ((ss-1)->moveCountPruning)
               r--;
 
