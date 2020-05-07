@@ -1008,14 +1008,10 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      Bitboard pawnAttacks = us == WHITE? pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) :
-                                          pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN));
-
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !(!captureOrPromotion && type_of(movedPiece) == PAWN && (pawnAttacks & to_sq(move)) && pos.advanced_pawn_push(move)))
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
