@@ -1197,6 +1197,10 @@ moves_loop: // When in check, search starts from here
           if (singularLMR)
               r -= 1 + formerPv;
 
+          if (    givesCheck
+                && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move)))
+                r--;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1240,10 +1244,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (    givesCheck
-                && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move)))
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
