@@ -731,6 +731,11 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                if (ss->killers[0] == ttMove)
+                {
+                    ss->killers[0] = ss->killers[1];
+                    ss->killers[1] = MOVE_NONE;
+                }
             }
         }
 
@@ -1057,7 +1062,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-std::max(194 * depth, 45 * lmrDepth * lmrDepth)))) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
