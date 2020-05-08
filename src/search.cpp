@@ -731,11 +731,6 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                if (ss->killers[0] == ttMove)
-                {
-                    ss->killers[0] = ss->killers[1];
-                    ss->killers[1] = MOVE_NONE;
-                }
             }
         }
 
@@ -1245,6 +1240,10 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (    givesCheck
+                && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move)))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
