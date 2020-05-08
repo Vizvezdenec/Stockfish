@@ -851,7 +851,7 @@ namespace {
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 32 * depth - 30 * improving + 120 * ttPv + 292
-        &&  (ss-2)->staticEval >= beta - 32 * depth - 30 * improving + 120 * ttPv + 292 - 2 * Tempo
+        && !(pos.blockers_for_king(~us) & ~pos.pieces(~us, PAWN))
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
