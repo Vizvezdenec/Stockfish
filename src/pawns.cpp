@@ -105,7 +105,9 @@ namespace {
         phalanx    = neighbours & rank_bb(s);
         support    = neighbours & rank_bb(s - Up);
 
-        e->blockedCount += blocked || more_than_one(leverPush);
+        bool blockCnt = blocked || more_than_one(leverPush);
+        e->blockedCcount += blockCnt && file_of(s) < FILE_G && file_of(s) > FILE_B;
+        e->blockedCount += blockCnt;
 
         // A pawn is backward when it is behind all pawns of the same color on
         // the adjacent files and cannot safely advance.
@@ -178,8 +180,11 @@ Entry* probe(const Position& pos) {
 
   e->key = key;
   e->blockedCount = 0;
+  e->blockedCcount = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
+  e->scores[WHITE] -= make_score(4, 7) * (e->blockedCcount > 5) * pos.count<PAWN>(WHITE);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
+  e->scores[BLACK] -= make_score(4, 7) * (e->blockedCcount > 5) * pos.count<PAWN>(BLACK);
 
   return e;
 }
