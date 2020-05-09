@@ -1056,17 +1056,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
-              bool notSimpleCheck = false;
-              if (givesCheck && pos.legal(move))
-              {
-                  pos.do_move(move, st, givesCheck);
-                  if(pos.checkers() & ~to_sq(move))
-                      notSimpleCheck = true;
-                  pos.undo_move(move);
-              }
-
               // See based pruning
-              if (!notSimpleCheck && !pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1208,6 +1199,11 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
+              if (    type_of(movedPiece) == KNIGHT
+                  && (pos.attacks_from<KNIGHT>(to_sq(move)) & 
+                      pos.attacks_from<KNIGHT>(pos.square<KING>(~us))))
+                  r--;
+
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
