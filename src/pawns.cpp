@@ -182,9 +182,9 @@ Entry* probe(const Position& pos) {
   e->blockedCount = 0;
   e->blockedCcount = 0;
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
-  e->scores[WHITE] -= make_score(4, 7) * (e->blockedCcount > 5) * pos.count<PAWN>(WHITE);
+  e->scores[WHITE] -= make_score(3, 5) * (e->blockedCcount > 4) * pos.count<PAWN>(WHITE);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
-  e->scores[BLACK] -= make_score(4, 7) * (e->blockedCcount > 5) * pos.count<PAWN>(BLACK);
+  e->scores[BLACK] -= make_score(3, 5) * (e->blockedCcount > 4) * pos.count<PAWN>(BLACK);
 
   return e;
 }
