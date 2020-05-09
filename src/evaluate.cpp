@@ -571,7 +571,7 @@ namespace {
         score += SliderOnQueen * popcount(b & safe & attackedBy2[Us]);
     }
 
-    score -= make_score(2, 3) * pos.count<PAWN>(Us) * std::max(pe->blocked_count() - 6, 0);
+    score -= make_score(1, 2) * pos.count<PAWN>(Us) * std::min(pe->blocked_count(), 8);
 
     if (T)
         Trace::add(THREAT, Us, score);
