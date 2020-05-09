@@ -247,8 +247,6 @@ namespace {
     kingAttackersCount[Them] = popcount(kingRing[Us] & pe->pawn_attacks(Them));
     kingAttacksCount[Them] = kingAttackersWeight[Them] = 0;
 
-    dblAttackByPawn &= ~pawn_attacks_bb<Us>(pos.blockers_for_king(Us));
-
     // Remove from kingRing[] the squares defended by two pawns
     kingRing[Us] &= ~dblAttackByPawn;
   }
