@@ -1199,11 +1199,6 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              if (    type_of(movedPiece) == KNIGHT
-                  && (pos.attacks_from<KNIGHT>(to_sq(move)) & 
-                      pos.attacks_from<KNIGHT>(pos.square<KING>(~us))))
-                  r--;
-
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
@@ -1688,16 +1683,7 @@ moves_loop: // When in check, search starts from here
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
-    {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
-
-        // Decrease all the non-best quiet moves
-        for (int i = 0; i < quietCount; ++i)
-        {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
-        }
-    }
     else
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
@@ -1712,6 +1698,12 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+    }
+    // Decrease all the non-best quiet moves
+    for (int i = 0; i < quietCount; ++i)
+    {
+        thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+        update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
     }
   }
 
