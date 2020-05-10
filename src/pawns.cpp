@@ -181,10 +181,11 @@ Entry* probe(const Position& pos) {
   e->key = key;
   e->blockedCount = 0;
   e->blockedCcount = 0;
+  e->blockedCcount = std::max(0, e->blockedCcount - 5);
   e->scores[WHITE] = evaluate<WHITE>(pos, e);
-  e->scores[WHITE] -= make_score(4, 7) * (e->blockedCcount > 6) * pos.count<PAWN>(WHITE);
+  e->scores[WHITE] -= make_score(2 * e->blockedCcount, e->blockedCcount * 4) * pos.count<PAWN>(WHITE);
   e->scores[BLACK] = evaluate<BLACK>(pos, e);
-  e->scores[BLACK] -= make_score(4, 7) * (e->blockedCcount > 6) * pos.count<PAWN>(BLACK);
+  e->scores[BLACK] -= make_score(2 * e->blockedCcount, e->blockedCcount * 4) * pos.count<PAWN>(BLACK);
 
   return e;
 }
