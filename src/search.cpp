@@ -731,6 +731,8 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                if (depth >= 5 && !priorCapture && (ss-1)->moveCount > 4)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
             }
         }
 
