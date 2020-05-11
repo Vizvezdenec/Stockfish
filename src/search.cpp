@@ -1349,7 +1349,7 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      if (move != bestMove && value != bestValue)
+      if (move != bestMove)
       {
           if (captureOrPromotion && captureCount < 32)
               capturesSearched[captureCount++] = move;
@@ -1679,8 +1679,9 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
-                                            : stat_bonus(depth);   // smaller bonus
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1 :             // larger bonus
+             bestValue > beta               ? stat_bonus(depth)    // smaller bonus
+                                            : stat_bonus(depth - 1);
 
     if (!pos.capture_or_promotion(bestMove))
     {
