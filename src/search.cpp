@@ -158,7 +158,7 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool* capturesChecking);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -620,6 +620,7 @@ namespace {
     assert(!(PvNode && cutNode));
 
     Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    bool capturesChecking[32];
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -1104,7 +1105,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, cutNode? singularDepth : (depth + 3) / 2, cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1352,7 +1353,10 @@ moves_loop: // When in check, search starts from here
       if (move != bestMove)
       {
           if (captureOrPromotion && captureCount < 32)
+          {
               capturesSearched[captureCount++] = move;
+              capturesChecking[captureCount] = givesCheck;
+          }
 
           else if (!captureOrPromotion && quietCount < 64)
               quietsSearched[quietCount++] = move;
@@ -1380,7 +1384,7 @@ moves_loop: // When in check, search starts from here
 
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, capturesChecking);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
@@ -1669,7 +1673,7 @@ moves_loop: // When in check, search starts from here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool* capturesChecking) {
 
     int bonus1, bonus2;
     Color us = pos.side_to_move();
@@ -1704,9 +1708,12 @@ moves_loop: // When in check, search starts from here
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
+        if (!capturesChecking[i])
+        {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        }
     }
   }
 
