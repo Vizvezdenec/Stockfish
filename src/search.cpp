@@ -1055,7 +1055,8 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
               {
-                  capturesSearched[captureCount++] = move;
+                  if (captureCount < 32)
+                      capturesSearched[captureCount++] = move;
                   continue;
               }
 
