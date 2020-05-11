@@ -1054,7 +1054,10 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+              {
+                  capturesSearched[captureCount++] = move;
                   continue;
+              }
 
               // See based pruning
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
@@ -1738,8 +1741,7 @@ moves_loop: // When in check, search starts from here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    if (thisThread->mainHistory[us][from_to(move)] < bonus)
-        thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     if (type_of(pos.moved_piece(move)) != PAWN)
