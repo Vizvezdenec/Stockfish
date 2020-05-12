@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-194 - 80 * (givesCheck && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move)))) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194 - 80 * (givesCheck && captureOrPromotion && (pos.attacks_from<KING>(pos.square<KING>(~us)) & to_sq(move)))) * depth)) // (~25 Elo)
                   continue;
           }
       }
