@@ -1047,7 +1047,7 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                  && pos.non_pawn_material(~us) > BishopValueMg)
+                  && pos.non_pawn_material() > 2 * BishopValueMg)
                   continue;
 
               // Futility pruning for captures
