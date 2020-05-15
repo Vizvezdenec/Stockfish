@@ -928,7 +928,7 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -(beta + PawnValueMg), -(beta + PawnValueMg)+1);
+                value = -qsearch<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
@@ -1041,7 +1041,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (!captureOrPromotion || captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 10000)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
