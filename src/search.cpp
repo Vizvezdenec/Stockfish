@@ -159,7 +159,7 @@ namespace {
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
-  void update_capture_stats(const Position& pos, Move* capturesSearched, int captureCount, Depth depth);
+  void update_capture_stats(const Position& pos, Move* badCapturesSearched, int badCaptureCount, Depth depth);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -620,7 +620,7 @@ namespace {
     assert(0 < depth && depth < MAX_PLY);
     assert(!(PvNode && cutNode));
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64], badCapturesSearched[32];
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -630,14 +630,14 @@ namespace {
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, badCaptureCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = badCaptureCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1357,6 +1357,9 @@ moves_loop: // When in check, search starts from here
 
           else if (!captureOrPromotion && quietCount < 64)
               quietsSearched[quietCount++] = move;
+
+          if (captureOrPromotion && badCaptureCount < 32 && value < alpha - PieceValue[MG][type_of(pos.piece_on(to_sq(move)))])
+             badCapturesSearched[badCaptureCount++] = move;
       }
     }
 
@@ -1389,7 +1392,7 @@ moves_loop: // When in check, search starts from here
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (moveCount && !bestMove)
-        update_capture_stats(pos, capturesSearched, captureCount, depth);
+        update_capture_stats(pos, badCapturesSearched, badCaptureCount, depth);
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
@@ -1714,16 +1717,16 @@ moves_loop: // When in check, search starts from here
     }
   }
 
-  void update_capture_stats(const Position& pos, Move* capturesSearched, int captureCount, Depth depth) {
+  void update_capture_stats(const Position& pos, Move* badCapturesSearched, int badCaptureCount, Depth depth) {
 
   Thread* thisThread = pos.this_thread();
   CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-  for (int i = 0; i < captureCount; ++i)
+  for (int i = 0; i < badCaptureCount; ++i)
     {
-        Piece moved_piece = pos.moved_piece(capturesSearched[i]);
-        PieceType captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -stat_bonus(depth);
+        Piece moved_piece = pos.moved_piece(badCapturesSearched[i]);
+        PieceType captured = type_of(pos.piece_on(to_sq(badCapturesSearched[i])));
+        captureHistory[moved_piece][to_sq(badCapturesSearched[i])][captured] << -stat_bonus(depth);
     }
   }
 
