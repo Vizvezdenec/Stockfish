@@ -1387,13 +1387,8 @@ moves_loop: // When in check, search starts from here
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
-    if (moveCount && !bestMove && ttMove && pos.legal(ttMove) && PvNode)
-    {
-        if (!pos.capture_or_promotion(ttMove))
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), -stat_bonus(depth));
-        else 
-            captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
-    }
+    if (moveCount && !bestMove && ttMove && pos.legal(ttMove) && PvNode && pos.capture_or_promotion(ttMove))
+        captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
     
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
