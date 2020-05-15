@@ -1385,11 +1385,8 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + (bestValue < alpha - PawnValueEg)));
 
-    if (moveCount && !bestMove && ttMove && pos.legal(ttMove) && PvNode && pos.capture_or_promotion(ttMove))
-        captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth);
-    
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
