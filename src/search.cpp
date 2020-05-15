@@ -937,12 +937,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
-                         && !pos.captured_piece())
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
-                }
             }
     }
 
@@ -1043,7 +1038,9 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (    (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)] < 25000
+                  && !pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
