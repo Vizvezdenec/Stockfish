@@ -159,6 +159,7 @@ namespace {
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+  void update_capture_stats(const Position& pos, Move* capturesSearched, int captureCount, Depth depth);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -1046,8 +1047,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                  && pos.non_pawn_material(us) > RookValueMg)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // Futility pruning for captures
@@ -1388,6 +1388,9 @@ moves_loop: // When in check, search starts from here
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
+    if (moveCount && !bestMove)
+        update_capture_stats(pos, capturesSearched, captureCount, depth);
+
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
@@ -1711,6 +1714,18 @@ moves_loop: // When in check, search starts from here
     }
   }
 
+  void update_capture_stats(const Position& pos, Move* capturesSearched, int captureCount, Depth depth) {
+
+  Thread* thisThread = pos.this_thread();
+  CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
+  for (int i = 0; i < captureCount; ++i)
+    {
+        Piece moved_piece = pos.moved_piece(capturesSearched[i]);
+        PieceType captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -stat_bonus(depth);
+    }
+  }
 
   // update_continuation_histories() updates histories of the move pairs formed
   // by moves at ply -1, -2, -4, and -6 with current move.
