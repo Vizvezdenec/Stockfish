@@ -1038,9 +1038,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (    (*contHist[0])[movedPiece][to_sq(move)]
-                    + (*contHist[1])[movedPiece][to_sq(move)] < 25000
-                  && !pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1388,6 +1386,10 @@ moves_loop: // When in check, search starts from here
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+
+    if (moveCount && !bestMove && ttMove && pos.legal(ttMove) && PvNode && !pos.capture_or_promotion(ttMove))
+        update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), -stat_bonus(depth));
+    
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
