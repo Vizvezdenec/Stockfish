@@ -818,7 +818,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore / 512;
+            int bonus = -(ss-1)->statScore * !priorCapture / 512;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
@@ -1046,8 +1046,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                  && pos.non_pawn_material(~us) > BishopValueMg)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // Futility pruning for captures
