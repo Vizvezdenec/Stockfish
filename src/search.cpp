@@ -627,7 +627,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR, ttCaptureC;
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -970,7 +970,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttCaptureC = ttCapture && pos.gives_check(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1047,7 +1046,8 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
+                  && pos.non_pawn_material(~us) > BishopValueMg)
                   continue;
 
               // Futility pruning for captures
@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r += 1 + (!givesCheck && ttCaptureC);
+                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
