@@ -818,7 +818,7 @@ namespace {
     {
         if ((ss-1)->currentMove != MOVE_NULL)
         {
-            int bonus = -(ss-1)->statScore * !priorCapture / 512;
+            int bonus = -(ss-1)->statScore / 512;
 
             ss->staticEval = eval = evaluate(pos) + bonus;
         }
@@ -1221,10 +1221,10 @@ moves_loop: // When in check, search starts from here
                              - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
-              if (ss->statScore >= -102 && (ss-1)->statScore < -114)
+              if (ss->statScore >= -102 && (ss-1)->statScore < -114 && !priorCapture)
                   r--;
 
-              else if ((ss-1)->statScore >= -116 && ss->statScore < -154)
+              else if (((ss-1)->statScore >= -116 || priorCapture) && ss->statScore < -154)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
