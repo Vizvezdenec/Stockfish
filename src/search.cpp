@@ -622,6 +622,7 @@ namespace {
     Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     TTEntry* tte;
+    TTEntry* ttenull;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
@@ -838,7 +839,7 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   (!PvNode || (!rootNode && ttHit && (tte->bound() & BOUND_EXACT)))
+    if (   !PvNode
         &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -865,7 +866,20 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        bool ttHitNull = false;
+        ttenull = TT.probe(pos.key(), ttHitNull);
+        Value ttValueNull = ttHitNull ? value_from_tt(ttenull->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+
+        Value nullValue = beta;
+
+        if (ttValueNull != VALUE_NONE 
+         && ttenull->depth() >= depth-R 
+         && (ttenull->bound() & BOUND_UPPER) 
+         && ttValueNull < beta)
+            nullValue = beta - 1;
+
+        if (nullValue >= beta)
+            nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
