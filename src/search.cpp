@@ -636,7 +636,7 @@ namespace {
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->prevLMRdepth = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1077,6 +1077,7 @@ moves_loop: // When in check, search starts from here
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3
+          &&  tte->depth() >= (ss-1)->prevLMRdepth
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
@@ -1246,6 +1247,8 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
+          ss->prevLMRdepth = d;
+
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
@@ -1255,6 +1258,8 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = !PvNode || moveCount > 1;
 
           didLMR = false;
+
+          ss->prevLMRdepth = 0;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
@@ -1271,12 +1276,6 @@ moves_loop: // When in check, search starts from here
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 4926;
           }
       }
 
