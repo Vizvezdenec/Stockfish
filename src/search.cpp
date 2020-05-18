@@ -1049,7 +1049,7 @@ moves_loop: // When in check, search starts from here
               {
                   if (lmrDepth < 1)
                       continue;
-                  else if (pos.legal(move))
+                  else if (lmrDepth < 3 && pos.legal(move))
                   {
                       pos.do_move(move, st);
                       value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha);
