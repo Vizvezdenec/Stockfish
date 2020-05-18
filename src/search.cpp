@@ -865,6 +865,17 @@ namespace {
 
         pos.do_null_move(st);
 
+        TTEntry* ttenull;
+        bool ttHitNull = false;
+        ttenull = TT.probe(pos.key(), ttHitNull);
+        Value ttValueNull = ttHitNull ? value_from_tt(ttenull->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+
+        if (!(ttValueNull != VALUE_NONE 
+         && ttenull->depth() >= depth-R 
+         && (ttenull->bound() & BOUND_LOWER) 
+         && ttValueNull > -beta + 1))
+
+        {
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
@@ -892,6 +903,8 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+        }
+        else pos.undo_null_move();
     }
 
     // Step 10. ProbCut (~10 Elo)
@@ -1196,9 +1209,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (move == countermove)
-              r--;
 
           if (!captureOrPromotion)
           {
