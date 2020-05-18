@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && ss->staticEval + 700 <= alpha)
+                  && ss->staticEval + 150 <= alpha)
                   continue;
 
               // See based pruning
