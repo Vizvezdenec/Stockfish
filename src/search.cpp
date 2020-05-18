@@ -1050,18 +1050,10 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning for captures
-              if (   !givesCheck
+              if (   (!givesCheck || (captureOrPromotion && !pos.see_ge(move)))
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
-                  continue;
-
-              if (   !captureOrPromotion
-                  && lmrDepth < 4
-                  && !ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && ss->staticEval + 400 + 400 * lmrDepth <= alpha)
                   continue;
 
               // See based pruning
