@@ -865,17 +865,6 @@ namespace {
 
         pos.do_null_move(st);
 
-        TTEntry* ttenull;
-        bool ttHitNull = false;
-        ttenull = TT.probe(pos.key(), ttHitNull);
-        Value ttValueNull = ttHitNull ? value_from_tt(ttenull->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-
-        if (!(ttValueNull != VALUE_NONE 
-         && ttenull->depth() >= depth-R 
-         && (ttenull->bound() & BOUND_LOWER) 
-         && ttValueNull > -beta + 1))
-
-        {
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
@@ -903,8 +892,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        }
-        else pos.undo_null_move();
     }
 
     // Step 10. ProbCut (~10 Elo)
@@ -1703,6 +1690,9 @@ moves_loop: // When in check, search starts from here
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            if (type_of(pos.moved_piece(quietsSearched[i])) != PAWN 
+             && thisThread->mainHistory[us][from_to(reverse_move(quietsSearched[i]))] >= 0)
+                thisThread->mainHistory[us][from_to(reverse_move(quietsSearched[i]))] << bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
