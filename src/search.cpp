@@ -1045,25 +1045,23 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-              {
-                  if (lmrDepth < 1)
-                      continue;
-                  else if (lmrDepth < 3 && pos.legal(move))
-                  {
-                      pos.do_move(move, st);
-                      value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha);
-                      pos.undo_move(move);
-                      if (value <= alpha)
-                          continue;
-                  }
-              }
+                  continue;
 
               // Futility pruning for captures
               if (   !givesCheck
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  continue;
+
+              if (   !captureOrPromotion
+                  && lmrDepth < 1
+                  && !ss->inCheck
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && ss->staticEval + 700 <= alpha)
                   continue;
 
               // See based pruning
