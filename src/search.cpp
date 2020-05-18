@@ -622,7 +622,6 @@ namespace {
     Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     TTEntry* tte;
-    TTEntry* ttenull;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
@@ -866,20 +865,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        bool ttHitNull = false;
-        ttenull = TT.probe(pos.key(), ttHitNull);
-        Value ttValueNull = ttHitNull ? value_from_tt(ttenull->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-
-        Value nullValue = beta;
-
-        if (ttValueNull != VALUE_NONE 
-         && ttenull->depth() >= depth-R 
-         && (ttenull->bound() & BOUND_UPPER) 
-         && ttValueNull < beta)
-            nullValue = beta - 1;
-
-        if (nullValue >= beta)
-            nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -1090,7 +1076,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3
+          &&  tte->depth() >= depth - 3 - (ss->ply > depth)
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
