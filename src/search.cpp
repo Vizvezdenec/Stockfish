@@ -1056,6 +1056,14 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
+              if (   !captureOrPromotion
+                  && lmrDepth < 1
+                  && !ss->inCheck
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && ss->staticEval + 400 <= alpha)
+                  continue;
+
               // See based pruning
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
@@ -1701,17 +1709,12 @@ moves_loop: // When in check, search starts from here
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
-    bool bmGc = pos.gives_check(bestMove);
-
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
-        if (!bmGc || pos.gives_check(capturesSearched[i]))
-        {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
-        }
     }
   }
 
