@@ -1037,6 +1037,12 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
+              if (   lmrDepth < 1
+                  && !ss->inCheck 
+                  && type_of(movedPiece) != PAWN
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
+                  continue;
+
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
@@ -1229,10 +1235,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16434;
-
-              if (pos.rule50_count() > 10 && !ss->inCheck && !givesCheck && type_of(movedPiece) != PAWN
-               && thisThread->mainHistory[us][from_to(move)] < 0)
-                 r++;
           }
           else
           {
