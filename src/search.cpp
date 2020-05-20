@@ -1229,6 +1229,10 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16434;
+
+              if (pos.rule50_count() > 10 && !ss->inCheck && !givesCheck && type_of(movedPiece) != PAWN
+               && thisThread->mainHistory[us][from_to(move)] < 0)
+                 r++;
           }
           else
           {
@@ -1271,9 +1275,6 @@ moves_loop: // When in check, search starts from here
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-              if ((givesCheck && bonus < 0) || (!givesCheck && bonus > 0))
-                  thisThread->mainHistory[us][from_to(move)] << bonus;
           }
       }
 
