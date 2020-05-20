@@ -1271,6 +1271,9 @@ moves_loop: // When in check, search starts from here
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+
+              if ((givesCheck && bonus < 0) || (!givesCheck && bonus > 0))
+                  thisThread->mainHistory[us][from_to(move)] << bonus;
           }
       }
 
