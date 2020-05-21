@@ -1385,10 +1385,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-    {
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
-    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
