@@ -825,10 +825,6 @@ namespace {
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
-        int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
-                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 500), 0) / 8;
-        ss->staticEval -= comp;
-
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
@@ -941,7 +937,12 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                  tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
+                  BOUND_LOWER,
+                  depth, move, ss->staticEval);
                     return value;
+                }
             }
     }
 
