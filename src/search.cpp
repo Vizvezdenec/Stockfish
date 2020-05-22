@@ -825,6 +825,10 @@ namespace {
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
+        int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
+                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 500), 0) / 4;
+        ss->staticEval -= comp;
+
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
@@ -1017,8 +1021,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) 
-                               - (thisThread->ttHitAverage > 500 * TtHitAverageResolution * TtHitAverageWindow / 1024), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   !captureOrPromotion
               && !givesCheck)
