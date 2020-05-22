@@ -1017,7 +1017,8 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) 
+                               - (thisThread->ttHitAverage > 500 * TtHitAverageResolution * TtHitAverageWindow / 1024), 0);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1057,7 +1058,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-196 + 15 * (lmrDepth < 1)) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
