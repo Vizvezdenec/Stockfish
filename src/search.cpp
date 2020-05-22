@@ -826,7 +826,7 @@ namespace {
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
         int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
-                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 500), 0) / 2;
+                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 500), 0) / 8;
         ss->staticEval -= comp;
 
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
