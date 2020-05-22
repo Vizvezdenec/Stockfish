@@ -876,12 +876,7 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
-            {
-                tte->save(posKey, value_to_tt(nullValue, ss->ply), ttPv,
-                  BOUND_LOWER,
-                  depth, MOVE_NONE, ss->staticEval);
                 return nullValue;
-            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -1101,12 +1096,12 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta)
+          else if (singularBeta >= beta && !((ss-1)->currentMove == MOVE_NULL))
               return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
-          else if (ttValue >= beta)
+          else if (ttValue >= beta && !((ss-1)->currentMove == MOVE_NULL))
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
