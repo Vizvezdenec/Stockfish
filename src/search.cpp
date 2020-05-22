@@ -876,7 +876,12 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                tte->save(posKey, value_to_tt(nullValue, ss->ply), ttPv,
+                  BOUND_LOWER,
+                  depth, MOVE_NONE, ss->staticEval);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -1057,7 +1062,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-(27 + PieceValue[MG][type_of(movedPiece)] / 128 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
