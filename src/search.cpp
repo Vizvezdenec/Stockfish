@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-(27 + PieceValue[MG][type_of(movedPiece)] / 128 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
       }
