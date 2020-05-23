@@ -825,6 +825,10 @@ namespace {
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
+        int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
+                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 400), 0) / 32;
+        ss->staticEval = eval = eval - comp;
+
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
@@ -1057,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-206 + moveCount) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
       }
