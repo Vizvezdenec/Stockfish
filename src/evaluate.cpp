@@ -287,8 +287,6 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (Pt == ROOK && (KingFlank[file_of(pos.square<KING>(Them))] & s))
-            score += make_score(16, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
@@ -360,6 +358,8 @@ namespace {
                 if ((kf < FILE_E) == (file_of(s) < kf))
                     score -= TrappedRook * (1 + !pos.castling_rights(Us));
             }
+            if (KingFlank[file_of(pos.square<KING>(Them))] & s)
+                score += make_score(8, 0);
         }
 
         if (Pt == QUEEN)
