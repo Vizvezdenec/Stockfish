@@ -697,6 +697,7 @@ namespace {
             : ttHit    ? tte->move() : MOVE_NONE;
     ttPv = PvNode || (ttHit && tte->is_pv());
     formerPv = ttPv && !PvNode;
+    ss->ttHit = ttHit;
 
     if (ttPv && depth > 12 && ss->ply - 1 < MAX_LPH && !pos.captured_piece() && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
@@ -824,10 +825,6 @@ namespace {
         }
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
-
-        int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
-                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 400), 0) / 32;
-        ss->staticEval = eval = eval - comp;
 
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
@@ -1066,6 +1063,23 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      if (ttHit 
+       && !(ss-1)->ttHit
+       && !rootNode
+       && !excludedMove
+       && depth >= 10
+       && tte->depth() >= depth - 3
+       && (tte->bound() & BOUND_UPPER)
+       && move == ttMove
+       && pos.legal(move)
+       && ttValue < alpha)
+      {
+      ss->excludedMove = move;
+      value = search<NonPV>(pos, ss, alpha, alpha + 1, depth / 2, cutNode);
+      ss->excludedMove = MOVE_NONE;
+      if (value <= alpha)
+          return alpha;
+      }
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
