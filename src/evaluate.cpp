@@ -288,7 +288,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
         else if (Pt == QUEEN && (file_bb(s) & kingRing[Them]))
-            score += make_score(24, 0);
+            score += make_score(12, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
