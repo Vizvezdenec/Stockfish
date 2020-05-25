@@ -287,8 +287,8 @@ namespace {
             kingAttackersWeight[Us] += KingAttackWeights[Pt];
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
-        else if (Pt == BISHOP && (PseudoAttacks[BISHOP][s] & kingRing[Them]))
-            score += make_score(18, 0);
+        else if (Pt == QUEEN && (file_bb(s) & kingRing[Them]))
+            score += make_score(16, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
