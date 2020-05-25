@@ -290,8 +290,6 @@ namespace {
         }
         else if (Pt == ROOK && (file_bb(s) & kingRing[Them]))
             score += RookOnKingRing;
-        else if (Pt == BISHOP && (PseudoAttacks[BISHOP][s] & kingRing[Them]))
-            score += make_score(24, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
