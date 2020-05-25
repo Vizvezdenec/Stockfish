@@ -1065,12 +1065,6 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      bool badExt = move == ttMove
-                 && !captureOrPromotion
-                 && ttValue < alpha
-                 && (*contHist[0])[movedPiece][to_sq(move)]
-                  + (*contHist[1])[movedPiece][to_sq(move)] < -20000;
-                   
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1079,7 +1073,6 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
       if (    depth >= 6
-          && !badExt
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
