@@ -288,7 +288,7 @@ namespace {
             kingAttacksCount[Us] += popcount(b & attackedBy[Them][KING]);
         }
         else if (Pt == BISHOP && (PseudoAttacks[BISHOP][s] & kingRing[Them]))
-            score += make_score(13, 0);
+            score += make_score(8, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
