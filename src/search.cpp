@@ -828,10 +828,6 @@ namespace {
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
-        int comp = ((ss->staticEval > 0) - (ss->staticEval < 0)) 
-                 * std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 600 + pos.rule50_count()), 0) / 16;
-        ss->staticEval = eval = eval - comp;
-
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
@@ -1069,6 +1065,12 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      bool badExt = move == ttMove
+                 && !captureOrPromotion
+                 && ttValue < alpha
+                 && (*contHist[0])[movedPiece][to_sq(move)]
+                  + (*contHist[1])[movedPiece][to_sq(move)] < -20000;
+                   
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1077,6 +1079,7 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
       if (    depth >= 6
+          && !badExt
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
