@@ -741,11 +741,11 @@ namespace {
             return ttValue;
     }
 
-    int piecesCount = pos.count<ALL_PIECES>();
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
+        int piecesCount = pos.count<ALL_PIECES>();
+
         if (    piecesCount <= TB::Cardinality
             && (piecesCount <  TB::Cardinality || depth >= TB::ProbeDepth)
             &&  pos.rule50_count() == 0
@@ -973,6 +973,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool checkingTT = pos.gives_check(excludedMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1048,7 +1049,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1 + (piecesCount > 20)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1199,6 +1200,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
+
+          if (!givesCheck && checkingTT)
+              r++;
 
           if (!captureOrPromotion)
           {
