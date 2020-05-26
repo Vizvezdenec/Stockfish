@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
               r -= 1 + formerPv;
 
           if (!givesCheck && checkingTT)
-              r++;
+              r += 2;
 
           if (!captureOrPromotion)
           {
