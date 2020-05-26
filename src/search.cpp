@@ -639,7 +639,7 @@ namespace {
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->firstQuiet = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -725,7 +725,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if ((ss-1)->moveCount <= 2 + 2 * ((ss-1)->firstQuiet == 1) && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1007,6 +1007,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      if (!captureOrPromotion)
+          ss->firstQuiet++;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1065,13 +1067,6 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-
-      bool badExt = move == ttMove
-                 && !captureOrPromotion
-                 && ttValue < alpha
-                 && (*contHist[0])[movedPiece][to_sq(move)]
-                 && (*contHist[1])[movedPiece][to_sq(move)] < 0;
-
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1080,7 +1075,6 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin then we will extend the ttMove.
       if (    depth >= 6
-          && !badExt
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
