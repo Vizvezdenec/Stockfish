@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool checkingTT = pos.gives_check(excludedMove);
+    bool checkingTT = excludedMove && pos.gives_check(excludedMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
