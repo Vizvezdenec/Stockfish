@@ -628,7 +628,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue;
+    Value bestValue, value, ttValue, eval, maxValue, raisedBeta;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture, singularLMR;
     Piece movedPiece;
@@ -897,6 +897,19 @@ namespace {
         }
     }
 
+    raisedBeta = beta + 189 - 45 * improving;
+
+    if (  !PvNode
+        &&  depth >= 5
+        && ttHit
+        && tte->depth() >= depth - 4
+        && ttValue != VALUE_NONE // Possible in case of TT access race
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue >= raisedBeta  
+        && ttMove
+        && pos.capture_or_promotion(ttMove))
+        return raisedBeta;
+
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -904,7 +917,6 @@ namespace {
         &&  depth >= 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -973,7 +985,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool checkingTT = excludedMove && pos.gives_check(excludedMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1200,9 +1211,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularLMR)
               r -= 1 + formerPv;
-
-          if (!givesCheck && checkingTT)
-              r += 2;
 
           if (!captureOrPromotion)
           {
