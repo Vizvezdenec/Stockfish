@@ -1059,6 +1059,11 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
+              if (   !givesCheck
+                  && moveCount >= futility_move_count(improving, depth) + 2 * depth * depth
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0)
+                  continue;
+
               // See based pruning
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
