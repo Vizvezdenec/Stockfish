@@ -642,7 +642,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->firstQuiet = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1009,10 +1008,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      if (ss->firstQuiet == MOVE_NONE
-       && !captureOrPromotion)
-          ss->firstQuiet = move;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1222,10 +1217,11 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ttPv;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+              ss->statScore =  thisThread->mainHistory[us][from_to(move)] / 2
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
+                             + (*contHist[5])[movedPiece][to_sq(move)] / 2
                              - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
@@ -1705,8 +1701,7 @@ moves_loop: // When in check, search starts from here
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
-    if (   ((ss-1)->moveCount == 1 || (ss-1)->currentMove == (ss-1)->killers[0] 
-        || ((ss-1)->currentMove == (ss-1)->firstQuiet && (ss-1)->moveCount == 2))
+    if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
