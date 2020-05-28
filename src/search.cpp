@@ -1060,7 +1060,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   !givesCheck
-                  && moveCount >= futility_move_count(improving, depth) + 2 * depth * depth
+                  && moveCount >= futility_move_count(improving, depth) + depth * depth
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0)
                   continue;
 
