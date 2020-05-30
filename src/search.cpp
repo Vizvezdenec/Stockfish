@@ -940,9 +940,23 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    update_all_stats(pos, ss, bestMove, bestValue, raisedBeta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
                     return value;
+                }
+
+                capturesSearched[captureCount++] = move;
             }
     }
+
+    capturesSearched[0] = MOVE_NONE;
+    capturesSearched[1] = MOVE_NONE;
+    capturesSearched[2] = MOVE_NONE;
+    capturesSearched[3] = MOVE_NONE;
+    capturesSearched[4] = MOVE_NONE;
+
+    captureCount = 0;
 
     // Step 11. Internal iterative deepening (~1 Elo)
     if (depth >= 7 && !ttMove)
