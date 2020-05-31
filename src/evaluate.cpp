@@ -290,8 +290,6 @@ namespace {
         }
         else if (Pt == ROOK && (file_bb(s) & kingRing[Them]))
             score += RookOnKingRing;
-        else if (Pt == KNIGHT && (b & shift<Down>(shift<Down>(kingRing[Them]))))
-            score += make_score(28, 0);
 
         int mob = popcount(b & mobilityArea[Us]);
 
