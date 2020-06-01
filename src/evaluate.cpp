@@ -296,6 +296,10 @@ namespace {
         else if (Pt == BISHOP && (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them]))
             score += BishopOnKingRing;
 
+        else if (Pt == QUEEN && ((file_bb(s) & kingRing[Them]) 
+             || (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them])))
+            score += make_score(20, 0);
+
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
