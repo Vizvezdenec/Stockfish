@@ -841,12 +841,15 @@ namespace {
             + passed< WHITE>() - passed< BLACK>()
             + space<  WHITE>() - space<  BLACK>();
 
-    score += initiative(score);
-
     // Interpolate between a middlegame and a (scaled by 'sf') endgame score
     ScaleFactor sf = scale_factor(eg_value(score));
+
+    score = make_score(mg_value(score), eg_value(score) * sf / SCALE_FACTOR_NORMAL);
+
+    score += initiative(score);
+
     v =  mg_value(score) * int(me->game_phase())
-       + eg_value(score) * int(PHASE_MIDGAME - me->game_phase()) * sf / SCALE_FACTOR_NORMAL;
+       + eg_value(score) * int(PHASE_MIDGAME - me->game_phase());
 
     v /= PHASE_MIDGAME;
 
