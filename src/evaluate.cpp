@@ -850,6 +850,9 @@ namespace {
 
     v /= PHASE_MIDGAME;
 
+    if (v == Value(0))
+        v += (pos.count<PAWN>(WHITE) > pos.count<PAWN>(BLACK)) - (pos.count<PAWN>(WHITE) < pos.count<PAWN>(BLACK));
+
     // In case of tracing add all remaining individual evaluation terms
     if (T)
     {
