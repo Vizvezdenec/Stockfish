@@ -296,9 +296,6 @@ namespace {
         else if (Pt == BISHOP && (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them]))
             score += BishopOnKingRing;
 
-        else if (Pt == KNIGHT && (distance(pos.square<KING>(Them), s) < 5))
-            score += make_score(16, 0);
-
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
@@ -462,7 +459,10 @@ namespace {
     int kingFlankAttack = popcount(b1) + popcount(b2);
     int kingFlankDefense = popcount(b3);
 
-    kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them]
+    bool bishopPairAtt = (DarkSquares & kingRing[Us] & attackedBy[Them][BISHOP]) 
+                      && (~DarkSquares & kingRing[Us] & attackedBy[Them][BISHOP]);
+
+    kingDanger +=        kingAttackersCount[Them] * (kingAttackersWeight[Them] + 20 * bishopPairAtt)
                  + 185 * popcount(kingRing[Us] & weak)
                  + 148 * popcount(unsafeChecks)
                  +  98 * popcount(pos.blockers_for_king(Us))
