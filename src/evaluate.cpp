@@ -296,6 +296,9 @@ namespace {
         else if (Pt == BISHOP && (attacks_bb<BISHOP>(s, pos.pieces(PAWN)) & kingRing[Them]))
             score += BishopOnKingRing;
 
+        else if (Pt == KNIGHT && (distance(pos.square<KING>(Them), s) < 5))
+            score += make_score(16, 0);
+
         int mob = popcount(b & mobilityArea[Us]);
 
         mobility[Us] += MobilityBonus[Pt - 2][mob];
