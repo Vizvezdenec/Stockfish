@@ -747,6 +747,8 @@ namespace {
                     -  2 * pos.rule50_count()
                     -110 ;
 
+    if (pos.count<QUEEN>(WHITE) != pos.count<QUEEN>(BLACK))
+        complexity += 6 * (pos.count<PAWN>() - 6);
     Value mg = mg_value(score);
     Value eg = eg_value(score);
 
