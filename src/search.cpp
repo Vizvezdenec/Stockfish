@@ -905,7 +905,7 @@ namespace {
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
         &&  depth >= 5
-        &&  (cutNode || eval >= beta - 50 * depth)
+        &&  (cutNode || eval >= beta - 100 * depth)
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 189 - 45 * improving;
