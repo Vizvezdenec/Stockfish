@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = true;
+              singularQuietLMR = !ttCapture;
           }
 
           // Multi-cut pruning
@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + formerPv - ttCapture;
+              r -= captureOrPromotion + formerPv;
 
           if (!captureOrPromotion)
           {
