@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      depth > 9 + ss->ply ? ss->ply : MAX_PLY);
+                                      depth > 12 ? ss->ply : MAX_PLY);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
@@ -1169,7 +1169,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > std::min(1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2), 4)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
