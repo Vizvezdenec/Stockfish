@@ -1043,6 +1043,12 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
+              if (   lmrDepth < 1
+                  && !ss->inCheck
+                  && type_of(movedPiece) != PAWN
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
+                  continue;
+
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(32 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
@@ -1247,9 +1253,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
-
-            if (rootNode && givesCheck)
-                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
