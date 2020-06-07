@@ -1701,7 +1701,12 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        for (int i = 0; i < quietCount; ++i)
+            if (from_sq(bestMove) == from_sq(quietsSearched[i]))
+                 update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
@@ -1748,7 +1753,7 @@ moves_loop: // When in check, search starts from here
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
-    if (type_of(pos.moved_piece(move)) != PAWN && !ss->inCheck)
+    if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     if (is_ok((ss-1)->currentMove))
