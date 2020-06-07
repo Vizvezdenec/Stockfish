@@ -729,7 +729,11 @@ namespace {
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
+                {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    if (depth > 7 && ss->ply - 1 < MAX_LPH)
+                        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << -stat_bonus(depth - 6);
+                }
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
@@ -1041,12 +1045,6 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
-                  continue;
-
-              if (   lmrDepth < 1
-                  && !ss->inCheck
-                  && type_of(movedPiece) != PAWN
-                  && thisThread->mainHistory[us][from_to(move)] < 0)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
