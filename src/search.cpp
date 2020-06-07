@@ -1703,9 +1703,8 @@ moves_loop: // When in check, search starts from here
     else
     {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        for (int i = 0; i < quietCount; ++i)
-            if (from_sq(bestMove) == from_sq(quietsSearched[i]))
-                 update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+        if (quietCount > 1)
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[1]), to_sq(quietsSearched[1]), -bonus2);
     }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
