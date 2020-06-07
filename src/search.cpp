@@ -728,7 +728,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if (((ss-1)->moveCount <= 2 + (ttValue > beta + PawnValueEg)) && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1104,12 +1104,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if (  !priorCapture 
-                 && (ss-1)->moveCount < 3)
-                  update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
@@ -1706,11 +1701,7 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (quietCount > 1)
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[1]), to_sq(quietsSearched[1]), -bonus2);
-    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
