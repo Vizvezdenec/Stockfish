@@ -731,8 +731,8 @@ namespace {
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
                 {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
-                    if (depth > 7 && ss->ply - 1 < MAX_LPH)
-                        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << -stat_bonus(depth - 6);
+                    if (depth > 11 && ss->ply - 1 < MAX_LPH)
+                        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << -stat_bonus(depth - 8);
                 }
             }
             // Penalty for a quiet ttMove that fails low
