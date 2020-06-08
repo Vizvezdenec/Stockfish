@@ -1204,7 +1204,8 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
-          if (relative_rank(us, to_sq(move)) > RANK_5
+          if (type_of(movedPiece) == PAWN
+           && relative_rank(us, to_sq(move)) > RANK_5
            && pos.pawn_passed(us, to_sq(move)))
               r--;
 
