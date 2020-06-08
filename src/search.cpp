@@ -1052,7 +1052,8 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
+                  && (pos.non_pawn_material() >= 2 * QueenValueMg || pos.count<ALL_PIECES>() > 8))
                   continue;
 
               // Futility pruning for captures
@@ -1203,11 +1204,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
-
-          if (type_of(movedPiece) == PAWN
-           && relative_rank(us, to_sq(move)) > RANK_5
-           && pos.pawn_passed(us, to_sq(move)))
-              r--;
 
           if (!captureOrPromotion)
           {
