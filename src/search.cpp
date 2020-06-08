@@ -1204,6 +1204,11 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
+          if (type_of(movedPiece) == PAWN
+           && relative_rank(us, to_sq(move)) > RANK_6
+           && pos.pawn_passed(us, to_sq(move)))
+              r--;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
