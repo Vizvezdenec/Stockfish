@@ -871,7 +871,13 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -alpha, -alpha+1, 1, !cutNode); 
+        
+        if (nullValue >= alpha)
+
+        {
+
+        nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -898,6 +904,9 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+
+        }
+        else pos.undo_null_move();
     }
 
     // Step 10. ProbCut (~10 Elo)
