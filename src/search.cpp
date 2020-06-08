@@ -864,20 +864,14 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (854 + 68 * depth) / 258 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (854 + 68 * depth) / 258 + std::min(int(eval - beta) / 192, 3) - (ss->staticEval < beta);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -alpha, -alpha+1, 1, !cutNode); 
-        
-        if (nullValue >= alpha)
-
-        {
-
-        nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -904,9 +898,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-
-        }
-        else pos.undo_null_move();
     }
 
     // Step 10. ProbCut (~10 Elo)
