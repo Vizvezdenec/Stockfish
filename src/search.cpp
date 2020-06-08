@@ -1204,11 +1204,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
-          if (type_of(movedPiece) == PAWN
-           && relative_rank(us, to_sq(move)) > RANK_5
-           && pos.pawn_passed(us, to_sq(move)))
-              r -= int(relative_rank(us, to_sq(move)) - RANK_5);
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1238,6 +1233,13 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -116 && ss->statScore < -154)
                   r++;
+
+              if (type_of(movedPiece) != PAWN
+               && type_of(move) == NORMAL
+               && givesCheck
+               && thisThread->mainHistory[us][from_to(move)] > 0
+               && thisThread->mainHistory[us][from_to(reverse_move(move))] < 0)
+                  r--;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16434;
