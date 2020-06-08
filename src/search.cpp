@@ -1063,6 +1063,16 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
+             if (    type_of(movedPiece) != PAWN
+                  && type_of(move) == NORMAL
+                  && !captureOrPromotion
+                  && thisThread->mainHistory[us][from_to(move)] < 0
+                  && thisThread->mainHistory[us][from_to(reverse_move(move))] > 0
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && lmrDepth < 1)
+                  continue;
+
               // See based pruning
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
@@ -1233,13 +1243,6 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -116 && ss->statScore < -154)
                   r++;
-
-              if (type_of(movedPiece) != PAWN
-               && type_of(move) == NORMAL
-               && givesCheck
-               && thisThread->mainHistory[us][from_to(move)] > 0
-               && thisThread->mainHistory[us][from_to(reverse_move(move))] < 0)
-                  r--;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 16434;
