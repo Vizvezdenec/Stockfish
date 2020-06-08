@@ -1207,7 +1207,7 @@ moves_loop: // When in check, search starts from here
           if (type_of(movedPiece) == PAWN
            && relative_rank(us, to_sq(move)) > RANK_6
            && pos.pawn_passed(us, to_sq(move)))
-              r--;
+              r -= 2;
 
           if (!captureOrPromotion)
           {
