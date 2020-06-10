@@ -1077,7 +1077,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2 + (PvNode && abs(beta) < 2), cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1245,6 +1245,8 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+          else if (didLMR && captureOrPromotion && moveCount < 4 && value <= alpha)
+              captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << -stat_bonus(depth);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
