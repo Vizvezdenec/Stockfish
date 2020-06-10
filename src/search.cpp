@@ -1006,7 +1006,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
+                    + (*contHist[3])[movedPiece][to_sq(move)]
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27400)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1245,8 +1246,6 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
-          else if (didLMR && captureOrPromotion && moveCount < 4 && value <= alpha)
-              captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << -stat_bonus(depth);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
