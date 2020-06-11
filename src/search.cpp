@@ -1143,8 +1143,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || (singularQuietLMR && ttValue <= alpha)))
+              || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1658,6 +1657,8 @@ moves_loop: // When in check, search starts from here
 
     if (!pos.capture_or_promotion(bestMove))
     {
+        if (depth > 1)
+        {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
         // Decrease all the non-best quiet moves
@@ -1666,6 +1667,13 @@ moves_loop: // When in check, search starts from here
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
+        }
+        else if (ss->killers[0] != bestMove)
+    {
+        ss->killers[1] = ss->killers[0];
+        ss->killers[0] = bestMove;
+    }
+            
     }
     else
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
@@ -1675,12 +1683,15 @@ moves_loop: // When in check, search starts from here
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
+    if (depth > 1 || pos.capture_or_promotion(bestMove))
+    {
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+    }
     }
   }
 
