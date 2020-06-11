@@ -814,11 +814,7 @@ namespace {
         &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if ((ss-1)->moveCount < 2 && !priorCapture)
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
         return eval;
-    }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1147,7 +1143,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 375 * TtHitAverageResolution * TtHitAverageWindow / 1024
+              || (singularQuietLMR && ttValue <= alpha)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
