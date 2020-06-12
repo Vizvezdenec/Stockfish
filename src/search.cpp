@@ -1035,7 +1035,7 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      if (    depth > 9
+      if (    depth > 7
           && !ttMove
           && !rootNode
           && !excludedMove 
@@ -1044,10 +1044,11 @@ moves_loop: // When in check, search starts from here
           &&  bestMove
           &&  pos.legal(bestMove))
       {
+          Value loweredAlpha = alpha - 8 * depth;
           ss->excludedMove = bestMove;
-          value = search<NonPV>(pos, ss, alpha - 1 - 8 * depth, alpha - 8 * depth, depth / 2 + 3, cutNode);
+          value = search<NonPV>(pos, ss, loweredAlpha - 1, loweredAlpha, depth / 2 + 3, cutNode);
           ss->excludedMove = MOVE_NONE;
-          if (value < alpha)
+          if (value < loweredAlpha)
               return bestValue;
       }
 
