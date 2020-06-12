@@ -870,24 +870,23 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 2
+        &&  depth >= 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 180 - 45 * improving + std::max((6 - depth), 0) * 80;
+        Value raisedBeta = beta + 189 - 45 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
-        Depth pcDepth = std::max(1, depth - 4);
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
-                    && tte->depth() >= pcDepth
+                    && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
-                assert(depth >= 2);
+                assert(depth >= 5);
 
                 captureOrPromotion = true;
                 probCutCount++;
@@ -905,7 +904,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, pcDepth, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1029,6 +1028,14 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 270 + 384 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
+
+              if (  !captureOrPromotion
+                  && lmrDepth < 1
+                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[3])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[5])[movedPiece][to_sq(move)] < 0)
+                 continue;
 
               // See based pruning
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
