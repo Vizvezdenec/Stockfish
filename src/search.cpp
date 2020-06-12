@@ -1035,6 +1035,22 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      if (    depth > 9
+          && !ttMove
+          && !rootNode
+          && !excludedMove 
+          &&  moveCount == 2
+          &&  bestValue >= alpha
+          &&  bestMove
+          &&  pos.legal(bestMove))
+      {
+          ss->excludedMove = bestMove;
+          value = search<NonPV>(pos, ss, alpha - 1 - 8 * depth, alpha - 8 * depth, depth / 2 + 3, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value < alpha)
+              return bestValue;
+      }
+
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1312,24 +1328,7 @@ moves_loop: // When in check, search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
-              {
-                  Value tempAlpha = alpha;
                   alpha = value;
-                  if (!ttMove && moveCount == 1 && depth > 9 && value >= (tempAlpha + beta) / 2)
-                  {
-                      ss->excludedMove = move;
-                      value = search<NonPV>(pos, ss, tempAlpha - 1, tempAlpha, depth / 2, cutNode);
-                      ss->excludedMove = MOVE_NONE;
-                      if (value < tempAlpha)
-                      {
-                          ss->excludedMove = move;
-                          value = search<NonPV>(pos, ss, alpha - 1, alpha, depth / 2 + 3, cutNode);
-                          ss->excludedMove = MOVE_NONE;
-                          if (value < alpha)
-                              return alpha;
-                      }
-                  }
-              }
               else
               {
                   assert(value >= beta); // Fail high
