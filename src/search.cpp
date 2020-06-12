@@ -870,23 +870,24 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 5
+        &&  depth >= 2
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 189 - 45 * improving;
+        Value raisedBeta = beta + 180 - 45 * improving + std::max((6 - depth), 0) * 80;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
+        Depth pcDepth = std::max(1, depth - 4);
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
-                    && tte->depth() >= depth - 4
+                    && tte->depth() >= pcDepth
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
-                assert(depth >= 5);
+                assert(depth >= 2);
 
                 captureOrPromotion = true;
                 probCutCount++;
@@ -904,7 +905,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, pcDepth, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1033,23 +1034,6 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-194) * depth)) // (~25 Elo)
                   continue;
           }
-      }
-
-      if (    depth > 7
-          && !ttMove
-          && !rootNode
-          && !excludedMove 
-          &&  moveCount == 2
-          &&  bestValue >= alpha
-          &&  bestMove
-          &&  pos.legal(bestMove))
-      {
-          Value loweredAlpha = alpha - 8 * depth;
-          ss->excludedMove = bestMove;
-          value = search<NonPV>(pos, ss, loweredAlpha - 1, loweredAlpha, depth / 2 + 3, cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value < loweredAlpha)
-              return bestValue;
       }
 
       // Step 14. Extensions (~75 Elo)
