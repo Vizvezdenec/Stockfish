@@ -1006,8 +1006,7 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + 235 + 172 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 31400)
+                    + (*contHist[3])[movedPiece][to_sq(move)] < 27400)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1313,7 +1312,24 @@ moves_loop: // When in check, search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
+                  Value tempAlpha = alpha;
                   alpha = value;
+                  if (!ttMove && moveCount == 1 && depth > 9 && value >= (tempAlpha + beta) / 2)
+                  {
+                      ss->excludedMove = move;
+                      value = search<NonPV>(pos, ss, tempAlpha - 1, tempAlpha, depth / 2, cutNode);
+                      ss->excludedMove = MOVE_NONE;
+                      if (value < tempAlpha)
+                      {
+                          ss->excludedMove = move;
+                          value = search<NonPV>(pos, ss, alpha - 1, alpha, depth / 2 + 3, cutNode);
+                          ss->excludedMove = MOVE_NONE;
+                          if (value < alpha)
+                              return alpha;
+                      }
+                  }
+              }
               else
               {
                   assert(value >= beta); // Fail high
