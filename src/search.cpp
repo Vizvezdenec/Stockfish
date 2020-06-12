@@ -1312,7 +1312,23 @@ moves_loop: // When in check, search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
                   alpha = value;
+                  if (PvNode && moveCount == 1 && depth > 9)
+                  {
+                      ss->excludedMove = move;
+                      value = search<NonPV>(pos, ss, alpha - depth * 6 - 1, alpha - depth * 6, depth / 2, cutNode);
+                      ss->excludedMove = MOVE_NONE;
+                      if (value < alpha - depth * 6)
+                      {
+                          ss->excludedMove = move;
+                          value = search<NonPV>(pos, ss, alpha - 1, alpha, depth / 2 + 2, cutNode);
+                          ss->excludedMove = MOVE_NONE;
+                          if (value < alpha)
+                              return alpha;
+                      }
+                  }
+              }
               else
               {
                   assert(value >= beta); // Fail high
