@@ -1188,10 +1188,10 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ttPv;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
+              ss->statScore =  (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + ((*contHist[3])[movedPiece][to_sq(move)]
+                             +  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[5])[movedPiece][to_sq(move)] / 2) * !ss->inCheck
                              - 4926;
 
