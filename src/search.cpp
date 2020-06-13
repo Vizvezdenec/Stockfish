@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 399 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || (!givesCheck && (dd < depth / 2) && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
+              || (!givesCheck && (dd < 3) && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
