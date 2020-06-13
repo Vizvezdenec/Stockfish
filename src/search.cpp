@@ -870,7 +870,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 5
+        &&  depth > 5 + 2 * (!priorCapture && (ss-1)->statScore > 24000)
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 182 - 48 * improving;
@@ -1192,8 +1192,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             + (*contHist[5])[movedPiece][to_sq(move)] / 2
-                             - 5926;
+                             - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -99 && (ss-1)->statScore < -116)
