@@ -897,7 +897,7 @@ namespace {
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
-                Value currentBeta = raisedBeta - captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 256;
+                Value currentBeta = raisedBeta - captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 128;
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
