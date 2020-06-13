@@ -1078,7 +1078,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 2 + 3 * formerPv) / 2, !formerPv);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1192,6 +1192,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
+                             + (*contHist[5])[movedPiece][to_sq(move)] / 2
                              - 4926;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
