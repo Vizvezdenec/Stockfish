@@ -870,7 +870,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 5 + 2 * (!priorCapture && (ss-1)->statScore > 24000)
+        &&  depth > 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         Value raisedBeta = beta + 182 - 48 * improving;
@@ -897,18 +897,19 @@ namespace {
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
+                Value currentBeta = raisedBeta - captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 256;
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1);
+                value = -qsearch<NonPV>(pos, ss+1, -currentBeta, -currentBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 5, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -currentBeta, -currentBeta+1, depth - 5, !cutNode);
 
                 pos.undo_move(move);
 
-                if (value >= raisedBeta)
+                if (value >= currentBeta)
                     return value;
             }
     }
