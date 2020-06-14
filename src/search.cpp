@@ -995,10 +995,17 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || (ss-1)->currentMove == (ss-1)->killers[0])
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+              {
+                  if (move == ss->killers[0])
+                  {
+                      ss->killers[0] = ss->killers[1];
+                      ss->killers[1] = MOVE_NONE;
+                  }
                   continue;
+              }
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
