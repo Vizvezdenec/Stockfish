@@ -1075,7 +1075,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
-          else if (ttValue >= beta && abs(beta) > 1)
+          else if (ttValue >= beta && (!PvNode || abs(beta) > 1))
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
