@@ -1008,25 +1008,11 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 30251)
-              {
-                  if (move == ss->killers[0])
-                  {
-                      ss->killers[0] = ss->killers[1];
-                      ss->killers[1] = MOVE_NONE;
-                  }
                   continue;
-              }
 
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
-              {
-                  if (move == ss->killers[0])
-                  {
-                      ss->killers[0] = ss->killers[1];
-                      ss->killers[1] = MOVE_NONE;
-                  }
                   continue;
-              }
           }
           else
           {
@@ -1687,7 +1673,14 @@ moves_loop: // When in check, search starts from here
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
+    {
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+            if ((ss-1)->currentMove == (ss-1)->killers[0])
+            {
+                 (ss-1)->killers[0] = (ss-1)->killers[1];
+                 (ss-1)->killers[1] = MOVE_NONE;
+            }
+    }
 
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
