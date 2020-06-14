@@ -980,8 +980,6 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      int dd = depth;
-
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -992,7 +990,6 @@ moves_loop: // When in check, search starts from here
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-          dd = lmrDepth;
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1030,7 +1027,8 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && !ss->inCheck
-                  && ss->staticEval + 264 + 397 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && ss->staticEval + 264 + 397 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 10000 - 500 * lmrDepth)
                   continue;
 
               // See based pruning
@@ -1147,8 +1145,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 399 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || ((dd < 2 + 2 * !givesCheck) && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
+              || thisThread->ttHitAverage < 399 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
