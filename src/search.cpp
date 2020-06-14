@@ -995,7 +995,8 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1
+                                   || ((*contHist[3])[movedPiece][to_sq(move)] < 0 && (*contHist[5])[movedPiece][to_sq(move)] < 0))
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1164,8 +1165,8 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
-          if ((ss-1)->moveCount > 14 - 6 * (PvNode && abs(bestValue) < 2))
-              r -= 1 + ((PvNode && abs(bestValue) < 2) && (ss-1)->moveCount > 16);
+          if ((ss-1)->moveCount > 14)
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
