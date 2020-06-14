@@ -1008,11 +1008,25 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 30251)
+              {
+                  if (move == ss->killers[0])
+                  {
+                      ss->killers[0] = ss->killers[1];
+                      ss->killers[1] = MOVE_NONE;
+                  }
                   continue;
+              }
 
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              {
+                  if (move == ss->killers[0])
+                  {
+                      ss->killers[0] = ss->killers[1];
+                      ss->killers[1] = MOVE_NONE;
+                  }
                   continue;
+              }
           }
           else
           {
@@ -1242,14 +1256,7 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               if (move == ss->killers[0])
-              {
-                  if (bonus < 0)
-                  {
-                      ss->killers[0] = ss->killers[1];
-                      ss->killers[1] = MOVE_NONE;
-                  }
                   bonus += bonus / 4;
-              }
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
