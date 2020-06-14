@@ -979,7 +979,6 @@ moves_loop: // When in check, search starts from here
 
       // Calculate new depth for this move
       newDepth = depth - 1;
-      int dd = depth;
 
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
@@ -991,7 +990,6 @@ moves_loop: // When in check, search starts from here
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-          dd = lmrDepth;
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1146,8 +1144,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 399 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || ((dd < 3) && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
+              || thisThread->ttHitAverage < 399 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1217,6 +1214,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * depth <= alpha)
                 r++;
+
+            if (    givesCheck && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 5000)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
