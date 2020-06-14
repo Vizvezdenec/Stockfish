@@ -1008,6 +1008,10 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 30251)
+                  continue;
+
+              // Prune moves with negative SEE (~20 Elo)
+              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
               {
                   if (move == ss->killers[0])
                   {
@@ -1016,10 +1020,6 @@ moves_loop: // When in check, search starts from here
                   }
                   continue;
               }
-
-              // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
-                  continue;
           }
           else
           {
