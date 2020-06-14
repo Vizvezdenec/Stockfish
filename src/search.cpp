@@ -1164,8 +1164,8 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
-          if ((ss-1)->moveCount > 14)
-              r -= 1 + ((PvNode && abs(bestValue) < 2) && (ss-1)->moveCount > 22);
+          if ((ss-1)->moveCount > 14 - 6 * (PvNode && abs(bestValue) < 2))
+              r -= 1 + ((PvNode && abs(bestValue) < 2) && (ss-1)->moveCount > 16);
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
