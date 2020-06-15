@@ -1673,7 +1673,14 @@ moves_loop: // When in check, search starts from here
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
+    {
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+            if ((ss-1)->currentMove == (ss-1)->killers[0])
+            {
+                 (ss-1)->killers[0] = (ss-1)->killers[1];
+                 (ss-1)->killers[1] = MOVE_NONE;
+            }
+    }
 
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
