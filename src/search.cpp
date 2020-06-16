@@ -1171,6 +1171,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
+          if (!PvNode && !cutNode && givesCheck)
+              r -= 1 + captureOrPromotion;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1214,9 +1217,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (!PvNode && !cutNode && givesCheck)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
