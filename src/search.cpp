@@ -991,8 +991,14 @@ moves_loop: // When in check, search starts from here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
+          bool attPawnPush = pos.non_pawn_material() > 14000 
+                          && type_of(movedPiece) == PAWN 
+                          && relative_rank(us, to_sq(move)) > RANK_3
+                          && (pawn_attack_span(~us, pos.square<KING>(~us)) & to_sq(move));
+
           if (   !captureOrPromotion
-              && !givesCheck)
+              && !givesCheck
+              && !attPawnPush)
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
@@ -1014,7 +1020,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (!attPawnPush)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
@@ -1092,7 +1098,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   (move == ss->killers[0] || to_sq((ss-2)->currentMove) == from_sq(move))
+      else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
