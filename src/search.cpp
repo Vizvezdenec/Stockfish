@@ -909,7 +909,19 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    if (!excludedMove)
+                    {
+                        ss->excludedMove = move;
+                        Value tempvalue = search<NonPV>(pos, ss, beta - 1, beta, depth - 5, cutNode);
+                        if (tempvalue < beta)
+                            tte->save(posKey, value_to_tt(beta, ss->ply), ttPv,
+                            BOUND_LOWER,
+                            depth, move, ss->staticEval);
+                        ss->excludedMove = MOVE_NONE;
+                    }
                     return value;
+                }
             }
     }
 
@@ -1668,11 +1680,7 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (ss->staticEval + PieceValue[EG][captured] < beta && bestValue > beta + PawnValueMg)
-            thisThread->mainHistory[us][from_to(bestMove)] << stat_bonus(depth);
-    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
