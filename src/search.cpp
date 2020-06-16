@@ -1668,7 +1668,21 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        for (int i = 0; i < quietCount; ++i)
+        {
+            if (quietsSearched[i] == ss->killers[0])
+                ss->killers[0] = MOVE_NONE;
+            else if (quietsSearched[i] == ss->killers[1])
+                ss->killers[1] = MOVE_NONE;
+        }
+        if (ss->killers[0] == MOVE_NONE && ss->killers[1] != MOVE_NONE)
+        {
+            ss->killers[0] = ss->killers[1];
+            ss->killers[1] = MOVE_NONE;
+        }
+    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
