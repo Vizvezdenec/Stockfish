@@ -1214,6 +1214,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (!PvNode && !cutNode && givesCheck)
+                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1674,14 +1677,6 @@ moves_loop: // When in check, search starts from here
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
-
-    if ((ss-1)->currentMove == (ss-1)->killers[0])
-    {
-        (ss-1)->killers[0] = (ss-1)->killers[1];
-        (ss-1)->killers[1] = MOVE_NONE;
-    }
-    else if ((ss-1)->currentMove == (ss-1)->killers[1])
-        (ss-1)->killers[1] = MOVE_NONE;
 
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
