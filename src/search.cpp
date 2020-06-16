@@ -1003,11 +1003,11 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 316 + 200 * lmrDepth <= alpha
+                  && ss->staticEval + 284 + 188 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26500)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1668,7 +1668,11 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (ss->staticEval + PieceValue[EG][captured] < beta && bestValue > beta + PawnValueMg)
+            thisThread->mainHistory[us][from_to(bestMove)] << stat_bonus(depth);
+    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
