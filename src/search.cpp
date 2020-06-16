@@ -909,7 +909,14 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    ss->excludedMove = move;
+                    Value tempvalue = search<NonPV>(pos, ss, beta - 1, beta, depth - 5, cutNode);
+                    ss->excludedMove = MOVE_NONE;
+                    if (tempvalue < beta)
+                        captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth);
                     return value;
+                }
             }
     }
 
