@@ -1216,7 +1216,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (!PvNode && !cutNode && givesCheck)
-                r -= 2;
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
