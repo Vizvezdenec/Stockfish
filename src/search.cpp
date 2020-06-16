@@ -1092,7 +1092,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (   move == ss->killers[0]
+      else if (   (move == ss->killers[0] || to_sq((ss-2)->currentMove) == from_sq(move))
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
@@ -1184,7 +1184,7 @@ moves_loop: // When in check, search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~2 Elo)
-              else if (    type_of(move) == NORMAL && type_of(movedPiece) != PAWN
+              else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ttPv;
 
