@@ -909,19 +909,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    if (!excludedMove)
-                    {
-                        ss->excludedMove = move;
-                        Value tempvalue = search<NonPV>(pos, ss, beta - 1, beta, depth - 5, cutNode);
-                        if (tempvalue < beta)
-                            tte->save(posKey, value_to_tt(beta, ss->ply), ttPv,
-                            BOUND_LOWER,
-                            depth, move, ss->staticEval);
-                        ss->excludedMove = MOVE_NONE;
-                    }
                     return value;
-                }
             }
     }
 
