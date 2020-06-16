@@ -1172,7 +1172,7 @@ moves_loop: // When in check, search starts from here
               r -= 1 + formerPv;
 
           if (!PvNode && !cutNode && givesCheck)
-              r -= 1 + captureOrPromotion;
+              r--;
 
           if (!captureOrPromotion)
           {
