@@ -910,7 +910,7 @@ namespace {
 
                 if (value >= raisedBeta)
                 {
-                    if (!priorCapture)
+                    if (!priorCapture && (ss-1)->moveCount < 3)
                     {
                         ss->excludedMove = move;
                         Value tempValue = search<NonPV>(pos, ss, raisedBeta-1, raisedBeta, depth - 5, cutNode);
