@@ -677,8 +677,6 @@ namespace {
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
                                 + TtHitAverageResolution * ttHit;
 
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ttHit
@@ -706,8 +704,6 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
-            else if ((ss-1)->moveCount > 12)
-                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth) / 2;
         }
 
         if (pos.rule50_count() < 90)
@@ -765,6 +761,8 @@ namespace {
             }
         }
     }
+
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -911,7 +909,17 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    if (!priorCapture)
+                    {
+                        ss->excludedMove = move;
+                        Value tempValue = search<NonPV>(pos, ss, raisedBeta-1, raisedBeta, depth - 5, cutNode);
+                        ss->excludedMove = MOVE_NONE;
+                        if (tempValue >= raisedBeta)
+                            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    }
                     return value;
+                }
             }
     }
 
