@@ -830,7 +830,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (2211 + 231 * depth + std::min(int(eval - beta) * 4, 2304)) / 768;
+        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1692,10 +1692,13 @@ moves_loop: // When in check, search starts from here
 
     for (int i : {1, 2, 4, 6})
     {
-        if (ss->inCheck && i > 2)
-            break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << bonus;
+        {
+            int tempBonus = bonus;
+            if (ss->inCheck && i > 2)
+                tempBonus = bonus / (i - 2);
+            (*(ss-i)->continuationHistory)[pc][to] << tempBonus;
+        }
     }
   }
 
