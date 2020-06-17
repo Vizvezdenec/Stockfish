@@ -677,6 +677,8 @@ namespace {
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
                                 + TtHitAverageResolution * ttHit;
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ttHit
@@ -694,11 +696,8 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if (!priorCapture)
-                {
-                    int divisor = (ss-1)->moveCount > 2 ? ((ss-1)->moveCount - 1) * ((ss-1)->moveCount - 1) : 1;
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1) / divisor);
-                }
+                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
@@ -707,6 +706,8 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
+            else if ((ss-1)->moveCount > 12)
+                captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth) / 2;
         }
 
         if (pos.rule50_count() < 90)
@@ -764,8 +765,6 @@ namespace {
             }
         }
     }
-
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
