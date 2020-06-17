@@ -1088,7 +1088,7 @@ moves_loop: // When in check, search starts from here
 
       // Check extension (~2 Elo)
       else if (    givesCheck
-               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move)))
+               && (pos.is_discovery_check_on_king(~us, move) || pos.see_ge(move, BishopValueMg - KnightValueMg)))
           extension = 1;
 
       // Passed pawn extension
@@ -1214,9 +1214,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (type_of(pos.captured_piece()) != PAWN && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) == 1)
-                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
