@@ -1016,10 +1016,11 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
+              bool badCapture = !ss->inCheck && (ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha);
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < cutNode)
+                  && lmrDepth < 1 + badCapture
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 1 - lmrDepth)
                   continue;
 
               // Futility pruning for captures
