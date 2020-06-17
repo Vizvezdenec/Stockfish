@@ -811,18 +811,10 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        {
-        if (depth < 6)
-            return eval;
-        else
-            {
-                Value futValue = search<NonPV>(pos, ss, eval-1, eval, depth - 5, cutNode);
-                if (futValue >= eval)
-                    return eval;
-            }
-        }
+        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1011,11 +1003,11 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 284 + 188 * lmrDepth <= alpha
+                  && ss->staticEval + 288 + 200 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 30435)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
