@@ -1027,7 +1027,7 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && !ss->inCheck
-                  && ss->staticEval + 252 + 391 * lmrDepth + 125 * cutNode + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && ss->staticEval + 237 + 391 * lmrDepth + 150 * cutNode + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               // See based pruning
