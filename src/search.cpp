@@ -1027,7 +1027,7 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && !ss->inCheck
-                  && ss->staticEval + 237 + 391 * lmrDepth + 150 * cutNode + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  && ss->staticEval + 267 + 391 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               // See based pruning
@@ -1214,6 +1214,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (type_of(pos.captured_piece()) != PAWN && pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) == 1)
+                r -= 2;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
