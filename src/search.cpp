@@ -694,10 +694,10 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if (((ss-1)->moveCount <= 3 || (ss-1)->currentMove == (ss-1)->killers[0]) && !priorCapture)
+                if (!priorCapture)
                 {
-                    int penalty = (ss-1)->moveCount > 2 ? -stat_bonus(depth + 1) / 2 : -stat_bonus(depth + 1);
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, penalty);
+                    int divisor = (ss-1)->moveCount > 2 ? ((ss-1)->moveCount - 1) * ((ss-1)->moveCount - 1) : 1;
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1) / divisor);
                 }
             }
             // Penalty for a quiet ttMove that fails low
