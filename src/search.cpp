@@ -811,10 +811,18 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
+        {
+        if (depth < 6)
+            return eval;
+        else
+            {
+                Value futValue = search<NonPV>(pos, ss, eval-1, eval, depth - 5, cutNode);
+                if (futValue >= eval)
+                    return eval;
+            }
+        }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -909,17 +917,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    if (!priorCapture && (ss-1)->moveCount < 3)
-                    {
-                        ss->excludedMove = move;
-                        Value tempValue = search<NonPV>(pos, ss, raisedBeta-1, raisedBeta, depth - 5, cutNode);
-                        ss->excludedMove = MOVE_NONE;
-                        if (tempValue >= raisedBeta)
-                            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
-                    }
                     return value;
-                }
             }
     }
 
