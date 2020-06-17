@@ -1160,7 +1160,7 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= 2;
 
-          if ((moveCountPruning || moveCount >= futility_move_count(improving, depth + 1)) && !formerPv)
+          if (moveCountPruning && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1208,7 +1208,7 @@ moves_loop: // When in check, search starts from here
           {
             // Increase reduction for captures/promotions if late move and at low depth
             if (depth < 8 && moveCount > 2)
-                r++;
+                r += 1 + moveCountPruning;
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
