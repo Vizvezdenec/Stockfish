@@ -830,7 +830,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (2211 + 231 * depth + std::min(int(eval - beta) * 4, 2304)) / 768;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1186,7 +1186,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~2 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + (ttPv || givesCheck);
+                  r -= 2 + ttPv;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
