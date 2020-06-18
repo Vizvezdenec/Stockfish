@@ -608,7 +608,7 @@ namespace {
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->captCnt = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -977,6 +977,9 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if (captureOrPromotion)
+          ss->captCnt = captureCount + 1;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1165,6 +1168,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
+              r--;
+
+          if (priorCapture && (ss-1)->captCnt > 4)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
