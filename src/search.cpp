@@ -1374,7 +1374,7 @@ moves_loop: // When in check, search starts from here
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
 
-    ss->tactPos = captureCount > 4 * quietCount;
+    ss->tactPos = captureCount > 8 * quietCount;
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
