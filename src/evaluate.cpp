@@ -354,9 +354,6 @@ namespace {
             if (file_bb(s) & pos.pieces(QUEEN))
                 score += RookOnQueenFile;
 
-            if (forward_file_bb(Us, s) & pe->passed_pawns(Us))
-                score += make_score(10, 10);
-
             // Bonus for rook on an open or semi-open file
             if (pos.is_on_semiopen_file(Us, s))
                 score += RookOnFile[pos.is_on_semiopen_file(Them, s)];

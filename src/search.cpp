@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           if (moveCountPruning && !formerPv)
-              r++;
+              r += 1 + cutNode;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
