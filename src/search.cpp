@@ -612,7 +612,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->tactPos = false;
-    
+
     // Check for the available remaining time
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
@@ -1374,7 +1374,7 @@ moves_loop: // When in check, search starts from here
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
 
-    ss->tactPos = captureCount > 2 * quietCount;
+    ss->tactPos = captureCount > 4 * quietCount;
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
