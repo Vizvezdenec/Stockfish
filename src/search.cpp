@@ -873,7 +873,7 @@ namespace {
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 176 - 49 * improving + 22 * formerPv;
+        Value raisedBeta = beta + 176 - 49 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1053,7 +1053,19 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3
           &&  pos.legal(move))
       {
+          if (ttValue >= beta)
+          {
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
+              ss->excludedMove = MOVE_NONE;
+
+              if (value >= beta)
+                  return beta;
+          }
+
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
+          if (singularBeta < beta)
+          {
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1064,25 +1076,6 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularQuietLMR = !ttCapture;
           }
-
-          // Multi-cut pruning
-          // Our ttMove is assumed to fail high, and now we failed high also on a reduced
-          // search without the ttMove. So we assume this expected Cut-node is not singular,
-          // that multiple moves fail high, and we can prune the whole subtree by returning
-          // a soft bound.
-          else if (singularBeta >= beta)
-              return singularBeta;
-
-          // If the eval of ttMove is greater than beta we try also if there is an other move that
-          // pushes it over beta, if so also produce a cutoff
-          else if (ttValue >= beta)
-          {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-
-              if (value >= beta)
-                  return beta;
           }
       }
 
