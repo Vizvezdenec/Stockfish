@@ -873,7 +873,7 @@ namespace {
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 176 - 49 * improving;
+        Value raisedBeta = beta + 166 - 49 * improving + 40 * formerPv;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
