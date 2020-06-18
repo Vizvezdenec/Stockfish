@@ -983,7 +983,7 @@ moves_loop: // When in check, search starts from here
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
-          && !(pos.non_pawn_material() > 14000 && type_of(move) == CASTLING)
+          && !(pos.count<QUEEN>() >= 2 && type_of(move) == CASTLING)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
