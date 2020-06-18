@@ -1194,15 +1194,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 4826;
 
-              if (   ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] > 0
-                  && (*contHist[1])[movedPiece][to_sq(move)] > 0
-                  && (*contHist[0])[movedPiece][to_sq(move)]
-                   + (*contHist[1])[movedPiece][to_sq(move)]
-                   - 4826                                    > 0
-                  && ss->statScore < 0)
-                  ss->statScore = 0;
-
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -100 && (ss-1)->statScore < -112)
                   r--;
@@ -1368,7 +1359,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + ((ss-1)->moveCount > depth * 4)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
