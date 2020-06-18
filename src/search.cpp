@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
-          if (priorCapture && (ss-1)->captCnt > 4)
+          if (priorCapture && (ss-1)->captCnt > 6)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
