@@ -904,7 +904,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= raisedBeta)
-                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4 + formerPv, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -raisedBeta, -raisedBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
-          if (priorCapture && (ss-1)->captCnt > 6)
+          if (priorCapture && (ss-1)->captCnt > 4)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
