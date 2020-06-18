@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           if (moveCountPruning && !formerPv)
-              r += 1 + cutNode;
+              r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1180,6 +1180,13 @@ moves_loop: // When in check, search starts from here
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
+
+              if (    pos.non_pawn_material() > 12000
+                   && type_of(movedPiece) == KNIGHT
+                   && relative_rank(us, to_sq(move)) < relative_rank(us, from_sq(move))
+                   && (file_of(from_sq(move)) < FILE_E ? file_of(to_sq(move)) < file_of(from_sq(move))
+                                                       : file_of(to_sq(move)) > file_of(from_sq(move))))
+                  r++;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
