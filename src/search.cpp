@@ -1648,7 +1648,7 @@ moves_loop: // When in check, search starts from here
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, int bestMoveMovecount) {
 
-    int bonus1, bonus2;
+    int bonus1;
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
@@ -1656,17 +1656,15 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
-                                            : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
     {
-        update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+        update_quiet_stats(pos, ss, bestMove, bonus1, depth);
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            int penalty = bonus2 == bonus1 ? bonus2 : bestMoveMovecount > i ? stat_bonus(depth + 1) : stat_bonus(depth);
+            int penalty = bestMoveMovecount > i ? bonus1 : stat_bonus(depth);
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -penalty;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -penalty);
         }
