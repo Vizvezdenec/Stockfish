@@ -608,10 +608,9 @@ namespace {
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = ss->captCnt = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->tactPos = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -978,6 +977,9 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if (captureOrPromotion)
+          ss->captCnt = captureCount + 1;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1168,6 +1170,9 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
+          if (priorCapture && (ss-1)->captCnt > 5)
+              r--;
+
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
@@ -1215,9 +1220,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if ((ss-1)->tactPos)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1373,8 +1375,6 @@ moves_loop: // When in check, search starts from here
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
-
-    ss->tactPos = captureCount > 8 * quietCount;
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
