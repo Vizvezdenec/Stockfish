@@ -1026,7 +1026,7 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
-                  && !(type_of(movedPiece) == PAWN && pos.advanced_pawn_push(move))
+                  && !(type_of(movedPiece) == PAWN)
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
