@@ -992,7 +992,11 @@ moves_loop: // When in check, search starts from here
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (depth <= 4 && lmrDepth < 1 && bestValue < alpha - RazorMargin)
-               return qsearch<NT>(pos, ss, alpha, beta);
+          {
+              Value qvalue = qsearch<NT>(pos, ss, alpha, beta);
+              if (qvalue <= alpha)
+                  return alpha;
+          }
 
           if (   !captureOrPromotion
               && !givesCheck)
