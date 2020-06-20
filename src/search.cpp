@@ -991,13 +991,6 @@ moves_loop: // When in check, search starts from here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
-          if (depth <= 4 && lmrDepth < 1 && bestValue < alpha - RazorMargin)
-          {
-              Value qvalue = qsearch<NT>(pos, ss, alpha, beta);
-              if (qvalue <= alpha)
-                  return alpha;
-          }
-
           if (   !captureOrPromotion
               && !givesCheck)
           {
@@ -1077,12 +1070,12 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta)
+          else if (singularBeta >= beta && !th.marked())
               return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
-          else if (ttValue >= beta)
+          else if (ttValue >= beta && !th.marked())
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
