@@ -1026,7 +1026,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
-                  && !(type_of(movedPiece) == PAWN)
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
@@ -1076,7 +1075,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
-          else if (ttValue >= beta)
+          else if (ttValue + singularBeta >= 2 * beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
