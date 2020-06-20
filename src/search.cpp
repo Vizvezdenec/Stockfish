@@ -991,6 +991,9 @@ moves_loop: // When in check, search starts from here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
+          if (depth <= 4 && lmrDepth < 1 && bestValue < alpha - RazorMargin)
+               return qsearch<NT>(pos, ss, alpha, beta);
+
           if (   !captureOrPromotion
               && !givesCheck)
           {
@@ -1075,7 +1078,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is an other move that
           // pushes it over beta, if so also produce a cutoff
-          else if (ttValue + singularBeta >= 2 * beta)
+          else if (ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
