@@ -992,7 +992,6 @@ moves_loop: // When in check, search starts from here
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   !captureOrPromotion
-              && (type_of(move) != CASTLING || pos.non_pawn_material() < 13000)
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
@@ -1105,7 +1104,7 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (type_of(move) == CASTLING)
-          extension = 1;
+          extension = 1 + (pos.non_pawn_material() > 12000);
 
       // Late irreversible move extension
       if (   move == ttMove
