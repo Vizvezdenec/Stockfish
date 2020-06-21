@@ -1104,7 +1104,7 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (type_of(move) == CASTLING)
-          extension = 1 + (pos.non_pawn_material() > 12000);
+          extension = 1 + !(pos.castling_rights(~us));
 
       // Late irreversible move extension
       if (   move == ttMove
