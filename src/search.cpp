@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts from here
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   !captureOrPromotion
-              && type_of(move) != CASTLING
+              && (type_of(move) != CASTLING || pos.non_pawn_material() < 13000)
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
