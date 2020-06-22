@@ -1018,7 +1018,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + (PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] < PieceValue[MG][type_of(movedPiece)])
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1026,7 +1026,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
-                  && (PieceValue[MG][type_of(movedPiece)] - PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] >= KnightValueMg - BishopValueMg)
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
