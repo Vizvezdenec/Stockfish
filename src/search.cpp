@@ -1144,8 +1144,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || (singularQuietLMR && !givesCheck && bestValue >= alpha && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1214,7 +1213,7 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
-                r++;
+                r += 1 + cutNode;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
