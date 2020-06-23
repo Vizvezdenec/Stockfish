@@ -1026,7 +1026,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
-                  && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
@@ -1062,6 +1061,15 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
+              if (cutNode && singularBeta > beta + depth * 12)
+              {
+                  singularBeta = beta + depth * 6;
+                  ss->excludedMove = move;
+          	  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                  ss->excludedMove = MOVE_NONE;
+                  if (value >= singularBeta)
+                      return singularBeta;
+              }
               extension = 1;
               singularQuietLMR = !ttCapture;
           }
@@ -1105,7 +1113,7 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (type_of(move) == CASTLING)
-          extension = 1 + !(pos.castling_rights(~us));
+          extension = 1;
 
       // Late irreversible move extension
       if (   move == ttMove
