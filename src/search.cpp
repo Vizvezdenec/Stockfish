@@ -1144,7 +1144,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
+              || (singularQuietLMR && !givesCheck && bestValue >= alpha && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] < 0)))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1168,7 +1169,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR && moveCount < 18)
+          if (singularQuietLMR)
               r -= 1 + formerPv;
 
           if (!captureOrPromotion)
