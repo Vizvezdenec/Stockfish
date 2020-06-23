@@ -1016,8 +1016,12 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
+              Bitboard pawnDeffed = us == BLACK ? pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) :
+                                                  pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN));
               // Capture history based pruning when the move doesn't give check
-              if (   !givesCheck
+              if (   (!givesCheck 
+                      || (     PieceValue[MG][type_of(movedPiece)] > PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] 
+                           && (pawnDeffed & to_sq(move))))
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
@@ -1061,15 +1065,6 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              if (cutNode && singularBeta > beta + depth * 12)
-              {
-                  singularBeta = beta + depth * 6;
-                  ss->excludedMove = move;
-          	  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value >= singularBeta)
-                      return singularBeta;
-              }
               extension = 1;
               singularQuietLMR = !ttCapture;
           }
