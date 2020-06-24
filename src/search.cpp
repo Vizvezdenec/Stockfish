@@ -703,9 +703,6 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-
-                if (cutNode && (ss-1)->moveCount > 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
             }
         }
 
@@ -1189,7 +1186,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~2 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + ttPv - (type_of(movedPiece) == PAWN);
+                  r -= 2 + ttPv - (type_of(movedPiece) == PAWN) + (move == ss->killers[0]);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
