@@ -763,6 +763,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -874,7 +875,7 @@ namespace {
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 176 - 49 * improving;
+        Value raisedBeta = beta + 176 - 49 * improving - 20 * (ss->excludedMove && !ttCapture);
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -942,7 +943,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1217,9 +1217,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (ss->excludedMove && !ttCapture)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
