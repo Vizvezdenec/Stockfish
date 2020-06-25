@@ -1249,6 +1249,12 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+          else if (didLMR && cutNode)
+          {
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
+              captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] << bonus;
+          }
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
