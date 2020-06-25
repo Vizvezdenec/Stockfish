@@ -703,6 +703,9 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+
+                if (ttValue < beta - PawnValueMg && (ss-1)->moveCount > 2 && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
             }
         }
 
@@ -1248,10 +1251,6 @@ moves_loop: // When in check, search starts from here
                   bonus += bonus / 4;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
-          else if (didLMR && moveCountPruning && value > alpha)
-          {
-              captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] << stat_bonus(newDepth);
           }
       }
 
