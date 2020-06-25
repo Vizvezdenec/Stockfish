@@ -1018,19 +1018,20 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Capture history based pruning when the move doesn't give check
-              if (   !givesCheck
+              if (   captureOrPromotion
+                  && (!givesCheck || ss->staticEval > beta + 380)
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // Futility pruning for captures
               if (   !givesCheck
+                  && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth
-                     + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 10000 - lmrDepth)
+                     + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
               // See based pruning
