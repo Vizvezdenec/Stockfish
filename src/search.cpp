@@ -710,6 +710,15 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode 
+     && ttHit
+     && tte->depth() >= depth
+     && ttValue < alpha
+     && ((tte->bound() & BOUND_UPPER) || (tte->bound() & BOUND_EXACT))
+     && !priorCapture
+     && (ss-1)->moveCount >= 3)
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -763,7 +772,6 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -875,7 +883,7 @@ namespace {
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 176 - 49 * improving - 20 * (ss->excludedMove && !ttCapture);
+        Value raisedBeta = beta + 176 - 49 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -943,6 +951,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
