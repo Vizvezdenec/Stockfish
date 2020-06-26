@@ -599,7 +599,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, ttFailLow;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -709,15 +709,6 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
-
-    if (PvNode 
-     && ttHit
-     && tte->depth() >= depth
-     && ttValue < alpha
-     && ((tte->bound() & BOUND_UPPER) || (tte->bound() & BOUND_EXACT))
-     && !priorCapture
-     && (ss-1)->moveCount >= 3)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
@@ -950,7 +941,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = ttFailLow = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -986,6 +977,9 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+
+      if (ttFailLow && ttCapture)
+          ttCapture = false;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1333,6 +1327,8 @@ moves_loop: // When in check, search starts from here
                   break;
               }
           }
+          else if (move == ttMove)
+              ttFailLow = true;
       }
 
       if (move != bestMove)
