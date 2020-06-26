@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture && !(PvNode && abs(bestValue) < 2 && ttValue > 2))
+              if (ttCapture)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1217,6 +1217,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (ss->excludedMove && !ttCapture)
+                r -= 1 + givesCheck;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
