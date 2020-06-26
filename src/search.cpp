@@ -1327,7 +1327,7 @@ moves_loop: // When in check, search starts from here
                   break;
               }
           }
-          else if (move == ttMove)
+          else if (PvNode && move == ttMove)
               ttFailLow = true;
       }
 
