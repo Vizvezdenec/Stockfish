@@ -1218,8 +1218,8 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            if (ss->excludedMove && !ttCapture)
-                r -= 1 + (captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0);
+            if (ss->excludedMove && !ttCapture && captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
