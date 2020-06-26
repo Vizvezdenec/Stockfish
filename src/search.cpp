@@ -599,7 +599,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR, ttFailLow;
+         ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -941,7 +941,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = ttFailLow = false;
+    singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -977,9 +977,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      if (ttFailLow && ttCapture)
-          ttCapture = false;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1180,7 +1177,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !(PvNode && abs(bestValue) < 2))
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1327,8 +1324,6 @@ moves_loop: // When in check, search starts from here
                   break;
               }
           }
-          else if (PvNode && move == ttMove)
-              ttFailLow = true;
       }
 
       if (move != bestMove)
