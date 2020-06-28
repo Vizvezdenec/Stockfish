@@ -874,15 +874,15 @@ namespace {
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        Value raisedBeta = beta + 176 - 49 * improving;
+        bool ttRefuted = ttMove && tte->depth() >= depth - 4 && pos.capture_or_promotion(ttMove);
+        Value raisedBeta = beta + 176 - 49 * improving - 15 * !ttRefuted;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
-               && !(   move == ttMove
-                    && tte->depth() >= depth - 4
+               && !(   ttRefuted
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
@@ -1217,9 +1217,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (givesCheck && abs(ss->staticEval > 200))
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
