@@ -881,7 +881,7 @@ namespace {
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
-               && !(   move == ttMove
+               && !(   ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
@@ -1141,7 +1141,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 3 * (captureOrPromotion && excludedMove)
+          &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1217,9 +1217,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (excludedMove)
-                r -= 1 + (captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0);
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
