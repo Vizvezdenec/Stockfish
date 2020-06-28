@@ -883,7 +883,6 @@ namespace {
                && probCutCount < 2 + 2 * cutNode
                && !(   ttMove
                     && pos.capture_or_promotion(ttMove)
-                    && (tte->bound() & BOUND_UPPER)
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
