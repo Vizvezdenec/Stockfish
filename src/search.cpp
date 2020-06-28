@@ -881,7 +881,9 @@ namespace {
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode
-               && !(   move == ttMove
+               && !(   ttMove
+                    && pos.capture_or_promotion(ttMove)
+                    && (tte->bound() & BOUND_UPPER)
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
