@@ -1141,7 +1141,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 3 * (captureOrPromotion && excludedMove && !pos.capture_or_promotion(excludedMove))
+          &&  moveCount > 1 + 2 * rootNode + 3 * (captureOrPromotion && excludedMove)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1218,7 +1218,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            if (excludedMove && !pos.capture_or_promotion(excludedMove))
+            if (excludedMove)
                 r -= 1 + (captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] > 0);
           }
 
