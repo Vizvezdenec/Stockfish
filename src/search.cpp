@@ -1325,7 +1325,7 @@ moves_loop: // When in check, search starts from here
                   break;
               }
           }
-          else if (moveCount == 1 && captureOrPromotion)
+          else if (moveCount <= 2 && captureOrPromotion)
               firstCapture = move;
       }
 
