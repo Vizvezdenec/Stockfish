@@ -1219,7 +1219,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (givesCheck)
-                r -= abs(ss->staticEval) / 256;
+                r -= abs(ss->staticEval) / 512;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
