@@ -794,7 +794,8 @@ namespace {
             sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide));
     }
 
-    sf += std::min(complexity / 16, 0);
+    sf += std::min(complexity / 32, 0);
+    sf = std::max(sf, 0);
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
     v =  mg * int(me->game_phase())
