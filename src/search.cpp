@@ -1217,6 +1217,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (givesCheck && abs(ss->staticEval > 200))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
