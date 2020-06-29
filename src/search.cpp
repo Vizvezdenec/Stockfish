@@ -822,7 +822,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23824
         &&  eval >= beta
-        &&  eval >= ss->staticEval
+        && (eval >= ss->staticEval || eval * 2 > beta + ss->staticEval + 22 * depth)
         &&  ss->staticEval >= beta - 33 * depth - 33 * improving + 112 * ttPv + 311
         && !excludedMove
         &&  pos.non_pawn_material(us)

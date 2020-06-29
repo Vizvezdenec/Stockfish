@@ -795,7 +795,7 @@ namespace {
     }
 
     // Interpolate between the middlegame and (scaled by 'sf') endgame score
-    v =  mg * int(me->game_phase()) * (SCALE_FACTOR_NORMAL - ScaleFactor(std::min(-complexity / 16, 0))) / SCALE_FACTOR_NORMAL
+    v =  mg * int(me->game_phase())
        + eg * int(PHASE_MIDGAME - me->game_phase()) * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
     v /= PHASE_MIDGAME;
 
