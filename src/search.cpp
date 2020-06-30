@@ -706,7 +706,6 @@ namespace {
             }
             else
             {
-                ss->killers[3] = ss->killers[2];
                 ss->killers[2] = ttMove;
             }
         }
@@ -1678,7 +1677,6 @@ moves_loop: // When in check, search starts from here
     else
     {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        ss->killers[3] = ss->killers[2];
         ss->killers[2] = bestMove;
     }
 
