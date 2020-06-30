@@ -1019,7 +1019,8 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1 + ((ss-1)->moveCount == 1)
+                  && lmrDepth < 1
+                  && (ss-1)->statScore < 26000
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
