@@ -822,7 +822,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23824
         &&  eval >= beta
-        && (eval >= ss->staticEval || (eval * 2 >= ss->staticEval + beta))
+        &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 33 * depth - 33 * improving + 112 * ttPv + 311
         && !excludedMove
         &&  pos.non_pawn_material(us)
@@ -1217,6 +1217,10 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (    bestValue < alpha
+                 && ttCapture)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
