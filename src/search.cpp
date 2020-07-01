@@ -601,7 +601,7 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, tthitrate;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -800,11 +800,6 @@ namespace {
 
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
-
-    tthitrate = std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 512), 0); 
-    tthitrate = std::min(std::max(812 - tthitrate - 2 * pos.rule50_count(), 0), 512);
-    eval = eval * tthitrate / 512;
-    ss->staticEval = ss->staticEval * tthitrate / 512;
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
@@ -1140,6 +1135,8 @@ moves_loop: // When in check, search starts from here
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
+      bool goodCaptSearch = ttCapture && eval > ss->staticEval + PieceValue[MG][to_sq(ttMove)];
+
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
@@ -1222,6 +1219,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (goodCaptSearch)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
