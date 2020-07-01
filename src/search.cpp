@@ -67,7 +67,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 527;
   Value futility_margin(Depth d, bool improving, bool ttHit, Depth tteDepth) {
-    return Value((235 - 6 * ttHit * tteDepth) * (d - improving));
+    return Value((227 - 17 * ttHit * tteDepth) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
