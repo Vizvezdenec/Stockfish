@@ -802,7 +802,7 @@ namespace {
     }
 
     tthitrate = std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 512), 0); 
-    tthitrate = std::max(512 - tthitrate, 0);
+    tthitrate = std::min(std::max(812 - tthitrate - 2 * pos.rule50_count(), 0), 512);
     eval = eval * tthitrate / 512;
     ss->staticEval = ss->staticEval * tthitrate / 512;
 
