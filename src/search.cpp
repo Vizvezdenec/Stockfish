@@ -1357,7 +1357,7 @@ moves_loop: // When in check, search starts from here
 
     else if (bestMove)
     {
-        if (depth >= 3 || moveCount > 1)
+        if (depth >= 3 || moveCount > 1 || pos.capture_or_promotion(bestMove))
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
