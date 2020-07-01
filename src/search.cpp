@@ -601,14 +601,14 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, bestMoveCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = bestMoveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -1312,6 +1312,8 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
+              bestMoveCount = moveCount;
+
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1357,7 +1359,7 @@ moves_loop: // When in check, search starts from here
 
     else if (bestMove)
     {
-        if (depth >= 3 || moveCount > 1 || pos.capture_or_promotion(bestMove))
+        if (depth >= 2 || bestMoveCount > 1 || pos.capture_or_promotion(bestMove))
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
