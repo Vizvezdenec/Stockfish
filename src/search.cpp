@@ -1135,8 +1135,6 @@ moves_loop: // When in check, search starts from here
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
-      bool goodCaptSearch = ttCapture && eval > ss->staticEval + PieceValue[MG][to_sq(ttMove)];
-
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
@@ -1219,9 +1217,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (goodCaptSearch)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1361,8 +1356,11 @@ moves_loop: // When in check, search starts from here
                    :     ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
+    {
+        if (depth >= 3 || moveCount > 1)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
