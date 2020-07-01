@@ -601,14 +601,14 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount;
+    int moveCount, captureCount, quietCount, tthitrate;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
-    moveCount = captureCount = quietCount = ss->moveCount = bestMoveCount = 0;
+    moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
 
@@ -800,6 +800,11 @@ namespace {
 
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
+
+    tthitrate = std::max(int(thisThread->ttHitAverage * 1024 / (TtHitAverageResolution * TtHitAverageWindow) - 400), 0); 
+    tthitrate = std::min(std::max(912 - tthitrate - 2 * pos.rule50_count(), 0), 512);
+    eval = eval * tthitrate / 512;
+    ss->staticEval = ss->staticEval * tthitrate / 512;
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
@@ -1312,8 +1317,6 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              bestMoveCount = moveCount;
-
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1358,11 +1361,8 @@ moves_loop: // When in check, search starts from here
                    :     ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
-    {
-        if (depth >= 2 || bestMoveCount > 1)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
