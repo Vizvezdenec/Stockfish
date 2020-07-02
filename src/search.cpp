@@ -66,8 +66,8 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 527;
-  Value futility_margin(Depth d, bool improving, bool ttHit, Depth tteDepth) {
-    return Value((227 - 17 * ttHit * tteDepth) * (d - improving));
+  Value futility_margin(Depth d, bool improving) {
+    return Value(227 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -595,7 +595,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth;
+    Depth extension, newDepth, pseudoDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -810,10 +810,13 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
+    pseudoDepth = ttHit && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) ? depth - tte->depth()
+                        : depth;
+
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 6
-        &&  eval - futility_margin(depth, improving, ttHit, tte->depth()) >= beta
+        &&  pseudoDepth < 6
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
