@@ -1066,15 +1066,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (singularBeta > beta + 200 + 40 * depth)
-              {
-                  singularBeta = (beta + singularBeta) / 2;
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value >= singularBeta)
-                      return singularBeta;
-              }
           }
 
           // Multi-cut pruning
@@ -1725,7 +1716,10 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
-    update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    if (type_of(pos.moved_piece(move)) == PAWN && pos.pawn_passed(us, to_sq(move)))
+        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus * 5 / 4);
+    else
+        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
