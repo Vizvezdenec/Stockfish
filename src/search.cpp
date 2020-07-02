@@ -595,7 +595,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth, pseudoDepth;
+    Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -810,13 +810,10 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
-    pseudoDepth = ttHit && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) ? depth - tte->depth()
-                        : depth;
-
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  pseudoDepth < 6
-        &&  eval - futility_margin(pseudoDepth, improving) >= beta
+        &&  depth < 6
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1069,6 +1066,15 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (singularBeta > beta + 200 + 40 * depth)
+              {
+                  singularBeta = (beta + singularBeta) / 2;
+                  ss->excludedMove = move;
+                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                  ss->excludedMove = MOVE_NONE;
+                  if (value >= singularBeta)
+                      return singularBeta;
+              }
           }
 
           // Multi-cut pruning
