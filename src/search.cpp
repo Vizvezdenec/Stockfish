@@ -1717,7 +1717,7 @@ moves_loop: // When in check, search starts from here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     if (type_of(pos.moved_piece(move)) == PAWN && pos.pawn_passed(us, to_sq(move)) && pos.non_pawn_material() <= 2 * QueenValueMg)
-        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus * 2);
+        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus * 3 / 2);
     else
         update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
