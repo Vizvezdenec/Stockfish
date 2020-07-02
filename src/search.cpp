@@ -1707,19 +1707,19 @@ moves_loop: // When in check, search starts from here
 
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
-    Color us = pos.side_to_move();
-    Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
-    if (type_of(pos.moved_piece(move)) == PAWN && pos.pawn_passed(us, to_sq(move)) && move == ss->killers[0])
-        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus * 3 / 2);
-    else
-        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
-
     if (ss->killers[0] != move)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
+
+    Color us = pos.side_to_move();
+    Thread* thisThread = pos.this_thread();
+    thisThread->mainHistory[us][from_to(move)] << bonus;
+    if (type_of(pos.moved_piece(move)) == PAWN && pos.pawn_passed(us, to_sq(move)) && pos.non_pawn_material() <= 2 * QueenValueMg)
+        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus * 2);
+    else
+        update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
