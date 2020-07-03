@@ -1031,7 +1031,11 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+              {
+                  if (captureCount < 32)
+                      capturesSearched[captureCount++] = move;
                   continue;
+              }
 
               // See based pruning
               if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
@@ -1356,11 +1360,8 @@ moves_loop: // When in check, search starts from here
                    :     ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
-    {
-    if (depth > 1 || !cutNode)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
