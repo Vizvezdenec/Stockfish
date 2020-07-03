@@ -880,7 +880,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode + (eval > raisedBeta + 80 * depth)
+               && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
@@ -1179,6 +1179,13 @@ moves_loop: // When in check, search starts from here
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
+
+              if (type_of(movedPiece) == PAWN)
+              {
+              Bitboard blocked = us == WHITE ? shift<SOUTH>(pos.pieces(BLACK, PAWN)) : shift<NORTH>(pos.pieces(WHITE, PAWN));
+              if (blocked & to_sq(move))
+                  r--;
+              }
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
