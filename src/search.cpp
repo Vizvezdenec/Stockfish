@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Passed pawn extension
-      else if (  (move == ss->killers[0] || (move == ttMove && move == ss->killers[1]))
+      else if (   move == ss->killers[0]
                && pos.advanced_pawn_push(move)
                && pos.pawn_passed(us, to_sq(move)))
           extension = 1;
@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts from here
           if (ttPv)
               r -= 2;
 
-          if (moveCountPruning && !formerPv)
+          if (moveCountPruning && (!formerPv || cutNode))
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
