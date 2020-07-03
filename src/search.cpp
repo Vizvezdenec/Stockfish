@@ -599,7 +599,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, singularCheck;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -941,7 +941,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = singularCheck = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1031,10 +1031,7 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
-              {
-                  captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << -stat_bonus(depth);
                   continue;
-              }
 
               // See based pruning
               if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
@@ -1069,6 +1066,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              singularCheck = givesCheck;
           }
 
           // Multi-cut pruning
@@ -1175,7 +1173,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + formerPv;
+              r -= 1 + formerPv + (!singularCheck && givesCheck && captureOrPromotion);
 
           if (!captureOrPromotion)
           {
