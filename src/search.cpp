@@ -880,7 +880,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode + (eval > raisedBeta + 120 * depth)
+               && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
@@ -1138,6 +1138,8 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      Bitboard blocked = us == WHITE ? shift<SOUTH>(pos.pieces(BLACK, PAWN)) : shift<NORTH>(pos.pieces(WHITE, PAWN));
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1179,6 +1181,12 @@ moves_loop: // When in check, search starts from here
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
+
+              if (type_of(movedPiece) == PAWN)
+              {
+                  if (pos.non_pawn_material() > 10000)
+                      r -= bool(blocked & to_sq(move)) * 2 - 1;
+              }
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
