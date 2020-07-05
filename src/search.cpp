@@ -1180,10 +1180,10 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (type_of(movedPiece) == PAWN && pos.non_pawn_material() > 10000)
+              if (type_of(movedPiece) == PAWN && pos.count<ALL_PIECES>() > 24)
               {
               Bitboard blocked = us == WHITE ? shift<SOUTH>(pos.pieces(BLACK, PAWN)) : shift<NORTH>(pos.pieces(WHITE, PAWN));
-              if (blocked & CenterFiles & to_sq(move))
+              if (blocked & to_sq(move))
                   r--;
               }
 
