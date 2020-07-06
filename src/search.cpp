@@ -1219,7 +1219,8 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (   pos.capture_or_promotion(bestMove)
-                && to_sq(bestMove) == to_sq(move))
+                && to_sq(bestMove) == to_sq(move)
+                && givesCheck)
                 r--;
           }
 
