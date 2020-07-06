@@ -947,6 +947,8 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    ss->prevQuiet = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1191,6 +1193,8 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ttPv - (type_of(movedPiece) == PAWN);
 
+              ss->prevQuiet = true;
+
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1218,7 +1222,10 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            ss->statScore += captureHistory[movedPiece][to_sq(move)][pos.captured_piece()];
+            if (ss->prevQuiet == true)
+                ss->statScore += captureHistory[movedPiece][to_sq(move)][pos.captured_piece()];
+
+            ss->prevQuiet = false;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
