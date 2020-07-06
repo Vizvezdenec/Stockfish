@@ -910,12 +910,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
-                        BOUND_LOWER,
-                        depth - 3, move, ss->staticEval);
                     return value;
-                }
             }
     }
 
@@ -1222,6 +1217,10 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (   pos.capture_or_promotion(bestMove)
+                && to_sq(bestMove) == to_sq(move))
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
