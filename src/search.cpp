@@ -880,7 +880,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode + pos.gives_check(move)
+               && probCutCount < 2 + 2 * cutNode
                && !(   move == ttMove
                     && tte->depth() >= depth - 4
                     && ttValue < raisedBeta))
@@ -910,7 +910,12 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
+                {
+                    tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
+                        BOUND_LOWER,
+                        depth - 3, move, ss->staticEval);
                     return value;
+                }
             }
     }
 
