@@ -878,7 +878,6 @@ namespace {
         && !(   ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && (tte->bound() & BOUND_UPPER)
              && ttValue < raisedBeta
              && pos.capture_or_promotion(ttMove)))
     {
