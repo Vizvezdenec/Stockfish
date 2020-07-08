@@ -596,7 +596,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, raisedBeta;
+    Value bestValue, value, ttValue, eval, maxValue;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
@@ -810,8 +810,6 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
-    raisedBeta = beta + 176 - 49 * improving;
-
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 6
@@ -874,27 +872,18 @@ namespace {
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
         &&  depth > 4
-        &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
-        && !(   ttHit
-             && tte->depth() >= depth - 3
-             && ttValue != VALUE_NONE
-             && ttValue < raisedBeta
-             && pos.capture_or_promotion(ttMove)))
+        &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        if (   ttHit
-            && tte->depth() >= depth - 3
-            && ttValue != VALUE_NONE
-            && ttValue >= raisedBeta
-            && ttMove
-            && pos.capture_or_promotion(ttMove))
-            return raisedBeta;
-
+        Value raisedBeta = beta + 176 - 49 * improving;
         assert(raisedBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, raisedBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode
+               && !(   move == ttMove
+                    && tte->depth() >= depth - 3
+                    && ttValue < raisedBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
