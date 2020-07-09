@@ -645,7 +645,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0] = (ss+2)->killers[1] = (ss+2)->skiller = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -910,13 +910,7 @@ namespace {
                 pos.undo_move(move);
 
                 if (value >= raisedBeta)
-                {
-                    tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
-                        BOUND_LOWER,
-                        depth - 3, move, ss->staticEval);
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
                     return value;
-                }
             }
     }
 
@@ -1186,6 +1180,9 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
+              if (move == ss->skiller)
+                  r--;
+
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1362,8 +1359,13 @@ moves_loop: // When in check, search starts from here
                    :     ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
+    {
+        if (    bestMove == ttMove
+             && bestMove == ss->killers[0])
+            ss->skiller = bestMove;
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
