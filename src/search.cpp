@@ -1039,6 +1039,8 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      bool failMc = false;
+
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1086,6 +1088,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else failMc = true;
           }
       }
 
@@ -1183,6 +1186,9 @@ moves_loop: // When in check, search starts from here
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
+
+              if (failMc && move == ss->killers[0])
+                  r--;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
