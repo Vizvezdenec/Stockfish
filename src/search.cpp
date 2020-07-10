@@ -882,9 +882,7 @@ namespace {
         && !(   ttHit // if 
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probcutBeta
-             && ttMove
-             && pos.capture_or_promotion(ttMove)))
+             && ttValue < probcutBeta))
     {
         if (   ttHit
             && tte->depth() >= depth - 3
