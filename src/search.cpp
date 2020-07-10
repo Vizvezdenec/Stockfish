@@ -883,6 +883,7 @@ namespace {
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probcutBeta
+             && ttMove
              && pos.capture_or_promotion(ttMove)))
     {
         if (   ttHit
