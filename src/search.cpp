@@ -891,7 +891,7 @@ namespace {
             && ttMove
             && pos.capture_or_promotion(ttMove))
         {
-            thisThread->captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth - 2);
+            thisThread->captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth - 3);
             return probcutBeta;
         }
 
