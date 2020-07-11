@@ -891,7 +891,7 @@ namespace {
             && ttMove
             && pos.capture_or_promotion(ttMove))
         {
-            if ((ss-1)->moveCount <= 2 && !priorCapture)
+            if (((ss-1)->moveCount == 1 || (ss-1)->currentMove == (ss-1)->killers[0]) && !priorCapture)
                 update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             return probcutBeta;
         }
