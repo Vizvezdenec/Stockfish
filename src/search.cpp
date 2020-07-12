@@ -1015,7 +1015,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || moveCount > 30)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1221,6 +1221,13 @@ moves_loop: // When in check, search starts from here
                   r--;
 
               else if ((ss-1)->statScore >= -125 && ss->statScore < -138)
+                  r++;
+
+              if (   moveCount > 10
+                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[3])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[5])[movedPiece][to_sq(move)] < 0)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
