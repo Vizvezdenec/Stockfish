@@ -1035,7 +1035,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (move != ss->probcutMove)
+          else
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
@@ -1163,6 +1163,7 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
+          && !(move == ss->probcutMove)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
