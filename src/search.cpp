@@ -645,7 +645,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = (ss+2)->probcutMove = MOVE_NONE;
+    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -928,7 +928,6 @@ namespace {
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
-                    ss->probcutMove = move;
                     return value;
                 }
             }
@@ -1016,7 +1015,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || moveCount > 30)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1237,9 +1236,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (move == ss->probcutMove)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
