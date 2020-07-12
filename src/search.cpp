@@ -1223,13 +1223,6 @@ moves_loop: // When in check, search starts from here
               else if ((ss-1)->statScore >= -125 && ss->statScore < -138)
                   r++;
 
-              if (   moveCount > 10
-                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[1])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[3])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[5])[movedPiece][to_sq(move)] < 0)
-                  r++;
-
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14615;
           }
@@ -1682,7 +1675,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+    bonus2 = (bestValue > beta + PawnValueMg) && (ss-1)->currentMove != MOVE_NULL ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
