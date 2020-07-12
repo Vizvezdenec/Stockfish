@@ -694,7 +694,7 @@ namespace {
         {
             if (ttValue >= beta)
             {
-                if (!pos.capture_or_promotion(ttMove) && (ss-1)->currentMove != MOVE_NULL)
+                if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -704,7 +704,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = -stat_bonus(depth);
+                int penalty = -stat_bonus(depth + ((ss-1)->currentMove == MOVE_NULL));
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
