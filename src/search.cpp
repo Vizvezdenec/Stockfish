@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + ((ss-1)->currentMove == MOVE_NULL)
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1698,14 +1698,11 @@ moves_loop: // When in check, search starts from here
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
     // Decrease all the non-best capture moves
-    if (depth > 1)
-    {
     for (int i = 0; i < captureCount; ++i)
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
-    }
     }
   }
 
