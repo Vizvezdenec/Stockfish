@@ -704,7 +704,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = -stat_bonus(depth + ((ss-1)->currentMove == MOVE_NULL));
+                int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -925,6 +925,9 @@ namespace {
 
                 if (value >= probcutBeta)
                 {
+                    if ( !(ttHit
+                       && tte->depth() >= depth - 3
+                       && ttValue != VALUE_NONE))
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
