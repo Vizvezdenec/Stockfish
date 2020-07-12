@@ -645,7 +645,7 @@ namespace {
 
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0] = (ss+2)->killers[1] = (ss+2)->probcutMove = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -928,6 +928,7 @@ namespace {
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
+                    ss->probcutMove = move;
                     return value;
                 }
             }
@@ -1034,7 +1035,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (move != ss->probcutMove)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
