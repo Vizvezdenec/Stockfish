@@ -853,14 +853,7 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
-            {
-                if ((ss-1)->currentMove == (ss-1)->killers[0])
-                {
-                    (ss-1)->killers[0] = (ss-1)->killers[1];
-                    (ss-1)->killers[1] = MOVE_NONE;
-                }
                 return nullValue;
-            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -1080,6 +1073,7 @@ moves_loop: // When in check, search starts from here
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3
+          &&  ttValue >= alpha - 70 * depth
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
