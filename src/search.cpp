@@ -599,7 +599,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probcutBeta;
     bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, gootTtHit;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -872,6 +872,9 @@ namespace {
     }
 
     probcutBeta = beta + 176 - 49 * improving;
+    gootTtHit = ttHit
+             && tte->depth() >= depth - 3
+             && ttValue != VALUE_NONE;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -879,14 +882,10 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
-        && !(   ttHit
-             && tte->depth() >= depth - 3
-             && ttValue != VALUE_NONE
+        && !(   gootTtHit 
              && ttValue < probcutBeta))
     {
-        if (   ttHit
-            && tte->depth() >= depth - 3
-            && ttValue != VALUE_NONE
+        if (   gootTtHit
             && ttValue >= probcutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
@@ -897,7 +896,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode + gootTtHit)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -925,6 +924,7 @@ namespace {
 
                 if (value >= probcutBeta)
                 {
+                    if (!gootTtHit)
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
