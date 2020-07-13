@@ -1073,7 +1073,7 @@ moves_loop: // When in check, search starts from here
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3
-          &&  ttValue >= alpha - 100 * depth
+          &&  ttValue >= ss->staticEval - 50 * depth
           &&  pos.legal(move))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
