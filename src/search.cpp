@@ -1236,8 +1236,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            r-= (captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 1128) / 4096;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1270,6 +1268,8 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+          if (ttMove && move == ttMove && captureOrPromotion) 
+              captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << -stat_bonus(newDepth);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
