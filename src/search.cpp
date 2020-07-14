@@ -1197,11 +1197,11 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 - givesCheck;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2 + (excludedMove && pos.capture_or_promotion(excludedMove));
+                  r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
