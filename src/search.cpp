@@ -658,6 +658,8 @@ namespace {
     else
         (ss+2)->statScore = 0;
 
+    ss->captureHist = 0;
+
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
@@ -997,6 +999,11 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      if (captureOrPromotion)
+          ss->captureHist = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))];
+      else 
+          ss->captureHist = 0;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1015,7 +1022,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount <= (1 + (ss-1)->currentMove == (ss-1)->killers[0]))
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || (ss-1)->captureHist > 0)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
