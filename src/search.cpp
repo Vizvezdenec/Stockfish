@@ -662,6 +662,7 @@ namespace {
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
+    ss->ttEval = !excludedMove ? VALUE_KNOWN_WIN : ss->ttEval;
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
@@ -835,7 +836,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3) + (int(eval - ss->staticEval) > 1200);
+        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -882,7 +883,9 @@ namespace {
         && !(   ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probcutBeta))
+             && ttValue < probcutBeta)
+        && !(   excludedMove
+             && ss->ttEval < probcutBeta))
     {
         if (   ttHit
             && tte->depth() >= depth - 3
@@ -925,6 +928,9 @@ namespace {
 
                 if (value >= probcutBeta)
                 {
+                    if ( !(ttHit
+                       && tte->depth() >= depth - 3
+                       && ttValue != VALUE_NONE))
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
@@ -1077,9 +1083,11 @@ moves_loop: // When in check, search starts from here
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          ss->ttEval = ttValue;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
+          ss->ttEval = VALUE_KNOWN_WIN;
 
           if (value < singularBeta)
           {
@@ -1100,7 +1108,9 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
+              ss->ttEval = ttValue;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
+              ss->ttEval = VALUE_KNOWN_WIN;
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
