@@ -1199,7 +1199,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
-          if (ss->staticEval + (captureOrPromotion ? PieceValue[MG][type_of(pos.captured_piece())] : 0) + maxEnemyPiece / 4 < alpha)
+          if (!givesCheck && ss->staticEval + (captureOrPromotion ? PieceValue[MG][type_of(pos.captured_piece())] : 0) + maxEnemyPiece / 4 < alpha)
               r++;
 
           if (!captureOrPromotion)
