@@ -966,6 +966,12 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    int maxEnemyPiece = pos.count<QUEEN>(~us) ? QueenValueMg :
+                        pos.count<ROOK>(~us) ? RookValueMg :
+                        pos.count<BISHOP>(~us) ? BishopValueMg :
+                        pos.count<KNIGHT>(~us) ? KnightValueMg :
+                        PawnValueMg;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1193,6 +1199,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
+          if (ss->staticEval + (captureOrPromotion ? PieceValue[MG][type_of(pos.captured_piece())] : 0) + maxEnemyPiece / 4 < alpha)
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1230,9 +1239,6 @@ moves_loop: // When in check, search starts from here
           {
             // Increase reduction for captures/promotions if late move and at low depth
             if (depth < 8 && moveCount > 2)
-                r++;
-
-            if (ss->killers[0] && (from_sq(move) == from_sq(ss->killers[0])) && moveCount > 10 && !givesCheck)
                 r++;
 
             // Unless giving check, this capture is likely bad
