@@ -890,11 +890,7 @@ namespace {
             && ttValue >= probcutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
-        {
-            if (!priorCapture && (ss-1)->moveCount == 1)
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
             return probcutBeta;
-        }
 
         assert(probcutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probcutBeta - ss->staticEval, &captureHistory);
@@ -935,6 +931,8 @@ namespace {
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                         BOUND_LOWER,
                         depth - 3, move, ss->staticEval);
+                    if (!priorCapture && (ss-1)->moveCount == 1)
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
                     return value;
                 }
             }
