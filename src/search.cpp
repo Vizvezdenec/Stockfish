@@ -662,7 +662,6 @@ namespace {
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
-    ss->ttEval = !excludedMove ? VALUE_KNOWN_WIN : ss->ttEval;
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
@@ -883,9 +882,7 @@ namespace {
         && !(   ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probcutBeta)
-        && !(   excludedMove
-             && ss->ttEval < probcutBeta))
+             && ttValue < probcutBeta))
     {
         if (   ttHit
             && tte->depth() >= depth - 3
@@ -893,7 +890,11 @@ namespace {
             && ttValue >= probcutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
+        {
+            if (!priorCapture && (ss-1)->moveCount == 1)
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
             return probcutBeta;
+        }
 
         assert(probcutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probcutBeta - ss->staticEval, &captureHistory);
@@ -1083,11 +1084,9 @@ moves_loop: // When in check, search starts from here
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
-          ss->ttEval = ttValue;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
-          ss->ttEval = VALUE_KNOWN_WIN;
 
           if (value < singularBeta)
           {
@@ -1108,9 +1107,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              ss->ttEval = ttValue;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-              ss->ttEval = VALUE_KNOWN_WIN;
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
