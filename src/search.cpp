@@ -1232,7 +1232,7 @@ moves_loop: // When in check, search starts from here
             if (depth < 8 && moveCount > 2)
                 r++;
 
-            if (ss->killers[0] && (from_sq(move) == from_sq(ss->killers[0])) && moveCount > 8)
+            if (ss->killers[0] && (from_sq(move) == from_sq(ss->killers[0])) && moveCount > 2)
                 r++;
 
             // Unless giving check, this capture is likely bad
