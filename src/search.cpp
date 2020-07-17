@@ -1033,8 +1033,10 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
                   continue;
 
+              int cmhAdjust = std::max(((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 4096, 0);
+
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(28 - std::min(lmrDepth, 17) + cmhAdjust) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
