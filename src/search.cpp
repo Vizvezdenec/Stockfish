@@ -931,6 +931,8 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    else if (!priorCapture && (ss-1)->moveCount < 3)
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
                     return value;
                 }
             }
@@ -1033,10 +1035,8 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
                   continue;
 
-              int cmhAdjust = std::max(((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 4096, 0);
-
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(28 - std::min(lmrDepth, 17) + cmhAdjust) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
