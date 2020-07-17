@@ -1052,8 +1052,11 @@ moves_loop: // When in check, search starts from here
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
+              bool newCaptCheck = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0
+                              &&  givesCheck
+                              &&  captureOrPromotion;
               // See based pruning
-              if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-202 - 30 * newCaptCheck) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1192,12 +1195,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
-
-          if (    ttHit
-               && ttMove
-               && tte->depth() >= depth
-               && ttValue != VALUE_NONE)
-              r++;
 
           if (!captureOrPromotion)
           {
