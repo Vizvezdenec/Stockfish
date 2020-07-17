@@ -1030,8 +1030,10 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
                   continue;
 
+              int cmhAdjust = std::max(((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 2048, 0);
+
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(27 - std::min(lmrDepth, 17) + cmhAdjust) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1052,11 +1054,8 @@ moves_loop: // When in check, search starts from here
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
-              bool newCaptCheck = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] == 0
-                              &&  givesCheck
-                              &&  captureOrPromotion;
               // See based pruning
-              if (!pos.see_ge(move, Value(-202 - 30 * newCaptCheck) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
                   continue;
           }
       }
