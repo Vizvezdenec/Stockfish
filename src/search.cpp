@@ -773,6 +773,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
+        if (abs((ss-1)->staticEval < VALUE_KNOWN_WIN))
+            ss->staticEval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()];
         improving = false;
         goto moves_loop;
     }
@@ -1030,10 +1032,8 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
                   continue;
 
-              int cmhAdjust = std::max(((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 2048, 0);
-
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(27 - std::min(lmrDepth, 17) + cmhAdjust) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
