@@ -931,8 +931,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    else if (!priorCapture && ((ss-1)->moveCount < 2 || (ss-1)->currentMove == (ss-1)->killers[0]))
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
                     return value;
                 }
             }
@@ -1391,7 +1389,8 @@ moves_loop: // When in check, search starts from here
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
-    if (!excludedMove && !(rootNode && thisThread->pvIdx))
+    if (!excludedMove && !(rootNode && thisThread->pvIdx) 
+     && !(ttHit && tte->depth() > depth))
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
