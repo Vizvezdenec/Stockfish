@@ -1232,7 +1232,7 @@ moves_loop: // When in check, search starts from here
           else
           {
             // Increase reduction for captures/promotions if late move and at low depth
-            if (depth < 8 && moveCount > 2)
+            if (depth < 8 && moveCount > 2 + givesCheck)
                 r++;
 
             // Unless giving check, this capture is likely bad
@@ -1382,19 +1382,9 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else 
-    {
-    if (   (depth >= 3 || PvNode)
+    else if (   (depth >= 3 || PvNode)
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
-
-    if (excludedMove)
-    {
-        if (pos.capture_or_promotion(excludedMove))
-            captureHistory[pos.moved_piece(excludedMove)][to_sq(excludedMove)][type_of(pos.piece_on(to_sq(excludedMove)))] << stat_bonus(depth);
-        else update_continuation_histories(ss, pos.moved_piece(excludedMove), to_sq(excludedMove), stat_bonus(depth));
-    }
-    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
