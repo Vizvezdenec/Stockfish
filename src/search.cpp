@@ -1049,7 +1049,6 @@ moves_loop: // When in check, search starts from here
               // Futility pruning for captures
               if (   !givesCheck
                   && lmrDepth < 6
-                  && move != ss->captKiller
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
@@ -1058,7 +1057,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
+              if (move != ss->captKiller && !pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
                   continue;
           }
       }
