@@ -1232,7 +1232,7 @@ moves_loop: // When in check, search starts from here
           else
           {
             // Increase reduction for captures/promotions if late move and at low depth
-            if (depth < 8 && !givesCheck)
+            if (depth < 8 && (!givesCheck || moveCount > 6))
                 r++;
 
             // Unless giving check, this capture is likely bad
