@@ -714,6 +714,15 @@ namespace {
             return ttValue;
     }
 
+    if (   PvNode
+        && !rootNode
+        && ttHit
+        && tte->depth() >= 2 * depth
+        && ttValue != VALUE_NONE // Possible in case of TT access race
+        && (tte->bound() & BOUND_EXACT)
+        && pos.rule50_count() < 90)
+        return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1232,7 +1241,7 @@ moves_loop: // When in check, search starts from here
           else
           {
             // Increase reduction for captures/promotions if late move and at low depth
-            if (depth < 8 && moveCount > 2 + 2 * givesCheck - (captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0))
+            if (depth < 8 && moveCount > 2)
                 r++;
 
             // Unless giving check, this capture is likely bad
