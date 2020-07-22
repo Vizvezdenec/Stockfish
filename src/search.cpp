@@ -717,9 +717,11 @@ namespace {
     if (   PvNode
         && !rootNode
         && ttHit
-        && tte->depth() >= 3 * depth / 2
+        && tte->depth() >= 2 * depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (tte->bound() & BOUND_EXACT)
+        && ttValue < beta
+        && ttValue > alpha
         && pos.rule50_count() < 90)
         return ttValue;
 
