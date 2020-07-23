@@ -816,10 +816,21 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 6 + 2 * (ttHit && ttMove && pos.capture_or_promotion(ttMove))
+        &&  depth < 6
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
+
+    if (   !PvNode
+        &&  depth > 10
+        &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
+        &&  ttHit
+        && tte->depth() >= depth - 6
+        && ttValue != VALUE_NONE
+        && ttValue >= beta + 400 + (depth - 11) * 80
+        && ttMove
+        && pos.capture_or_promotion(ttMove))
+        return ttValue;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
