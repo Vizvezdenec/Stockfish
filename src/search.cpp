@@ -418,6 +418,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           int failedHighCnt = 0;
+          ss->fhFlRed = 0;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -455,11 +456,13 @@ void Thread::search() {
                   failedHighCnt = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
+                  ss->fhFlRed--;
               }
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
+                  ss->fhFlRed++;
               }
               else
               {
@@ -820,17 +823,6 @@ namespace {
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
-
-    if (   !PvNode
-        &&  depth > 10
-        &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
-        &&  ttHit
-        && tte->depth() >= depth - 6
-        && ttValue != VALUE_NONE
-        && ttValue >= beta + 400 + (depth - 11) * 80
-        && ttMove
-        && pos.capture_or_promotion(ttMove))
-        return ttValue;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1206,6 +1198,8 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
+
+          r += ss->fhFlRed;
 
           if (!captureOrPromotion)
           {
