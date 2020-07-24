@@ -916,7 +916,7 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = probcutBeta;
-                if (!(ttHit && tte->depth() >= depth && ttValue >= probcutBeta))
+                if (!(ttHit && ttValue >= probcutBeta))
                 value = -qsearch<NonPV>(pos, ss+1, -probcutBeta, -probcutBeta+1);
 
                 // If the qsearch held, perform the regular search
