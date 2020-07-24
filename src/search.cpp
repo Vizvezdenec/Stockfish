@@ -459,7 +459,6 @@ void Thread::search() {
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
-                  delta += failedHighCnt;
                   ++failedHighCnt;
               }
               else
@@ -932,6 +931,8 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    else if (!priorCapture && (ss-1)->moveCount == 1)
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 3));
                     return value;
                 }
             }
