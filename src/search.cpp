@@ -1037,7 +1037,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (move != countermove)
+          else
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + 2 * rootNode + (move == countermove)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
