@@ -931,8 +931,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    else if (!priorCapture && (ss-1)->moveCount == 1)
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 3));
                     return value;
                 }
             }
@@ -1039,7 +1037,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 17)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (move != countermove)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
