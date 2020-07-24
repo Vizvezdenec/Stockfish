@@ -460,6 +460,8 @@ void Thread::search() {
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
+                  if (failedHighCnt >= 3)
+                      delta += failedHighCnt - 2;
               }
               else
               {
@@ -1239,9 +1241,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (givesCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] == 0)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
