@@ -915,6 +915,8 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
+                value = probcutBeta;
+                if (!(ttHit && tte->depth() >= depth && (tte->bound() & BOUND_EXACT) && ttValue >= probcutBeta))
                 value = -qsearch<NonPV>(pos, ss+1, -probcutBeta, -probcutBeta+1);
 
                 // If the qsearch held, perform the regular search
@@ -1128,7 +1130,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Castling extension
-      if (type_of(move) == CASTLING && pos.non_pawn_material() > 10000)
+      if (type_of(move) == CASTLING)
           extension = 1;
 
       // Late irreversible move extension
