@@ -915,8 +915,6 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = probcutBeta;
-                if (!(ttHit && ttMove && pos.capture_or_promotion(ttMove) && ttValue >= probcutBeta))
                 value = -qsearch<NonPV>(pos, ss+1, -probcutBeta, -probcutBeta+1);
 
                 // If the qsearch held, perform the regular search
@@ -1090,6 +1088,15 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (!ss->inCheck && ttValue >= probcutBeta)
+              {
+                  singularBeta = (probcutBeta + beta) / 2;
+                  ss->excludedMove = move;
+                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                  ss->excludedMove = MOVE_NONE;
+                  if (value >= singularBeta)
+                      return value;
+              }
           }
 
           // Multi-cut pruning
