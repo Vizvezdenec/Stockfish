@@ -1088,13 +1088,12 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!ss->inCheck && ttValue >= probcutBeta)
+              if (!ss->inCheck && PvNode && pos.capture_or_promotion(ttMove) && ttValue >= probcutBeta)
               {
-                  singularBeta = (probcutBeta + beta) / 2;
                   ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                  value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
                   ss->excludedMove = MOVE_NONE;
-                  if (value >= singularBeta)
+                  if (value >= beta)
                       return value;
               }
           }
