@@ -123,6 +123,7 @@ public:
   bool gives_check(Move m) const;
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
+  Piece captured_piece2(Move m) const;
   Piece captured_piece() const;
 
   // Piece specific
@@ -215,6 +216,10 @@ inline bool Position::empty(Square s) const {
 
 inline Piece Position::moved_piece(Move m) const {
   return piece_on(from_sq(m));
+}
+
+inline Piece Position::captured_piece2(Move m) const {
+  return piece_on(to_sq(m));
 }
 
 inline Bitboard Position::pieces(PieceType pt = ALL_PIECES) const {
