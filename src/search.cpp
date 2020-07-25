@@ -876,7 +876,7 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
+    if (   (!PvNode || depth > ss->ply)
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         && !(   ttHit
@@ -1088,14 +1088,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!ss->inCheck && PvNode && pos.capture_or_promotion(ttMove) && ttValue >= probcutBeta)
-              {
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value >= beta)
-                      return value;
-              }
           }
 
           // Multi-cut pruning
