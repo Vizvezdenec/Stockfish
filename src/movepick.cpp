@@ -103,7 +103,7 @@ void MovePicker::score() {
       if (Type == CAPTURES)
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
-                   + (*captureHistory2)[type_of(pos.moved_piece(m))][to_sq(m)][pos.captured_piece2(m)];
+                   + (*captureHistory2)[type_of(pos.moved_piece(m))][to_sq(m)][pos.captured_piece2(m)] / 2;
 
       else if (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
