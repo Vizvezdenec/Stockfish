@@ -1690,7 +1690,9 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
-            if ((ss-2)->currentMove && (ss-1)->currentMove != MOVE_NULL && to_sq((ss-2)->currentMove) == from_sq(quietsSearched[i]))
+            if ((ss-2)->currentMove && (ss-1)->currentMove != MOVE_NULL 
+             && to_sq((ss-2)->currentMove) == from_sq(quietsSearched[i])
+             && to_sq((ss-2)->currentMove) != from_sq(bestMove))
                 update_continuation_histories(ss-2, pos.moved_piece((ss-2)->currentMove), to_sq((ss-2)->currentMove), -bonus2);
         }
     }
