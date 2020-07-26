@@ -1698,8 +1698,9 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (pos.gives_check(bestMove))
+        if (!pos.gives_check(bestMove))
+            captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        else
             captureCheckHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
     }
 
@@ -1713,8 +1714,9 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
-        if (pos.gives_check(capturesSearched[i]))
+        if (!pos.gives_check(capturesSearched[i]))
+            captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        else
             captureCheckHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
