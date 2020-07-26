@@ -1681,7 +1681,6 @@ moves_loop: // When in check, search starts from here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
-    int count = 0;
     if (!pos.capture_or_promotion(bestMove))
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
@@ -1694,9 +1693,8 @@ moves_loop: // When in check, search starts from here
             if ((ss-2)->currentMove && (ss-1)->currentMove != MOVE_NULL 
              && to_sq((ss-2)->currentMove) == from_sq(quietsSearched[i])
              && to_sq((ss-2)->currentMove) != from_sq(bestMove))
-                 count++;
+                update_continuation_histories(ss-2, pos.moved_piece((ss-2)->currentMove), to_sq((ss-2)->currentMove), -bonus2 / 4);
         }
-        update_continuation_histories(ss-2, pos.moved_piece((ss-2)->currentMove), to_sq((ss-2)->currentMove), -stat_bonus(depth / 2) * count);
     }
     else
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
