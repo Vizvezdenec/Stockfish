@@ -1687,7 +1687,8 @@ moves_loop: // When in check, search starts from here
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
         thisThread->PSQTHist[us][type_of(moved_piece)][to_sq(bestMove)] << bonus2;
-        thisThread->PSQTHist[us][type_of(moved_piece)][from_sq(bestMove)] << -bonus2;
+        if (type_of(moved_piece) != PAWN)
+            thisThread->PSQTHist[us][type_of(moved_piece)][from_sq(bestMove)] << -bonus2;
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1695,7 +1696,8 @@ moves_loop: // When in check, search starts from here
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
             thisThread->PSQTHist[us][type_of(pos.moved_piece(quietsSearched[i]))][to_sq(quietsSearched[i])] << -bonus2;
-            thisThread->PSQTHist[us][type_of(pos.moved_piece(quietsSearched[i]))][from_sq(quietsSearched[i])] << bonus2;
+            if (type_of(moved_piece) != PAWN)
+                thisThread->PSQTHist[us][type_of(pos.moved_piece(quietsSearched[i]))][from_sq(quietsSearched[i])] << bonus2;
         }
     }
     else
