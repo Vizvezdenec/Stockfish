@@ -1687,6 +1687,7 @@ moves_loop: // When in check, search starts from here
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
         thisThread->PSQTHist[us][type_of(moved_piece)][to_sq(bestMove)] << bonus2;
+        thisThread->PSQTHist[us][type_of(moved_piece)][from_sq(bestMove)] << -bonus2;
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
