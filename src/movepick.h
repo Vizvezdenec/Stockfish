@@ -94,6 +94,9 @@ typedef Stats<int16_t, 10692, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> Butterf
 constexpr int MAX_LPH = 4;
 typedef Stats<int16_t, 10692, MAX_LPH, int(SQUARE_NB) * int(SQUARE_NB)> LowPlyHistory;
 
+constexpr int SHUFFLE_STAGE = 4;
+typedef Stats<int16_t, 10692, SHUFFLE_STAGE, int(SQUARE_NB) * int(SQUARE_NB)> ShuffleHistory;
+
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
@@ -130,6 +133,7 @@ public:
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
+                                           const ShuffleHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
@@ -146,6 +150,7 @@ private:
   const Position& pos;
   const ButterflyHistory* mainHistory;
   const LowPlyHistory* lowPlyHistory;
+  const ShuffleHistory* shuffleHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;

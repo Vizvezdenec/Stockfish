@@ -956,6 +956,7 @@ moves_loop: // When in check, search starts from here
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
+                                      &thisThread->shuffleHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
@@ -1684,12 +1685,15 @@ moves_loop: // When in check, search starts from here
     if (!pos.capture_or_promotion(bestMove))
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+        if (pos.rule50_count() > 20)
+            thisThread->shuffleHistory[(pos.rule50_count() - 21) / 20][from_to(bestMove)] << bonus2;
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->shuffleHistory[(pos.rule50_count() - 21) / 20][from_to(bestMove)] << -bonus2;
         }
     }
     else
