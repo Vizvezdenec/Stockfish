@@ -1693,7 +1693,8 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
-            thisThread->shuffleHistory[(pos.rule50_count() - 21) / 20][from_to(bestMove)] << -bonus2;
+            if (pos.rule50_count() > 20)
+                thisThread->shuffleHistory[(pos.rule50_count() - 21) / 20][from_to(bestMove)] << -bonus2;
         }
     }
     else
