@@ -1177,9 +1177,6 @@ moves_loop: // When in check, search starts from here
           if (thisThread->ttHitAverage > 473 * TtHitAverageResolution * TtHitAverageWindow / 1024)
               r--;
 
-          if (thisThread->ttHitAverage > 645 * TtHitAverageResolution * TtHitAverageWindow / 1024 && alpha > 0 && captureOrPromotion)
-              r--;
-
           // Reduction if other threads are searching this position
           if (th.marked())
               r++;
@@ -1242,6 +1239,10 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (   alpha * int(beta) < 0 && abs(alpha) >= 2 && abs(beta) >= 2 
+                && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
