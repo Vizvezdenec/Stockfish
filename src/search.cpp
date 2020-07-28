@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts from here
                    && ttHit
                    && (tte->bound() & BOUND_UPPER)
                    && tte->depth() > depth - 4
-                   && ttValue <= alpha - 20 * depth
+                   && ttValue <= alpha - 50 * depth
                    && !captureOrPromotion;
 
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
