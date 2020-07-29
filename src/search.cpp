@@ -1160,18 +1160,10 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-
-      bool fastFail = cutNode 
-                   && depth > 6
-                   && ttHit
-                   && (tte->bound() & BOUND_UPPER)
-                   && tte->depth() > depth - 3
-                   && ttValue <= alpha - 50 * depth;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode - fastFail
+          &&  moveCount > 1 + 2 * rootNode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1247,6 +1239,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (bestValue - ss->staticEval > 60 * depth)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
