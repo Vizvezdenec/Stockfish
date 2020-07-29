@@ -611,7 +611,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->secondBest = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1161,10 +1160,18 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+
+      bool fastFail = cutNode 
+                   && depth > 6
+                   && ttHit
+                   && (tte->bound() & BOUND_UPPER)
+                   && tte->depth() > depth - 3
+                   && ttValue <= alpha - 50 * depth;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + 2 * rootNode - fastFail
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1196,9 +1203,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
-
-          if (move == ss->secondBest)
-              r--;
 
           if (!captureOrPromotion)
           {
@@ -1336,8 +1340,6 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (!captureOrPromotion && bestMove == ss->killers[0])
-                  ss->secondBest = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
