@@ -1169,7 +1169,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
+              || move == ss->refutedCapt))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1384,7 +1385,7 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + (bestValue < alpha - PawnValueMg)));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
@@ -1699,6 +1700,8 @@ moves_loop: // When in check, search starts from here
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+    else if (pos.captured_piece())
+        (ss-1)->refutedCapt = (ss-1)->currentMove;
 
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
