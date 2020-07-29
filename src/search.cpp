@@ -606,7 +606,6 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
-    ss->refutedCapt = MOVE_NONE;
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
@@ -1054,7 +1053,11 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 267 + 391 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+              {
+                  if (captureCount < 32)
+                      capturesSearched[captureCount++] = move;
                   continue;
+              }              
 
               // See based pruning
               if (!pos.see_ge(move, Value(-202) * depth)) // (~25 Elo)
@@ -1170,8 +1173,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || move == ss->refutedCapt))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1701,8 +1703,6 @@ moves_loop: // When in check, search starts from here
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
-    else if (pos.captured_piece())
-        (ss-1)->refutedCapt = (ss-1)->currentMove;
 
     // Decrease all the non-best capture moves
     for (int i = 0; i < captureCount; ++i)
