@@ -1336,7 +1336,7 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (!captureOrPromotion)
+              if (!captureOrPromotion && bestMove == ss->killers[0])
                   ss->secondBest = bestMove;
               bestMove = move;
 
