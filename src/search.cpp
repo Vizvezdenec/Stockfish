@@ -1240,7 +1240,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            if (bestValue - ss->staticEval > 60 * depth)
+            if (givesCheck && bestValue - ss->staticEval > 60 * depth)
                 r--;
           }
 
