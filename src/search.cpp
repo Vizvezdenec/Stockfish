@@ -1197,7 +1197,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r -= 1 + formerPv;
 
-          if (move == (ss-2)->secondBest)
+          if (move == ss->secondBest)
               r--;
 
           if (!captureOrPromotion)
@@ -1336,7 +1336,7 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (PvNode)
+              if (!captureOrPromotion)
                   ss->secondBest = bestMove;
               bestMove = move;
 
