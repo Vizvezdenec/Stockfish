@@ -767,6 +767,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureAttackHistory& captureAttHistory = thisThread->captureAttHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -893,7 +894,7 @@ namespace {
             return probcutBeta;
 
         assert(probcutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probcutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probcutBeta - ss->staticEval, &captureHistory, &captureAttHistory);
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
@@ -957,6 +958,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &captureAttHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1239,9 +1241,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
-
-            if (givesCheck && bestValue - ss->staticEval > 60 * depth)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
@@ -1515,6 +1514,7 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->captureAttHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1677,6 +1677,7 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureAttackHistory& captureAttHistory = thisThread->captureAttHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
@@ -1696,7 +1697,12 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        int dist = distance(to_sq(bestMove),pos.square<KING>(~us));
+        if (dist < 3)
+           captureAttHistory[moved_piece][to_sq(bestMove)][dist] << bonus1; 
+    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
@@ -1709,6 +1715,9 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        int dist = distance(to_sq(capturesSearched[i]),pos.square<KING>(~us));
+        if (dist < 3)
+           captureAttHistory[moved_piece][to_sq(capturesSearched[i])][dist] << -bonus1;
     }
   }
 

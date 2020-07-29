@@ -101,6 +101,8 @@ typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
 /// CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
 typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
 
+typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, 3> CaptureAttackHistory;
+
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
 
@@ -123,14 +125,16 @@ class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, const CaptureAttackHistory*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
+                                           const CaptureAttackHistory*,
                                            const PieceToHistory**,
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
+                                           const CaptureAttackHistory*,
                                            const PieceToHistory**,
                                            Move,
                                            const Move*,
@@ -147,6 +151,7 @@ private:
   const ButterflyHistory* mainHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
+  const CaptureAttackHistory*  captureAttHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
