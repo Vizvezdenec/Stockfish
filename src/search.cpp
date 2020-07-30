@@ -1240,7 +1240,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            if (PvNode && ttCapture && !pos.capture_or_promotion(bestMove))
+            if (PvNode && ttCapture && bestValue >= alpha && !pos.capture_or_promotion(bestMove))
                 r++;
           }
 
