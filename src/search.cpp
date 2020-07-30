@@ -1200,7 +1200,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + (from_sq(ttMove) == from_sq(move));
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1238,9 +1238,6 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
-                r++;
-
-            if (PvNode && !givesCheck && ttCapture && bestValue >= alpha && !pos.capture_or_promotion(bestMove) && moveCount > 5)
                 r++;
           }
 
