@@ -1163,7 +1163,8 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
+              || !ttPv))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1183,7 +1184,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
-          if (formerPv)
+          if (ttPv)
               r -= 2;
 
           if (moveCountPruning && !formerPv)
