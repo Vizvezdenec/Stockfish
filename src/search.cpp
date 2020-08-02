@@ -1169,7 +1169,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction at non-check cut nodes for second move at low depths
           if (   cutNode
-              && depth <= 12 - moveCount
+              && depth <= 14 - 2 * moveCount
               && !ss->inCheck)
               r--;
 
