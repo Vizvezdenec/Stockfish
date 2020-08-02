@@ -1168,9 +1168,8 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction at non-check cut nodes for second move at low depths
-          if (   !PvNode
-              && depth <= 10
-              && moveCount <= 2
+          if (   cutNode
+              && depth <= 12 - moveCount
               && !ss->inCheck)
               r--;
 
