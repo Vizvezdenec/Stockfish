@@ -1154,10 +1154,15 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool cunnode = cutNode
+              && depth <= 10
+              && moveCount <= 2
+              && !ss->inCheck;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + 2 * rootNode + cunnode
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1168,11 +1173,8 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction at non-check cut nodes for second move at low depths
-          if (   cutNode
-              && depth <= 10
-              && moveCount <= 2
-              && !ss->inCheck)
-              r -= 1 + 2 * captureOrPromotion;
+          if (cunnode)
+              r--;
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 473 * TtHitAverageResolution * TtHitAverageWindow / 1024)
