@@ -662,6 +662,8 @@ namespace {
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
+    if (!excludedMove)
+        ss->probcutFail = false;
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
@@ -872,6 +874,10 @@ namespace {
     }
 
     probcutBeta = beta + 176 - 49 * improving;
+    ss->probcutFail = (ttHit
+             && tte->depth() >= depth - 3
+             && ttValue != VALUE_NONE
+             && ttValue < probcutBeta) || ss->probcutFail;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -879,10 +885,7 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
-        && !(   ttHit
-             && tte->depth() >= depth - 3
-             && ttValue != VALUE_NONE
-             && ttValue < probcutBeta))
+        && !ss->probcutFail)
     {
         if (   ttHit
             && tte->depth() >= depth - 3
@@ -1163,8 +1166,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || (excludedMove && !pos.capture_or_promotion(excludedMove))))
+              || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
