@@ -879,6 +879,7 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
+        && !excludedMove
         && !(   ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
@@ -898,7 +899,7 @@ namespace {
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (move != excludedMove && pos.legal(move))
+            if (pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
