@@ -665,6 +665,8 @@ namespace {
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+    if (!excludedMove)
+        ss->ttValue = ttValue;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ttHit    ? tte->move() : MOVE_NONE;
     ttPv = PvNode || (ttHit && tte->is_pv());
@@ -879,11 +881,10 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
-        && !excludedMove
         && !(   ttHit
              && tte->depth() >= depth - 3
-             && ttValue != VALUE_NONE
-             && ttValue < probcutBeta))
+             && ss->ttValue != VALUE_NONE
+             && ss->ttValue < probcutBeta))
     {
         if (   ttHit
             && tte->depth() >= depth - 3
@@ -899,7 +900,7 @@ namespace {
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
-            if (pos.legal(move))
+            if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
