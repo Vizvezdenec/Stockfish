@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts from here
           else if (singularBeta >= beta)
           {
               if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth - 3));
+                  update_quiet_stats(pos, ss, move, stat_bonus(depth - 3), depth);
               else captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
               return singularBeta;
           }
