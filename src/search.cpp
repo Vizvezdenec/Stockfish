@@ -1096,12 +1096,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if (!captureOrPromotion)
-                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
-              else captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(singularDepth);
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1168,6 +1163,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
+              || depth >= 10
               || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
