@@ -665,8 +665,6 @@ namespace {
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ttHit);
     ttValue = ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-    if (!excludedMove)
-        ss->ttValue = ttValue;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ttHit    ? tte->move() : MOVE_NONE;
     ttPv = PvNode || (ttHit && tte->is_pv());
@@ -883,8 +881,8 @@ namespace {
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         && !(   ttHit
              && tte->depth() >= depth - 3
-             && ss->ttValue != VALUE_NONE
-             && ss->ttValue < probcutBeta))
+             && ttValue != VALUE_NONE
+             && ttValue < probcutBeta))
     {
         if (   ttHit
             && tte->depth() >= depth - 3
@@ -1098,7 +1096,11 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
+          {
+              if (!captureOrPromotion)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth - 3));
               return singularBeta;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
