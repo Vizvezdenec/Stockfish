@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28388 + ((ss-1)->statScore / 8))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1163,7 +1163,6 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || captureCount >= depth
               || thisThread->ttHitAverage < 415 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
