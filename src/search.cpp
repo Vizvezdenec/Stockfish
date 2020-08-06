@@ -1242,7 +1242,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (   !PvNode && !cutNode
-                && moveCount < 3)
+                && captureCount == 0)
                r--;
           }
 
