@@ -955,6 +955,7 @@ moves_loop: // When in check, search starts from here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->positionHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
@@ -1512,6 +1513,7 @@ moves_loop: // When in check, search starts from here
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->positionHistory,
                                       &thisThread->captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
@@ -1685,12 +1687,14 @@ moves_loop: // When in check, search starts from here
     if (!pos.capture_or_promotion(bestMove))
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+        thisThread->positionHistory[us][type_of(moved_piece)][to_sq(bestMove)] << bonus2;
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->positionHistory[us][type_of(pos.moved_piece(quietsSearched[i]))][to_sq(quietsSearched[i])] << -bonus2;
         }
     }
     else
