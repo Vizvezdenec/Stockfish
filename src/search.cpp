@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
 
-            if (ttHit && abs(mg_value(pos.psq_score())) > 500 && abs(ttValue) < 2)
+            if (ttHit && abs(mg_value(pos.psq_score())) > 800 && abs(ttValue) < 2)
                 r--;
           }
 
