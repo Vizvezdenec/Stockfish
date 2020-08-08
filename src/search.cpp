@@ -871,7 +871,7 @@ namespace {
         }
     }
 
-    probcutBeta = beta + 176 - 49 * improving;
+    probcutBeta = beta + 146 - 39 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1055,7 +1055,7 @@ moves_loop: // When in check, search starts from here
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
-                  && ss->staticEval + 237 + 351 * lmrDepth
+                  && ss->staticEval + 267 + 391 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
