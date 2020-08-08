@@ -877,15 +877,15 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 4
+        &&  depth > 5
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         && !(   ttHit
-             && tte->depth() >= depth - 3
+             && tte->depth() >= depth - 4
              && ttValue != VALUE_NONE
              && ttValue < probcutBeta))
     {
         if (   ttHit
-            && tte->depth() >= depth - 3
+            && tte->depth() >= depth - 4
             && ttValue != VALUE_NONE
             && ttValue >= probcutBeta
             && ttMove
@@ -901,7 +901,7 @@ namespace {
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
-                assert(depth >= 5);
+                assert(depth >= 6);
 
                 captureOrPromotion = true;
                 probCutCount++;
@@ -919,18 +919,18 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probcutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probcutBeta, -probcutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probcutBeta, -probcutBeta+1, depth - 5, !cutNode);
 
                 pos.undo_move(move);
 
                 if (value >= probcutBeta)
                 {
                     if ( !(ttHit
-                       && tte->depth() >= depth - 3
+                       && tte->depth() >= depth - 4
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
-                            depth - 3, move, ss->staticEval);
+                            depth - 4, move, ss->staticEval);
                     return value;
                 }
             }
