@@ -1079,7 +1079,6 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          && ttValue >= alpha - 25 * depth
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
@@ -1241,7 +1240,7 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
+                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 161 * depth <= alpha)
                 r++;
           }
 
