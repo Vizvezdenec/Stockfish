@@ -871,7 +871,7 @@ namespace {
         }
     }
 
-    probcutBeta = beta + 161 - 44 * improving;
+    probcutBeta = beta + 176 - 49 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
+                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 181 * depth <= alpha)
                 r++;
           }
 
