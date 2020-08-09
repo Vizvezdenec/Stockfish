@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (ss->staticEval >= beta && singularBeta > beta)
+              if (ss->staticEval >= beta + 40 * depth && singularBeta > beta)
                   {
                       ss->excludedMove = move;
                       value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
