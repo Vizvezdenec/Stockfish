@@ -816,7 +816,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8 + improving
+        &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1091,6 +1091,15 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (ss->staticEval >= beta && singularBeta > beta)
+                  {
+                      ss->excludedMove = move;
+                      value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
+                      ss->excludedMove = MOVE_NONE;
+
+                      if (value >= beta)
+                          return beta;
+                  }
           }
 
           // Multi-cut pruning
