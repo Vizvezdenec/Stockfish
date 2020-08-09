@@ -827,7 +827,7 @@ namespace {
         && (ss-1)->statScore < 23824
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 28 * depth - 28 * improving + 94 * ttPv + 200
+        &&  ss->staticEval >= beta - 28 * depth - 28 * improving + 94 * ttPv + 200 - 30 * ((ss-1)->statScore < 0)
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1091,15 +1091,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!ss->inCheck && ss->staticEval >= beta && singularBeta > beta)
-                  {
-                      ss->excludedMove = move;
-                      value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-                      ss->excludedMove = MOVE_NONE;
-
-                      if (value >= beta)
-                          return beta;
-                  }
           }
 
           // Multi-cut pruning
