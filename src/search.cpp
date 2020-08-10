@@ -773,8 +773,6 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        if (!(ss-2)->inCheck)
-            ss->staticEval = -(ss-1)->staticEval;
         improving = false;
         goto moves_loop;
     }
@@ -837,7 +835,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3) + (ss->staticEval >= beta + 622);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
