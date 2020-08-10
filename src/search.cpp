@@ -77,7 +77,7 @@ namespace {
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * (depth - !improving)) / (2 - improving);
+    return (3 + depth * depth) / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
@@ -698,7 +698,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if ((ss-1)->moveCount <= 3 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
