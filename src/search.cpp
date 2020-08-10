@@ -773,6 +773,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
+        if (!(ss-2)->inCheck)
+            ss->staticEval = -(ss-1)->staticEval;
         improving = false;
         goto moves_loop;
     }
@@ -1231,9 +1233,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14615;
-
-              if (!givesCheck && moveCount > 3 && ss->staticEval + 60 * depth < alpha)
-                  r++;
           }
           else
           {
