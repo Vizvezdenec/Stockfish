@@ -52,6 +52,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::evaluate1;
 using namespace Search;
 
 namespace {
@@ -969,6 +970,9 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    if (th.marked() && !ss->inCheck && !ttHit && abs(eg_value(pos.psq_score())) >= 575)
+        ss->staticEval = evaluate1(pos);
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1242,7 +1246,7 @@ moves_loop: // When in check, search starts from here
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
-                r += 1 + cutNode;
+                r++;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);

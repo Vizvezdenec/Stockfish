@@ -29,6 +29,7 @@ namespace Eval {
 
   std::string trace(const Position& pos);
   Value evaluate(const Position& pos);
+  Value evaluate1(const Position& pos);
 
   extern bool useNNUE;
   extern std::string eval_file_loaded;
@@ -38,6 +39,7 @@ namespace Eval {
   namespace NNUE {
 
     Value evaluate(const Position& pos);
+    Value evaluate1(const Position& pos);
     Value compute_eval(const Position& pos);
     void  update_eval(const Position& pos);
     bool  load_eval_file(const std::string& evalFile);
