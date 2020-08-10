@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 8
                   && !ss->inCheck
-                  && ss->staticEval + 234 + 158 * lmrDepth + cutNode * (50 + 30 * lmrDepth) <= alpha
+                  && ss->staticEval + 284 + 188 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1242,6 +1242,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 211 * depth <= alpha)
                 r++;
+
+            if (   ss->staticEval + PieceValue[MG][pos.captured_piece()] > ttValue + 30 * depth)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
