@@ -1126,13 +1126,13 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
+      else if (   PieceValue[EG][pos.piece_on(to_sq(move))] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
       // Castling extension
       if (   type_of(move) == CASTLING
-          && popcount(pos.pieces(us) & ~pos.pieces(PAWN, KING) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 2)
+          && popcount(pos.pieces(us) & ~pos.pieces(PAWN) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 3)
           extension = 1;
 
       // Late irreversible move extension
