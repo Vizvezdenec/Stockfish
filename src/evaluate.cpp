@@ -951,6 +951,14 @@ Value Eval::evaluate(const Position& pos) {
   return Evaluation<NO_TRACE>(pos).value();
 }
 
+Value Eval::evaluate1(const Position& pos) {
+if (Eval::useNNUE)
+  {
+      return NNUE::evaluate(pos) + Tempo;
+  }
+  return Evaluation<NO_TRACE>(pos).value();
+}
+
 /// trace() is like evaluate(), but instead of returning a value, it returns
 /// a string (suitable for outputting to stdout) that contains the detailed
 /// descriptions and values of each evaluation term. Useful for debugging.

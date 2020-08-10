@@ -52,6 +52,7 @@ namespace TB = Tablebases;
 
 using std::string;
 using Eval::evaluate;
+using Eval::evaluate1;
 using namespace Search;
 
 namespace {
@@ -969,6 +970,9 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    if (th.marked() && !ss->inCheck && !ttHit && abs(eg_value(pos.psq_score())) >= 575)
+        ss->staticEval = evaluate1(pos);
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1126,9 +1130,9 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      if (   PieceValue[EG][pos.piece_on(to_sq(move))] > PawnValueEg
+      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
-          extension = 2;
+          extension = 1;
 
       // Castling extension
       if (   type_of(move) == CASTLING
