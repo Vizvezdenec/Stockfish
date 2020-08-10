@@ -1132,7 +1132,7 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (   type_of(move) == CASTLING
-          && popcount(pos.pieces(us) & ~pos.pieces(PAWN, KING) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 3)
+          && popcount(pos.pieces(us) & ~pos.pieces(PAWN) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 3)
           extension = 1;
 
       // Late irreversible move extension
@@ -1232,6 +1232,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14615;
+
+              if (!givesCheck && moveCount > 3 && ss->staticEval + 120 * depth < alpha)
+                  r++;
           }
           else
           {
