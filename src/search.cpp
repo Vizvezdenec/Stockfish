@@ -835,7 +835,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3) + (ss->staticEval >= beta + 500);
+        Depth R = (737 + 77 * depth) / 246 + std::min(int(eval - beta) / 192, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1231,6 +1231,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14615;
+
+              if (!givesCheck && moveCount > 3 && ss->staticEval + 60 * depth < alpha)
+                  r++;
           }
           else
           {
