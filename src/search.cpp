@@ -1232,9 +1232,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14615;
-
-              if (!givesCheck && moveCount > 3 && ss->staticEval + 120 * depth < alpha)
-                  r++;
           }
           else
           {
