@@ -773,7 +773,6 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        ss->staticEval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()];
         improving = false;
         goto moves_loop;
     }
