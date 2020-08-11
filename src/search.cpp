@@ -823,7 +823,7 @@ namespace {
             return eval;
         else if (eval >= ss->staticEval && ss->staticEval >= beta + futility_margin(depth, improving))
         {
-            value = search<NonPV>(pos, ss, ss->staticEval - 1, ss->staticEval, depth - 6, cutNode);
+            value = search<NonPV>(pos, ss, ss->staticEval - 1, ss->staticEval, depth - 7, cutNode);
             if (value >= ss->staticEval)
                 return value;
         }
