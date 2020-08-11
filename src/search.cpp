@@ -773,6 +773,7 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
+        ss->staticEval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()];
         improving = false;
         goto moves_loop;
     }
@@ -1139,7 +1140,7 @@ moves_loop: // When in check, search starts from here
 
       // Castling extension
       if (   type_of(move) == CASTLING
-          && popcount(pos.pieces(us) & ~pos.pieces(PAWN, KING) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 2)
+          && popcount(pos.pieces(us) & ~pos.pieces(PAWN) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 2)
           extension = 1;
 
       // Late irreversible move extension
