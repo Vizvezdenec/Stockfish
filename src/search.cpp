@@ -815,7 +815,7 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   !rootNode
+    if (   !PvNode
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -1032,6 +1032,13 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
+              if (   !ss->inCheck
+                  && lmrDepth < 4
+                  && type_of(move) == NORMAL
+                  && type_of(movedPiece) == KING
+                  && pos.castling_rights(us))
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
