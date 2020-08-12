@@ -64,8 +64,8 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 510;
-  Value futility_margin(Depth d, bool improving) {
-    return Value(223 * (d - improving));
+  Value futility_margin(Depth d, bool improving, bool PvNode) {
+    return Value((223 + 100 * PvNode) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -815,9 +815,9 @@ namespace {
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
-    if (   !PvNode
+    if (   !rootNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving, PvNode) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
