@@ -1239,6 +1239,10 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              if (  !ss->inCheck && !(ss-1)->inCheck && (ss-1)->currentMove != MOVE_NULL && !priorCapture
+                 && ss->staticEval - (ss-1)->staticEval - Tempo > 0)
+                 r--;
           }
           else
           {
