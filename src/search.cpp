@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       bool badCn = cutNode
-                && ss->staticEval < alpha - 100 - 100 * depth;
+                && ss->staticEval < alpha - 300 - 100 * depth;
 
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
