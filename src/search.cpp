@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 14884;
 
               if (  !ss->inCheck && !(ss-1)->inCheck && (ss-1)->currentMove != MOVE_NULL && !priorCapture
-                 && ss->staticEval + (ss-1)->staticEval < -Tempo)
+                 && ss->staticEval + (ss-1)->staticEval < - 2 * Tempo)
                  r++;
           }
           else
