@@ -811,8 +811,8 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
-              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
+    improving =  ((ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
+              || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval) || eval > ss->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1164,13 +1164,10 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool badCn = cutNode
-                && ss->staticEval < alpha - 200 - 200 * depth;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2) - badCn
+          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
