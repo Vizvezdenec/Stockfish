@@ -1182,7 +1182,7 @@ moves_loop: // When in check, search starts from here
               && depth <= 10
               && moveCount <= 2
               && !ss->inCheck
-              && ss->staticEval >= alpha)
+              && ss->staticEval >= alpha - 8 * depth)
               r--;
 
           // Decrease reduction if the ttHit running average is large
