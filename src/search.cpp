@@ -1164,10 +1164,13 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool badCn = cutNode
+                && ss->staticEval < alpha - 200 - 200 * depth;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
+          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2) - badCn
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1243,7 +1246,7 @@ moves_loop: // When in check, search starts from here
           else
           {
             // Increase reduction for captures/promotions if late move and at low depth
-            if (depth < 8 + 2 * !givesCheck && moveCount > 2 + 2 * givesCheck)
+            if (depth < 8 && moveCount > 2)
                 r++;
 
             // Unless giving check, this capture is likely bad
