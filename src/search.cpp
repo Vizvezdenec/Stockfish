@@ -1164,13 +1164,10 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool badCn = cutNode
-                && ss->staticEval < alpha - 300 - 100 * depth;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2) - badCn
+          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
@@ -1184,7 +1181,8 @@ moves_loop: // When in check, search starts from here
           if (   cutNode
               && depth <= 10
               && moveCount <= 2
-              && !ss->inCheck)
+              && !ss->inCheck
+              && ss->staticEval >= alpha)
               r--;
 
           // Decrease reduction if the ttHit running average is large
