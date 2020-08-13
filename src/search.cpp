@@ -1069,6 +1069,14 @@ moves_loop: // When in check, search starts from here
               // See based pruning
               if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
                   continue;
+
+              if (    !captureOrPromotion
+                  &&  lmrDepth < 4
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && type_of(movedPiece) != PAWN
+                  && !pos.see_ge(move, PawnValueMg - PieceValue[MG][type_of(movedPiece)]))
+                  continue;
           }
       }
 
@@ -1239,10 +1247,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              if (  !ss->inCheck && !(ss-1)->inCheck && (ss-1)->currentMove != MOVE_NULL && !priorCapture
-                 && ss->staticEval + (ss-1)->staticEval < - 2 * Tempo)
-                 r++;
           }
           else
           {
