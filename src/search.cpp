@@ -1067,15 +1067,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
-                  continue;
-
-              if (    !captureOrPromotion
-                  &&  lmrDepth < 4
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && type_of(movedPiece) != PAWN
-                  && !pos.see_ge(move, PawnValueMg - PieceValue[MG][type_of(movedPiece)]))
+              if (!pos.see_ge(move, std::min(beta - ss->staticEval, Value(-221 * depth )))) // (~25 Elo)
                   continue;
           }
       }
