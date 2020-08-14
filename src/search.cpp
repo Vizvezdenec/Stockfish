@@ -65,7 +65,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
-    return Value(183 * (d - improving));
+    return Value(223 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -1037,7 +1037,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 283 + 170 * lmrDepth <= alpha
+                  && ss->staticEval + 233 + 140 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
