@@ -1058,11 +1058,11 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning for captures
               if (   !givesCheck
-                  && lmrDepth < 5
+                  && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
-                  && ss->staticEval + 159 + 224 * lmrDepth
+                  && ss->staticEval + 169 + 244 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
@@ -1206,6 +1206,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r -= 1 + formerPv;
+
+          if (!ss->inCheck && !(ss-2)->inCheck)
+              r -= (ss->staticEval - (ss-2)->staticEval) / 256;
 
           if (!captureOrPromotion)
           {
