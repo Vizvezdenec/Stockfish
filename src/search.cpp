@@ -65,7 +65,7 @@ namespace {
   // Razor and futility margins
   constexpr int RazorMargin = 510;
   Value futility_margin(Depth d, bool improving) {
-    return Value(223 * (d - improving));
+    return Value(203 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -1067,7 +1067,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, std::min(beta - ss->staticEval, Value(-221 * depth )))) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
                   continue;
           }
       }
