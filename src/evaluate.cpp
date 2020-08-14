@@ -944,7 +944,7 @@ Value Eval::evaluate(const Position& pos) {
                       : NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (90 - std::max(pos.rule50_count() - 10, 0)) / 90;
+  v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evalution outside of TB range
   v = Utility::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
