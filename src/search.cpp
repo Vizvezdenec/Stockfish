@@ -879,6 +879,7 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
+        && !((ss-1)->currentMove == MOVE_NULL)
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
         // because probCut search has depth set to depth - 4 but we also do a move before it
@@ -1250,9 +1251,6 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
-
-            if (depth >= 8 && moveCount <=2 && !cutNode)
-                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
