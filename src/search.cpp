@@ -611,6 +611,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->updated = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -805,8 +806,11 @@ namespace {
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if (!priorCapture && PvNode && !(ss-1)->inCheck)
+    if (!priorCapture && !(ss-1)->inCheck && !((ss-1)->updated))
+    {
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << (ss->staticEval >= -(ss-1)->staticEval - Tempo ? -stat_bonus(depth) : stat_bonus(depth));
+        (ss-1)->updated = true;
+    }
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
