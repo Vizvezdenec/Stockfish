@@ -805,7 +805,7 @@ namespace {
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if (!priorCapture && !excludedMove && !(ss-1)->inCheck)
+    if (!priorCapture && PvNode && !(ss-1)->inCheck)
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << (ss->staticEval >= -(ss-1)->staticEval - Tempo ? -stat_bonus(depth) : stat_bonus(depth));
 
     // Step 7. Razoring (~1 Elo)
