@@ -806,7 +806,7 @@ namespace {
     }
 
     if (!priorCapture && !excludedMove && !(ss-1)->inCheck)
-        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << (ss->staticEval >= -(ss-1)->staticEval ? -stat_bonus(depth) : stat_bonus(depth));
+        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << (ss->staticEval >= -(ss-1)->staticEval - Tempo ? -stat_bonus(depth) : stat_bonus(depth));
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
