@@ -938,8 +938,14 @@ make_v:
 
 Value Eval::evaluate(const Position& pos) {
 
+  int disbalance = abs(pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * KnightValueEg + 
+                   abs(pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * BishopValueEg +
+                   abs(pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) * PawnValueEg +
+                   abs(pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * RookValueEg +
+                   abs(pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * QueenValueEg;
+
   bool classical = !Eval::useNNUE
-                ||  abs(eg_value(pos.psq_score())) >= NNUEThreshold * (8 + pos.rule50_count()) / 8;
+                ||  abs(eg_value(pos.psq_score())) >= (NNUEThreshold + (disbalance / 256) * (disbalance / 256)) * (16 + pos.rule50_count()) / 16;
   Value v = classical ? Evaluation<NO_TRACE>(pos).value()
                       : NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
