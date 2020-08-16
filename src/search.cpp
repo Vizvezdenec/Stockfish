@@ -1146,7 +1146,7 @@ moves_loop: // When in check, search starts from here
       if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 2;
+          extension = 2 + (ss->staticEval > 2);
 
       // Add extension to new depth
       newDepth += extension;
@@ -1186,7 +1186,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 509 * TtHitAverageResolution * TtHitAverageWindow / 1024)
-              r -= 1 + (ss->staticEval > 2);
+              r--;
 
           // Reduction if other threads are searching this position
           if (th.marked())
