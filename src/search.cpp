@@ -76,8 +76,8 @@ namespace {
     return (r + 509) / 1024 + (!i && r > 894);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+  constexpr int futility_move_count(bool improving, bool sImproving, Depth depth) {
+    return (6 + 2 * depth * depth) / (4 - 2 * improving - sImproving);
   }
 
   // History and stats update bonus, based on depth
@@ -597,7 +597,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
-    bool ttHit, ttPv, formerPv, givesCheck, improving, didLMR, priorCapture;
+    bool ttHit, ttPv, formerPv, givesCheck, improving, sImproving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
@@ -774,6 +774,7 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        sImproving = false;
         goto moves_loop;
     }
     else if (ttHit)
@@ -813,6 +814,7 @@ namespace {
 
     improving =  (ss-2)->staticEval == VALUE_NONE ? (ss->staticEval > (ss-4)->staticEval
               || (ss-4)->staticEval == VALUE_NONE) : ss->staticEval > (ss-2)->staticEval;
+    sImproving = ss->staticEval == (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1020,7 +1022,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, sImproving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1143,10 +1145,10 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Late irreversible move extension
-      if (   ((move == ttMove) || ss->staticEval > 2)
+      if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 1 + (move == ttMove);
+          extension = 2;
 
       // Add extension to new depth
       newDepth += extension;
