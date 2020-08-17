@@ -1030,6 +1030,7 @@ moves_loop: // When in check, search starts from here
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+                  && pos.count<ALL_PIECES>() - pos.count<PAWN>() >= 4
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1167,7 +1168,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + (2 + 2 * (abs(ss->staticEval) > 300)) * (PvNode && abs(bestValue) < 2)
+          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (!rootNode || thisThread->best_move_count(move) == 0)
           && (  !captureOrPromotion
               || moveCountPruning
