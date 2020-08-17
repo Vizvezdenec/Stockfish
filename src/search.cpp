@@ -611,6 +611,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    ss->singularQ = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1059,7 +1060,6 @@ moves_loop: // When in check, search starts from here
               // Futility pruning for captures
               if (   !givesCheck
                   && lmrDepth < 6
-                  && pos.count<ALL_PIECES>() - pos.count<PAWN>() >= 4
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && !ss->inCheck
@@ -1211,7 +1211,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !ss->singularQ)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1355,6 +1355,8 @@ moves_loop: // When in check, search starts from here
               {
                   assert(value >= beta); // Fail high
                   ss->statScore = 0;
+                  if (excludedMove)
+                      ss->singularQ = pos.capture_or_promotion(move);
                   break;
               }
           }
