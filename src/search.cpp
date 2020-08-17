@@ -827,7 +827,7 @@ namespace {
         && (ss-1)->statScore < 22977
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ttPv + 182 - 42 * cutNode
+        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -871,7 +871,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 176 - 49 * improving;
+    probCutBeta = beta + 176 - 49 * improving + 28 * formerPv;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
