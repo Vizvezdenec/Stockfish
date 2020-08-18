@@ -1236,7 +1236,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
 
-            if (pos.non_pawn_material(~us) < QueenValueMg && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
+            if (pos.non_pawn_material(~us) <= QueenValueMg && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
                 r--;
           }
 
