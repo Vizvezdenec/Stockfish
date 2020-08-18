@@ -1044,7 +1044,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (pos.non_pawn_material(~us) < QueenValueMg && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
+          else
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
@@ -1235,6 +1235,9 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
+
+            if (pos.non_pawn_material(~us) < QueenValueMg && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
+                r--;
           }
 
           Depth d = Utility::clamp(newDepth - r, 1, newDepth);
