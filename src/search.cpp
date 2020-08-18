@@ -1044,7 +1044,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else if (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) < 3 && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
+          else if (pos.non_pawn_material(~us) < QueenValueMg && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
