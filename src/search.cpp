@@ -1129,7 +1129,7 @@ moves_loop: // When in check, search starts from here
 
       if (   pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 4
           && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
-          extension = 1;
+          extension = 2;
 
       // Late irreversible move extension
       if (   move == ttMove
