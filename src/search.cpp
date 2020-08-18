@@ -1127,6 +1127,10 @@ moves_loop: // When in check, search starts from here
           && popcount(pos.pieces(us) & ~pos.pieces(PAWN) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 2)
           extension = 1;
 
+      if (   pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 4
+          && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
+          extension = 1;
+
       // Late irreversible move extension
       if (   move == ttMove
           && pos.rule50_count() > 80
