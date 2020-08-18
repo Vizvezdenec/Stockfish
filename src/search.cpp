@@ -1044,7 +1044,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
-          else
+          else if (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) < 3 && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
@@ -1126,10 +1126,6 @@ moves_loop: // When in check, search starts from here
       if (   type_of(move) == CASTLING
           && popcount(pos.pieces(us) & ~pos.pieces(PAWN) & (to_sq(move) & KingSide ? KingSide : QueenSide)) <= 2)
           extension = 1;
-
-      if (   pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 4
-          && PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] > PawnValueMg)
-          extension = 2;
 
       // Late irreversible move extension
       if (   move == ttMove
