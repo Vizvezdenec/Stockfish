@@ -952,7 +952,7 @@ Value Eval::evaluate(const Position& pos) {
   {
       Bitboard b = pos.pieces(~pos.side_to_move(),QUEEN);
       Square s = pop_lsb(&b);
-      if (pos.pieces(pos.side_to_move(), KNIGHT) & attacks_bb<KNIGHT>(s))
+      if (pos.pieces(pos.side_to_move(), KNIGHT) & attacks_bb<KNIGHT>(s) & ~pos.blockers_for_king(pos.side_to_move()))
           v += Tempo;
   }
 
