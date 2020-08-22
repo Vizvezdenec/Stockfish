@@ -942,7 +942,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ttMove)
+        && (!ttMove || ttValue < alpha - 70 * depth))
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
@@ -1529,9 +1529,6 @@ moves_loop: // When in check, search starts from here
           && !pos.advanced_pawn_push(move))
       {
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
-
-          if (moveCount > abs(depth))
-              continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
