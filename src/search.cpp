@@ -942,7 +942,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && (!ttMove || ttValue < alpha - 70 * depth))
+        && !ttMove)
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
@@ -1564,6 +1564,12 @@ moves_loop: // When in check, search starts from here
                                                                 [captureOrPromotion]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
+
+      if (  !captureOrPromotion
+          && moveCount >= abs(depth) + 1
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
+          continue;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
