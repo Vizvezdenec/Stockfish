@@ -953,7 +953,7 @@ Value Eval::evaluate(const Position& pos) {
       Bitboard b = pos.pieces(~pos.side_to_move(),QUEEN);
       Square s = pop_lsb(&b);
       if (pos.pieces(pos.side_to_move(), KNIGHT) & attacks_bb<KNIGHT>(s))
-          v += 4 * Tempo;
+          v += Tempo;
   }
 
   // Damp down the evaluation linearly when shuffling
