@@ -943,7 +943,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
+        depth -= 1 + (ss->staticEval < alpha - 60 * depth);
 
 moves_loop: // When in check, search starts from here
 
@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttValue >= beta && ss->staticEval >= beta)
+          else if (ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
