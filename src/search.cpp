@@ -1566,7 +1566,7 @@ moves_loop: // When in check, search starts from here
                                                                 [to_sq(move)];
 
       if (  !captureOrPromotion
-          && moveCount >= abs(depth) + 1
+          && moveCount >= 7 - abs(depth) + 1
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
