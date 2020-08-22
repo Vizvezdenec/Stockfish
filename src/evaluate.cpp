@@ -948,6 +948,14 @@ Value Eval::evaluate(const Position& pos) {
   if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
       v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
+  if (pos.count<QUEEN>(~pos.side_to_move()) == 1)
+  {
+      Bitboard b = pos.pieces(~pos.side_to_move(),QUEEN);
+      Square s = pop_lsb(&b);
+      if (pos.pieces(pos.side_to_move(), KNIGHT) & attacks_bb<KNIGHT>(s))
+          v += 4 * Tempo;
+  }
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 

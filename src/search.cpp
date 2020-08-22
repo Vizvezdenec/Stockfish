@@ -943,7 +943,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 1 + (ss->staticEval < alpha - 60 * depth);
+        depth -= 2;
 
 moves_loop: // When in check, search starts from here
 
