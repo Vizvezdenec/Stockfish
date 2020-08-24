@@ -710,6 +710,9 @@ namespace {
             }
         }
 
+        if (!ss->inCheck)
+            ss->staticEval = tte->eval();
+
         if (pos.rule50_count() < 90)
             return ttValue;
     }
@@ -1242,6 +1245,9 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!improving && !(ss+1)->inCheck && !(ss-1)->inCheck && (ss+1)->staticEval < (ss-1)->staticEval)
+              improving = true;
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
