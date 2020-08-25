@@ -1500,18 +1500,21 @@ moves_loop: // When in check, search starts from here
         futilityBase = bestValue + 145;
     }
 
+    Color Them = ~pos.side_to_move();
+
+    if (!ss->inCheck && ss->staticEval > beta + pos.non_pawn_material(Them) / 2 + pos.count<PAWN>(Them) * PawnValueMg / 2)
+        return beta;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
-
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &captureHistory,
+                                      &thisThread->captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1576,13 +1579,6 @@ moves_loop: // When in check, search starts from here
           && moveCount >= abs(depth) + 1
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
-          continue;
-
-      if (   !givesCheck
-          && captureOrPromotion
-          && depth == 0
-          && moveCount > 3
-          && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
       // Make and search the move
