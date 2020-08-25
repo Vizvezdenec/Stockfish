@@ -1135,6 +1135,18 @@ moves_loop: // When in check, search starts from here
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
 
+      if (   givesCheck
+         && (pos.blockers_for_king(~us) & from_sq(move)))
+      {
+          Square ksq = pos.square<KING>(~us);
+          Bitboard checksq = type_of(movedPiece) == ROOK ? attacks_bb<ROOK>(ksq, pos.pieces()) :
+                             type_of(movedPiece) == BISHOP ? attacks_bb<BISHOP>(ksq, pos.pieces()) :
+                             type_of(movedPiece) == KNIGHT ? attacks_bb<KNIGHT>(ksq, pos.pieces()) :
+                             pawn_attacks_bb(~us, ksq);
+          if (checksq & to_sq(move))
+              extension = 2;
+      }
+
       // Add extension to new depth
       newDepth += extension;
 
