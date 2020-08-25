@@ -1500,11 +1500,6 @@ moves_loop: // When in check, search starts from here
         futilityBase = bestValue + 145;
     }
 
-    Color Them = ~pos.side_to_move();
-
-    if (!ss->inCheck && ss->staticEval > beta + pos.non_pawn_material(Them) / 2 + pos.count<PAWN>(Them) * PawnValueMg / 2)
-        return beta;
-
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
