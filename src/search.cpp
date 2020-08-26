@@ -63,7 +63,9 @@ namespace {
   constexpr uint64_t TtHitAverageResolution = 1024;
 
   // Razor and futility margins
-  constexpr int RazorMargin = 510;
+  int RazorMargin(bool improving) { 
+    return 410 * (1 + improving);
+  }
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
   }
@@ -801,15 +803,15 @@ namespace {
         tte->save(posKey, VALUE_NONE, ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    // Step 7. Razoring (~1 Elo)
-    if (   !rootNode // The required rootNode PV handling is not available in qsearch
-        &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
-        return qsearch<NT>(pos, ss, alpha, beta);
-
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
+
+    // Step 7. Razoring (~1 Elo)
+    if (   !rootNode // The required rootNode PV handling is not available in qsearch
+        &&  depth == 1
+        &&  eval <= alpha - RazorMargin(improving))
+        return qsearch<NT>(pos, ss, alpha, beta);
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1234,9 +1236,6 @@ moves_loop: // When in check, search starts from here
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
-
-          if (PvNode && d == 1 && captureOrPromotion && givesCheck)
-              d = 0;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
