@@ -940,11 +940,6 @@ namespace {
             }
     }
 
-    if (   PvNode
-        && depth >= 6
-        && !ttMove)
-        depth -= 1 + (ttValue < alpha - 50 * depth);
-
 moves_loop: // When in check, search starts from here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1238,7 +1233,7 @@ moves_loop: // When in check, search starts from here
                 r++;
           }
 
-          Depth d = std::clamp(newDepth - r, 1, newDepth);
+          Depth d = std::clamp(newDepth - r, int(!captureOrPromotion), newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
