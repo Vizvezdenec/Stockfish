@@ -948,6 +948,18 @@ Value Eval::evaluate(const Position& pos) {
   if (classical && Eval::useNNUE && abs(v) * 16 < NNUEThreshold2 * (16 + pos.rule50_count()))
       v = NNUE::evaluate(pos) * 5 / 4 + Tempo;
 
+  Value u = Value(0);
+
+  if (!pos.castling_rights(WHITE) && pos.square<KING>(WHITE) == SQ_E1)
+      u -= 15;
+
+  if (!pos.castling_rights(BLACK) && pos.square<KING>(BLACK) == SQ_E8)
+      u += 15;
+
+  u = pos.side_to_move() == WHITE ? u : -u;
+
+  v += u;
+
   // Damp down the evaluation linearly when shuffling
   v = v * (100 - pos.rule50_count()) / 100;
 
