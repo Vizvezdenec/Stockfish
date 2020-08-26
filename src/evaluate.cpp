@@ -951,10 +951,10 @@ Value Eval::evaluate(const Position& pos) {
   Value u = Value(0);
 
   if (!pos.castling_rights(WHITE) && pos.square<KING>(WHITE) == SQ_E1)
-      u -= 15;
+      u -= 7;
 
   if (!pos.castling_rights(BLACK) && pos.square<KING>(BLACK) == SQ_E8)
-      u += 15;
+      u += 7;
 
   u = pos.side_to_move() == WHITE ? u : -u;
 
