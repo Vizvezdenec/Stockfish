@@ -64,7 +64,7 @@ namespace {
 
   // Razor and futility margins
   int RazorMargin(bool improving) { 
-    return 410 * (1 + improving);
+    return 410 + 200 * improving;
   }
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
