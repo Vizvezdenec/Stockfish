@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts from here
                 r++;
           }
 
-          Depth d = std::clamp(newDepth - r, 1, newDepth);
+          Depth d = std::clamp(newDepth - r, int(!(PvNode && captureOrPromotion)), newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
