@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
-          && ((tte->bound() & BOUND_LOWER) || ((tte->bound() & BOUND_EXACT) && PvNode && ttValue > beta))
+          && ((tte->bound() & BOUND_LOWER) || ((tte->bound() & BOUND_EXACT) && ttValue > beta))
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
