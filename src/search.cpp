@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts from here
                 r++;
           }
 
-          Depth d = std::clamp(newDepth - r, int(!(PvNode && captureOrPromotion)), newDepth);
+          Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1680,7 +1680,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+    bonus2 = (bestValue > beta + PawnValueMg) || (bestValue > ss->staticEval + KnightValueMg) ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
