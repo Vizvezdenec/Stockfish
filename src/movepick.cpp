@@ -104,22 +104,22 @@ void MovePicker::score() {
           PieceType Pt = type_of(pos.piece_on(to_sq(m)));
           if (Pt == PAWN)
               m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][PAWN]
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][KNIGHT] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2;
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][KNIGHT] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
           else if (Pt == KNIGHT)
               m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][KNIGHT]
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2;
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
           else if (Pt == BISHOP)
               m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP]
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2;
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
           else if (Pt == ROOK)
               m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK]
-                       + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2;
+                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
           else m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN];
       }
 
