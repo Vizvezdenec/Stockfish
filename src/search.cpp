@@ -767,6 +767,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    SacrificeHistory& sacrificeHistory = thisThread->sacrificeHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -896,7 +897,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &sacrificeHistory);
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
@@ -951,6 +952,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &sacrificeHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1504,6 +1506,7 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->sacrificeHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1676,8 +1679,11 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    SacrificeHistory& sacrificeHistory = thisThread->sacrificeHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
+    Bitboard pawnAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) :
+                                         pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
 
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
@@ -1695,7 +1701,11 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (PieceValue[MG][type_of(moved_piece)] - PieceValue[MG][captured] < -PawnValueMg && (pawnAttacks & to_sq(bestMove)))
+            sacrificeHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet TT or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 || ((ss-1)->currentMove == (ss-1)->killers[0]))
@@ -1708,6 +1718,8 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        if (PieceValue[MG][type_of(moved_piece)] - PieceValue[MG][captured] < -PawnValueMg && (pawnAttacks & to_sq(capturesSearched[i])))
+            sacrificeHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 

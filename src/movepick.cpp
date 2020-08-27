@@ -55,8 +55,8 @@ namespace {
 
 /// MovePicker constructor for the main search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const LowPlyHistory* lp,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
-           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch),
+                       const CapturePieceToHistory* cph, const SacrificeHistory* sah, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
+           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), sacrificeHistory(sah), continuationHistory(ch),
              ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(pl) {
 
   assert(d > 0);
@@ -67,8 +67,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for quiescence search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
+                       const CapturePieceToHistory* cph, const SacrificeHistory* sah, const PieceToHistory** ch, Square rs)
+           : pos(p), mainHistory(mh), captureHistory(cph), sacrificeHistory(sah), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
 
   assert(d <= 0);
 
@@ -79,8 +79,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th) {
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph, const SacrificeHistory* sah)
+           : pos(p), captureHistory(cph), sacrificeHistory(sah), ttMove(ttm), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -97,15 +97,15 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
+  Bitboard pawnAttacks = pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) :
+                                                       pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
+
   for (auto& m : *this)
       if (Type == CAPTURES)
-      {
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
-          PieceType Pt = type_of(pos.piece_on(to_sq(m)));
-          if (Pt == KNIGHT || Pt == BISHOP)
-          m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][Pt == KNIGHT? BISHOP : KNIGHT] / 4;
-      }
+                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
+                   + ((PieceValue[MG][pos.moved_piece(m)] - PieceValue[MG][pos.piece_on(to_sq(m))] < -PawnValueMg)
+                      && (pawnAttacks & to_sq(m))) * (*sacrificeHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
