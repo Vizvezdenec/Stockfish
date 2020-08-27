@@ -100,27 +100,11 @@ void MovePicker::score() {
   for (auto& m : *this)
       if (Type == CAPTURES)
       {
-          m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6;
+          m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
+                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
           PieceType Pt = type_of(pos.piece_on(to_sq(m)));
-          if (Pt == PAWN)
-              m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][PAWN]
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][KNIGHT] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
-          else if (Pt == KNIGHT)
-              m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][KNIGHT]
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
-          else if (Pt == BISHOP)
-              m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][BISHOP]
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK] / 2, 0)
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
-          else if (Pt == ROOK)
-              m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][ROOK]
-                       + std::min((*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN] / 2, 0);
-          else m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][QUEEN];
+          if (Pt == KNIGHT || Pt == BISHOP)
+          m.value += (*captureHistory)[pos.moved_piece(m)][to_sq(m)][Pt == KNIGHT? BISHOP : KNIGHT] / 4;
       }
 
       else if (Type == QUIETS)
