@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !givesCheck)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1680,7 +1680,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = (bestValue > beta + PawnValueMg) || (bestValue > ss->staticEval + KnightValueMg) ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
