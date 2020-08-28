@@ -1016,9 +1016,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 
-                                 || ((*contHist[3])[movedPiece][to_sq(move)] < 0 && (*contHist[5])[movedPiece][to_sq(move)] < 0
-                                   && (ss->staticEval < alpha)))
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1194,7 +1192,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r = 2 - givesCheck;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
