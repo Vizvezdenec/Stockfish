@@ -900,7 +900,7 @@ namespace {
         int probCutCount = 0;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * (cutNode || ss->staticEval >= probCutBeta))
+               && probCutCount < 2 + (cutNode ? 2 : ss->staticEval >= probCutBeta ? 1 : 0))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
