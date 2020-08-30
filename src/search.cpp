@@ -1043,7 +1043,8 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!(pos.advanced_pawn_push(move) && pos.non_pawn_material() <= 2 * QueenValueMg) && 
+                  !pos.see_ge(move, Value(-(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1518,14 +1519,12 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &captureHistory,
+                                      &thisThread->captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1553,8 +1552,7 @@ moves_loop: // When in check, search starts from here
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
-          if (futilityValue <= alpha 
-          && (!captureOrPromotion || captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 10000))
+          if (futilityValue <= alpha)
           {
               bestValue = std::max(bestValue, futilityValue);
               continue;
