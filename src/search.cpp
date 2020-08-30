@@ -876,7 +876,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 4
+        &&  depth >= 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -897,7 +897,7 @@ namespace {
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
 
-        if (ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 3)
+        if (depth >= 7 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 3)
             probCutBeta = beta;
 
         assert(probCutBeta < VALUE_INFINITE);
@@ -928,7 +928,7 @@ namespace {
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta)
+                if (value >= probCutBeta && depth > 4)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
