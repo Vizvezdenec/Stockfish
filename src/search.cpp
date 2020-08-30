@@ -876,7 +876,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth >= 4
+        &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -896,9 +896,6 @@ namespace {
             && ttMove
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
-
-        if (depth >= 7 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 3)
-            probCutBeta = beta;
 
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
@@ -928,7 +925,7 @@ namespace {
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta && depth > 4)
+                if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
@@ -1521,12 +1518,14 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->captureHistory,
+                                      &captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1554,7 +1553,8 @@ moves_loop: // When in check, search starts from here
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
-          if (futilityValue <= alpha)
+          if (futilityValue <= alpha 
+          && (!captureOrPromotion || captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 10000))
           {
               bestValue = std::max(bestValue, futilityValue);
               continue;
