@@ -897,6 +897,9 @@ namespace {
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
 
+        if (depth >= 9 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 3)
+            probCutBeta = beta;
+
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1197,7 +1200,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + formerPv + (captureOrPromotion && PvNode && abs(bestValue) < 2);
+              r -= 1 + formerPv;
 
           if (!captureOrPromotion)
           {
