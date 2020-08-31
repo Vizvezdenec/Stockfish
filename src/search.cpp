@@ -897,9 +897,6 @@ namespace {
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
 
-        if (depth >= 9 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 3)
-            probCutBeta = beta;
-
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1030,7 +1027,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || type_of(movedPiece) == PAWN)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
