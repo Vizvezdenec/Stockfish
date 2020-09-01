@@ -806,7 +806,7 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - (pos.non_pawn_material(us) ? RazorMargin : PawnValueEg))
+        &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE
@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + formerPv;
+              r -= 1;
 
           if (!captureOrPromotion)
           {
