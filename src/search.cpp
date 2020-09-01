@@ -806,7 +806,7 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin + 200 * priorCapture)
+        &&  eval <= alpha - (pos.non_pawn_material(us) ? RazorMargin : PawnValueEg))
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE
