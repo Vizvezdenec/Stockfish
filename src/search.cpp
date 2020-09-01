@@ -606,7 +606,6 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
-    ss->isLMR = false;
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
@@ -807,7 +806,7 @@ namespace {
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin + 200 * ((ss-1)->isLMR && priorCapture))
+        &&  eval <= alpha - RazorMargin + 200 * priorCapture)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE
@@ -1246,11 +1245,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          ss->isLMR = true;
-
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          ss->isLMR = false;
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
