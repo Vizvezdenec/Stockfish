@@ -1238,7 +1238,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             // Unless giving check, this capture is likely bad
-            if (   !givesCheck && ss->staticEval < alpha)
+            if (   !givesCheck && !ss->inCheck)
                 r += (alpha - ss->staticEval) / (213 * depth);
           }
 
