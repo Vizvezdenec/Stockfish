@@ -1238,8 +1238,8 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             // Unless giving check, this capture is likely bad
-            if (   !givesCheck && !ss->inCheck)
-                r += (alpha - ss->staticEval) / (213 * depth);
+            if (   !givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] < alpha)
+                r += (alpha - ss->staticEval - PieceValue[EG][pos.captured_piece()]) / (213 * depth);
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
