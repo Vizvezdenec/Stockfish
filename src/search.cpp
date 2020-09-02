@@ -1051,6 +1051,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
+                  && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1238,8 +1239,9 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             // Unless giving check, this capture is likely bad
-            if (   !givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] < alpha)
-                r += (alpha - ss->staticEval - PieceValue[EG][pos.captured_piece()]) / (213 * depth);
+            if (   !givesCheck
+                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
+                r++;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
