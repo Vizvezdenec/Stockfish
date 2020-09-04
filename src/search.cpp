@@ -803,13 +803,10 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if ((ss-1)->currentMove == MOVE_NULL && eval < ss->staticEval - 2 * Tempo)
-        depth = std::max(depth - 1, 1);
-
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
+        &&  eval <= alpha - RazorMargin + 238 * ((ss-1)->currentMove == MOVE_NULL))
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE
