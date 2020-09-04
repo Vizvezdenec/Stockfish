@@ -1104,11 +1104,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if ((ss-1)->moveCount == 1 && (ss-1)->ttHit && !priorCapture)
-                  update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1717,6 +1713,7 @@ moves_loop: // When in check, search starts from here
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+        && (ss-1)->moveCount != (ss-1)->ttHit
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
