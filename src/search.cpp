@@ -803,6 +803,9 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    if ((ss-1)->currentMove == MOVE_NULL && eval < ss->staticEval - 2 * Tempo)
+        depth = std::max(depth - 1, 1);
+
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
@@ -1160,7 +1163,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
-          && !(PvNode && abs(bestValue) < 2 && ss->staticEval < -1)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
