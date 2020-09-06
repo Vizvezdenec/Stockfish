@@ -1211,7 +1211,7 @@ moves_loop: // When in check, search starts from here
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               if (type_of(movedPiece) != PAWN && (pawnAtt & to_sq(move)))
-                  r++;
+                  r += 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
