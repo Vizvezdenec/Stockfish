@@ -1191,6 +1191,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (ss->ttHit && !singularQuietLMR && ttValue < alpha - 30 * depth && bestValue < alpha && PvNode)
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1232,7 +1235,6 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.captured_piece())]
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
           }
