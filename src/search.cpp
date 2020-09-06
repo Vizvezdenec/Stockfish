@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (ss->ttHit && !singularQuietLMR && ttValue < alpha - 30 * depth && bestValue < alpha && PvNode)
+          if (ss->ttHit && !singularQuietLMR && ttValue < alpha - 30 * depth && bestValue < alpha && PvNode && tte->depth() >= depth)
               r++;
 
           if (!captureOrPromotion)
