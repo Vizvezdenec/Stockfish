@@ -1232,14 +1232,12 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
+                && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.captured_piece())]
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
-
-          if (newDepth - r < -1 && captureOrPromotion)
-              d = 0;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
