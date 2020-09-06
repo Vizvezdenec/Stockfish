@@ -1064,13 +1064,6 @@ moves_loop: // When in check, search starts from here
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
-              if (   !captureOrPromotion
-                  && lmrDepth < 3
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && ss->staticEval + 288 + 299 * lmrDepth <= alpha)
-                  continue;
-
               // See based pruning
               if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
                   continue;
@@ -1244,6 +1237,9 @@ moves_loop: // When in check, search starts from here
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
+
+          if (newDepth - r < -1 && captureOrPromotion)
+              d = 0;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
