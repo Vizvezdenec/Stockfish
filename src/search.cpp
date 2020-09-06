@@ -970,8 +970,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    Bitboard pawnAtt = us == WHITE ? pawn_double_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) :
-                                     pawn_double_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1064,6 +1062,13 @@ moves_loop: // When in check, search starts from here
                   && !ss->inCheck
                   && ss->staticEval + 169 + 244 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
+                  continue;
+
+              if (   !captureOrPromotion
+                  && lmrDepth < 3
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && ss->staticEval + 288 + 199 * lmrDepth <= alpha)
                   continue;
 
               // See based pruning
@@ -1209,9 +1214,6 @@ moves_loop: // When in check, search starts from here
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
-
-              if (!givesCheck && type_of(movedPiece) != PAWN && (pawnAtt & to_sq(move)))
-                  r += 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
