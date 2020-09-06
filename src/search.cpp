@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 3
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && ss->staticEval + 288 + 199 * lmrDepth <= alpha)
+                  && ss->staticEval + 288 + 299 * lmrDepth <= alpha)
                   continue;
 
               // See based pruning
