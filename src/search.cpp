@@ -1232,9 +1232,8 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.captured_piece())]
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 173 * depth <= alpha)
-                r++;
+                && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.captured_piece())])
+                r += std::max(int((alpha - ss->staticEval - PieceValue[EG][pos.captured_piece()]) / (192 * depth)), 0);
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
