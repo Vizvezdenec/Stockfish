@@ -970,7 +970,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool fullSearch = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1243,7 +1242,12 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          fullSearch = value > alpha || newDepth - r > 0;
+          if (d == newDepth && !captureOrPromotion)
+          {
+          int bonus = value > alpha ?  stat_bonus(newDepth)
+                                    : -stat_bonus(newDepth);
+          update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+          }
 
           didLMR = true;
       }
@@ -1252,8 +1256,6 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = !PvNode || moveCount > 1;
 
           didLMR = false;
-
-          fullSearch = true;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
@@ -1282,8 +1284,6 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
-
-          fullSearch = true;
       }
 
       // Step 18. Undo move
@@ -1350,7 +1350,7 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      if (move != bestMove && fullSearch)
+      if (move != bestMove)
       {
           if (captureOrPromotion && captureCount < 32)
               capturesSearched[captureCount++] = move;
