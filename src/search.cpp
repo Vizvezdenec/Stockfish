@@ -1220,9 +1220,6 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -119 && ss->statScore < -140)
                   r++;
-
-              // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14884;
           }
           else
           {
@@ -1234,7 +1231,13 @@ moves_loop: // When in check, search starts from here
             if (   !givesCheck
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
+
+            ss->statScore = int(PieceValue[MG][pos.captured_piece()]) * 6
+                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 4000;
           }
+
+          // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
+          r -= ss->statScore / 14884;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
