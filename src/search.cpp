@@ -1236,7 +1236,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             if (ss->statScore < 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] + ss->statScore > 0)
-                ss->statScore = 0;
+                ss->statScore = 1;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
