@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts from here
                 r++;
 
             ss->statScore = int(PieceValue[MG][pos.captured_piece()]) * 6
-                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 4000;
+                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 2500;
           }
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
