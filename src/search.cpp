@@ -1235,7 +1235,7 @@ moves_loop: // When in check, search starts from here
                 && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
 
-            if (ss->statScore > 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] + ss->statScore < 0)
+            if (ss->statScore < 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] + ss->statScore > 0)
                 ss->statScore = 0;
           }
 
