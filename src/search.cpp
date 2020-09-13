@@ -947,8 +947,9 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6)
-        depth -= !ttMove ? 2 : ((tte->bound() & BOUND_UPPER) && ttValue < alpha - 50 * depth) ? 1 : 0;
+        && depth >= 6
+        && !ttMove)
+        depth -= 2;
 
 moves_loop: // When in check, search starts from here
 
@@ -1026,7 +1027,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 2 + depth / 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
