@@ -1238,13 +1238,13 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = alpha + 1;
 
-          if (value <= alpha && d == 1 && captureOrPromotion)
-          {
-              d = 0;
+          if (cutNode && ss->staticEval + PieceValue[EG][pos.captured_piece()] < alpha)
+              value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
+
+          if (value > alpha)
               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
