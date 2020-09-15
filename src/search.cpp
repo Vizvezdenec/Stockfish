@@ -772,7 +772,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = VALUE_NONE;
+        ss->staticEval = eval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()];
         improving = false;
         goto moves_loop;
     }
@@ -968,9 +968,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int staticE = !ss->inCheck ?       ss->staticEval : 
-                  !(ss-1)->inCheck ? -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()] - 200:
-                                       VALUE_NONE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1035,7 +1032,6 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
-                  && !ss->inCheck
                   && ss->staticEval + 283 + 170 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1060,7 +1056,6 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
-                  && !ss->inCheck
                   && ss->staticEval + 169 + 244 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
@@ -1163,7 +1158,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (  !captureOrPromotion
               || moveCountPruning
-              || staticE + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
