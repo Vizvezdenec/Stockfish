@@ -968,6 +968,9 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    int staticE = !ss->inCheck ?       ss->staticEval : 
+                  !(ss-1)->inCheck ? -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()] :
+                                       VALUE_NONE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1057,8 +1060,7 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
-                  && !ss->inCheck
-                  && ss->staticEval + 169 + 244 * lmrDepth
+                  && staticE + 169 + 244 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
