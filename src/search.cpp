@@ -1060,7 +1060,8 @@ moves_loop: // When in check, search starts from here
                   && lmrDepth < 6
                   && !(PvNode && abs(bestValue) < 2)
                   && PieceValue[MG][type_of(movedPiece)] >= PieceValue[MG][type_of(pos.piece_on(to_sq(move)))]
-                  && staticE + 169 + 244 * lmrDepth
+                  && !ss->inCheck
+                  && ss->staticEval + 169 + 244 * lmrDepth
                      + PieceValue[MG][type_of(pos.piece_on(to_sq(move)))] <= alpha)
                   continue;
 
@@ -1162,7 +1163,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || staticE + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
