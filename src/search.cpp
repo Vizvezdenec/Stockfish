@@ -772,7 +772,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()];
+        ss->staticEval = eval = -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()] - 200;
         improving = false;
         goto moves_loop;
     }
