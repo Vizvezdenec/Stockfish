@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts from here
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     int staticE = !ss->inCheck ?       ss->staticEval : 
-                  !(ss-1)->inCheck ? -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()] :
+                  !(ss-1)->inCheck ? -(ss-1)->staticEval - PieceValue[MG][pos.captured_piece()] - 200:
                                        VALUE_NONE;
 
     // Mark this node as being searched
@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && abs(bestValue) < 2)
           && (  !captureOrPromotion
               || moveCountPruning
-              || staticE + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts from here
 
             // Unless giving check, this capture is likely bad
             if (   !givesCheck
-                && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
+                && staticE + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                 r++;
           }
 
