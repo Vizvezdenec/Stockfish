@@ -1025,8 +1025,8 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1
-                                  || (ttMove && type_of(ttMove) == CASTLING && type_of(movedPiece) == KING && type_of(move) != CASTLING))
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 ||
+                                    (ttCapture && from_sq(ttMove) == from_sq(move)))
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
