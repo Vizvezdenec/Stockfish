@@ -1132,6 +1132,11 @@ moves_loop: // When in check, search starts from here
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
 
+      if (    !ttMove && !captureOrPromotion && moveCount == 1
+          && (*contHist[0])[movedPiece][to_sq(move)] > 7564
+          && (*contHist[1])[movedPiece][to_sq(move)] > 7564)
+          extension = 1;
+
       // Add extension to new depth
       newDepth += extension;
 
