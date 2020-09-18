@@ -599,9 +599,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, singularQuietLMR;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -966,8 +966,9 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    singularQuietLMR = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1081,11 +1082,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3
-          && !(ttValue < alpha 
-           && !captureOrPromotion
-           && (*contHist[0])[movedPiece][to_sq(move)] < -5000
-           && (*contHist[1])[movedPiece][to_sq(move)] < -5000))
+          &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
@@ -1096,7 +1093,8 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture;
+              singularQuietLMR = !ttCapture * (1 + ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                                                 && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold));
           }
 
           // Multi-cut pruning
@@ -1184,8 +1182,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
-              r--;
+          r -= singularQuietLMR;
 
           if (!captureOrPromotion)
           {
