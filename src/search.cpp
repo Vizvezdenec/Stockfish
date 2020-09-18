@@ -599,9 +599,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture;
+         ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, singularQuietLMR;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -813,10 +813,14 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
+    {
+        if (depth < 8)
+            return eval;
+        else if (!(ss-2)->inCheck && (ss-2)->staticEval >= beta + futility_margin(depth, improving))
+            return eval;
+    }
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -966,9 +970,8 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    singularQuietLMR = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1093,8 +1096,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture * (1 + ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                                                 && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold));
+              singularQuietLMR = !ttCapture;
           }
 
           // Multi-cut pruning
@@ -1182,7 +1184,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          r -= singularQuietLMR;
+          if (singularQuietLMR)
+              r--;
 
           if (!captureOrPromotion)
           {
