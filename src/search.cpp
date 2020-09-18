@@ -1075,19 +1075,33 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (    depth >= 7
-          &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
+          &&  ((move == ttMove
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
+          || (moveCount == 1 && !captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] > 10000
+                  && (*contHist[1])[movedPiece][to_sq(move)] > 10000)))
       {
-          Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
+          bool doSingular = ttMove;
+          if (!ttMove)
+          {
+              pos.do_move(move, st, givesCheck);
+              value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth - 4, !cutNode);
+              pos.undo_move(move);
+              doSingular = value >= beta;
+          }
+          Value singularBeta = ttMove ? ttValue - ((formerPv + 4) * depth) / 2 : beta - ((formerPv + 4) * depth) / 2;
+          if (doSingular)
+          {
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
+          }
+          else value = beta - 1;
 
           if (value < singularBeta)
           {
@@ -1105,7 +1119,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttValue >= beta)
+          else if (ttMove && ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
@@ -1131,11 +1145,6 @@ moves_loop: // When in check, search starts from here
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
-
-      if (    !ttMove && !captureOrPromotion && moveCount == 1
-          && (*contHist[0])[movedPiece][to_sq(move)] > 7564
-          && (*contHist[1])[movedPiece][to_sq(move)] > 7564)
-          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
