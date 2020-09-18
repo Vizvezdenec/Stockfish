@@ -596,7 +596,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, sudoEval;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
@@ -811,13 +811,11 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    sudoEval = ss->ttHit && ttValue != VALUE_NONE && (tte->bound() & BOUND_EXACT) && ttValue > eval ? ttValue : eval;
-
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  sudoEval - futility_margin(depth, improving) >= beta
-        &&  sudoEval < VALUE_KNOWN_WIN) // Do not return unproven wins
+        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
@@ -952,6 +950,15 @@ namespace {
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
+
+    if (   !PvNode
+        &&  depth < 8
+        &&  ss->ttHit
+        &&  (tte->bound() & BOUND_LOWER)
+        &&  ttValue != VALUE_NONE
+        &&  ttValue - futility_margin(depth, improving) >= beta
+        &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
+        return ttValue;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
