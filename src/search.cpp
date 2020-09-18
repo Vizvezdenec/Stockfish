@@ -1075,33 +1075,19 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (    depth >= 7
+          &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
-          &&  ((move == ttMove
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
-          || (moveCount == 1 && !captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] > 10000
-                  && (*contHist[1])[movedPiece][to_sq(move)] > 10000)))
       {
-          bool doSingular = ttMove;
-          if (!ttMove)
-          {
-              pos.do_move(move, st, givesCheck);
-              value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth - 4, !cutNode);
-              pos.undo_move(move);
-              doSingular = value >= beta;
-          }
-          Value singularBeta = ttMove ? ttValue - ((formerPv + 4) * depth) / 2 : beta - ((formerPv + 4) * depth) / 2;
-          if (doSingular)
-          {
+          Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
-          }
-          else value = beta - 1;
 
           if (value < singularBeta)
           {
@@ -1119,7 +1105,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttMove && ttValue >= beta)
+          else if (ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
@@ -1516,12 +1502,14 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->captureHistory,
+                                      &captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1534,6 +1522,10 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
+
+      if (captureOrPromotion && !givesCheck && moveCount > 7 + DEPTH_NONE
+       && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+          continue;
 
       // Futility pruning
       if (   !ss->inCheck
