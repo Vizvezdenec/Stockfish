@@ -1523,7 +1523,7 @@ moves_loop: // When in check, search starts from here
 
       moveCount++;
 
-      if (captureOrPromotion && !givesCheck && moveCount > 6 + depth
+      if (captureOrPromotion && !givesCheck && moveCount > 2
        && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
