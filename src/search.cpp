@@ -1502,12 +1502,14 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->captureHistory,
+                                      &captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1520,6 +1522,10 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
+
+      if (captureOrPromotion && !givesCheck && (moveCount > 2 - (depth < -2))
+       && captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+          continue;
 
       // Futility pruning
       if (   !ss->inCheck
