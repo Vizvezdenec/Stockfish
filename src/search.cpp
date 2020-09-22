@@ -1045,8 +1045,9 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && lmrDepth < 2
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
+                  && !pos.see_ge(move))
                   continue;
 
               // Futility pruning for captures
@@ -1212,9 +1213,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              if (!givesCheck && ss->staticEval + (77 + 86 * depth) * moveCount < alpha)
-                  r++;
           }
           else
           {
