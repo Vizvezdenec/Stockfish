@@ -787,7 +787,7 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-        ss->staticEval += (eval - ss->staticEval) / 16;
+        ss->staticEval += (eval - ss->staticEval) * (tte->depth()) / (64 + tte->depth());
     }
     else
     {
