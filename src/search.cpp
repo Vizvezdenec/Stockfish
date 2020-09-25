@@ -590,7 +590,7 @@ namespace {
     Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     TTEntry* tte;
-    Key posKey;
+    Key posKey, posKey1;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
@@ -599,6 +599,9 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    TTEntry* tte1;
+    bool ttNull = false;
+    Value ttNullEval = VALUE_NONE;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -663,6 +666,18 @@ namespace {
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
+
+    if (!ss->ttHit && !ss->inCheck)
+    {
+        pos.do_null_move(st);
+        posKey1 = pos.key();
+        tte1 = TT.probe(posKey1, ttNull);
+        pos.undo_null_move();
+        if (ttNull && tte1->eval() != VALUE_NONE)
+            ttNullEval = -tte1->eval() + 2 * Tempo;
+        else ttNull = false;
+    }
+
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
     formerPv = ss->ttPv && !PvNode;
@@ -790,7 +805,9 @@ namespace {
     }
     else
     {
-        if ((ss-1)->currentMove != MOVE_NULL)
+        if (ttNull)
+            ss->staticEval = eval = ttNullEval;
+        else if ((ss-1)->currentMove != MOVE_NULL)
             ss->staticEval = eval = evaluate(pos);
         else
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
