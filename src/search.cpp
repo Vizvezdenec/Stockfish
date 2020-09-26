@@ -796,6 +796,13 @@ namespace {
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
+        pos.do_null_move(st);
+        Key posKey1 = pos.key();
+        bool tth = false;
+        TTEntry* tte1 = TT.probe(posKey1, tth);
+        pos.undo_null_move();
+        if (!tth)
+            tte1->save(posKey1, VALUE_NONE, false, BOUND_NONE, DEPTH_NONE, MOVE_NONE, -ss->staticEval + 2 * Tempo);
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -1129,28 +1136,6 @@ moves_loop: // When in check, search starts from here
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
 
-      if (   !extension
-          && !ttMove
-          && moveCount == 1
-          && !captureOrPromotion
-          && depth >= 7
-          && (*contHist[0])[movedPiece][to_sq(move)] > 8000
-          && (*contHist[1])[movedPiece][to_sq(move)] > 8000)
-      {
-          pos.do_move(move, st, givesCheck);
-          value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-4, !cutNode);
-          pos.undo_move(move);
-          if (value >= beta)
-          {
-          ss->excludedMove = move;
-          Value singularBeta = beta - 2 * depth;
-          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, depth / 2, cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value < singularBeta)
-              extension = 1;
-          }
-
-      }
       // Add extension to new depth
       newDepth += extension;
 
