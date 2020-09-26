@@ -71,6 +71,7 @@ public:
   ButterflyHistory mainHistory;
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
+  CaptureFromToHistory captureFTHistory;
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
 };

@@ -764,6 +764,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureFromToHistory& captureFTHistory = thisThread->captureFTHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -893,7 +894,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &captureFTHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -957,6 +958,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &captureFTHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1046,7 +1048,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][from_to(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // Futility pruning for captures
@@ -1505,6 +1507,7 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->captureFTHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1680,6 +1683,7 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureFromToHistory& captureFTHistory = thisThread->captureFTHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
@@ -1699,7 +1703,10 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-        captureHistory[moved_piece][from_to(bestMove)][captured] << bonus1;
+    {
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureFTHistory[from_to(bestMove)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
@@ -1711,7 +1718,8 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][from_to(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureFTHistory[from_to(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
