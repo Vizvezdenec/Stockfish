@@ -1046,7 +1046,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][from_to(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // Futility pruning for captures
@@ -1183,7 +1183,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture && !(givesCheck && moveCount <= 3 && (from_sq(move) != from_sq(ttMove))))
+              if (ttCapture)
                   r++;
 
               // Increase reduction for cut nodes (~10 Elo)
@@ -1699,7 +1699,7 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][from_to(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
@@ -1711,7 +1711,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][from_to(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
