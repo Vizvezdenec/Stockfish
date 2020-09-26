@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (eval > ss->staticEval && eval != VALUE_NONE && bestValue <= ss->staticEval)
+          if (eval > ss->staticEval && eval != VALUE_NONE && bestValue <= ss->staticEval && improving)
               r--;
 
           if (!captureOrPromotion)
