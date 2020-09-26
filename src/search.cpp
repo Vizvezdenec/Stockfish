@@ -1129,6 +1129,28 @@ moves_loop: // When in check, search starts from here
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
 
+      if (   !extension
+          && !ttMove
+          && moveCount == 1
+          && !captureOrPromotion
+          && depth >= 7
+          && (*contHist[0])[movedPiece][to_sq(move)] > 8000
+          && (*contHist[1])[movedPiece][to_sq(move)] > 8000)
+      {
+          pos.do_move(move, st, givesCheck);
+          value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-4, !cutNode);
+          pos.undo_move(move);
+          if (value >= beta)
+          {
+          ss->excludedMove = move;
+          Value singularBeta = beta - 2 * depth;
+          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, depth / 2, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value < singularBeta)
+              extension = 1;
+          }
+
+      }
       // Add extension to new depth
       newDepth += extension;
 
@@ -1197,11 +1219,10 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)] / 2
+              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             + (*contHist[5])[movedPiece][to_sq(move)] / 2
                              - 5287;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
