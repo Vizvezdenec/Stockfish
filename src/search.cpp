@@ -894,7 +894,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &captureFTHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -958,7 +958,6 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
-                                      &captureFTHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1512,7 +1511,6 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
-                                      &thisThread->captureFTHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
