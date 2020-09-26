@@ -1051,6 +1051,11 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   !givesCheck
+                  && lmrDepth < 1
+                  && captureFTHistory[from_to(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  continue;
+
               // Futility pruning for captures
               if (   !givesCheck
                   && lmrDepth < 6
