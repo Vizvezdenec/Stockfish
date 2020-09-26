@@ -787,7 +787,6 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-        ss->staticEval += (eval - ss->staticEval) * tte->depth() / 256;
     }
     else
     {
@@ -1179,6 +1178,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (eval > ss->staticEval && eval != VALUE_NONE && bestValue <= ss->staticEval)
               r--;
 
           if (!captureOrPromotion)
