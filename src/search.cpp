@@ -796,13 +796,6 @@ namespace {
             ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
-        pos.do_null_move(st);
-        Key posKey1 = pos.key();
-        bool tth = false;
-        TTEntry* tte1 = TT.probe(posKey1, tth);
-        pos.undo_null_move();
-        if (!tth)
-            tte1->save(posKey1, VALUE_NONE, false, BOUND_NONE, DEPTH_NONE, MOVE_NONE, -ss->staticEval + 2 * Tempo);
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -819,6 +812,7 @@ namespace {
     if (   !PvNode
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
+        &&  ss->staticEval < eval + 140 * depth
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
