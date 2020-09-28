@@ -1180,6 +1180,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (!ss->inCheck)
+              r -= (ss->staticEval + PieceValue[EG][pos.captured_piece()] - (alpha + beta) / 2) / 2048;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1217,7 +1220,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction for captures/promotions if late move and at low depth
               if (depth < 8 && moveCount > 2)
-                  r += 1 + (!givesCheck && moveCount > 10);
+                  r++;
 
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
