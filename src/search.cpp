@@ -971,7 +971,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && !rootNode)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1007,14 +1007,14 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
+      moveCountPruning = moveCount >= futility_move_count(improving, depth);
+
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
-          // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
-
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
@@ -1684,11 +1684,8 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue >  beta + 256 ? 2 * bonus1 - stat_bonus(depth):            // larger bonus
-             bestValue >= beta       ? stat_bonus(depth) + (bonus1 - stat_bonus(depth)) * (bestValue - beta) / 128
-                                     : stat_bonus(depth);                         // smaller bonus
-
-    bonus2 = std::max(stat_bonus(depth), bonus2);
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+                                            : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
     {
