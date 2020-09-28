@@ -1684,10 +1684,8 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue >  beta + 256 ? bonus1 :            // larger bonus
-             bestValue >= beta       ? stat_bonus(depth) + (bonus1 - stat_bonus(depth)) * (bestValue - beta) / 128
-                                     : stat_bonus(depth);  // smaller bonus
-
+    bonus2 = bestValue > beta ? std::min(bonus1, stat_bonus(depth) + bestValue - beta) // larger bonus
+                              : stat_bonus(depth);                                     // smaller bonus
     bonus2 = std::max(stat_bonus(depth), bonus2);
 
     if (!pos.capture_or_promotion(bestMove))
