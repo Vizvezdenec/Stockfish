@@ -595,7 +595,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
-    bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
+    bool captureOrPromotion, doFullDepthSearch, moveCountPruning, captLMR,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
@@ -963,7 +963,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = captLMR = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -971,7 +971,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && !rootNode)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1007,14 +1007,16 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-      moveCountPruning = moveCount >= futility_move_count(improving, depth);
+      captLMR = moveCount >= futility_move_count(improving, depth);
 
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
+          // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
@@ -1150,7 +1152,7 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || moveCountPruning
+              || captLMR
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
