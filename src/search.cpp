@@ -1171,7 +1171,7 @@ moves_loop: // When in check, search starts from here
           if (ss->ttPv)
               r -= 2;
 
-          if (moveCountPruning && !formerPv)
+          if (captLMR && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
