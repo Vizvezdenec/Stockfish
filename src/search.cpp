@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           if (!ss->inCheck)
-              r -= (ss->staticEval + PieceValue[EG][pos.captured_piece()] - (alpha + beta) / 2) / 1024;
+              r -= (ss->staticEval + PieceValue[MG][pos.captured_piece()] - (alpha + beta) / 2) / 4096;
 
           if (!captureOrPromotion)
           {
