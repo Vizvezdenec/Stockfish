@@ -1180,6 +1180,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (!ss->inCheck)
+              r -= (ss->staticEval + PieceValue[EG][pos.captured_piece()] - (alpha + beta) / 2) / 1024;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
