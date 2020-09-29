@@ -1180,8 +1180,8 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (!ss->inCheck)
-              r -= (ss->staticEval + PieceValue[MG][pos.captured_piece()] - (alpha + beta) / 2) / 4096;
+          if (move != ttMove && extension && bestValue < alpha)
+              r--;
 
           if (!captureOrPromotion)
           {
