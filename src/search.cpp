@@ -942,8 +942,8 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && !ttMove)
-        depth -= depth / 4;
+        && depth >= 6)
+        depth -= !ttMove ? 2 : tte->depth() < 2 ? 1 : 0;
 
 moves_loop: // When in check, search starts from here
 
