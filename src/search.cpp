@@ -847,13 +847,7 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
-            {
-                if (!ss->ttHit)
-                    tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
-                            BOUND_LOWER,
-                            depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
-            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -950,7 +944,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
+        depth -= 2 + (depth > 12);
 
 moves_loop: // When in check, search starts from here
 
