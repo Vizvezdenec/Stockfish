@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (move != ttMove && extension && bestValue < alpha)
+          if (move != ttMove && !ttCapture && extension && bestValue < alpha)
               r--;
 
           if (!captureOrPromotion)
