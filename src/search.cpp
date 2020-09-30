@@ -824,6 +824,7 @@ namespace {
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
+        && !(pos.blockers_for_king(~us) && pos.non_pawn_material() < 2 * QueenValueMg)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1178,9 +1179,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
-
-          if (move != ttMove && !ttCapture && extension && bestValue < alpha)
               r--;
 
           if (!captureOrPromotion)
