@@ -824,7 +824,6 @@ namespace {
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && !(pos.blockers_for_king(us) && pos.non_pawn_material() < 2 * QueenValueMg)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -848,7 +847,13 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                if (!ss->ttHit)
+                    tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
