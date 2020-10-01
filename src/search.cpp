@@ -1203,6 +1203,8 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
 
+              if (!ss->inCheck)
+                  ss->statScore += ss->staticEval;
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -106 && (ss-1)->statScore < -104)
                   r--;
@@ -1756,7 +1758,7 @@ moves_loop: // When in check, search starts from here
     }
 
     if (depth > 11 && ss->ply < MAX_LPH)
-        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7 + 2 * (ss->ply == 0));
+        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
