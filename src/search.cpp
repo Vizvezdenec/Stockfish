@@ -873,6 +873,7 @@ namespace {
     if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
+        && (eval >= ss->staticEval || eval >= beta)
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
         // because probCut search has depth set to depth - 4 but we also do a move before it
@@ -1128,24 +1129,6 @@ moves_loop: // When in check, search starts from here
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
-
-      if (depth >= 7
-           && PvNode
-           &&  move == ttMove
-           && !rootNode
-           && (tte->bound() & BOUND_EXACT)
-           && ttValue >= beta + 18 * depth
-           &&  abs(ttValue) < VALUE_KNOWN_WIN
-           &&  tte->depth() >= depth - 3)
-      {
-          ss->excludedMove = move;
-          value = search<PV>(pos, ss, alpha, beta, depth / 2, false);
-          ss->excludedMove = MOVE_NONE;
-          if (value >= beta)
-              return beta;
-          else if (value <= alpha)
-              extension = 1;
-      }
 
       // Add extension to new depth
       newDepth += extension;
