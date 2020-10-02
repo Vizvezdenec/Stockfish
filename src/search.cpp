@@ -644,7 +644,6 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-    ss->failedNmp = false;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -820,7 +819,6 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22977
-        && !(!improving && (ss-2)->failedNmp)
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
@@ -865,7 +863,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else ss->failedNmp = true;
     }
 
     probCutBeta = beta + 176 - 49 * improving;
@@ -1219,7 +1216,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction for captures/promotions if late move and at low depth
-              if (depth < 8 && moveCount > 2)
+              if (depth < 8 && moveCount > 2 - (ss->ttHit && !ttCapture))
                   r++;
 
               // Unless giving check, this capture is likely bad
