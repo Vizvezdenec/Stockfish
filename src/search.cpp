@@ -787,10 +787,6 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-
-        if (eval == ss->staticEval && pos.rule50_count() > 25 && thisThread->ttHitAverage > TtHitAverageResolution * TtHitAverageWindow / 2)
-            eval = ss->staticEval = evaluate(pos);
-            
     }
     else
     {
@@ -1132,6 +1128,24 @@ moves_loop: // When in check, search starts from here
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
           extension = 2;
+
+      if (depth >= 7
+           && PvNode
+           &&  move == ttMove
+           && !rootNode
+           && (tte->bound() & BOUND_EXACT)
+           && ttValue >= beta + 12 * depth
+           &&  abs(ttValue) < VALUE_KNOWN_WIN
+           &&  tte->depth() >= depth - 3)
+      {
+          ss->excludedMove = move;
+          value = search<PV>(pos, ss, alpha, beta, depth / 2, false);
+          ss->excludedMove = MOVE_NONE;
+          if (value >= beta)
+              return beta;
+          else if (value <= alpha)
+              extension = 1;
+      }
 
       // Add extension to new depth
       newDepth += extension;
