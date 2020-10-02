@@ -1203,6 +1203,9 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
 
+              if (!ss->inCheck)
+                  ss->statScore += 2 * ss->staticEval;
+
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -106 && (ss-1)->statScore < -104)
                   r--;
@@ -1216,7 +1219,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction for captures/promotions if late move and at low depth
-              if (depth < 8 && moveCount > 2 - (ss->ttHit && !ttCapture))
+              if (depth < 8 && moveCount > 2)
                   r++;
 
               // Unless giving check, this capture is likely bad
