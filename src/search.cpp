@@ -788,7 +788,7 @@ namespace {
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
 
-        if (eval == ss->staticEval && pos.rule50_count() > 25 && !(pos.this_thread()->nodes & 0xB))
+        if (eval == ss->staticEval && pos.rule50_count() > 25 && thisThread->ttHitAverage > TtHitAverageResolution * TtHitAverageWindow / 2)
             eval = ss->staticEval = evaluate(pos);
             
     }
