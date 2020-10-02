@@ -787,6 +787,10 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
+
+        if (eval == ss->staticEval && pos.rule50_count() > 25 && !(pos.this_thread()->nodes & 0xB))
+            eval = ss->staticEval = evaluate(pos);
+            
     }
     else
     {
@@ -1202,9 +1206,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
-
-              if (!ss->inCheck)
-                  ss->statScore += 2 * ss->staticEval;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -106 && (ss-1)->statScore < -104)
