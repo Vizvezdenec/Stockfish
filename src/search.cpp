@@ -1134,7 +1134,7 @@ moves_loop: // When in check, search starts from here
            &&  move == ttMove
            && !rootNode
            && (tte->bound() & BOUND_EXACT)
-           && ttValue >= beta + 12 * depth
+           && ttValue >= beta + 5 * depth
            &&  abs(ttValue) < VALUE_KNOWN_WIN
            &&  tte->depth() >= depth - 3)
       {
