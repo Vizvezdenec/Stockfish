@@ -811,12 +811,9 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) >= beta)
-    {
-        if (eval < VALUE_KNOWN_WIN)
-            return eval;
-        else return beta;
-    }
+        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
+        return eval;
 
     // Step 9. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1180,7 +1177,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
+          if (singularQuietLMR && bestMove == ttMove)
               r--;
 
           if (!captureOrPromotion)
