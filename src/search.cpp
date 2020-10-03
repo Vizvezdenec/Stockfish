@@ -599,6 +599,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    int captQ = 0;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -893,7 +894,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, (ss-1)->currentMove == MOVE_NULL);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -960,8 +961,7 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      ss->ply,
-                                      (ss-1)->currentMove == MOVE_NULL);
+                                      ss->ply);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
@@ -1187,6 +1187,8 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
+              r += captQ / 2;
+
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1323,7 +1325,10 @@ moves_loop: // When in check, search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
                   alpha = value;
+                  captQ += 2 * captureOrPromotion - 1;
+              }
               else
               {
                   assert(value >= beta); // Fail high
@@ -1507,7 +1512,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      to_sq((ss-1)->currentMove), (ss-1)->currentMove == MOVE_NULL);
+                                      to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
