@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttValue >= beta)
+          else if (ttValue >= beta && !formerPv)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
@@ -1223,9 +1223,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                   r++;
-
-              if (!cutNode && !PvNode)
-                  r--;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
