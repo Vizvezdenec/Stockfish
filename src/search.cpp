@@ -1225,7 +1225,7 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                   r++;
 
-              r -= (captQ > 0);
+              r += (captQ > 1);
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
