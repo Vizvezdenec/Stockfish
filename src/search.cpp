@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR && bestMove == ttMove)
+          if (singularQuietLMR)
               r--;
 
           if (!captureOrPromotion)
@@ -1223,6 +1223,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                   r++;
+
+              if (!cutNode && !PvNode)
+                  r--;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
