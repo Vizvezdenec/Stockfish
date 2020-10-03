@@ -1187,8 +1187,6 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              r += captQ / 4;
-
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1226,6 +1224,8 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                   r++;
+
+              r -= captQ / 2;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
