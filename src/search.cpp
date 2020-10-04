@@ -71,9 +71,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn) {
+  Depth reduction(bool i, Depth d, int mn, bool j) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 509) / 1024 + (!i && r > 894);
+    return (r + 509) / 1024 + (!i && r > 894 - j * 500);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -594,7 +594,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
-    bool formerPv, givesCheck, improving, didLMR, priorCapture;
+    bool formerPv, givesCheck, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
@@ -770,7 +770,7 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        ss->improving = false;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -804,14 +804,14 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    improving =  (ss-2)->staticEval == VALUE_NONE
+    ss->improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, ss->improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -821,7 +821,7 @@ namespace {
         && (ss-1)->statScore < 22977
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
+        &&  ss->staticEval >= beta - 30 * depth - 28 * ss->improving + 84 * ss->ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -865,7 +865,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 176 - 49 * improving;
+    probCutBeta = beta + 176 - 49 * ss->improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1013,10 +1013,10 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(ss->improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(ss->improving, depth, moveCount, (ss-1)->improving), 0);
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts from here
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttValue >= beta && !formerPv)
+          else if (ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(ss->improving, depth, moveCount, (ss-1)->improving);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 509 * TtHitAverageResolution * TtHitAverageWindow / 1024)
