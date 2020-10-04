@@ -70,15 +70,9 @@ namespace {
 
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
-  int Reductions2[MAX_MOVES];
 
   Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 509) / 1024 + (!i && r > 894);
-  }
-
-  Depth reduction2(bool i, Depth d, int mn) {
-    int r = Reductions2[d] * Reductions2[mn];
     return (r + 509) / 1024 + (!i && r > 894);
   }
 
@@ -199,9 +193,6 @@ void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
       Reductions[i] = int((22.0 + 2 * std::log(Threads.size())) * std::log(i + 0.25 * std::log(i)));
-
-  for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions2[i] = int((22.0 + 8 * std::log(Threads.size())) * std::log(i + 0.25 * std::log(i)));
 }
 
 
@@ -1027,8 +1018,6 @@ moves_loop: // When in check, search starts from here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
-              int lmrDepth2 = std::max(newDepth - reduction2(improving, depth, moveCount), 0);
-
           if (   !captureOrPromotion
               && !givesCheck)
           {
@@ -1056,7 +1045,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth2 < 1
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
