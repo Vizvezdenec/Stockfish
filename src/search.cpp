@@ -1231,9 +1231,6 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          if (d == newDepth && value > alpha && !captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(depth));
-
           didLMR = true;
       }
       else
@@ -1365,7 +1362,7 @@ moves_loop: // When in check, search starts from here
                    :     ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     else if (bestMove)
-        update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
+        update_all_stats(pos, ss, bestMove, (singularQuietLMR && bestMove == ttMove) ? beta + KnightValueMg : bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
