@@ -85,6 +85,10 @@ namespace {
     return d > 13 ? 29 : 17 * d * d + 134 * d - 134;
   }
 
+  int stat_bonus_c(Depth d) {
+    return d > 13 ? 0 : 20 * d * d + 161 * d - 161;
+  }
+
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -1677,7 +1681,7 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
-    bonus3 = bonus2 == bonus1 ? (stat_bonus(depth + 2) + bonus1) / 2 : bonus1;
+    bonus3 = stat_bonus_c(depth);
 
     if (!pos.capture_or_promotion(bestMove))
     {
