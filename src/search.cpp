@@ -86,7 +86,7 @@ namespace {
   }
 
   int stat_bonus_c(Depth d) {
-    return d > 13 ? 0 : 20 * d * d + 161 * d - 161;
+    return d > 13 ? 0 : 23 * d * d + 188 * d - 188;
   }
 
   // Add a small random component to draw evaluations to avoid 3fold-blindness
