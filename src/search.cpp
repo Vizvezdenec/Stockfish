@@ -1681,7 +1681,7 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
-    bonus3 = stat_bonus_c(depth);
+    bonus3 = stat_bonus_c(depth + 1);
 
     if (!pos.capture_or_promotion(bestMove))
     {
