@@ -711,6 +711,22 @@ namespace {
             return ttValue;
     }
 
+    if (    PvNode 
+         && ss->ttHit
+         && tte->depth() >= depth
+         && ttValue != VALUE_NONE
+         && ttMove)
+    {
+        if (ttValue >= beta && (tte->bound() & BOUND_LOWER) && !pos.capture_or_promotion(ttMove))
+            update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
+        else if (ttValue <= alpha && (tte->bound() & BOUND_UPPER) && !pos.capture_or_promotion(ttMove))
+        {
+            int penalty = -stat_bonus(depth);
+            thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+        }      
+    }
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
