@@ -663,8 +663,6 @@ namespace {
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
     formerPv = ss->ttPv && !PvNode;
@@ -693,7 +691,7 @@ namespace {
         {
             if (ttValue >= beta)
             {
-                if (!ttCapture)
+                if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -701,7 +699,7 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else if (!ttCapture)
+            else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
@@ -712,6 +710,27 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
+
+    if (    PvNode 
+         && ss->ttHit
+         && tte->depth() >= depth
+         && ttValue != VALUE_NONE
+         && ttMove)
+    {
+        if (ttValue >= beta && (tte->bound() & BOUND_LOWER) && !pos.capture_or_promotion(ttMove))
+        {
+            int bonus = stat_bonus(depth);
+            thisThread->mainHistory[us][from_to(ttMove)] << bonus;
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), bonus);
+        }      
+        else if (ttValue <= alpha && (tte->bound() & BOUND_UPPER) && !pos.capture_or_promotion(ttMove))
+        {
+            int penalty = -stat_bonus(depth);
+            thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+        }      
+    }
+
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
@@ -966,6 +985,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
