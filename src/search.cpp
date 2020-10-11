@@ -949,7 +949,7 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     if (   !PvNode
-        &&  depth < 3
+        &&  depth < 5
         &&  ss->inCheck
         &&  ss->ttHit
         &&  (tte->bound() & BOUND_LOWER)
