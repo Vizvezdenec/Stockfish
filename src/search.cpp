@@ -811,7 +811,7 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving && !formerPv) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -947,15 +947,6 @@ namespace {
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
-
-    if (   !PvNode
-        &&  depth < 5
-        &&  ss->inCheck
-        &&  ss->ttHit
-        &&  (tte->bound() & BOUND_LOWER)
-        &&  ttValue - futility_margin(depth, improving) >= beta
-        &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return ttValue;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
