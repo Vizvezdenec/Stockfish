@@ -804,6 +804,10 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
+    if (   !rootNode && depth == 1 && ttMove && pos.capture(ttMove)
+        && ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(ttMove)))] < alpha)
+        return alpha;
+
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
@@ -964,8 +968,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove) 
-             && captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] > -6000;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
