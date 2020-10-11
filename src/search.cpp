@@ -804,10 +804,6 @@ namespace {
         &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
-    if (   !rootNode && depth == 1 && ttMove && pos.capture(ttMove)
-        && ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(ttMove)))] < alpha)
-        return alpha;
-
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
@@ -1026,7 +1022,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + (thisThread->rootDepth > 14)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
