@@ -810,7 +810,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8 - formerPv
+        &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -964,7 +964,9 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove)
+            && (captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] 
+              + 6 * PieceValue[MG][type_of(pos.piece_on(to_sq(ttMove)))] > 0);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
