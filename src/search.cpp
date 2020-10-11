@@ -711,27 +711,6 @@ namespace {
             return ttValue;
     }
 
-    if (    PvNode 
-         && ss->ttHit
-         && tte->depth() >= depth
-         && ttValue != VALUE_NONE
-         && ttMove)
-    {
-        if (ttValue >= beta && (tte->bound() & BOUND_LOWER) && !pos.capture_or_promotion(ttMove))
-        {
-            int bonus = stat_bonus(depth);
-            thisThread->mainHistory[us][from_to(ttMove)] << bonus;
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), bonus);
-        }      
-        else if (ttValue <= alpha && (tte->bound() & BOUND_UPPER) && !pos.capture_or_promotion(ttMove))
-        {
-            int penalty = -stat_bonus(depth);
-            thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-        }      
-    }
-
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -968,6 +947,15 @@ namespace {
         depth -= 2;
 
 moves_loop: // When in check, search starts from here
+
+    if (   !PvNode
+        &&  depth < 3
+        &&  ss->inCheck
+        &&  ss->ttHit
+        &&  (tte->bound() & BOUND_LOWER)
+        &&  ttValue - futility_margin(depth, improving) >= beta
+        &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
+        return ttValue;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
