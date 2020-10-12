@@ -965,6 +965,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    int ttPiece = PieceValue[MG][type_of(pos.piece_on(to_sq(ttMove)))];
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1096,7 +1097,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2 - (tte->depth() > depth), cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1213,6 +1214,9 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
+                  r++;
+
+              if (ttCapture && ttPiece > PieceValue[MG][pos.captured_piece()])
                   r++;
           }
 
