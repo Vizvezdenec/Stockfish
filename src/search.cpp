@@ -964,7 +964,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove) && (type_of(pos.moved_piece(ttMove)) != PAWN || type_of(pos.piece_on(to_sq(ttMove))) != PAWN);
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2 - (tte->depth() > depth);
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
