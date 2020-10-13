@@ -836,7 +836,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, failedHighCnt, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, 0, !cutNode);
 
         pos.undo_null_move();
 
@@ -856,7 +856,7 @@ namespace {
             thisThread->nmpMinPly = ss->ply + 3 * (depth-R) / 4;
             thisThread->nmpColor = us;
 
-            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, failedHighCnt, false);
+            Value v = search<NonPV>(pos, ss, beta-1, beta, depth-R, 0, false);
 
             thisThread->nmpMinPly = 0;
 
@@ -921,7 +921,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, failedHighCnt, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, 0, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, failedHighCnt, cutNode);
+          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, 0, cutNode);
           ss->excludedMove = MOVE_NONE;
 
           if (value < singularBeta)
@@ -1096,7 +1096,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, failedHighCnt, cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, 0, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, failedHighCnt, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, 0, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
@@ -1237,7 +1237,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, failedHighCnt, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, 0, !cutNode);
 
           if (didLMR && !captureOrPromotion)
           {
@@ -1259,7 +1259,7 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, failedHighCnt, false);
+          value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, 0, false);
       }
 
       // Step 18. Undo move
