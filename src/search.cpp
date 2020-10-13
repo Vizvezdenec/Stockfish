@@ -1171,13 +1171,13 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          r += failedHighCnt * moveCount / 16;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
+
+              r += failedHighCnt * moveCount / 16;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
