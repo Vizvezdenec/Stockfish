@@ -1049,6 +1049,13 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   !captureOrPromotion
+                  && lmrDepth < 1 
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && ss->staticEval + 400 < alpha)
+                  continue;
+
               // See based pruning
               if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
                   continue;
@@ -1184,9 +1191,9 @@ moves_loop: // When in check, search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~2 Elo)
-              if (    (!cutNode || depth > 9) && type_of(move) == NORMAL
+              else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN) - cutNode;
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
