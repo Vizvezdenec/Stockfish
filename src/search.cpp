@@ -1052,8 +1052,7 @@ moves_loop: // When in check, search starts from here
               if (   !captureOrPromotion
                   && lmrDepth < 1 
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && ss->staticEval + 400 < alpha)
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // See based pruning
