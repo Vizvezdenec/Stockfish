@@ -1171,7 +1171,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          r += failedHighCnt * moveCount / 64;
+          r += failedHighCnt * moveCount / 32;
 
           if (!captureOrPromotion)
           {
