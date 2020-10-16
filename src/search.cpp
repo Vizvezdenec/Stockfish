@@ -1178,7 +1178,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               if (!givesCheck) 
-                  r += failedHighCnt * moveCount / 128;
+                  r += failedHighCnt * moveCount / 64;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
