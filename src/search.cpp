@@ -771,6 +771,8 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        if (ss->ttHit && ttValue <= alpha && (tte->bound() & BOUND_UPPER))
+            ss->staticEval = ttValue;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -800,8 +802,8 @@ namespace {
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
-        &&  depth < 3
-        &&  eval <= alpha - RazorMargin * depth * depth)
+        &&  depth == 1
+        &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     improving =  (ss-2)->staticEval == VALUE_NONE
