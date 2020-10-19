@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
-              r += PvNode && !rootNode && thisThread->rootColor == us ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256 : 0;
+              r += PvNode && !rootNode && thisThread->rootColor == us && thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount > 128 * ss->ply;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
