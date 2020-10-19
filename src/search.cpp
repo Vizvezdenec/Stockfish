@@ -418,7 +418,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           failedHighCnt = 0;
-          ss->bestCaptCount = 0;
+          ss->previousBeta = beta;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -459,6 +459,7 @@ void Thread::search() {
               }
               else if (bestValue >= beta)
               {
+                  ss->previousBeta = beta;
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
               }
@@ -1179,7 +1180,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Increase reduction at root if failing high
-              r += rootNode ? ((ss->bestCaptCount == thisThread->failedHighCnt) + 1) * thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
+              r += rootNode ? (1 + (bestValue > ss->previousBeta)) * thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1322,7 +1323,6 @@ moves_loop: // When in check, search starts from here
               {
                   assert(value >= beta); // Fail high
                   ss->statScore = 0;
-                  ss->bestCaptCount += captureOrPromotion;
                   break;
               }
           }
