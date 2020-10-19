@@ -418,6 +418,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           failedHighCnt = 0;
+          rootColor = us;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -1179,6 +1180,8 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
+
+              r += PvNode && !rootNode && thisThread->rootColor == us ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
