@@ -822,7 +822,7 @@ namespace {
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182 
-                            - !priorCapture * thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] / 256
+                            - !priorCapture * thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] / 128
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
