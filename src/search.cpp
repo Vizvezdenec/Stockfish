@@ -821,19 +821,16 @@ namespace {
         && (ss-1)->statScore < 22977
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
+        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182 
+                            - !priorCapture * thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] / 256
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
 
-        int statComp = priorCapture ? 0 
-                     : thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] > 0 ? 1 
-                     : thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] < 0 ? -1 
-                     : 0;
         // Null move dynamic reduction based on depth and value
-        Depth R = (982 + 85 * depth) / 256 + std::min(int(eval - beta) / 192, 3 + statComp);
+        Depth R = (982 + 85 * depth) / 256 + std::min(int(eval - beta) / 192, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
