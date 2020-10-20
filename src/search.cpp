@@ -819,10 +819,10 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22977
+        && (priorCapture || thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] > -9000 || (ss-1)->statScore < 0)
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182 
-                            - !priorCapture * thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] / 512
+        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 182
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
