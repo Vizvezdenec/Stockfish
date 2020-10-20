@@ -897,6 +897,7 @@ namespace {
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
+        Move probcutMoves[4];
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
@@ -905,6 +906,7 @@ namespace {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
 
+                probcutMoves[probCutCount] = move;
                 captureOrPromotion = true;
                 probCutCount++;
 
@@ -935,6 +937,9 @@ namespace {
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
                     captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
+                    for (int i = probCutCount - 1; i > 0; --i)
+                        captureHistory[pos.moved_piece(probcutMoves[i])][to_sq(probcutMoves[i])][type_of(pos.piece_on(to_sq(probcutMoves[i])))] 
+                                     << - stat_bonus(depth - 3);
                     return value;
                 }
             }
