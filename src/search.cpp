@@ -828,7 +828,8 @@ namespace {
     {
         assert(eval - beta >= 0);
 
-        int statComp = thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] > 0 ? 1 
+        int statComp = priorCapture ? 0 
+                     : thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] > 0 ? 1 
                      : thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] < 0 ? -1 
                      : 0;
         // Null move dynamic reduction based on depth and value
