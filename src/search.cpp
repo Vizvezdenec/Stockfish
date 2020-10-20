@@ -828,8 +828,11 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        int statComp = thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] > 0 ? 1 
+                     : thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] < 0 ? -1 
+                     : 0;
         // Null move dynamic reduction based on depth and value
-        Depth R = (982 + 85 * depth) / 256 + std::min(int(eval - beta) / 192, 3);
+        Depth R = (982 + 85 * depth) / 256 + std::min(int(eval - beta) / 192, 3 + statComp);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -847,7 +850,11 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 13))
+            {
+                if (!priorCapture)
+                    thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -861,8 +868,13 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
+            {
+                if (!priorCapture)
+                    thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth);
                 return nullValue;
+            }
         }
+        thisThread->nmpHistory[~us][from_to((ss-1)->currentMove)] << -stat_bonus(depth);
     }
 
     probCutBeta = beta + 176 - 49 * improving;
