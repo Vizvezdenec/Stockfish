@@ -587,7 +587,7 @@ namespace {
     assert(0 < depth && depth < MAX_PLY);
     assert(!(PvNode && cutNode));
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64], capturesSearchedPc[4];
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -934,8 +934,12 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    update_all_stats(pos, ss, move, beta, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearchedPc, probCutCount - 1, depth - 3);
                     return value;
                 }
+
+                capturesSearchedPc[probCutCount - 1] = move;
             }
          ss->ttPv = ttPv;
     }
@@ -1169,7 +1173,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + (PvNode && captureOrPromotion && bestValue < alpha);
+              r--;
 
           if (!captureOrPromotion)
           {
