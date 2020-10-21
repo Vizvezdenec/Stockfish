@@ -906,11 +906,10 @@ namespace {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
 
-                captureOrPromotion = true;
-                probCutCount++;
-
                 if (!improving && move == (ss-2)->probcutMove)
                     continue;
+                captureOrPromotion = true;
+                probCutCount++;
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
