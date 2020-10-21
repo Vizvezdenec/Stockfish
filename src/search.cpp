@@ -608,7 +608,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->probcutMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -906,8 +905,6 @@ namespace {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
 
-                if (!improving && move == (ss-2)->probcutMove)
-                    continue;
                 captureOrPromotion = true;
                 probCutCount++;
 
@@ -939,8 +936,6 @@ namespace {
                             depth - 3, move, ss->staticEval);
                     return value;
                 }
-                if (probCutCount == 1)
-                    ss->probcutMove = move;
             }
          ss->ttPv = ttPv;
     }
@@ -1174,7 +1169,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 1 + (PvNode && bestValue < alpha);
 
           if (!captureOrPromotion)
           {
