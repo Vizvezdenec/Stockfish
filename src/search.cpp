@@ -1207,7 +1207,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              r -= thisThread->lmrHistory[us][from_to(move)] / 10692;
+              r -= thisThread->lmrHistory[us][from_to(move)] / 8192;
           }
           else
           {
@@ -1227,7 +1227,7 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion)
           {
-              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              int bonus = value > alpha ? stat_bonus(d) / 64 : -stat_bonus(d) / 64;
               thisThread->lmrHistory[us][from_to(move)] << bonus;
           }
 
