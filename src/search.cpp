@@ -1207,7 +1207,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              r -= thisThread->lmrHistory[us][from_to(move)] / 8192;
+              r -= thisThread->lmrHistory[us][from_to(move)] / 10692;
           }
           else
           {
