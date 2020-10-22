@@ -587,7 +587,7 @@ namespace {
     assert(0 < depth && depth < MAX_PLY);
     assert(!(PvNode && cutNode));
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64], capturesSearchedPc[4];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     TTEntry* tte;
     Key posKey;
@@ -934,12 +934,8 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    update_all_stats(pos, ss, move, beta, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearchedPc, probCutCount - 1, depth - 3);
                     return value;
                 }
-
-                capturesSearchedPc[probCutCount - 1] = move;
             }
          ss->ttPv = ttPv;
     }
@@ -1210,6 +1206,8 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              r -= thisThread->lmrHistory[us][from_to(move)] / 8192;
           }
           else
           {
@@ -1226,6 +1224,12 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              thisThread->lmrHistory[us][from_to(move)] << bonus;
+          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 

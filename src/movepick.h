@@ -143,6 +143,7 @@ private:
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
+  const ButterflyHistory* lmrHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
