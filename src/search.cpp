@@ -1230,7 +1230,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion && !givesCheck && depth > 9)
           { 
 
-              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d - 9);
+              int bonus = value > alpha ? stat_bonus(d - 9) : -stat_bonus(d - 9);
               thisThread->lmrHistory[us][from_to(move)] << bonus;
           }
 
