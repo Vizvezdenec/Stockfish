@@ -1207,8 +1207,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              r -= thisThread->lmrHistory[us][newDepth][from_to(move)] / 8192;
           }
           else
           {
@@ -1224,12 +1222,14 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
+          d -= d > 1 && thisThread->lmrHistory[us][d][from_to(move)] < -8192;
+
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           if (!captureOrPromotion)
           {
               int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
-              thisThread->lmrHistory[us][newDepth][from_to(move)] << bonus;
+              thisThread->lmrHistory[us][d][from_to(move)] << bonus;
           }
 
           doFullDepthSearch = value > alpha && d != newDepth;
