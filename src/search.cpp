@@ -1184,7 +1184,7 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
-              r += rootNode && bestValue >= alpha ? thisThread->failedLowCnt * thisThread->failedLowCnt * moveCount / 512 : 0;
+              r += rootNode && bestValue < alpha ? thisThread->failedLowCnt * thisThread->failedLowCnt * moveCount / 512 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
