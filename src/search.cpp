@@ -1209,7 +1209,12 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 14884;
 
               if (!givesCheck)
-                  r -= thisThread->lmrHistory[us][from_to(move)] / 8192;
+              {
+                  if (thisThread->lmrHistory[us][from_to(move)] == -10692)
+                      r++;
+                  else if (thisThread->lmrHistory[us][from_to(move)] > 0)
+                      r--;
+              }
           }
           else
           {
