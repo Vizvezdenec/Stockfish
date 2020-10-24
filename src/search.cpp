@@ -1208,7 +1208,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              if (!givesCheck && rootNode)
+              if (!givesCheck)
               {
                   if (thisThread->lmrHistory[us][from_to(move)] == -10692)
                       r++;
