@@ -1212,7 +1212,7 @@ moves_loop: // When in check, search starts from here
               {
                   if (thisThread->lmrHistory[us][from_to(move)] == -10692)
                       r++;
-                  else if (thisThread->lmrHistory[us][from_to(move)] >= 0)
+                  else if (thisThread->lmrHistory[us][from_to(move)] > 0)
                       r--;
               }
           }
@@ -1242,11 +1242,7 @@ moves_loop: // When in check, search starts from here
                   else bonus = stat_bonus(d);
               }
               else 
-              {
-                  if (thisThread->lmrHistory[us][from_to(move)] > stat_bonus(d))
-                      bonus = -thisThread->lmrHistory[us][from_to(move)];
-                  else bonus = -stat_bonus(d);
-              }
+                  bonus = -stat_bonus(d);
               thisThread->lmrHistory[us][from_to(move)] << bonus;
           }
 
