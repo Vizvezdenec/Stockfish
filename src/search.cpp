@@ -1212,7 +1212,7 @@ moves_loop: // When in check, search starts from here
               {
                   if (thisThread->lmrHistory[us][from_to(move)] == -10692)
                       r++;
-                  else if (thisThread->lmrHistory[us][from_to(move)] > 0)
+                  else if (thisThread->lmrHistory[us][from_to(move)] >= 0)
                       r--;
               }
           }
