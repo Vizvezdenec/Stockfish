@@ -1178,13 +1178,11 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !(rootNode && thisThread->failedLowCnt > 0))
                   r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
-
-              r += rootNode ? thisThread->failedLowCnt * thisThread->failedLowCnt * moveCount / 256 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
