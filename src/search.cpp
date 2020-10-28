@@ -1182,7 +1182,7 @@ moves_loop: // When in check, search starts from here
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
               if (cutNode)
-                  r-= thisThread->lmrHistory[us][from_to(move)] / 3564;
+                  r-= thisThread->lmrHistory[us][from_to(move)] / 2048;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
