@@ -600,6 +600,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    ss->rootK = MOVE_NONE;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1172,6 +1173,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (move == (ss-2)->rootK)
+              r--;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1312,6 +1316,8 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
+              if (rootNode && bestValue >= alpha)
+                  ss->rootK = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
