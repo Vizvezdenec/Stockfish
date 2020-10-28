@@ -1145,8 +1145,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || (rootNode && thisThread->failedHighCnt * moveCount > 80)))
+              || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1182,9 +1181,8 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
-              // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2;
+                  r-= thisThread->lmrHistory[us][from_to(move)] / 4096;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -1224,6 +1222,12 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!captureOrPromotion && cutNode)
+          {
+              int bonus = value > alpha ? stat_bonus(depth) : - stat_bonus(depth);
+              thisThread->lmrHistory[us][from_to(move)] << bonus;
+          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
