@@ -600,7 +600,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    ss->rootK = MOVE_NONE;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1071,7 +1070,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3)
+          &&  tte->depth() >= depth - 3 - (ttValue > 200 + beta))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
@@ -1171,9 +1170,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
-
-          if (move == (ss-2)->rootK)
               r--;
 
           if (!captureOrPromotion)
@@ -1316,8 +1312,6 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (rootNode && bestValue >= alpha)
-                  ss->rootK = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
