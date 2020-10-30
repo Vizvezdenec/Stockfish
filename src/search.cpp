@@ -63,7 +63,7 @@ namespace {
   constexpr uint64_t TtHitAverageResolution = 1024;
 
   // Razor and futility margins
-  constexpr int RazorMargin = 510;
+  constexpr int RazorMargin = 480;
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
   }
@@ -799,15 +799,15 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    // Step 7. Razoring (~1 Elo)
-    if (   !rootNode // The required rootNode PV handling is not available in qsearch
-        &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
-        return qsearch<NT>(pos, ss, alpha, beta);
-
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
+
+    // Step 7. Razoring (~1 Elo)
+    if (   !rootNode // The required rootNode PV handling is not available in qsearch
+        &&  depth == 1
+        &&  eval <= alpha - RazorMargin - 100 * improving)
+        return qsearch<NT>(pos, ss, alpha, beta);
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -944,7 +944,6 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !improving
         && !ttMove)
         depth -= 2;
 
