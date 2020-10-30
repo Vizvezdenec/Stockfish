@@ -944,6 +944,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
+        && !improving
         && !ttMove)
         depth -= 2;
 
@@ -1051,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // See based pruning
-              if (!pos.see_ge(move, Value(-201 - 40 * improving) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-221) * depth)) // (~25 Elo)
                   continue;
           }
       }
