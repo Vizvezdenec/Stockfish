@@ -693,7 +693,7 @@ namespace {
             if (ttValue >= beta)
             {
                 if (!pos.capture_or_promotion(ttMove))
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth + (ttValue > beta + PawnValueMg)), depth + (ttValue > beta + PawnValueMg));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -945,7 +945,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
+        depth -= 2 - improving;
 
 moves_loop: // When in check, search starts from here
 
