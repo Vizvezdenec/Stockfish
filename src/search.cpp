@@ -63,7 +63,7 @@ namespace {
   constexpr uint64_t TtHitAverageResolution = 1024;
 
   // Razor and futility margins
-  constexpr int RazorMargin = 470;
+  constexpr int RazorMargin = 490;
   Value futility_margin(Depth d, bool improving) {
     return Value(223 * (d - improving));
   }
