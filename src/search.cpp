@@ -1701,7 +1701,7 @@ moves_loop: // When in check, search starts from here
     else
     {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        int penalty = -stat_bonus(depth) / 4;
+        int penalty = -stat_bonus(depth + (bestValue > beta + PieceValue[MG][captured])) / 4;
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << penalty;
