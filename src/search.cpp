@@ -1023,7 +1023,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1) + (ss->ply > 10 + thisThread->rootDepth)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1523,7 +1523,8 @@ moves_loop: // When in check, search starts from here
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
           // moveCount pruning
-          if (moveCount > 2)
+          if (moveCount > 2 - (captureOrPromotion && 
+                               thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0))
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
