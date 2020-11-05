@@ -1119,7 +1119,7 @@ moves_loop: // When in check, search starts from here
       if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 2;
+          extension = 2 + (ttValue > beta);
 
       // Add extension to new depth
       newDepth += extension;
@@ -1523,8 +1523,7 @@ moves_loop: // When in check, search starts from here
           assert(type_of(move) != ENPASSANT); // Due to !pos.advanced_pawn_push
 
           // moveCount pruning
-          if (moveCount > 2 - (captureOrPromotion && 
-                               thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0))
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
