@@ -418,6 +418,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           failedHighCnt = 0;
+          failedLowCnt = 0;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -453,12 +454,14 @@ void Thread::search() {
                   alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
                   failedHighCnt = 0;
+                  ++failedLowCnt;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
               }
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
+                  failedLowCnt = 0;
                   ++failedHighCnt;
               }
               else
@@ -808,6 +811,9 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
+
+    if (rootNode && thisThread->failedLowCnt > 0 && improving && beta < (ss-2)->staticEval - PawnValueMg)
+        improving = false;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1180,8 +1186,6 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
-
-              r += PvNode && ss->ply == 1 ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
