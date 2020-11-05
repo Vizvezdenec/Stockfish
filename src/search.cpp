@@ -812,7 +812,7 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (rootNode && thisThread->failedLowCnt > 0 && improving && !(ss-2)->inCheck && beta < (ss-2)->staticEval)
+    if (rootNode && thisThread->failedLowCnt > 2)
         improving = false;
 
     // Step 8. Futility pruning: child node (~50 Elo)
