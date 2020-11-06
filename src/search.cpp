@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts from here
 
           // Reduction if other threads are searching this position
           if (th.marked())
-              r += 1 + (bestValue < alpha);
+              r++;
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ss->ttPv)
@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + (bestMove == ttMove && bestValue == alpha);
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
