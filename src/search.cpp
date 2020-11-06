@@ -1175,8 +1175,8 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
-                  r += 1 + (bestMove == ttMove && bestValue == alpha);
+              if (ttCapture && !(PvNode && abs(bestValue) < 2))
+                  r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
