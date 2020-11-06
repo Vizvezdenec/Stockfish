@@ -1119,7 +1119,7 @@ moves_loop: // When in check, search starts from here
       if (   move == ttMove
           && pos.rule50_count() > 80
           && (captureOrPromotion || type_of(movedPiece) == PAWN))
-          extension = 2 + 2 * (ttValue > beta);
+          extension = 2;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts from here
 
           // Reduction if other threads are searching this position
           if (th.marked())
-              r++;
+              r += 1 + (bestValue < alpha);
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ss->ttPv)
