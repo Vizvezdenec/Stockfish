@@ -1235,11 +1235,12 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           bool shortLmr = false;
+          int margin = PawnValueMg + 16 * depth;
 
-          if (d > 4 && !captureOrPromotion && !givesCheck && ss->staticEval < alpha - PawnValueMg)
+          if (d > 4 && !captureOrPromotion && !givesCheck && ss->staticEval < alpha - margin)
           {
-              value = -search<NonPV>(pos, ss+1, -(alpha - PawnValueMg + 1), -(alpha - PawnValueMg), d - 4, true);
-              shortLmr = value <= alpha - PawnValueMg;
+              value = -search<NonPV>(pos, ss+1, -(alpha - margin + 1), -(alpha - margin), d - 4, true);
+              shortLmr = value <= alpha - margin;
           }
 
           if (!shortLmr)
