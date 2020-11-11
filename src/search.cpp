@@ -961,7 +961,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][ss->inCheck];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1032,7 +1032,6 @@ moves_loop: // When in check, search starts from here
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && pos.non_pawn_material(~us)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1767,7 +1766,7 @@ moves_loop: // When in check, search starts from here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][ss->inCheck] = move;
     }
 
     if (depth > 11 && ss->ply < MAX_LPH)
