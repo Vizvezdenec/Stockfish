@@ -1148,7 +1148,7 @@ moves_loop: // When in check, search starts from here
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * (rootNode && thisThread->bestMoveChanges < depth - 3)
+          &&  moveCount > 1 + (2 - std::max(0, int(depth - thisThread->bestMoveChanges) / 8)) * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
