@@ -1707,7 +1707,7 @@ moves_loop: // When in check, search starts from here
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
+        thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
 
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1720,7 +1720,7 @@ moves_loop: // When in check, search starts from here
     {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (is_ok((ss-1)->currentMove))
-            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
+            thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
