@@ -962,7 +962,6 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-    Move counterCapture = thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1033,6 +1032,7 @@ moves_loop: // When in check, search starts from here
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+                  && pos.non_pawn_material(~us)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1150,7 +1150,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && move != counterCapture
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1707,8 +1706,6 @@ moves_loop: // When in check, search starts from here
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
-        thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
-
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
@@ -1717,11 +1714,7 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (is_ok((ss-1)->currentMove))
-            thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
-    }
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
