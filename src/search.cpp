@@ -962,6 +962,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move counterCapture = thisThread->counterCaptMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1149,6 +1150,7 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && move != counterCapture
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1234,17 +1236,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          bool shortLmr = false;
-          int margin = PawnValueMg + 16 * depth;
-
-          if (d > 4 && !captureOrPromotion && !givesCheck && ss->staticEval < alpha - margin)
-          {
-              value = -search<NonPV>(pos, ss+1, -(alpha - margin + 1), -(alpha - margin), d - 4, true);
-              shortLmr = value <= alpha - margin;
-          }
-
-          if (!shortLmr)
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
@@ -1715,6 +1707,8 @@ moves_loop: // When in check, search starts from here
     {
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
+
         // Decrease all the non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
@@ -1723,7 +1717,11 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (is_ok((ss-1)->currentMove))
+            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or main killer move in previous ply when it gets refuted
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
