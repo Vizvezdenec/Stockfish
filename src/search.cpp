@@ -974,6 +974,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool excludedCapture = excludedMove && pos.capture_or_promotion(excludedMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1188,6 +1189,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+
+              if (excludedCapture && !givesCheck && ss->staticEval < alpha - 30 * depth)
                   r++;
 
               // Increase reduction at root if failing high
