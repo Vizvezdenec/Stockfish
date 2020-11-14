@@ -518,7 +518,6 @@ void Thread::search() {
           {
               totBestMoveChanges += th->bestMoveChanges;
               th->bestMoveChanges = 0;
-              th->lastDepth = 0;
           }
           double bestMoveInstability = 1 + 2 * totBestMoveChanges / Threads.size();
 
@@ -1171,8 +1170,10 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && depth > 10 && thisThread->bestMoveChanges <= 2 + std::max(0, int(depth - thisThread->lastDepth - 6)))
+          if (rootNode && depth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
+
+          if (!PvNode && depth > 10 && thisThread->bestMoveChanges < std::max(3, depth / 4))
 
           if (moveCountPruning && !formerPv)
               r++;
@@ -1310,10 +1311,7 @@ moves_loop: // When in check, search starts from here
               // iteration. This information is used for time management: when
               // the best move changes frequently, we allocate some more time.
               if (moveCount > 1)
-              {
                   ++thisThread->bestMoveChanges;
-                  thisThread->lastDepth = depth;
-              }
           }
           else
               // All other moves but the PV are set to the lowest value: this

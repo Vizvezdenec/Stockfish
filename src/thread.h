@@ -61,7 +61,7 @@ public:
   uint64_t ttHitAverage;
   int selDepth, nmpMinPly;
   Color nmpColor;
-  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges, lastDepth;
+  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
 
   Position rootPos;
   StateInfo rootState;
