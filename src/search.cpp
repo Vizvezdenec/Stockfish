@@ -1191,11 +1191,11 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Increase reduction at root if failing high
-              r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
+              r += (rootNode || !PvNode) ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2 + (depth > 6 && thisThread->bestMoveChanges == 0);
+                  r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
