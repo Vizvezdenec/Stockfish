@@ -1190,8 +1190,12 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
+              // Increase reduction at root and non-PV nodes when the best move does not change frequently
+              if ((rootNode || !PvNode) && depth > 10 && thisThread->bestMoveChanges <= 2)
+                  r++;
+
               // Increase reduction at root if failing high
-              r += (rootNode || !PvNode) ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
+              r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
