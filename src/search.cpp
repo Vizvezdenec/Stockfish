@@ -1194,7 +1194,7 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
-              r += rootNode ? thisThread->bestCaptCnt * thisThread->bestCaptCnt / 8 : 0;
+              r += rootNode ? thisThread->bestCaptCnt * thisThread->bestCaptCnt * moveCount / 512 : 0;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
@@ -1339,7 +1339,7 @@ moves_loop: // When in check, search starts from here
                   assert(value >= beta); // Fail high
                   ss->statScore = 0;
                   if (rootNode)
-                      thisThread->bestCaptCnt++;
+                      thisThread->bestCaptCnt += 2 * captureOrPromotion - 1;
                   break;
               }
           }
