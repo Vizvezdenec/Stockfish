@@ -420,6 +420,7 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           failedHighCnt = 0;
+          failedLowCnt = 0;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -455,6 +456,7 @@ void Thread::search() {
                   alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
                   failedHighCnt = 0;
+                  ++failedLowCnt;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
               }
@@ -462,6 +464,7 @@ void Thread::search() {
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
+                  failedLowCnt = 0;
               }
               else
                   break;
@@ -1193,6 +1196,17 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
+              // Increase reduction for cut nodes (~10 Elo)
+              if (cutNode)
+                  r += 2;
+
+              // Decrease reduction for moves that escape a capture. Filter out
+              // castling moves, because they are coded as "king captures rook" and
+              // hence break make_move(). (~2 Elo)
+              else if (    type_of(move) == NORMAL
+                       && !pos.see_ge(reverse_move(move)))
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
+
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1208,17 +1222,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              // Increase reduction for cut nodes (~10 Elo)
-              if (cutNode)
-                  r += std::min(2, newDepth - r - 2);
-
-              // Decrease reduction for moves that escape a capture. Filter out
-              // castling moves, because they are coded as "king captures rook" and
-              // hence break make_move(). (~2 Elo)
-              else if (    type_of(move) == NORMAL
-                       && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
           }
           else
           {
@@ -1230,6 +1233,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 213 * depth <= alpha)
                   r++;
+
+              if (rootNode)
+                  r-= thisThread->failedLowCnt * thisThread->failedLowCnt * moveCount / 512;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
