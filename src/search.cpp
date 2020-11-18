@@ -1153,12 +1153,12 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || thisThread->ttHitAverage < 457 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 427 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 539 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+          if (thisThread->ttHitAverage > 509 * TtHitAverageResolution * TtHitAverageWindow / 1024)
               r--;
 
           // Increase reduction if other threads are searching this position
@@ -1193,17 +1193,6 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
-              // Increase reduction for cut nodes (~10 Elo)
-              if (cutNode)
-                  r += 2;
-
-              // Decrease reduction for moves that escape a capture. Filter out
-              // castling moves, because they are coded as "king captures rook" and
-              // hence break make_move(). (~2 Elo)
-              else if (    type_of(move) == NORMAL
-                       && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
-
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1219,6 +1208,17 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              // Increase reduction for cut nodes (~10 Elo)
+              if (cutNode)
+                  r += std::min(2, newDepth - r - 2);
+
+              // Decrease reduction for moves that escape a capture. Filter out
+              // castling moves, because they are coded as "king captures rook" and
+              // hence break make_move(). (~2 Elo)
+              else if (    type_of(move) == NORMAL
+                       && !pos.see_ge(reverse_move(move)))
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
           }
           else
           {
