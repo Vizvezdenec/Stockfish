@@ -84,7 +84,7 @@ enum StatsType { NoCaptures, Captures };
 /// unsuccessful during the current search, and is used for reduction and move
 /// ordering decisions. It uses 2 tables (one for each color) indexed by
 /// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
-typedef Stats<int16_t, 10692, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
+typedef Stats<int16_t, 10692, COLOR_NB, 2, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
 
 /// At higher depths LowPlyHistory records successful quiet moves near the root
 /// and quiet moves which are/were in the PV (ttPv). It is cleared with each new
@@ -125,14 +125,16 @@ public:
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square);
+                                           Square,
+                                           bool);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
                                            const Move*,
-                                           int);
+                                           int,
+                                           bool);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -153,6 +155,7 @@ private:
   Value threshold;
   Depth depth;
   int ply;
+  bool ic;
   ExtMove moves[MAX_MOVES];
 };
 
