@@ -617,7 +617,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-
+        
     // Check for the available remaining time
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
@@ -654,6 +654,19 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
+
+    ss->lmr = false;
+
+    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-6)->continuationHistory };
+
+    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    if (   (ss-1)->lmr
+        && (*contHist[0])[pos.moved_piece(countermove)][to_sq(countermove)] < CounterMovePruneThreshold
+        && (*contHist[1])[pos.moved_piece(countermove)][to_sq(countermove)] < CounterMovePruneThreshold)
+        depth++;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -957,12 +970,6 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
-    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                          nullptr                   , (ss-4)->continuationHistory,
-                                          nullptr                   , (ss-6)->continuationHistory };
-
-    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
@@ -1180,9 +1187,6 @@ moves_loop: // When in check, search starts from here
           if ((ss-1)->moveCount > 13)
               r--;
 
-          if (!pos.legal(thisThread->counterMoves[movedPiece][to_sq(move)]))
-              r--;
-
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
@@ -1237,7 +1241,11 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
+          ss->lmr = d < newDepth;
+
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          ss->lmr = false;
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
