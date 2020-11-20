@@ -974,6 +974,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool queenTtCapt = (pos.count<QUEEN>() == 1) && ttCapture && (type_of(pos.piece_on(to_sq(ttMove))) == QUEEN);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1184,6 +1185,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (!givesCheck && queenTtCapt)
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1223,7 +1227,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction for captures/promotions if late move and at low depth
-              if (depth < 8 && moveCount > 2 && rootNode)
+              if (depth < 8 && moveCount > 2)
                   r++;
 
               // Unless giving check, this capture is likely bad
