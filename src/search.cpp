@@ -1145,13 +1145,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      if (moveCount == 1 && !captureOrPromotion)
-          ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 5287;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1230,7 +1223,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction for captures/promotions if late move and at low depth
-              if (depth < 8 && moveCount > 2)
+              if (depth < 8 && moveCount > 2 && (!PvNode || rootNode))
                   r++;
 
               // Unless giving check, this capture is likely bad
