@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction for captures/promotions if late move and at low depth
-              if (depth < 8 && moveCount > 2 && !PvNode)
+              if (depth < 8 && moveCount > 2 && rootNode)
                   r++;
 
               // Unless giving check, this capture is likely bad
