@@ -1186,7 +1186,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (ttQueenWin)
+          if (ttQueenWin && !givesCheck)
               r++;
 
           if (!captureOrPromotion)
