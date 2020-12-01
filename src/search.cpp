@@ -608,6 +608,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    bool ttQueenWin;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -974,6 +975,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    ttQueenWin = ttCapture && pos.see_ge(ttMove, QueenValueMg);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1183,6 +1185,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (ttQueenWin)
+              r++;
 
           if (!captureOrPromotion)
           {
