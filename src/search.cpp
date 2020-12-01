@@ -608,7 +608,8 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    bool ttQueenWin;
+    bool ttMaxWin;
+    Value ttMaxValue;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -975,7 +976,16 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ttQueenWin = ttCapture && pos.see_ge(ttMove, QueenValueMg);
+    ttMaxWin = false;
+    ttMaxValue = VALUE_NONE;
+    if (ttCapture)
+    {
+        ttMaxValue = pos.count<QUEEN>(~us) ? QueenValueMg :
+                     pos.count<ROOK>(~us) ? RookValueMg :
+                     pos.count<BISHOP>(~us) ? BishopValueMg :
+                     KnightValueMg;
+        ttMaxWin = pos.see_ge(ttMove, ttMaxValue);
+    }
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1155,7 +1165,6 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (ttQueenWin && !givesCheck)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1187,11 +1196,14 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (ttMaxWin && !givesCheck && (!captureOrPromotion || ttMaxValue > PieceValue[MG][pos.captured_piece()]))
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r += 1;
+                  r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
