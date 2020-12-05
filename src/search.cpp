@@ -1329,7 +1329,7 @@ moves_loop: // When in check, search starts from here
       if (!captureOrPromotion && !givesCheck && !ss->inCheck)
       {
           int bonus = ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
-          bonus *= std::abs(bonus);
+          bonus *= std::abs(bonus) / 2;
           thisThread->staticHistory[us][from_to(move)] << bonus;
       }
 
