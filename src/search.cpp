@@ -1328,7 +1328,7 @@ moves_loop: // When in check, search starts from here
       // Update static history for previous move
       if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
       {
-          int bonus = 4 * ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
+          int bonus = 8 * ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
           thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
       }
 
