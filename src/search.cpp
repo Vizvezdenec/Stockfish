@@ -815,15 +815,6 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    // Update static history for previous move
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
-    {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
-                    0;
-        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-    }
-
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
@@ -1332,6 +1323,13 @@ moves_loop: // When in check, search starts from here
               // is not a problem when sorting because the sort is stable and the
               // move position in the list is preserved - just the PV is pushed up.
               rm.score = -VALUE_INFINITE;
+      }
+
+      // Update static history for previous move
+      if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+      {
+          int bonus = 4 * ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
+          thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
       }
 
       if (value > bestValue)
