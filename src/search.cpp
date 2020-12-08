@@ -818,11 +818,9 @@ namespace {
     // Update static history for previous move
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = ss->staticEval + (ss-1)->staticEval - 2 * Tempo;
-        
-        bonus = bonus > 0 ? -stat_bonus(depth + (std::abs(bonus) > PawnValueMg)) :
-                bonus < 0 ? stat_bonus(depth + (std::abs(bonus) > PawnValueMg)) :
-                0;
+        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
+                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
+                    0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 

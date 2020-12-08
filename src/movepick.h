@@ -85,6 +85,7 @@ enum StatsType { NoCaptures, Captures };
 /// ordering decisions. It uses 2 tables (one for each color) indexed by
 /// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
 typedef Stats<int16_t, 10692, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
+typedef Stats<int16_t, 29952, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistoryy;
 
 /// At higher depths LowPlyHistory records successful quiet moves near the root
 /// and quiet moves which are/were in the PV (ttPv). It is cleared with each new
@@ -123,12 +124,12 @@ public:
   MovePicker& operator=(const MovePicker&) = delete;
   MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const ButterflyHistory*,
+                                           const ButterflyHistoryy*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const ButterflyHistory*,
+                                           const ButterflyHistoryy*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
@@ -145,7 +146,7 @@ private:
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
-  const ButterflyHistory* staticHistory;
+  const ButterflyHistoryy* staticHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
