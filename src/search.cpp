@@ -777,6 +777,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CapturePieceToHistory& captureSHistory = thisThread->captureSHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -822,6 +823,13 @@ namespace {
                     ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+    }
+    else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck)
+    {
+        int bonus = ss->staticEval > -(ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] + 2 * Tempo ? -stat_bonus(depth) :
+                    ss->staticEval < -(ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] + 2 * Tempo ? stat_bonus(depth) :
+                    0;
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -923,7 +931,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &captureSHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -988,6 +996,7 @@ moves_loop: // When in check, search starts from here
                                       &thisThread->staticHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &captureSHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1232,9 +1241,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
-
-              if (!ss->inCheck && !givesCheck)
-                  ss->statScore += thisThread->staticHistory[us][from_to(move)];
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
@@ -1541,6 +1547,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->staticHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->captureSHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 

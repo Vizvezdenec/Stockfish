@@ -72,6 +72,7 @@ public:
   ButterflyHistory staticHistory;
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
+  CapturePieceToHistory captureSHistory;
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
   int failedHighCnt;
