@@ -605,9 +605,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture;
+         ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, singularQuietLmr;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -821,6 +821,9 @@ namespace {
         int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
                     ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
+
+        bonus += - 16 * (ss->staticEval + (ss-1)->staticEval - 2 * Tempo);
+        bonus = std::clamp(bonus, -stat_bonus(depth) * 3 / 2, stat_bonus(depth) * 3 / 2);
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -994,8 +997,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    moveCountPruning = false;
-    singularQuietLmr = 0;
+    singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1112,7 +1114,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLmr = !ttCapture * (1 + (!ss->inCheck && !givesCheck && (thisThread->staticHistory[us][from_to(move)] < 0)));
+              singularQuietLMR = !ttCapture;
           }
 
           // Multi-cut pruning
@@ -1205,7 +1207,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          r -= singularQuietLmr;
+          if (singularQuietLMR)
+              r--;
 
           if (!captureOrPromotion)
           {
