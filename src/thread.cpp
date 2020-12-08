@@ -60,7 +60,6 @@ void Thread::clear() {
   staticHistory.fill(0);
   lowPlyHistory.fill(0);
   captureHistory.fill(0);
-  captureSHistory.fill(0);
 
   for (bool inCheck : { false, true })
       for (StatsType c : { NoCaptures, Captures })

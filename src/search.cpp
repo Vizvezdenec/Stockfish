@@ -605,9 +605,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, singularQuietLmr;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -777,7 +777,6 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-    CapturePieceToHistory& captureSHistory = thisThread->captureSHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -823,13 +822,6 @@ namespace {
                     ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-    }
-    else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck)
-    {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
-                    0;
-        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -931,7 +923,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &captureSHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -996,14 +988,14 @@ moves_loop: // When in check, search starts from here
                                       &thisThread->staticHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
-                                      &captureSHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    moveCountPruning = false;
+    singularQuietLmr = 0;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1120,7 +1112,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture;
+              singularQuietLmr = !ttCapture * (1 + (!ss->inCheck && !givesCheck && (thisThread->staticHistory[us][from_to(move)] < 0)));
           }
 
           // Multi-cut pruning
@@ -1213,8 +1205,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
-              r--;
+          r -= singularQuietLmr;
 
           if (!captureOrPromotion)
           {
@@ -1547,7 +1538,6 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->staticHistory,
                                       &thisThread->captureHistory,
-                                      &thisThread->captureSHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
