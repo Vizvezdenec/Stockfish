@@ -1328,7 +1328,9 @@ moves_loop: // When in check, search starts from here
       // Update static history for previous move
       if (!captureOrPromotion && !givesCheck && !ss->inCheck)
       {
-          int bonus = - 16 * ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
+          int bonus = - ((ss+1)->staticEval + ss->staticEval - 2 * Tempo);
+
+          bonus = bonus * std::abs(bonus) / 4;
 
           bonus = std::clamp(bonus, -5000, 5000);
 
