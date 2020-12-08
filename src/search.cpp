@@ -818,9 +818,11 @@ namespace {
     // Update static history for previous move
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
-                    0;
+        int bonus = ss->staticEval + (ss-1)->staticEval - 2 * Tempo;
+        
+        bonus = bonus > 0 ? -stat_bonus(depth + (std::abs(bonus) > PawnValueMg)) :
+                bonus < 0 ? stat_bonus(depth + (std::abs(bonus) > PawnValueMg)) :
+                0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1059,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 7 + (thisThread->staticHistory[us][from_to(move)] < 0)
+              if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 266 + 170 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
