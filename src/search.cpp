@@ -826,8 +826,8 @@ namespace {
     }
     else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck)
     {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] ? -stat_bonus(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] ? stat_bonus(depth) :
+        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
+                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
         captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
     }
