@@ -1053,8 +1053,7 @@ moves_loop: // When in check, search starts from here
               && !givesCheck)
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 
-                                   ||(!ss->inCheck && thisThread->staticHistory[us][from_to(move)] < 0) )
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1233,6 +1232,9 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
+
+              if (!ss->inCheck && !givesCheck)
+                  ss->statScore += thisThread->staticHistory[us][from_to(move)];
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
