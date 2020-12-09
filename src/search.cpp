@@ -929,7 +929,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode + (ss->staticEval > probCutBeta))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1238,9 +1238,6 @@ moves_loop: // When in check, search starts from here
                   r--;
 
               else if ((ss-1)->statScore >= -122 && ss->statScore < -129)
-                  r++;
-
-              if (!givesCheck && !ss->inCheck && ss->staticEval < alpha && thisThread->staticHistory[us][from_to(move)] < 0)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
