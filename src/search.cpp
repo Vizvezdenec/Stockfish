@@ -696,14 +696,6 @@ namespace {
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
     {
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture && tte->eval() != VALUE_NONE)
-    {
-        int bonus = -64 * (tte->eval() + (ss-1)->staticEval - 2 * Tempo);
-
-        bonus = std::clamp(bonus, -stat_bonus(depth), stat_bonus(depth));
-
-        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-    }
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
         {
@@ -729,7 +721,16 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture && tte->eval() != VALUE_NONE)
+    {
+        int bonus = tte->eval() > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
+                    tte->eval() < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
+                    0;
+        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+    }
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
