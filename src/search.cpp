@@ -822,6 +822,8 @@ namespace {
                     ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        if (type_of(pos.piece_on(prevSq)) != PAWN)
+            thisThread->staticHistory[~us][from_to(reverse_move((ss-1)->currentMove))] << -bonus;
     }
 
     // Step 7. Razoring (~1 Elo)
