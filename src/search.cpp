@@ -1185,7 +1185,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction if other threads are searching this position
           if (th.marked())
-              r = 1 + (pos.this_thread()->nodes & 1);
+              r = 1 + !(pos.this_thread()->nodes & 3);
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ss->ttPv)
