@@ -696,6 +696,13 @@ namespace {
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
     {
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture && tte->eval() != VALUE_NONE)
+    {
+        int bonus = tte->eval() > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
+                    tte->eval() < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
+                    0;
+        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+    }
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
         {
@@ -1185,7 +1192,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction if other threads are searching this position
           if (th.marked())
-              r = 1 + !(pos.this_thread()->nodes & 3);
+              r++;
 
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ss->ttPv)
