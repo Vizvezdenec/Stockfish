@@ -721,16 +721,7 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture && tte->eval() != VALUE_NONE)
-    {
-        int bonus = tte->eval() > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
-                    tte->eval() < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
-                    0;
-        thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-    }
             return ttValue;
-        }
     }
 
     // Step 5. Tablebases probe
@@ -827,8 +818,8 @@ namespace {
     // Update static history for previous move
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
+        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? - 3 * stat_bonus(depth) / 2 :
+                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? 3 * stat_bonus(depth) / 2 :
                     0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
