@@ -698,7 +698,7 @@ namespace {
     {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture && tte->eval() != VALUE_NONE)
     {
-        int bonus = 16 * (tte->eval() + (ss-1)->staticEval - 2 * Tempo);
+        int bonus = -64 * (tte->eval() + (ss-1)->staticEval - 2 * Tempo);
 
         bonus = std::clamp(bonus, -stat_bonus(depth), stat_bonus(depth));
 
