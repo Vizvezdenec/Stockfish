@@ -1066,7 +1066,7 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2
-                    + thisThread->staticHistory[us][from_to(move)] / 2 < 27376)
+                    + thisThread->staticHistory[us][from_to(move)] / 2 < 30376)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
