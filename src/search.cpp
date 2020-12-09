@@ -1240,6 +1240,9 @@ moves_loop: // When in check, search starts from here
               else if ((ss-1)->statScore >= -122 && ss->statScore < -129)
                   r++;
 
+              if (!givesCheck && !ss->inCheck && ss->staticEval < alpha && thisThread->staticHistory[us][from_to(move)] < 0)
+                  r++;
+
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
           }
