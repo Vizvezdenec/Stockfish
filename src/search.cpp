@@ -823,7 +823,7 @@ namespace {
                     0;
 
         bonus += - 16 * (ss->staticEval + (ss-1)->staticEval - 2 * Tempo);
-        bonus = std::clamp(bonus, -stat_bonus(depth) * 3 / 2, stat_bonus(depth) * 3 / 2);
+        bonus = std::clamp(bonus, -stat_bonus(depth), stat_bonus(depth));
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
