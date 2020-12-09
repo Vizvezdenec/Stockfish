@@ -85,10 +85,6 @@ namespace {
     return d > 13 ? 29 : 17 * d * d + 134 * d - 134;
   }
 
-  int stat_bonus2(Depth d) {
-    return d > 13 ? 29 : 34 * d * d + 20 * d;
-  }
-
   // Add a small random component to draw evaluations to avoid 3fold-blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -822,8 +818,8 @@ namespace {
     // Update static history for previous move
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus2(depth) :
-                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus2(depth) :
+        int bonus = ss->staticEval > -(ss-1)->staticEval + 2 * Tempo ? -stat_bonus(depth) :
+                    ss->staticEval < -(ss-1)->staticEval + 2 * Tempo ? stat_bonus(depth) :
                     0;
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
