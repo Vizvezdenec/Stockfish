@@ -1175,7 +1175,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (ttCapture && bestMove != ttMove && to_sq(move) == to_sq(ttMove))
+              || (ttCapture && bestMove != ttMove && (to_sq(move) == to_sq(ttMove) || from_sq(move) == from_sq(ttMove)))
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
