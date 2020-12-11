@@ -1070,6 +1070,7 @@ moves_loop: // When in check, search starts from here
 
               if (   lmrDepth < 7
                   && !ss->inCheck
+                  && thisThread->staticHistory[us][from_to(move)] < 0
                   && ss->staticEval + 600 + 320 * lmrDepth <= alpha)
                   continue;
 
