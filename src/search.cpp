@@ -1205,7 +1205,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + (PvNode && abs(bestValue) < 2);
+              r -= 1 + (PvNode && abs(bestValue) < 2 && abs(ss->staticEval) > 100);
 
           if (!captureOrPromotion)
           {
