@@ -608,6 +608,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    int margin;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -824,10 +825,12 @@ namespace {
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
+    margin = pos.non_pawn_material(us) ? RazorMargin : 2 * PawnValueMg;
+
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - RazorMargin)
+        &&  eval <= alpha - margin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     // Set up improving flag that is used in various pruning heuristics
@@ -1254,9 +1257,6 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          if (!captureOrPromotion)
-              update_continuation_histories(ss, movedPiece, to_sq(move), value > alpha ? 1 : -1);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
