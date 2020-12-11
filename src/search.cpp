@@ -1068,6 +1068,11 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376)
                   continue;
 
+              if (   lmrDepth < 7
+                  && !ss->inCheck
+                  && ss->staticEval + 500 + 300 * lmrDepth <= alpha)
+                  continue;
+
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
