@@ -1058,6 +1058,10 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              if (   lmrDepth < 1 
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1175,7 +1179,6 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (ttCapture && bestMove != ttMove && (to_sq(move) == to_sq(ttMove) || from_sq(move) == from_sq(ttMove)))
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
