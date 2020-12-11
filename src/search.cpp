@@ -996,7 +996,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int moveCountCapt = MAX_MOVES;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1009,6 +1008,9 @@ moves_loop: // When in check, search starts from here
 
       if (move == excludedMove)
           continue;
+
+      if (moveCountPruning && !PvNode)
+          break;
 
       // At root obey the "searchmoves" option and skip moves not listed in Root
       // Move List. As a consequence any illegal move is also skipped. In MultiPV
@@ -1023,12 +1025,6 @@ moves_loop: // When in check, search starts from here
           continue;
 
       ss->moveCount = ++moveCount;
-
-      if (moveCount > moveCountCapt)
-      {
-          ss->statScore = 0;
-          break;
-      }
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth
@@ -1052,8 +1048,6 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          if (!PvNode)
-              moveCountCapt = 4 + 2 * futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
