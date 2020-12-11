@@ -825,7 +825,7 @@ namespace {
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
-    margin = pos.non_pawn_material(us) ? RazorMargin : 2 * PawnValueMg;
+    margin = pos.non_pawn_material(us) ? RazorMargin : PawnValueMg;
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
