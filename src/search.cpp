@@ -608,7 +608,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    int margin;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -825,12 +824,10 @@ namespace {
         thisThread->staticHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
-    margin = pos.non_pawn_material(us) ? RazorMargin : 3 * PawnValueMg;
-
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
         &&  depth == 1
-        &&  eval <= alpha - margin)
+        &&  eval <= alpha - RazorMargin)
         return qsearch<NT>(pos, ss, alpha, beta);
 
     // Set up improving flag that is used in various pruning heuristics
@@ -999,6 +996,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    int moveCountCapt = MAX_MOVES;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1026,6 +1024,12 @@ moves_loop: // When in check, search starts from here
 
       ss->moveCount = ++moveCount;
 
+      if (moveCount > moveCountCapt)
+      {
+          ss->statScore = 0;
+          break;
+      }
+
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth
                     << " currmove " << UCI::move(move, pos.is_chess960())
@@ -1048,6 +1052,8 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          if (!PvNode)
+              moveCountCapt = 2 * futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
