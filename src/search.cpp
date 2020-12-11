@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2 - (ss->staticEval < ttValue - 40 * depth);
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -1205,7 +1205,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + (PvNode && abs(bestValue) < 2 && abs(ss->staticEval) > 100);
+              r--;
 
           if (!captureOrPromotion)
           {
