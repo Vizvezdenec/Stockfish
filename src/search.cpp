@@ -1111,7 +1111,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture && value > singularBeta - PawnValueMg;
+              singularQuietLMR = !ttCapture && value > singularBeta - 2 * PawnValueMg;
           }
 
           // Multi-cut pruning
