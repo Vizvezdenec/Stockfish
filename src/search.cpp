@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          if ((rootNode || !PvNode) && depth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
 
           // More reductions for late moves if position was not in previous PV
@@ -1211,6 +1211,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+
+              if (rootNode && depth > 10 && ttCapture && thisThread->bestMoveChanges < 2)
                   r++;
 
               // Increase reduction at root if failing high
