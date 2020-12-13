@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int quietMoveCount = 0;
+    int qLmrPass = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1045,13 +1045,10 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth)
-                          || quietMoveCount >= (futility_move_count(improving, depth) * 7) / 8;
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
-
-          quietMoveCount += !captureOrPromotion;
 
           if (   !captureOrPromotion
               && !givesCheck)
@@ -1246,6 +1243,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              if (moveCount > 12 && qLmrPass == 0)
+                  r++;
           }
           else
           {
@@ -1262,6 +1262,8 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
+
+          qLmrPass += !captureOrPromotion && value > alpha;
       }
       else
       {
