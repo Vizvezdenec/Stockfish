@@ -1168,6 +1168,9 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      if (moveCount == 1 && !captureOrPromotion)
+          qLmrPass++;
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1244,7 +1247,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              if (moveCount > 12 && qLmrPass == 0)
+              if (!rootNode && moveCount > 12 && !givesCheck && qLmrPass == 0)
                   r++;
           }
           else
