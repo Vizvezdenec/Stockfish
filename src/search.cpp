@@ -996,7 +996,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int qLmrPass = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1168,9 +1167,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      if (moveCount == 1 && !captureOrPromotion)
-          qLmrPass++;
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1204,7 +1200,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
-          if ((ss-1)->moveCount > 13)
+          if ((ss-1)->moveCount > 13 && !ss->inCheck)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
@@ -1246,9 +1242,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              if (!rootNode && moveCount > 12 && !givesCheck && qLmrPass == 0)
-                  r++;
           }
           else
           {
@@ -1265,8 +1258,6 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
-
-          qLmrPass += !captureOrPromotion && value > alpha;
       }
       else
       {
