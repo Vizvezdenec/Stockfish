@@ -815,7 +815,7 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if ((ss-1)->moveCount > 1 && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && depth < 7)
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && depth < 10)
     {
         int bonus = std::clamp(- (depth+1) * 2 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -5000, 5000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
