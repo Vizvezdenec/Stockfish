@@ -387,8 +387,6 @@ void Thread::search() {
       if (!Threads.increaseDepth)
          searchAgainCounter++;
 
-      rootNpm = 0;
-
       // MultiPV loop. We perform a full root search for each PV line
       for (pvIdx = 0; pvIdx < multiPV && !Threads.stop; ++pvIdx)
       {
@@ -619,11 +617,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    if (rootNode)
-    {
-        thisThread->rootNpm = pos.non_pawn_material();
-        thisThread->rootPawnC = pos.count<PAWN>();
-    }
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -824,7 +817,7 @@ namespace {
 
     if ((ss-1)->moveCount > 1 && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && depth < 7)
     {
-        int bonus = std::clamp(- (depth+1) * 2 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
+        int bonus = std::clamp(- (depth+1) * 2 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -3000, 3000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -994,8 +987,7 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      ss->ply,
-                                      pos.non_pawn_material() == thisThread->rootNpm && pos.count<PAWN>() == thisThread->rootPawnC);
+                                      ss->ply);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
