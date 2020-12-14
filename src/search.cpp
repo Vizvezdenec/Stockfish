@@ -367,6 +367,7 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
   rootCapture = false;
+  currentRootCapture = false;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -1035,6 +1036,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      if (rootNode)
+          thisThread->currentRootCapture = captureOrPromotion;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1194,7 +1197,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
-              r += 1 + thisThread->rootCapture;
+              r += 1 + (thisThread->rootCapture && !thisThread->currentRootCapture);
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)

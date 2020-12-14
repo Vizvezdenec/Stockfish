@@ -76,6 +76,7 @@ public:
   Score contempt;
   int failedHighCnt;
   bool rootCapture;
+  bool currentRootCapture;
 };
 
 
