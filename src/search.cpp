@@ -387,6 +387,8 @@ void Thread::search() {
       if (!Threads.increaseDepth)
          searchAgainCounter++;
 
+      rootNpm = 0;
+
       // MultiPV loop. We perform a full root search for each PV line
       for (pvIdx = 0; pvIdx < multiPV && !Threads.stop; ++pvIdx)
       {
@@ -617,6 +619,8 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    if (rootNode)
+        thisThread->rootNpm = pos.non_pawn_material();
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -987,7 +991,8 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      ss->ply);
+                                      ss->ply,
+                                      pos.non_pawn_material() == thisThread->rootNpm);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;

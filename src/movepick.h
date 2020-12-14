@@ -132,7 +132,8 @@ public:
                                            const PieceToHistory**,
                                            Move,
                                            const Move*,
-                                           int);
+                                           int,
+                                           bool);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -153,6 +154,7 @@ private:
   Value threshold;
   Depth depth;
   int ply;
+  bool sameN;
   ExtMove moves[MAX_MOVES];
 };
 
