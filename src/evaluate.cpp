@@ -1054,6 +1054,12 @@ Value Eval::evaluate(const Position& pos) {
          return NNUE::evaluate(pos) * (679 + mat / 32) / 1024 + Tempo;
       };
 
+      if (pos.count<QUEEN>() == 1 && (pos.non_pawn_material(WHITE) == QueenValueMg 
+                                   || pos.non_pawn_material(BLACK) == QueenValueMg))
+          v = adjusted_NNUE();
+      else
+      {
+
       // If there is PSQ imbalance use classical eval, with small probability if it is small
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
@@ -1075,6 +1081,7 @@ Value Eval::evaluate(const Position& pos) {
                   && abs(v) * 16 < (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50
                   && !(pos.this_thread()->nodes & 0xB))))
           v = adjusted_NNUE();
+      }
   }
 
   // Damp down the evaluation linearly when shuffling
