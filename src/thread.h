@@ -75,6 +75,7 @@ public:
   Score contempt;
   int failedHighCnt;
   int rootNpm;
+  int rootPawnC;
 };
 
 

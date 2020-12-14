@@ -620,7 +620,10 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     if (rootNode)
+    {
         thisThread->rootNpm = pos.non_pawn_material();
+        thisThread->rootPawnC = pos.count<PAWN>();
+    }
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -992,7 +995,7 @@ moves_loop: // When in check, search starts from here
                                       countermove,
                                       ss->killers,
                                       ss->ply,
-                                      pos.non_pawn_material() == thisThread->rootNpm);
+                                      pos.non_pawn_material() == thisThread->rootNpm && pos.count<PAWN>() == thisThread->rootPawnC);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
