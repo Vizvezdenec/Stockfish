@@ -820,9 +820,9 @@ namespace {
         int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
-    else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck)
+    else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && priorCapture && ss->ttHit && to_sq(ttMove) != prevSq)
     {
-        int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + (PieceValue[MG][pos.captured_piece()] * 3) / 4 + ss->staticEval - 2 * Tempo), -1000, 1000);
+        int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] + ss->staticEval - 2 * Tempo), -1000, 1000);
         captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
     }
 
