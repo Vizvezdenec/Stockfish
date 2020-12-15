@@ -815,12 +815,10 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+    if ((ss-1)->moveCount > 1 && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && depth < 7)
     {
-        int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
+        int bonus = std::clamp(- (depth+1) * 2 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        bonus = std::clamp(- depth * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo) / 16, -1000, 1000);
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -919,7 +917,10 @@ namespace {
             && ttValue >= probCutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
+        {
+            captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth - 2);
             return probCutBeta;
+        }
 
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
@@ -963,11 +964,16 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    update_all_stats(pos, ss, move, value, probCutBeta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth - 3);
                     return value;
                 }
+                else
+                    capturesSearched[captureCount++] = move;
             }
          ss->ttPv = ttPv;
     }
+    captureCount = 0;
 
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
