@@ -819,7 +819,7 @@ namespace {
     {
         int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        bonus = std::clamp(bonus, -100, 100);
+        bonus = std::clamp(- depth * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo) / 4, -500, 500);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
