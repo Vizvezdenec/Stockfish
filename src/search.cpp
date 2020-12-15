@@ -471,6 +471,8 @@ void Thread::search() {
 
               delta += delta / 4 + 5;
 
+              delta += iterationCnt > 5 ? (iterationCnt - 5) * delta / 8 : 0;
+
               assert(alpha >= -VALUE_INFINITE && beta <= VALUE_INFINITE);
           }
 
@@ -1174,7 +1176,6 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (rootNode && thisThread->iterationCnt > 6)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
