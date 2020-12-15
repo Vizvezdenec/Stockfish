@@ -820,6 +820,12 @@ namespace {
         int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
+    else if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck)
+    {
+        int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] + ss->staticEval - 2 * Tempo), -1000, 1000);
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
+    }
+
 
     // Step 7. Razoring (~1 Elo)
     if (   !rootNode // The required rootNode PV handling is not available in qsearch
