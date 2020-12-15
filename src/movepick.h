@@ -128,11 +128,13 @@ public:
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
+                                           const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
                                            const Move*,
-                                           int);
+                                           int,
+                                           bool);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -143,6 +145,7 @@ private:
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
+  const LowPlyHistory* rootMatHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
@@ -153,6 +156,7 @@ private:
   Value threshold;
   Depth depth;
   int ply;
+  bool useRmh;
   ExtMove moves[MAX_MOVES];
 };
 

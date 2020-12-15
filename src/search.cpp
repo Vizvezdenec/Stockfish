@@ -328,6 +328,9 @@ void Thread::search() {
   std::copy(&lowPlyHistory[2][0], &lowPlyHistory.back().back() + 1, &lowPlyHistory[0][0]);
   std::fill(&lowPlyHistory[MAX_LPH - 2][0], &lowPlyHistory.back().back() + 1, 0);
 
+  std::copy(&rootMatHistory[2][0], &rootMatHistory.back().back() + 1, &rootMatHistory[0][0]);
+  std::fill(&rootMatHistory[MAX_LPH - 2][0], &rootMatHistory.back().back() + 1, 0);
+
   size_t multiPV = size_t(Options["MultiPV"]);
 
   // Pick integer skill levels, but non-deterministically round up or down
@@ -617,6 +620,12 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+
+    if (rootNode)
+    {
+        thisThread->rootNpm = pos.non_pawn_material();
+        thisThread->rootPawnCnt = pos.count<PAWN>();
+    }
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -982,12 +991,14 @@ moves_loop: // When in check, search starts from here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->rootMatHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      ss->ply);
+                                      ss->ply,
+                                      pos.non_pawn_material() == thisThread->rootNpm && pos.count<PAWN>() == thisThread->rootPawnCnt);
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
@@ -1190,8 +1201,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
-          else if (rootNode && int(thisThread->bestMoveChanges) > 10)
-              r--;
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
@@ -1716,6 +1725,7 @@ moves_loop: // When in check, search starts from here
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
+    bool rmhUpd = pos.non_pawn_material() == thisThread->rootNpm && pos.count<PAWN>() == thisThread->rootPawnCnt;
 
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
@@ -1725,12 +1735,16 @@ moves_loop: // When in check, search starts from here
     {
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+        if (rmhUpd)
+            thisThread->rootMatHistory[0][from_to(bestMove)] << bonus2;
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            if (rmhUpd)
+                thisThread->rootMatHistory[0][from_to(quietsSearched[i])] << -bonus2;
         }
     }
     else
