@@ -819,6 +819,8 @@ namespace {
     {
         int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        bonus = bonus / 8;
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -1384,15 +1386,8 @@ moves_loop: // When in check, search starts from here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
-    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-        if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && priorCapture && !ss->inCheck && !pos.gives_check(bestMove) && to_sq(bestMove) != prevSq)
-        {
-            int bonus = std::clamp(- depth * 4 * int((ss-1)->staticEval + PieceValue[MG][pos.captured_piece()] + ss->staticEval - 2 * Tempo), -1000, 1000);
-            captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << bonus;
-        }
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
