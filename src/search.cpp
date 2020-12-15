@@ -1229,7 +1229,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
 
-              ss->statScore += ss->statScore < -30000 ? ss->statScore + 30000 : 0;
+              ss->statScore += ss->statScore < -50000 ? ss->statScore + 50000 : 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
