@@ -1174,6 +1174,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
+              || (rootNode && thisThread->iterationCnt > 6)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1214,9 +1215,6 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
-
-              if (rootNode)
-                  r-= thisThread->iterationCnt / 8;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
