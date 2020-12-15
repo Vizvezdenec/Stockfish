@@ -961,16 +961,11 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    update_all_stats(pos, ss, move, value, probCutBeta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth - 3);
                     return value;
                 }
-                else
-                    capturesSearched[captureCount++] = move;
             }
          ss->ttPv = ttPv;
     }
-    captureCount = 0;
 
     // Step 11. If the position is not in TT, decrease depth by 2
     if (   PvNode
@@ -1233,6 +1228,8 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
+
+              ss->statScore += ss->statScore < -30000 ? ss->statScore + 30000 : 0;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
