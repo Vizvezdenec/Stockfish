@@ -917,10 +917,7 @@ namespace {
             && ttValue >= probCutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
-        {
-            captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth - 2);
             return probCutBeta;
-        }
 
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
@@ -1247,6 +1244,9 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
+                  r++;
+
+              if (   !ss->inCheck && ss->staticEval > PawnValueMg && to_sq(move) == prevSq)
                   r++;
           }
 
