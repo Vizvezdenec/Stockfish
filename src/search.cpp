@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-213 + 50 * (ttQueenWin && to_sq(move) != to_sq(ttMove))) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-213 + 50 * (ttQueenWin && !givesCheck && to_sq(move) != to_sq(ttMove))) * depth)) // (~25 Elo)
                   continue;
           }
       }
