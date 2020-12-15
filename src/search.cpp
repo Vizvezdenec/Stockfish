@@ -992,8 +992,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool ttQueenWin = ttCapture && pos.see_ge(ttMove, QueenValueMg);
-    
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1079,7 +1077,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-213 + 50 * (ttQueenWin && !givesCheck && to_sq(move) != to_sq(ttMove))) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-213) * depth)) // (~25 Elo)
                   continue;
           }
       }
@@ -1246,6 +1244,9 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
+                  r++;
+
+              if (   !ss->inCheck && ss->staticEval > 2 * PawnValueMg && to_sq(move) == prevSq)
                   r++;
           }
 
