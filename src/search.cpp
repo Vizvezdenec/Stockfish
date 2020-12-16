@@ -1030,6 +1030,9 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool givesDoubleCheck = false;
+      if (givesCheck)
+          givesDoubleCheck = pos.gives_double_check(move);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1065,7 +1068,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!givesDoubleCheck && !pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
           else
@@ -1077,7 +1080,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-213) * depth)) // (~25 Elo)
+              if (!givesDoubleCheck && !pos.see_ge(move, Value(-213) * depth)) // (~25 Elo)
                   continue;
           }
       }

@@ -679,6 +679,39 @@ bool Position::gives_check(Move m) const {
   }
 }
 
+bool Position::gives_double_check(Move m) const {
+
+  assert(is_ok(m));
+  assert(color_of(moved_piece(m)) == sideToMove);
+
+  Square from = from_sq(m);
+  Square to = to_sq(m);
+
+  if (type_of(piece_on(from)) == KING)
+      return false;
+
+  // If there is no discovered check double check is impossible
+  if (   !(blockers_for_king(~sideToMove) & from)
+      || aligned(from, to, square<KING>(~sideToMove)))
+      return false;
+
+  // Is there a direct check?
+  if (check_squares(type_of(piece_on(from))) & to)
+      return true;
+
+  switch (type_of(m))
+  {
+  case NORMAL:
+      return false;
+
+  case PROMOTION:
+      return attacks_bb(promotion_type(m), to, pieces() ^ from) & square<KING>(~sideToMove);
+    default:
+      assert(false);
+      return false;
+  }
+}
+
 
 /// Position::do_move() makes a move, and saves all information necessary
 /// to a StateInfo object. The move is assumed to be legal. Pseudo-legal
@@ -1076,8 +1109,6 @@ bool Position::see_ge(Move m, Value threshold) const {
   int swap = PieceValue[MG][piece_on(to)] - threshold;
   if (swap < 0)
       return false;
-  else if (more_than_one(checkers()))
-      return true;
 
   swap = PieceValue[MG][piece_on(from)] - swap;
   if (swap <= 0)
