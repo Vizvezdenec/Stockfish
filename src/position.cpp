@@ -679,7 +679,7 @@ bool Position::gives_check(Move m) const {
   }
 }
 
-bool Position::gives_double_check(Move m) const {
+bool Position::gives_disco_check(Move m) const {
 
   assert(is_ok(m));
   assert(color_of(moved_piece(m)) == sideToMove);
@@ -687,29 +687,10 @@ bool Position::gives_double_check(Move m) const {
   Square from = from_sq(m);
   Square to = to_sq(m);
 
-  if (type_of(piece_on(from)) == KING)
-      return false;
-
-  // If there is no discovered check double check is impossible
-  if (   !(blockers_for_king(~sideToMove) & from)
-      || aligned(from, to, square<KING>(~sideToMove)))
-      return false;
-
-  // Is there a direct check?
-  if (check_squares(type_of(piece_on(from))) & to)
+  if (   (blockers_for_king(~sideToMove) & from)
+      && !aligned(from, to, square<KING>(~sideToMove)))
       return true;
-
-  switch (type_of(m))
-  {
-  case NORMAL:
-      return false;
-
-  case PROMOTION:
-      return attacks_bb(promotion_type(m), to, pieces() ^ from) & square<KING>(~sideToMove);
-    default:
-      assert(false);
-      return false;
-  }
+  else return false;
 }
 
 
