@@ -1141,6 +1141,9 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
+      if (ss->staticEval < 0 && type_of(pos.piece_on(to_sq(move))) == QUEEN && type_of(movedPiece) == QUEEN)
+          extension = 1;
+
       // Late irreversible move extension
       if (   move == ttMove
           && pos.rule50_count() > 80
@@ -1238,8 +1241,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              r += (ss-1)->statScore / 65536;
           }
           else
           {
