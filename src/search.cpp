@@ -1229,8 +1229,6 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[3])[movedPiece][to_sq(move)]
                              - 5287;
 
-              ss->statScore += std::min(0, ss->statScore + 70000);
-
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
                   r--;
@@ -1240,6 +1238,8 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              r += (ss-1)->statScore / 65536;
           }
           else
           {
