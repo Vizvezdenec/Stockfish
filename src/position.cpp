@@ -1076,6 +1076,8 @@ bool Position::see_ge(Move m, Value threshold) const {
   int swap = PieceValue[MG][piece_on(to)] - threshold;
   if (swap < 0)
       return false;
+  else if (more_than_one(checkers()))
+      return true;
 
   swap = PieceValue[MG][piece_on(from)] - swap;
   if (swap <= 0)

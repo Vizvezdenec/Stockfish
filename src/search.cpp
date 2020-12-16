@@ -1141,9 +1141,6 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
-      if (ss->staticEval < -300 && type_of(pos.piece_on(to_sq(move))) == QUEEN && type_of(movedPiece) == QUEEN)
-          extension = 1;
-
       // Late irreversible move extension
       if (   move == ttMove
           && pos.rule50_count() > 80
