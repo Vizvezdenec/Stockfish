@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 28376 - 6000 * (move == countermove))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1211,9 +1211,6 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
-
-              if (ss->ply == 1 && thisThread->bestMoveChanges < 2 && depth > 10 && (ss-1)->moveCount == 1)
-                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
