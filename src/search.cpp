@@ -1239,7 +1239,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              if (!ss->inCheck && ss->staticEval - PieceValue[MG][type_of(movedPiece)] - 33 * depth >= alpha)
+              if (!ss->inCheck && ss->staticEval - PieceValue[MG][type_of(movedPiece)] - 66 * depth >= alpha)
                   r--;
           }
           else
