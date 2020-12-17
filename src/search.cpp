@@ -1031,8 +1031,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      ttCapture |= moveCount == 1 && captureOrPromotion;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1063,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376 - 6000 * (move == countermove))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
