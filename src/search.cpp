@@ -1249,7 +1249,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          if (d == 1 && captureOrPromotion && !ss->inCheck 
+          if (d == 1 && captureOrPromotion && !ss->inCheck && !PvNode
            && ss->staticEval + PieceValue[MG][pos.captured_piece()] - PieceValue[MG][movedPiece] > beta)
               d = 0;
 
