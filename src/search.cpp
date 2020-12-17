@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts from here
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376 - 2000 * (move == countermove))
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 27376)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1238,6 +1238,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              if (!ss->inCheck && ss->staticEval - PieceValue[MG][type_of(movedPiece)] >= alpha)
+                  r--;
           }
           else
           {
