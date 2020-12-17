@@ -1031,6 +1031,8 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      ttCapture |= moveCount == 1 && captureOrPromotion;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1227,7 +1229,7 @@ moves_loop: // When in check, search starts from here
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 5287 - 1000;
+                             - 5287;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
