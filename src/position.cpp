@@ -626,7 +626,7 @@ bool Position::pseudo_legal(const Move m) const {
 
 /// Position::gives_check() tests whether a pseudo-legal move gives a check
 
-bool Position::gives_check(Move m) const {
+bool Position::gives_disco_check(Move m) const {
 
   assert(is_ok(m));
   assert(color_of(moved_piece(m)) == sideToMove);
@@ -634,13 +634,21 @@ bool Position::gives_check(Move m) const {
   Square from = from_sq(m);
   Square to = to_sq(m);
 
-  // Is there a direct check?
-  if (check_squares(type_of(piece_on(from))) & to)
-      return true;
-
-  // Is there a discovered check?
   if (   (blockers_for_king(~sideToMove) & from)
       && !aligned(from, to, square<KING>(~sideToMove)))
+      return true;
+  else return false;
+}
+
+bool Position::gives_non_disco_check(Move m) const {
+assert(is_ok(m));
+  assert(color_of(moved_piece(m)) == sideToMove);
+
+  Square from = from_sq(m);
+  Square to = to_sq(m);
+
+  // Is there a direct check?
+  if (check_squares(type_of(piece_on(from))) & to)
       return true;
 
   switch (type_of(m))
@@ -1160,6 +1168,31 @@ bool Position::see_ge(Move m, Value threshold) const {
   }
 
   return bool(res);
+}
+
+bool Position::seed_ge(Move m, Value threshold) const {
+
+  assert(is_ok(m));
+
+  Square from = from_sq(m);
+  Square ksq = square<KING>(~sideToMove);
+  Bitboard checkSqu;
+
+  if (rank_of(from) == rank_of(ksq) || file_of(from) == file_of(ksq))
+       checkSqu = attacks_bb<  ROOK>(ksq, pieces() ^ from);
+  else checkSqu = attacks_bb<BISHOP>(ksq, pieces() ^ from);
+  
+  Square checkSq = pop_lsb(&checkSqu);
+  if (PieceValue[MG][checkSq] + threshold <= 0)
+      return true;
+  else 
+  {
+  Bitboard occupied = pieces() ^ from;
+  Bitboard attackers = pieces(~sideToMove) & attackers_to(checkSq, occupied);
+  if (!attackers)
+     return true;
+  else return false;
+  }
 }
 
 

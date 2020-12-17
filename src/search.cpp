@@ -1029,7 +1029,10 @@ moves_loop: // When in check, search starts from here
       extension = 0;
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
-      givesCheck = pos.gives_check(move);
+      bool givesDiscoCheck = pos.gives_disco_check(move);
+      bool givesNonDiscoCheck = pos.gives_non_disco_check(move);
+      givesCheck = givesDiscoCheck || givesNonDiscoCheck;
+      bool givesDoubleCheck = givesDiscoCheck && givesNonDiscoCheck;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1076,9 +1079,17 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (!givesDoubleCheck)
+              {
+              if (!givesDiscoCheck)
+              {
               // SEE based pruning
               if (!pos.see_ge(move, Value(-213) * depth)) // (~25 Elo)
                   continue;
+              }
+              else if (!pos.seed_ge(move, Value(-213) * depth)) // (~25 Elo)
+                  continue;
+              }
           }
       }
 
@@ -1248,10 +1259,6 @@ moves_loop: // When in check, search starts from here
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
-
-          if (d == 1 && captureOrPromotion && !ss->inCheck && !PvNode
-           && ss->staticEval + PieceValue[MG][pos.captured_piece()] - PieceValue[MG][movedPiece] > beta)
-              d = 0;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1545,7 +1552,7 @@ moves_loop: // When in check, search starts from here
     {
       assert(is_ok(move));
 
-      givesCheck = pos.gives_check(move);
+      givesCheck = pos.gives_disco_check(move) || pos.gives_non_disco_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;

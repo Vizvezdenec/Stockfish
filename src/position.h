@@ -125,7 +125,8 @@ public:
   bool pseudo_legal(const Move m) const;
   bool capture(Move m) const;
   bool capture_or_promotion(Move m) const;
-  bool gives_check(Move m) const;
+  bool gives_disco_check(Move m) const;
+  bool gives_non_disco_check(Move m) const;
   bool advanced_pawn_push(Move m) const;
   Piece moved_piece(Move m) const;
   Piece captured_piece() const;
@@ -144,6 +145,7 @@ public:
 
   // Static Exchange Evaluation
   bool see_ge(Move m, Value threshold = VALUE_ZERO) const;
+  bool seed_ge(Move m, Value threshold = VALUE_ZERO) const;
 
   // Accessing hash keys
   Key key() const;
@@ -417,7 +419,7 @@ inline void Position::move_piece(Square from, Square to) {
 }
 
 inline void Position::do_move(Move m, StateInfo& newSt) {
-  do_move(m, newSt, gives_check(m));
+  do_move(m, newSt, gives_disco_check(m) || gives_non_disco_check(m));
 }
 
 inline StateInfo* Position::state() const {
