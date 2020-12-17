@@ -1054,6 +1054,9 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              if (   ss->inCheck && lmrDepth < 2 && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1238,9 +1241,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              if (!ss->inCheck && ss->staticEval - PieceValue[MG][type_of(movedPiece)] - 66 * depth >= alpha)
-                  r--;
           }
           else
           {
