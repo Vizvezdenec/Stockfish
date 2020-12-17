@@ -1179,9 +1179,9 @@ bool Position::seed_ge(Move m, Value threshold) const {
   Bitboard checkSqu;
 
   if (rank_of(from) == rank_of(ksq) || file_of(from) == file_of(ksq))
-       checkSqu = attacks_bb<  ROOK>(ksq, pieces() ^ from);
-  else checkSqu = attacks_bb<BISHOP>(ksq, pieces() ^ from);
-  
+       checkSqu = attacks_bb<  ROOK>(ksq, pieces() ^ from) & pieces(sideToMove, ROOK, QUEEN);
+  else checkSqu = attacks_bb<BISHOP>(ksq, pieces() ^ from) & pieces(sideToMove, BISHOP, QUEEN);
+
   Square checkSq = pop_lsb(&checkSqu);
   if (PieceValue[MG][checkSq] + threshold <= 0)
       return true;
@@ -1194,7 +1194,6 @@ bool Position::seed_ge(Move m, Value threshold) const {
   else return false;
   }
 }
-
 
 /// Position::is_draw() tests whether the position is drawn by 50-move rule
 /// or by repetition. It does not detect stalemates.
