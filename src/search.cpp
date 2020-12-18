@@ -972,6 +972,8 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
+    else if (cutNode && depth > 7 && (ss-1)->staticEval + ss->staticEval < - PawnValueMg)
+        depth--;
 
 moves_loop: // When in check, search starts from here
 
@@ -1072,7 +1074,6 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && !(ss->inCheck && bestValue < alpha)
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
