@@ -972,7 +972,7 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
-    else if (cutNode && depth > 7 && (ss-1)->staticEval + ss->staticEval < - PawnValueMg)
+    else if (cutNode && depth > 7 && (ss-1)->staticEval + ss->staticEval > PawnValueMg)
         depth--;
 
 moves_loop: // When in check, search starts from here
