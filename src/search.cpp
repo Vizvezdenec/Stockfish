@@ -1054,6 +1054,11 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              if (   lmrDepth < 3
+                  && ss->inCheck
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1165,7 +1170,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
-      if (    depth >= 3 - (cutNode && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
+      if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
