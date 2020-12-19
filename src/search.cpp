@@ -823,7 +823,7 @@ namespace {
     }
     if (is_ok((ss-2)->currentMove) && !(ss-2)->inCheck && pos.capture_or_promotion((ss-2)->currentMove) && (ss-1)->currentMove != MOVE_NULL)
     {
-        int bonus = std::clamp(depth * int(ss->staticEval - (ss-2)->staticEval) / 4, -100, 100);
+        int bonus = std::clamp(depth * int(ss->staticEval - (ss-2)->staticEval) / 8, -50, 50);
         thisThread->mainHistory[us][from_to((ss-2)->currentMove)] << bonus;
     }
 
