@@ -818,13 +818,8 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
+        int bonus = std::clamp(- 18 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1500, 1500);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-    }
-    if (is_ok((ss-2)->currentMove) && !(ss-2)->inCheck && pos.capture_or_promotion((ss-2)->currentMove) && (ss-1)->currentMove != MOVE_NULL)
-    {
-        int bonus = std::clamp(depth * int(ss->staticEval - (ss-2)->staticEval) / 8, -50, 50);
-        thisThread->mainHistory[us][from_to((ss-2)->currentMove)] << bonus;
     }
 
     // Step 7. Razoring (~1 Elo)
