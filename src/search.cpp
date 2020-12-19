@@ -818,7 +818,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(- 32 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -4000, 4000);
+        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1189,7 +1189,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          if (thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
 
           // More reductions for late moves if position was not in previous PV
