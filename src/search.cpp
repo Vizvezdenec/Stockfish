@@ -1141,7 +1141,7 @@ moves_loop: // When in check, search starts from here
       {
           pos.do_move(move, st, givesCheck);
           Value singularBeta = beta + 2 * depth;
-          Value singValue = -search<NonPV>(pos, ss+1, -singularBeta, -singularBeta + 1, depth - 3, true);
+          Value singValue = -search<NonPV>(pos, ss+1, -singularBeta, -singularBeta + 1, depth - 4, true);
           pos.undo_move(move);
           if (singValue >= beta)
           {
