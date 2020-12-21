@@ -1131,7 +1131,7 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-      else if (depth >= 7
+      else if (depth >= 9
             && captureOrPromotion 
             && moveCount == 1 
             && !rootNode 
@@ -1140,10 +1140,9 @@ moves_loop: // When in check, search starts from here
             && !excludedMove)
       {
           pos.do_move(move, st, givesCheck);
-          Value singularBeta = beta + 2 * depth;
-          Value singValue = -search<NonPV>(pos, ss+1, -singularBeta, -singularBeta + 1, depth - 4, true);
+          Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 4, true);
           pos.undo_move(move);
-          if (singValue >= singularBeta)
+          if (singValue >= beta)
           {
               Depth singularDepth = depth / 2;
               ss->excludedMove = move;
