@@ -1131,7 +1131,7 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-      else if (depth >= 8
+      else if (depth >= 7
             && captureOrPromotion 
             && moveCount == 1 
             && !rootNode 
@@ -1148,8 +1148,8 @@ moves_loop: // When in check, search starts from here
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
-              if (value >= beta)
-                  return beta;
+              if (value < beta)
+                  extension = 1;
           }
       }
 
