@@ -601,7 +601,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth, pcDepth;
+    Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -894,7 +894,6 @@ namespace {
     }
 
     probCutBeta = beta + 183 - 49 * improving;
-    pcDepth = depth - 3 - (depth > 17);
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -907,14 +906,14 @@ namespace {
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
-             && tte->depth() >= pcDepth
+             && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
         // if ttMove is a capture and value from transposition table is good enough produce probCut
         // cutoff without digging into actual probCut search
         if (   ss->ttHit
-            && tte->depth() >= pcDepth
+            && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
             && ttMove
@@ -950,7 +949,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, pcDepth - 1, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -958,11 +957,11 @@ namespace {
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
                     if ( !(ss->ttHit
-                       && tte->depth() >= pcDepth
+                       && tte->depth() >= depth - 3
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
-                            pcDepth, move, ss->staticEval);
+                            depth - 3, move, ss->staticEval);
                     return value;
                 }
             }
@@ -1129,6 +1128,30 @@ moves_loop: // When in check, search starts from here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
+                  return beta;
+          }
+      }
+      else if (depth >= 7 
+            && captureOrPromotion 
+            && moveCount == 1 
+            && PvNode 
+            && !rootNode 
+            && !ttMove
+            && !excludedMove)
+      {
+          pos.do_move(move, st, givesCheck);
+          Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 3, true);
+          pos.undo_move(move);
+          if (singValue >= beta)
+          {
+              Value singularBeta = singValue - 2 * depth;
+              Depth singularDepth = depth / 2;
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+              ss->excludedMove = MOVE_NONE;
+              if (value < singularBeta)
+                  extension = 1;
+              else if (singularBeta >= beta)
                   return beta;
           }
       }
