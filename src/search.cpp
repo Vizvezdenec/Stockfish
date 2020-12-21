@@ -1131,8 +1131,7 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-      else if (depth >= 7 
-            && captureOrPromotion 
+      else if (depth >= 7  
             && moveCount == 1 
             && PvNode 
             && !rootNode 
