@@ -1132,7 +1132,6 @@ moves_loop: // When in check, search starts from here
           }
       }
       else if (depth >= 8
-            && captureOrPromotion 
             && !ss->inCheck
             && moveCount == 1 
             && !rootNode 
