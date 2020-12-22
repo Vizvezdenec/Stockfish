@@ -1131,13 +1131,14 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-      else if (depth >= 11
-            && captureOrPromotion 
-            && moveCount == 1 
-            && !rootNode 
-            && PvNode
-            && !ttMove
-            && !excludedMove)
+      else 
+      {
+      bool goodHist = moveCount == 1 && !rootNode && PvNode && !ttMove && !excludedMove
+                  && (captureOrPromotion ? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 6000 :
+                     (*contHist[0])[movedPiece][to_sq(move)] > 10000
+                  && (*contHist[1])[movedPiece][to_sq(move)] > 10000);
+      if (depth >= 9
+            && goodHist)
       {
           pos.do_move(move, st, givesCheck);
           Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 4, true);
@@ -1163,6 +1164,7 @@ moves_loop: // When in check, search starts from here
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
+      }
 
       // Late irreversible move extension
       if (   move == ttMove
