@@ -980,7 +980,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move countermove = thisThread->counterMoves[ss->inCheck][pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1129,36 +1129,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
-      }
-      else if (depth >= 8
-            && !ss->inCheck
-            && moveCount == 1 
-            && !rootNode 
-            && !ttMove
-            && !excludedMove
-            && ss->staticEval + PieceValue[MG][pos.piece_on(to_sq(move))] >= beta)
-      {
-          pos.do_move(move, st, givesCheck);
-          Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 4, !cutNode);
-          pos.undo_move(move);
-          if (singValue >= beta)
-          {
-              Depth singularDepth = depth / 2;
-              Value singularBeta = beta - 2 * depth;
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value < singularBeta)
-                  extension = 1;
-              else
-              {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth + 1, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value >= beta)
-                  return beta;
-              }
           }
       }
 
@@ -1822,7 +1792,7 @@ moves_loop: // When in check, search starts from here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[ss->inCheck][pos.piece_on(prevSq)][prevSq] = move;
     }
 
     // Update low ply history
