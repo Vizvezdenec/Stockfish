@@ -653,6 +653,7 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killersic[0] = (ss+2)->killersic[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -980,14 +981,14 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move countermove = thisThread->counterMoves[ss->inCheck][pos.piece_on(prevSq)][prevSq];
+    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers,
+                                      ss->inCheck ? ss->killersic : ss->killers,
                                       ss->ply);
 
     value = bestValue;
@@ -1773,10 +1774,19 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
+    if (!ss->inCheck)
+    {
     if (ss->killers[0] != move)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
+    }
+    }
+    else
+    if (ss->killersic[0] != move)
+    {
+        ss->killersic[1] = ss->killersic[0];
+        ss->killersic[0] = move;
     }
 
     Color us = pos.side_to_move();
@@ -1792,7 +1802,7 @@ moves_loop: // When in check, search starts from here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        thisThread->counterMoves[ss->inCheck][pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 
     // Update low ply history
