@@ -900,7 +900,6 @@ namespace {
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
         &&  depth > 4
-        && !formerPv
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -1252,6 +1251,12 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              bonus = bonus / 256;
+              thisThread->mainHistory[us][from_to(move)] << bonus;
+          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
