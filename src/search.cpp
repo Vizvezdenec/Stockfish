@@ -1131,6 +1131,28 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
+      else if (depth >= 9
+            && captureOrPromotion 
+            && moveCount == 1 
+            && !rootNode 
+            && PvNode
+            && !ttMove
+            && !excludedMove)
+      {
+          pos.do_move(move, st, givesCheck);
+          Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 4, true);
+          pos.undo_move(move);
+          if (singValue >= beta)
+          {
+              Depth singularDepth = 1 + depth / 2;
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
+              ss->excludedMove = MOVE_NONE;
+              if (value < beta)
+                  extension = 1;
+              else return beta;
+          }
+      }
 
       // Check extension (~2 Elo)
       else if (    givesCheck
