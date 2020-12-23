@@ -1239,9 +1239,6 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
-
-              if (std::abs(ss->statScore) < 500)
-                  r += (ss-1)->statScore / 32768;
           }
           else
           {
@@ -1712,7 +1709,7 @@ moves_loop: // When in check, search starts from here
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
 
-    int bonus1, bonus2;
+    int bonus1, bonus2, bonus3;
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
@@ -1722,6 +1719,8 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
+    bonus3 = bonus1 > bonus2 ? std::max(stat_bonus(depth + 1), stat_bonus(depth + 2)) 
+                             : stat_bonus(depth + 1);
 
     if (!pos.capture_or_promotion(bestMove))
     {
@@ -1737,7 +1736,7 @@ moves_loop: // When in check, search starts from here
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus3;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1750,7 +1749,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus3;
     }
   }
 
