@@ -820,6 +820,7 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 16);
     }
 
     // Step 7. Razoring (~1 Elo)
@@ -1251,12 +1252,6 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-          if (!captureOrPromotion)
-          {
-              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
-              bonus = bonus / 32;
-              thisThread->mainHistory[us][from_to(move)] << bonus;
-          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
