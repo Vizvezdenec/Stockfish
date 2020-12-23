@@ -927,7 +927,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 1 + 2 * cutNode)
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1239,6 +1239,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              if (std::abs(ss->statScore) < 500)
+                  r += (ss-1)->statScore / 32768;
           }
           else
           {
