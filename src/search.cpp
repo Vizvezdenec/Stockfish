@@ -1254,6 +1254,7 @@ moves_loop: // When in check, search starts from here
           if (!captureOrPromotion)
           {
               int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              bonus = bonus / 32;
               thisThread->mainHistory[us][from_to(move)] << bonus;
           }
 
