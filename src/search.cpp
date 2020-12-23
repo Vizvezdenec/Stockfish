@@ -920,8 +920,6 @@ namespace {
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
 
-        if (!formerPv)
-        {
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -929,7 +927,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 3 + 2 * cutNode - 2 * formerPv)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -968,7 +966,6 @@ namespace {
                 }
             }
          ss->ttPv = ttPv;
-         }
     }
 
     // Step 11. If the position is not in TT, decrease depth by 2
