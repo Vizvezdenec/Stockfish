@@ -653,7 +653,6 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->killersic[0] = (ss+2)->killersic[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -988,7 +987,7 @@ moves_loop: // When in check, search starts from here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->inCheck ? ss->killersic : ss->killers,
+                                      ss->killers,
                                       ss->ply);
 
     value = bestValue;
@@ -1718,8 +1717,8 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
-                                            : stat_bonus(depth);   // smaller bonus
+    bonus2 = bestValue > beta + PawnValueMg && bonus1 > stat_bonus(depth) ? bonus1               // larger bonus
+                                                                          : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
     {
@@ -1774,19 +1773,10 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
-    if (!ss->inCheck)
-    {
     if (ss->killers[0] != move)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
-    }
-    }
-    else
-    if (ss->killersic[0] != move)
-    {
-        ss->killersic[1] = ss->killersic[0];
-        ss->killersic[0] = move;
     }
 
     Color us = pos.side_to_move();
