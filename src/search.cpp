@@ -927,7 +927,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + 2 * (cutNode && !formerPv))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -981,11 +981,6 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-
-    if (ss->killers[0] == MOVE_NONE)
-        ss->killers[0] = (ss-2)->killers[0];
-    else if (ss->killers[1] == MOVE_NONE && (ss-2)->killers[0] != ss->killers[0])
-        ss->killers[1] = (ss-2)->killers[0];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
