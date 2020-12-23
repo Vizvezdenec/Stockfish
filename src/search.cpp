@@ -1253,7 +1253,7 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
           if (!captureOrPromotion)
           {
-              int bonus = value > alpha ? stat_bonus(depth) : -stat_bonus(d);
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
               thisThread->mainHistory[us][from_to(move)] << bonus;
           }
 
