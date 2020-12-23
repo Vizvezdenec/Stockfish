@@ -893,7 +893,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 183 - 49 * improving;
+    probCutBeta = beta + 183 + 80 * formerPv - 49 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -927,7 +927,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 - formerPv + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1251,12 +1251,6 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-          if (!captureOrPromotion)
-          {
-              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
-              bonus = bonus / 256;
-              thisThread->mainHistory[us][from_to(move)] << bonus;
-          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
