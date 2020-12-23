@@ -893,7 +893,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 183 + 140 * formerPv - 49 * improving;
+    probCutBeta = beta + 183 - 49 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1251,6 +1251,11 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(depth) : -stat_bonus(d);
+              thisThread->mainHistory[us][from_to(move)] << bonus;
+          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
