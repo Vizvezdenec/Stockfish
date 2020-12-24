@@ -603,7 +603,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
-    bool formerPv, givesCheck, improving, didLMR, priorCapture, failedLMR;
+    bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
@@ -1208,7 +1208,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + (bestMove == ttMove && bestValue == alpha);
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
@@ -1255,16 +1255,12 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
-
-          failedLMR = value <= alpha;
       }
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
 
           didLMR = false;
-
-          failedLMR = false;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
@@ -1360,7 +1356,7 @@ moves_loop: // When in check, search starts from here
       // If the move is worse than some previously searched move, remember it to update its stats later
       if (move != bestMove)
       {
-          if (captureOrPromotion && !failedLMR && captureCount < 32)
+          if (captureOrPromotion && captureCount < 32)
               capturesSearched[captureCount++] = move;
 
           else if (!captureOrPromotion && quietCount < 64)
