@@ -617,6 +617,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    bool stableRoot = thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -838,7 +839,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8
+        &&  depth < 8 + 2 * stableRoot
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1164,19 +1165,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      if (   captureOrPromotion 
-         && !ss->inCheck
-         &&  moveCount > 10 + 8 * depth
-         &&  ss->staticEval + PieceValue[EG][pos.captured_piece()] + 122 * depth < alpha)
-      {
-      value = -qsearch<NonPV>(pos, ss+1, -alpha - 1, -alpha);
-      if (value <= alpha)
-      {
-          pos.undo_move(move);
-          continue;
-      }
-      }
-
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
@@ -1202,7 +1190,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          if ((rootNode || !PvNode) && stableRoot)
               r++;
 
           // More reductions for late moves if position was not in previous PV
