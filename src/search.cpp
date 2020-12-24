@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts from here
 
       if (   captureOrPromotion 
          && !ss->inCheck
-         &&  moveCount > 10 + 5 * depth
+         &&  moveCount > 5 + 10 * depth
          &&  ss->staticEval + PieceValue[EG][pos.captured_piece()] + 174 * depth < alpha)
       {
       value = -qsearch<NonPV>(pos, ss+1, -alpha - 1, -alpha);
