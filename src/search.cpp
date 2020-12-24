@@ -894,7 +894,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 183 - 49 * improving - 28 * stableRoot;
+    probCutBeta = beta + 183 - 49 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -928,7 +928,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && probCutCount < 2 + stableRoot + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
