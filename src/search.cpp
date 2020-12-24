@@ -603,7 +603,7 @@ namespace {
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
-    bool formerPv, givesCheck, improving, didLMR, priorCapture;
+    bool formerPv, givesCheck, improving, didLMR, priorCapture, failedLMR;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
@@ -1246,9 +1246,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (   !ss->inCheck)
-                  r -= (captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 1500) / 4096;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
@@ -1258,12 +1255,16 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
+
+          failedLMR = value <= alpha;
       }
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
 
           didLMR = false;
+
+          failedLMR = false;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
@@ -1359,7 +1360,7 @@ moves_loop: // When in check, search starts from here
       // If the move is worse than some previously searched move, remember it to update its stats later
       if (move != bestMove)
       {
-          if (captureOrPromotion && captureCount < 32)
+          if (captureOrPromotion && !failedLMR && captureCount < 32)
               capturesSearched[captureCount++] = move;
 
           else if (!captureOrPromotion && quietCount < 64)
