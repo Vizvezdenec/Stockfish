@@ -1247,8 +1247,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
 
-              if (   !ss->inCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -9000)
-                  r++;
+              if (   !ss->inCheck)
+                  r -= (captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 1500) / 4096;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
