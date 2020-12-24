@@ -1247,7 +1247,7 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
 
-              if (   !ss->inCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -8000)
+              if (   !ss->inCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -9000)
                   r++;
           }
 
