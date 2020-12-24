@@ -858,7 +858,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3) + stableRoot;
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -894,7 +894,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 183 - 49 * improving;
+    probCutBeta = beta + 183 - 49 * improving - 28 * stableRoot;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
