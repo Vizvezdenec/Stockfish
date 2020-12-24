@@ -982,11 +982,6 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    if (ss->killers[0] == MOVE_NONE)
-        ss->killers[0] = (ss-2)->killers[0], ss->killers[1] = (ss-2)->killers[1];
-    else if (ss->killers[1] == MOVE_NONE && (ss-2)->killers[0] != ss->killers[0])
-        ss->killers[1] = (ss-2)->killers[0];
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
@@ -1207,6 +1202,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (countermove == move && countermove == ss->killers[0] && bestValue < alpha)
               r--;
 
           if (!captureOrPromotion)
