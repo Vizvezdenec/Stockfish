@@ -1164,6 +1164,19 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      if (   captureOrPromotion 
+         && !ss->inCheck
+         &&  moveCount > 6 * depth
+         &&  ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 68 * depth < alpha)
+      {
+      value = -qsearch<NonPV>(pos, ss+1, -alpha - 1, -alpha);
+      if (value <= alpha)
+      {
+          pos.undo_move(move);
+          continue;
+      }
+      }
+
       // Step 16. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
