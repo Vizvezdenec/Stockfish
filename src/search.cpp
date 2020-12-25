@@ -993,6 +993,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    int fhc = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1173,6 +1174,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv)
+              || (PvNode && !rootNode && fhc > 1 && ss->ply > 4)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1339,6 +1341,7 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+              fhc++;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
