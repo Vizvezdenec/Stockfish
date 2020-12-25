@@ -64,8 +64,8 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 510;
-  Value futility_margin(Depth d, int npm, bool improving) {
-    return Value((218 + npm / 512) * (d - improving));
+  Value futility_margin(Depth d, bool improving) {
+    return Value(234 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -839,7 +839,7 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, pos.non_pawn_material(), improving) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -857,7 +857,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3) + (cutNode && !formerPv);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
