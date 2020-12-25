@@ -1055,6 +1055,11 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
+              if (   lmrDepth < 1 && !formerPv
+                  && (*contHist[0])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] <= CounterMovePruneThreshold)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1223,7 +1228,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~2 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + formerPv - (type_of(movedPiece) == PAWN);
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
