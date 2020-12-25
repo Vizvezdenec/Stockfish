@@ -997,6 +997,8 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    Value baseAlpha = alpha;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1172,6 +1174,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
+              || (PvNode && !rootNode && alpha > (baseAlpha + 3 * beta) / 4)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
