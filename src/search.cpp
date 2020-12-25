@@ -857,7 +857,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3) + (cutNode && !formerPv);
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -973,6 +973,9 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
+
+    if (   PvNode && depth >= 6 && !tte->is_pv())
+        depth--;
 
 moves_loop: // When in check, search starts from here
 
