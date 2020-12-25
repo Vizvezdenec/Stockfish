@@ -1248,8 +1248,8 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
 
-              if (   !cutNode && !PvNode && formerPv)
-                  r--;
+               if (    cutNode && !formerPv && thisThread->ttHitAverage < 382 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+                  r++;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
