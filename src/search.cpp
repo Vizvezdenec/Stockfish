@@ -64,8 +64,8 @@ namespace {
 
   // Razor and futility margins
   constexpr int RazorMargin = 510;
-  Value futility_margin(Depth d, bool improving) {
-    return Value(234 * (d - improving));
+  Value futility_margin(Depth d, int npm, bool improving) {
+    return Value((218 + npm / 512) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -839,7 +839,7 @@ namespace {
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, pos.non_pawn_material(), improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -993,7 +993,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int fhc = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1174,7 +1173,6 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv)
-              || (PvNode && !rootNode && fhc > 1)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1341,7 +1339,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-              fhc++;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
