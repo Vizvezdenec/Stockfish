@@ -1207,7 +1207,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           if (PvNode && bestQuiet && std::abs(bestValue) < 2)
-              r--;
+              r -= 2;
 
           if (!captureOrPromotion)
           {
