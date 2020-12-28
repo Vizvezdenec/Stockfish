@@ -1117,7 +1117,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return std::max(beta, singularBeta - 4 * depth);
+              return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1203,6 +1203,11 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          PieceToHistory* cont1Hist[] = {ss->continuationHistory};
+          Move cm = thisThread->counterMoves[movedPiece][to_sq(move)];
+          if (cm == MOVE_NONE || (*cont1Hist[0])[pos.moved_piece(cm)][to_sq(cm)] < 0)
               r--;
 
           if (!captureOrPromotion)
