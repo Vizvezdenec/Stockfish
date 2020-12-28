@@ -782,7 +782,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = VALUE_NONE;
+        ss->staticEval = eval = ss->eeval = VALUE_NONE;
         improving = false;
         goto moves_loop;
     }
@@ -801,15 +801,16 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
+        ss->eeval = eval;
     }
     else
     {
         // In case of null move search use previous static eval with a different sign
         // and addition of two tempos
         if ((ss-1)->currentMove != MOVE_NULL)
-            ss->staticEval = eval = evaluate(pos);
+            ss->staticEval = eval = ss->eeval = evaluate(pos);
         else
-            ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
+            ss->staticEval = eval = ss->eeval = -(ss-1)->staticEval + 2 * Tempo;
 
         // Save static evaluation into transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
@@ -835,6 +836,9 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
+
+    if (ss->eeval > (ss-2)->eeval)
+        improving = true;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -916,7 +920,6 @@ namespace {
             && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
-            && eval >= ss->staticEval
             && ttMove
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
