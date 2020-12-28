@@ -145,6 +145,7 @@ private:
   const Position& pos;
   const ButterflyHistory* mainHistory;
   const LowPlyHistory* lowPlyHistory;
+  const LowPlyHistory* lowPlyHistoryIc;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;

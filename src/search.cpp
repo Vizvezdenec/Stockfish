@@ -327,6 +327,8 @@ void Thread::search() {
 
   std::copy(&lowPlyHistory[2][0], &lowPlyHistory.back().back() + 1, &lowPlyHistory[0][0]);
   std::fill(&lowPlyHistory[MAX_LPH - 2][0], &lowPlyHistory.back().back() + 1, 0);
+  std::copy(&lowPlyHistoryIc[2][0], &lowPlyHistoryIc.back().back() + 1, &lowPlyHistoryIc[0][0]);
+  std::fill(&lowPlyHistoryIc[MAX_LPH - 2][0], &lowPlyHistoryIc.back().back() + 1, 0);
 
   size_t multiPV = size_t(Options["MultiPV"]);
 
@@ -682,7 +684,8 @@ namespace {
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
         && is_ok((ss-1)->currentMove))
-        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
+        (ss-1)->inCheck? thisThread->lowPlyHistoryIc[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5)
+                       : thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // thisThread->ttHitAverage can be used to approximate the running average of ttHit
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
@@ -983,7 +986,7 @@ moves_loop: // When in check, search starts from here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->lowPlyHistory,
+                                      ss->inCheck ? &thisThread->lowPlyHistoryIc : &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
@@ -1799,7 +1802,8 @@ moves_loop: // When in check, search starts from here
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
-        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+        ss->inCheck? thisThread->lowPlyHistoryIc[ss->ply][from_to(move)] << stat_bonus(depth - 7)
+                   : thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
