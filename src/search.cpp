@@ -681,6 +681,7 @@ namespace {
         && depth > 12
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
+        && !(ss-1)->inCheck
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
@@ -1051,14 +1052,8 @@ moves_loop: // When in check, search starts from here
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && !ss->inCheck
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
-              if (   lmrDepth < 4 - tte->is_pv()
-                  && ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1803,7 +1798,7 @@ moves_loop: // When in check, search starts from here
     }
 
     // Update low ply history
-    if (depth > 11 && ss->ply < MAX_LPH)
+    if (depth > 11 && ss->ply < MAX_LPH && !ss->inCheck)
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
   }
 
