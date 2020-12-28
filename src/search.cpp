@@ -900,7 +900,6 @@ namespace {
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
         &&  depth > 4
-        && eval >= ss->staticEval
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -917,6 +916,7 @@ namespace {
             && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
+            && eval >= ss->staticEval
             && ttMove
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
