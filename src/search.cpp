@@ -819,7 +819,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int evalDiff = int((ss-1)->staticEval + ss->staticEval - 2 * Tempo);
-        int bonus = std::clamp(-depth * evalDiff * std::abs(evalDiff) / 16, -1000, 1000);
+        int bonus = std::clamp(-depth * evalDiff * std::abs(evalDiff) / 4, -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
