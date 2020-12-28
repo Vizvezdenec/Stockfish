@@ -1117,7 +1117,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return std::max(beta, singularBeta - PawnValueMg);
+              return std::max(beta, singularBeta - 2 * depth);
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
