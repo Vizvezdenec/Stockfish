@@ -1099,7 +1099,7 @@ moves_loop: // When in check, search starts from here
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
-          Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
+          Value singularBeta = ttValue - ((tte->is_pv() + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1203,12 +1203,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
-
-          PieceToHistory* cont1Hist[] = {ss->continuationHistory, (ss-1)->continuationHistory };
-          Move cm = thisThread->counterMoves[movedPiece][to_sq(move)];
-          if (cm == MOVE_NONE || ((*cont1Hist[0])[pos.moved_piece(cm)][to_sq(cm)] < 0
-                               && (*cont1Hist[1])[pos.moved_piece(cm)][to_sq(cm)] < 0))
               r--;
 
           if (!captureOrPromotion)
