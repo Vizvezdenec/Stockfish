@@ -681,7 +681,6 @@ namespace {
         && depth > 12
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
-        && !(ss-1)->inCheck
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
@@ -1537,7 +1536,8 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      to_sq((ss-1)->currentMove));
+                                      to_sq((ss-1)->currentMove),
+                                      MAX_PLY);
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1798,7 +1798,7 @@ moves_loop: // When in check, search starts from here
     }
 
     // Update low ply history
-    if (depth > 11 && ss->ply < MAX_LPH && !ss->inCheck)
+    if (depth > 11 && ss->ply < MAX_LPH)
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
   }
 
