@@ -1056,7 +1056,7 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (   lmrDepth < 2 + ss->ttPv
+              if (   lmrDepth < 4 - ss->ttPv
                   && ss->inCheck
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
