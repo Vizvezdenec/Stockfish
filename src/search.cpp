@@ -1205,9 +1205,10 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          PieceToHistory* cont1Hist[] = {ss->continuationHistory};
+          PieceToHistory* cont1Hist[] = {ss->continuationHistory, (ss-1)->continuationHistory };
           Move cm = thisThread->counterMoves[movedPiece][to_sq(move)];
-          if (cm == MOVE_NONE || (*cont1Hist[0])[pos.moved_piece(cm)][to_sq(cm)] < 0)
+          if (cm == MOVE_NONE || ((*cont1Hist[0])[pos.moved_piece(cm)][to_sq(cm)] < 0
+                               && (*cont1Hist[1])[pos.moved_piece(cm)][to_sq(cm)] < 0))
               r--;
 
           if (!captureOrPromotion)
