@@ -1253,6 +1253,14 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(d) / 8 : -stat_bonus(d) / 8;
+              thisThread->mainHistory[us][from_to(move)] << bonus;
+              if (type_of(movedPiece) != PAWN)
+                  thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
+          }
+
           doFullDepthSearch = value > alpha && d != newDepth;
 
           didLMR = true;
@@ -1338,8 +1346,6 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (is_ok((ss-1)->currentMove) && !captureOrPromotion)
-                  thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
