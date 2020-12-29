@@ -1338,7 +1338,7 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (ss->killers[0] == MOVE_NONE && !captureOrPromotion)
+              if (ss->killers[0] != move && !captureOrPromotion)
               {
                   ss->killers[1] = ss->killers[0];
                   ss->killers[0] = move;
