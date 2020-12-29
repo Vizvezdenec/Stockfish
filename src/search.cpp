@@ -782,7 +782,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = ss->eeval = VALUE_NONE;
+        ss->staticEval = eval = VALUE_NONE;
         improving = false;
         goto moves_loop;
     }
@@ -801,16 +801,15 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-        ss->eeval = eval;
     }
     else
     {
         // In case of null move search use previous static eval with a different sign
         // and addition of two tempos
         if ((ss-1)->currentMove != MOVE_NULL)
-            ss->staticEval = eval = ss->eeval = evaluate(pos);
+            ss->staticEval = eval = evaluate(pos);
         else
-            ss->staticEval = eval = ss->eeval = -(ss-1)->staticEval + 2 * Tempo;
+            ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
         // Save static evaluation into transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
@@ -836,9 +835,6 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
-
-    if (ss->eeval > (ss-2)->eeval + 2)
-        improving = true;
 
     // Step 8. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1207,6 +1203,12 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          PieceToHistory* cont1Hist[] = {ss->continuationHistory, (ss-1)->continuationHistory};
+          Move cm = thisThread->counterMoves[movedPiece][to_sq(move)];
+          if (cm != MOVE_NONE && (*cont1Hist[0])[pos.moved_piece(cm)][to_sq(cm)] < 0
+                              && (*cont1Hist[1])[pos.moved_piece(cm)][to_sq(cm)] < 0)
               r--;
 
           if (!captureOrPromotion)
