@@ -1225,9 +1225,6 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
-              if (!PvNode && !cutNode && !formerPv)
-                  r++;
-
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1249,6 +1246,9 @@ moves_loop: // When in check, search starts from here
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
+                  r++;
+
+              if (cutNode && !formerPv)
                   r++;
           }
 
