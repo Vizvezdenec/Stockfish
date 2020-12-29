@@ -1338,11 +1338,8 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              if (ss->killers[0] != move && !captureOrPromotion)
-              {
-                  ss->killers[1] = ss->killers[0];
-                  ss->killers[0] = move;
-              }
+              if (is_ok((ss-1)->currentMove) && !captureOrPromotion)
+                  thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
