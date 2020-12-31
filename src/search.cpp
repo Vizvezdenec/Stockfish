@@ -1387,7 +1387,7 @@ moves_loop: // When in check, search starts from here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
     {
-        if (!(rootNode && depth < 4))
+        if (!(rootNode && depth < 3))
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
