@@ -1169,8 +1169,8 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && !(!captureOrPromotion 
-                                   && (*contHist[0])[movedPiece][to_sq(move)] > 27000 
-                                   && (*contHist[1])[movedPiece][to_sq(move)] > 27000)
+                                   && (*contHist[0])[movedPiece][to_sq(move)] > 21000 
+                                   && (*contHist[1])[movedPiece][to_sq(move)] > 21000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
