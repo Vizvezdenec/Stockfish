@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || (!PvNode && !formerPv)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
-          && !(  captureOrPromotion && ss->ttPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 4506))
+          && !(  captureOrPromotion && ss->ttPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 7382))
       {
           Depth r = reduction(improving, depth, moveCount);
 
