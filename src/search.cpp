@@ -1066,7 +1066,6 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && !ss->ttPv
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
@@ -1156,6 +1155,9 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && !(!captureOrPromotion && ss->ttPv
+                                   && (*contHist[0])[movedPiece][to_sq(move)] > 20000 
+                                   && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
