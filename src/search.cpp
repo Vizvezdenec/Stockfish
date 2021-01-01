@@ -365,6 +365,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   int searchAgainCounter = 0;
+  int searchCount = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -405,6 +406,7 @@ void Thread::search() {
           {
               Value prev = rootMoves[pvIdx].previousScore;
               delta = Value(17);
+              delta -= std::max(Value(10), std::min(delta, delta - (rootDepth * 2 - searchCount) / 4));
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -421,6 +423,7 @@ void Thread::search() {
           failedHighCnt = 0;
           while (true)
           {
+              searchCount++;
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
               bestValue = ::search<PV>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
@@ -1155,9 +1158,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(!captureOrPromotion && PvNode
-                                   && (*contHist[0])[movedPiece][to_sq(move)] > 20000 
-                                   && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
