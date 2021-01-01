@@ -1155,15 +1155,13 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(!captureOrPromotion && formerPv
-                                   && (*contHist[0])[movedPiece][to_sq(move)] > 20000 
-                                   && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
-              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || (!PvNode && !formerPv)
+              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+          && !(  captureOrPromotion && ss->ttPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 3000))
       {
           Depth r = reduction(improving, depth, moveCount);
 
