@@ -845,7 +845,6 @@ namespace {
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 168
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && !(std::abs(eval) < 2)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1752,7 +1751,11 @@ moves_loop: // When in check, search starts from here
         if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
+        {
+            if (bonus > 0)
+                bonus = std::max(bonus, -(*(ss-i)->continuationHistory)[pc][to] - 26000);
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
+        }
     }
   }
 
