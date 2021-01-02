@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 254 + 159 * lmrDepth <= alpha
+                  && ss->staticEval + 254 + 159 * lmrDepth <= alpha - (alpha - bestValue) / 8
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1155,11 +1155,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(!captureOrPromotion && ss->ttPv
-                                   && (*contHist[0])[movedPiece][to_sq(move)] > 20000 
-                                   && (*contHist[1])[movedPiece][to_sq(move)] > 20000
-                                   && (*contHist[3])[movedPiece][to_sq(move)] > 20000 
-                                   && (*contHist[5])[movedPiece][to_sq(move)] > 20000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
