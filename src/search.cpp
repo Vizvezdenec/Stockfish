@@ -1752,8 +1752,8 @@ moves_loop: // When in check, search starts from here
             break;
         if (is_ok((ss-i)->currentMove))
         {
-            if (bonus > 0)
-                bonus = std::max(bonus, -(*(ss-i)->continuationHistory)[pc][to] - 26000);
+            if (bonus < 0)
+                bonus = std::min(bonus, -(*(ss-i)->continuationHistory)[pc][to] + 26000);
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
         }
     }
