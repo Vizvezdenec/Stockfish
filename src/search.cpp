@@ -1264,7 +1264,7 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
-          else if (didLMR && value > alpha && singularQuietLMR)
+          else if (didLMR && value > alpha && singularQuietLMR && bestMove == ttMove)
               captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] << stat_bonus(depth);
               
       }
