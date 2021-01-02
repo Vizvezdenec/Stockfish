@@ -920,7 +920,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode - (!cutNode && formerPv))
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -1264,6 +1264,9 @@ moves_loop: // When in check, search starts from here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+          else if (didLMR && value > alpha && singularQuietLMR)
+              captureHistory[movedPiece][to_sq(move)][pos.captured_piece()] << stat_bonus(depth);
+              
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
