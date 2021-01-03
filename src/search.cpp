@@ -713,6 +713,8 @@ namespace {
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                thisThread->ptHistory[us][pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty / 8;
+                thisThread->ptHistory[us][pos.moved_piece(ttMove)][from_sq(ttMove)] << -penalty / 8;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -819,6 +821,8 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->ptHistory[~us][pos.moved_piece((ss-1)->currentMove)][to_sq((ss-1)->currentMove)] << bonus / 8;
+        thisThread->ptHistory[us][pos.moved_piece((ss-1)->currentMove)][from_sq((ss-1)->currentMove)] << -bonus / 8;
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -976,6 +980,7 @@ moves_loop: // When in check, search starts from here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->ptHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
@@ -1521,6 +1526,7 @@ moves_loop: // When in check, search starts from here
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->ptHistory,
                                       &thisThread->captureHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
@@ -1717,6 +1723,8 @@ moves_loop: // When in check, search starts from here
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            thisThread->ptHistory[us][pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2 / 8;
+            thisThread->ptHistory[us][pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2 / 8;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
@@ -1770,6 +1778,8 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->ptHistory[us][pos.moved_piece(move)][to_sq(move)] << bonus / 8;
+    thisThread->ptHistory[us][pos.moved_piece(move)][from_sq(move)] << -bonus / 8;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Penalty for reversed move in case of moved piece not being a pawn
