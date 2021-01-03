@@ -1035,8 +1035,8 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          moveCountPruning &= captureOrPromotion || (*contHist[0])[movedPiece][to_sq(move)] < 20000
-                                                 || (*contHist[1])[movedPiece][to_sq(move)] < 20000;
+          moveCountPruning &= captureOrPromotion || (*contHist[0])[movedPiece][to_sq(move)] < 25000
+                                                 || (*contHist[1])[movedPiece][to_sq(move)] < 25000;
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
