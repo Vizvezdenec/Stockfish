@@ -975,8 +975,8 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    if ((*contHist[0])[pos.moved_piece(countermove)][to_sq(countermove)] < -20000
-     && (*contHist[1])[pos.moved_piece(countermove)][to_sq(countermove)] < -20000)
+    if ((*contHist[0])[pos.moved_piece(countermove)][to_sq(countermove)] < -10000
+     && (*contHist[1])[pos.moved_piece(countermove)][to_sq(countermove)] < -10000)
         countermove = MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
