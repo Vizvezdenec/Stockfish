@@ -986,13 +986,14 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    int qmc = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
     // Step 11. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && qmc > 0)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1025,6 +1026,8 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      qmc += !captureOrPromotion;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1035,8 +1038,7 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          moveCountPruning &= captureOrPromotion || (*contHist[0])[movedPiece][to_sq(move)] < 27000
-                                                 || (*contHist[1])[movedPiece][to_sq(move)] < 27000;
+
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
