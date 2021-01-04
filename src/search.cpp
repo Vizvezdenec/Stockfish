@@ -1049,7 +1049,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 7 + 2 * (cutNode && !formerPv)
+              if (   lmrDepth < 7 + (cutNode && !formerPv)
                   && !ss->inCheck
                   && ss->staticEval + 254 + 159 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
