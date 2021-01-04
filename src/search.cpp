@@ -1229,7 +1229,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 14884;
 
               if (thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2 && ss->ply < MAX_LPH)
-                  r -= thisThread->lowPlyHistory[ss->ply][from_to(move)] / 8192;
+                  r += std::max(0, -thisThread->lowPlyHistory[ss->ply][from_to(move)] / 8192);
           }
           else
           {
