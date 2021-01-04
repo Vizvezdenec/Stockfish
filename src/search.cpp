@@ -1718,8 +1718,6 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
-            if (depth > 11 && ss->ply < MAX_LPH)
-                thisThread->lowPlyHistory[ss->ply][from_to(quietsSearched[i])] << -stat_bonus(depth - 7);
         }
     }
     else
@@ -1786,8 +1784,8 @@ moves_loop: // When in check, search starts from here
     }
 
     // Update low ply history
-    if (depth > 11 && ss->ply < MAX_LPH)
-        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+    if (ss->ply < MAX_LPH)
+        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(std::max(1, depth - 7));
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
