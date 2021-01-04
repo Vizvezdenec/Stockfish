@@ -1785,7 +1785,7 @@ moves_loop: // When in check, search starts from here
 
     // Update low ply history
     if (ss->ply < MAX_LPH)
-        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(std::max(1, depth - 7));
+        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth < 8 ? MAX_PLY : depth - 7);
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
