@@ -1325,7 +1325,6 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
-              Move prevBest = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
@@ -1336,8 +1335,6 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  if (prevBest && pos.capture_or_promotion(prevBest) && captureCount < 32 && capturesSearched[captureCount] != prevBest)
-                      capturesSearched[captureCount++] = prevBest;
                   ss->statScore = 0;
                   break;
               }
@@ -1345,7 +1342,7 @@ moves_loop: // When in check, search starts from here
       }
 
       // If the move is worse than some previously searched move, remember it to update its stats later
-      if (move != bestMove)
+      if (move != bestMove || captureOrPromotion)
       {
           if (captureOrPromotion && captureCount < 32)
               capturesSearched[captureCount++] = move;
@@ -1736,9 +1733,12 @@ moves_loop: // When in check, search starts from here
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
+        if (capturesSearched[i] != bestMove)
+        {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        }
     }
   }
 
