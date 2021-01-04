@@ -677,10 +677,11 @@ namespace {
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
+        && depth > 12
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
         && is_ok((ss-1)->currentMove))
-        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(std::max(depth - 5, 1));
+        thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // thisThread->ttHitAverage can be used to approximate the running average of ttHit
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
@@ -1324,6 +1325,7 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
+              Move prevBest = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
@@ -1334,6 +1336,8 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
+                  if (pos.capture_or_promotion(prevBest) && captureCount < 32 && capturesSearched[captureCount] != prevBest)
+                      capturesSearched[captureCount++] = prevBest;
                   ss->statScore = 0;
                   break;
               }
