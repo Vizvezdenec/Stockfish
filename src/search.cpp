@@ -365,6 +365,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   int searchAgainCounter = 0;
+  rootCapt = false;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -1100,14 +1101,6 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              if (singularBeta > beta + 85 + 10 * depth)
-              {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value >= beta)
-                  return beta;
-              }
               extension = 1;
               singularQuietLMR = !ttCapture;
           }
@@ -1185,7 +1178,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 - 2 * thisThread->rootCapt && thisThread->bestMoveChanges <= 2)
               r++;
 
           // More reductions for late moves if position was not in previous PV
@@ -1381,8 +1374,12 @@ moves_loop: // When in check, search starts from here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
+    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        if (rootNode)
+            thisThread->rootCapt = pos.capture_or_promotion(bestMove);
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
