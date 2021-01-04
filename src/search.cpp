@@ -1090,7 +1090,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3)
+          &&  tte->depth() >= depth - 3 - (ttCapture && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 7000))
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
