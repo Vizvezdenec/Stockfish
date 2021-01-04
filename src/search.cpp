@@ -1336,7 +1336,7 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  if (pos.capture_or_promotion(prevBest) && captureCount < 32 && capturesSearched[captureCount] != prevBest)
+                  if (prevBest && pos.capture_or_promotion(prevBest) && captureCount < 32 && capturesSearched[captureCount] != prevBest)
                       capturesSearched[captureCount++] = prevBest;
                   ss->statScore = 0;
                   break;
