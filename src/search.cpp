@@ -837,7 +837,7 @@ namespace {
         return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
-    if (  (!PvNode || (!rootNode && depth < 6 && eval > beta + 2 * Tempo))
+    if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 22977
         &&  eval >= beta
@@ -1392,6 +1392,9 @@ moves_loop: // When in check, search starts from here
     // in the search tree, remove the position from the search tree.
     else if (depth > 3)
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
+
+    if (!bestMove && moveCount > 0 && !ss->inCheck)
+        ss->staticEval -= std::max(0, int(ss->staticEval - alpha)) / 16;
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
