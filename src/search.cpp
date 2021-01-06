@@ -1154,7 +1154,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode + 2 * (PvNode && std::abs(bestValue) < 2 && pos.non_pawn_material() <= 2 * QueenValueMg)
+          &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1392,6 +1392,9 @@ moves_loop: // When in check, search starts from here
     // in the search tree, remove the position from the search tree.
     else if (depth > 3)
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
+
+    if (!bestMove && moveCount > 0 && !ss->inCheck)
+        ss->staticEval = alpha;
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
