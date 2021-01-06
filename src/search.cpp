@@ -1393,10 +1393,8 @@ moves_loop: // When in check, search starts from here
     else if (depth > 3)
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
-    if (moveCount > 0 && !ss->inCheck)
-        ss->staticEval  = bestValue < alpha && ss->staticEval >= alpha ? (3 * ss->staticEval + alpha) / 4 :
-                          bestValue > beta  && ss->staticEval <= beta  ? (3 * ss->staticEval + beta ) / 4 :
-                          ss->staticEval;
+    if (!bestMove && moveCount > 0 && !ss->inCheck)
+        ss->staticEval -= std::max(0, int(ss->staticEval - alpha)) / 2;
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
