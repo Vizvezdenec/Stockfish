@@ -1394,7 +1394,7 @@ moves_loop: // When in check, search starts from here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     if (moveCount > 0 && !ss->inCheck)
-        ss->staticEval -= bestValue < alpha && ss->staticEval >= alpha ? (ss->staticEval + alpha) / 2 :
+        ss->staticEval  = bestValue < alpha && ss->staticEval >= alpha ? (ss->staticEval + alpha) / 2 :
                           bestValue > beta  && ss->staticEval <= beta  ? (ss->staticEval + beta ) / 2 :
                           ss->staticEval;
 
