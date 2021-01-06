@@ -1394,8 +1394,8 @@ moves_loop: // When in check, search starts from here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     if (moveCount > 0 && !ss->inCheck)
-        ss->staticEval  = bestValue < alpha && ss->staticEval >= alpha ? alpha :
-                          bestValue > beta  && ss->staticEval <= beta  ? beta  :
+        ss->staticEval  = bestValue < alpha && ss->staticEval >= alpha ? (3 * ss->staticEval + alpha) / 4 :
+                          bestValue > beta  && ss->staticEval <= beta  ? (3 * ss->staticEval + beta ) / 4 :
                           ss->staticEval;
 
     // Write gathered information in transposition table
