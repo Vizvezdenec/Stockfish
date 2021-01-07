@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (!ss->inCheck && PvNode && std::abs(bestValue) < 2 && std::abs(ss->staticEval) > 80)
+          if (!ss->inCheck && PvNode && std::abs(bestValue) < 2 && std::abs(ss->staticEval) > 160)
               r--;
 
           if (!captureOrPromotion)
