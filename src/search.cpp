@@ -1154,8 +1154,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode 
-       + (PvNode && abs(bestValue) < 2 && pos.count<ALL_PIECES>() - pos.count<ROOK>() - pos.count<PAWN>() == 2)
+          &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1191,6 +1190,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (!ss->inCheck && PvNode && std::abs(bestValue) < 2 && std::abs(ss->staticEval) > 120)
               r--;
 
           if (!captureOrPromotion)
