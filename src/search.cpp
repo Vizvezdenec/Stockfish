@@ -1394,7 +1394,7 @@ moves_loop: // When in check, search starts from here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     if (!bestMove && moveCount > 0 && !ss->inCheck)
-        ss->staticEval = alpha;
+        ss->staticEval = std::min(ss->staticEval, alpha);
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
