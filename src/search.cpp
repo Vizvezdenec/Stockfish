@@ -1226,10 +1226,10 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14884;
-
-              if (ss->inCheck)
-                  r-= ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 32768;
+              if (!ss->inCheck)
+                  r -= ss->statScore / 14884;
+              else
+                  r-= (*contHist[0])[movedPiece][to_sq(move)] / 16384;
           }
           else
           {
