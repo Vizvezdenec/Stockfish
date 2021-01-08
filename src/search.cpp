@@ -1229,7 +1229,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 14884;
 
               if (ss->inCheck)
-                  r-= (*contHist[0])[movedPiece][to_sq(move)] / 16384;
+                  r-= ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 32768;
           }
           else
           {
