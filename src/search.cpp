@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           if (!ss->inCheck && PvNode && std::abs(bestValue) < 2)
-              r -= std::abs(ss->staticEval) / 256;
+              r -= std::abs(ss->staticEval) / 512;
 
           if (!captureOrPromotion)
           {
