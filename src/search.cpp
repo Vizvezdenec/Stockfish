@@ -1236,7 +1236,7 @@ moves_loop: // When in check, search starts from here
               if (!ss->inCheck)
                   r -= ss->statScore / 14884;
               else
-                  r-= (thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 3333) / 16384;
+                  r-= (thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 1333) / 16384;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
