@@ -1192,9 +1192,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (!ss->inCheck && PvNode && std::abs(bestValue) < 2)
-              r -= std::abs(ss->staticEval) / 512;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
@@ -1230,6 +1227,9 @@ moves_loop: // When in check, search starts from here
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
+
+              if (ss->inCheck)
+                  r-= (*contHist[0])[movedPiece][to_sq(move)] / 16384;
           }
           else
           {
