@@ -1034,9 +1034,7 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth) - 
-                            (!captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                                                 && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold );
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1193,6 +1191,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (!ss->inCheck && PvNode && std::abs(bestValue) < 2)
+              r -= std::abs(ss->staticEval) / 256;
 
           if (!captureOrPromotion)
           {
