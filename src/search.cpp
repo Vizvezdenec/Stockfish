@@ -853,7 +853,7 @@ namespace {
         Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
         if (!priorCapture)
-            R += thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] / 8192;
+            R += thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] / 16384;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
