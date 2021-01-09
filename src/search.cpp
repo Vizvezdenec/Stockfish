@@ -1233,7 +1233,10 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14884;
+              if (!ss->inCheck)
+                  r -= ss->statScore / 14884;
+              else
+                  r-= (thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
