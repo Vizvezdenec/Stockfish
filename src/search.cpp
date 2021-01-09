@@ -852,6 +852,9 @@ namespace {
         // Null move dynamic reduction based on depth and value
         Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
+        if (!priorCapture)
+            R += thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] / 8192;
+
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
@@ -868,7 +871,11 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
+            {
+                if (!priorCapture && depth > R)
+                    thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] << stat_bonus(depth - R);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -882,8 +889,14 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
+            {
+                if (!priorCapture && depth > R)
+                    thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] << stat_bonus(depth - R);
                 return nullValue;
+            }
         }
+        else if (!priorCapture && depth > R)
+                 thisThread->nmpHistory[pos.piece_on(prevSq)][prevSq] << -stat_bonus(depth - R);
     }
 
     probCutBeta = beta + 194 - 49 * improving;
@@ -1155,7 +1168,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(captureOrPromotion && ss->inCheck && moveCount == 2 && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
