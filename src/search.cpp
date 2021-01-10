@@ -845,6 +845,7 @@ namespace {
         &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 168
         && !excludedMove
         &&  pos.non_pawn_material(us)
+        && !pos.blockers_for_king(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1181,7 +1182,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv && !(captureOrPromotion && givesCheck))
+          if (moveCountPruning && !formerPv)
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
