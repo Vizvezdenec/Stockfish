@@ -1159,6 +1159,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
+              || (!givesCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -9000)
               || (!PvNode && !formerPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
@@ -1198,9 +1199,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (ss->statScore < 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 5000)
-                  ss->statScore = std::min(0, ss->statScore + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())]);
           }
           else
           {
