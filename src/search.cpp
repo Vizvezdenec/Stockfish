@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
+          if (moveCountPruning && !formerPv && !(captureOrPromotion && givesCheck))
               r++;
 
           // Decrease reduction if opponent's move count is high (~5 Elo)
@@ -1781,8 +1781,6 @@ moves_loop: // When in check, search starts from here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
-        if (thisThread->counterMoves[pos.piece_on(to_sq(move))][to_sq(move)] == (ss-1)->currentMove)
-            thisThread->counterMoves[pos.piece_on(to_sq(move))][to_sq(move)] = MOVE_NONE;
     }
 
     // Update low ply history
