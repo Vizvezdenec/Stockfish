@@ -785,7 +785,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         if (!priorCapture && (ss-1)->staticEval != VALUE_NONE)
-            pseudoStatic = -(ss-1)->staticEval - 2 * Tempo;
+            pseudoStatic = -(ss-1)->staticEval + 2 * Tempo;
         goto moves_loop;
     }
     else if (ss->ttHit)
