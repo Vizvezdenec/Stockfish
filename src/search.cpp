@@ -850,7 +850,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3 + (cutNode && !formerPv));
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -920,7 +920,8 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode)
+               && (probCutCount < 2 + 2 * cutNode ||
+                   captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 6000) )
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
