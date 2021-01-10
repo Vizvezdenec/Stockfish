@@ -1235,7 +1235,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               r -= ss->statScore / 14884;
 
-              if (thisThread->counterMoves[pos.piece_on(to_sq(move))][to_sq(move)] == (ss-1)->currentMove)
+              if (move == countermove && thisThread->counterMoves[pos.piece_on(to_sq(move))][to_sq(move)] == (ss-1)->currentMove)
                   r--;
           }
 
