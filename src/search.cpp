@@ -893,7 +893,6 @@ namespace {
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
         &&  depth > 4
-        && !(formerPv && ttMove && !pos.capture_or_promotion(ttMove))
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -1199,6 +1198,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              if (ss->statScore <= 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 5500)
+                  ss->statScore = 1;
           }
           else
           {
