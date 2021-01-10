@@ -850,7 +850,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
+        Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3 + (cutNode && !formerPv));
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1055,7 +1055,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || (cutNode && !formerPv))
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
