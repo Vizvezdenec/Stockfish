@@ -601,7 +601,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, pseudoStatic;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
@@ -616,6 +616,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
+    pseudoStatic = VALUE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -783,6 +784,8 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        if (!priorCapture && (ss-1)->staticEval != VALUE_NONE)
+            pseudoStatic = -(ss-1)->staticEval;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -1158,8 +1161,8 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || pseudoStatic + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!givesCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -9000)
               || (!PvNode && !formerPv && thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
