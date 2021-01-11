@@ -1233,7 +1233,10 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14884;
+              if (!ss->inCheck)
+                  r -= ss->statScore / 14884;
+              else
+                  r-= (thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
@@ -1748,7 +1751,7 @@ moves_loop: // When in check, search starts from here
     for (int i : {1, 2, 4, 6})
     {
         // Only update first 2 continuation histories if we are in check
-        if (ss->inCheck && i > 2)
+        if (ss->inCheck && i > 2 - (type_of(pc) == KING))
             break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
