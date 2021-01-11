@@ -607,7 +607,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    ss->sstatScore = 0;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1026,13 +1025,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      if (moveCount == 1 && !captureOrPromotion)
-          ss->sstatScore = thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
-                             + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 5287;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1063,7 +1055,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || ((ss-1)->moveCount == 1 && ss->sstatScore >= 0))
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1072,10 +1064,11 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 254 + 159 * lmrDepth <= alpha
-                  &&  (*contHist[0])[movedPiece][to_sq(move)]
+                  &&  thisThread->mainHistory[us][from_to(move)] / 2
+                    + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 33094)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
