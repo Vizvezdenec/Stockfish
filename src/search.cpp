@@ -1054,6 +1054,14 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
+              if (ss->inCheck && type_of(movedPiece) == KING)
+              {
+              if (   lmrDepth < 4
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
+                  continue;
+              }
+              else
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1064,11 +1072,10 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 254 + 159 * lmrDepth <= alpha
-                  &&  thisThread->mainHistory[us][from_to(move)] / 2
-                    + (*contHist[0])[movedPiece][to_sq(move)]
+                  &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 33094)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
