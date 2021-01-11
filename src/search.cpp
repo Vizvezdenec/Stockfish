@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 30394)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 32394)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
