@@ -1054,14 +1054,6 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
-              if (ss->inCheck && type_of(movedPiece) == KING)
-              {
-              if (   lmrDepth < 4
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
-                  continue;
-              }
-              else
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1756,7 +1748,7 @@ moves_loop: // When in check, search starts from here
     for (int i : {1, 2, 4, 6})
     {
         // Only update first 2 continuation histories if we are in check
-        if (ss->inCheck && i > 2)
+        if (ss->inCheck && i > 2 - (type_of(pc) == KING))
             break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
