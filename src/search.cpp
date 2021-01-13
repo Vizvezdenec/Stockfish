@@ -1057,8 +1057,7 @@ moves_loop: // When in check, search starts from here
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (  (ss->inCheck && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
-                    || (!ss->inCheck && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)))
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1220,7 +1219,11 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+              if (ss->inCheck)
+                  ss->statScore = thisThread->mainHistory[us][from_to(move)]
+                     + (*contHist[0])[movedPiece][to_sq(move)] - 4333;
+              else
+                  ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1240,7 +1243,7 @@ moves_loop: // When in check, search starts from here
                   r -= (thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
               else
-                  r -= ss->statScore / 14884;
+                  r -= ss->statScore / 15184;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
