@@ -1239,7 +1239,7 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               // If we are not in check use statScore, if we are in check
               // use sum of main history and first continuation history with an offset
-              r -= ss->statScore / 15484;
+              r -= ss->statScore * (1 + ss->inCheck) / 14884;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
