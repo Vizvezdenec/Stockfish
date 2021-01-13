@@ -1054,6 +1054,14 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
+              if (ss->inCheck && type_of(movedPiece) == KING)
+              {
+              if (   lmrDepth < 3
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
+                  continue;
+              }
+              else
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
