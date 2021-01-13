@@ -1056,7 +1056,7 @@ moves_loop: // When in check, search starts from here
           {
               if (ss->inCheck && type_of(movedPiece) == KING)
               {
-              if (   lmrDepth < 3
+              if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
                   continue;
