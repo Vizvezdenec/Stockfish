@@ -1064,7 +1064,7 @@ Value Eval::evaluate(const Position& pos) {
       if (qib)
       {
           Color strongSide = psq > VALUE_DRAW ? WHITE : BLACK;
-          if (pos.count<PAWN>(strongSide) > pos.count<PAWN>(~strongSide))
+          if (pos.count<PAWN>(strongSide) > pos.count<PAWN>(~strongSide) + 2)
               qib = false;
       }
       bool  classical = !qib && (largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB)));
