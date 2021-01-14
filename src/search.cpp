@@ -1220,8 +1220,8 @@ moves_loop: // When in check, search starts from here
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               if (ss->inCheck)
-                  ss->statScore = thisThread->mainHistory[us][from_to(move)]
-                     + (*contHist[0])[movedPiece][to_sq(move)] - 4666;
+                  ss->statScore = 2 * (thisThread->mainHistory[us][from_to(move)]
+                     + (*contHist[0])[movedPiece][to_sq(move)] - 4333);
               else
                   ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
