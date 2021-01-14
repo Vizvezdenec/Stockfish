@@ -607,6 +607,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    int improvingValue = 0;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -829,10 +830,12 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
+    improvingValue = (improving && (ss-2)->staticEval != VALUE_NONE) ? ss->staticEval - (ss-2)->staticEval : 0;
+
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) + improvingValue / 16 >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1159,8 +1162,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && (captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506 
-                                       || (thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)))
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
