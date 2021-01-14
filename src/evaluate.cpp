@@ -1060,7 +1060,14 @@ Value Eval::evaluate(const Position& pos) {
       Value psq = Value(abs(eg_value(pos.psq_score())));
       int   r50 = 16 + pos.rule50_count();
       bool  largePsq = psq * 16 > (NNUEThreshold1 + pos.non_pawn_material() / 64) * r50;
-      bool  classical = !(pos.count<QUEEN>() == 1 && pos.count<PAWN>() > 8) && (largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB)));
+      bool  qib = pos.count<QUEEN>() == 1;
+      if (qib)
+      {
+          Color strongSide = psq > VALUE_DRAW ? WHITE : BLACK;
+          if (pos.count<PAWN>(strongSide) > pos.count<PAWN>(~strongSide))
+              qib = false;
+      }
+      bool  classical = !qib && (largePsq || (psq > PawnValueMg / 4 && !(pos.this_thread()->nodes & 0xB)));
 
       // Use classical evaluation for really low piece endgames.
       // The most critical case is a bishop + A/H file pawn vs naked king draw.
