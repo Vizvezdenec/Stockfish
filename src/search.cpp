@@ -845,7 +845,7 @@ namespace {
         && (ss-1)->statScore < 22977
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 168 - improvingValue / 16
+        &&  ss->staticEval >= beta - 30 * depth - 28 * improving + 84 * ss->ttPv + 168
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -889,7 +889,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 194 - 49 * improving;
+    probCutBeta = std::max(beta + 194 - 49 * improving - improvingValue / 16, beta + PawnValueMg);
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
