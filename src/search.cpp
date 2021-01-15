@@ -889,7 +889,7 @@ namespace {
         }
     }
 
-    probCutBeta = std::max(beta + 194 - 49 * improving - improvingValue / 32, beta + PawnValueMg);
+    probCutBeta = beta + 194 - 49 * improving;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1066,7 +1066,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 254 + 159 * lmrDepth <= alpha
+                  && ss->staticEval + 254 + 159 * lmrDepth + improvingValue / 32 <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
