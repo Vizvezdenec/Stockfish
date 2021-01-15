@@ -821,7 +821,7 @@ namespace {
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
         if (    ((ss-1)->moveCount <= 2 && bonus < 0)
              || ((ss-1)->moveCount > 25 && bonus > 0))
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 16);
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 4);
     }
 
     // Set up improving flag that is used in various pruning heuristics
