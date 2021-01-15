@@ -819,6 +819,9 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        if (    ((ss-1)->moveCount <= 2 && bonus < 0)
+             || ((ss-1)->moveCount > 25 && bonus > 0))
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 8);
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -1049,7 +1052,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218 - !ss->inCheck * std::clamp(int(ss->staticEval - alpha) / 128, -50, 50)) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
