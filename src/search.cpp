@@ -720,15 +720,7 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-            if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !ss->inCheck && !priorCapture)
-            {
-                ss->staticEval = tte->eval();
-                int bonus = ss->staticEval != VALUE_NONE ? std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000) : 0;
-                thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-            }
             return ttValue;
-        }
     }
 
     // Step 5. Tablebases probe
@@ -827,6 +819,9 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        if (    ((ss-1)->moveCount <= 2 && bonus < 0)
+             || ((ss-1)->moveCount > 25 && bonus > 0))
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 16);
     }
 
     // Set up improving flag that is used in various pruning heuristics
