@@ -365,6 +365,7 @@ void Thread::search() {
                           : -make_score(ct, ct / 2));
 
   int searchAgainCounter = 0;
+  lastChange = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -1177,7 +1178,8 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 
+           && (thisThread->bestMoveChanges <= 2 || thisThread->rootDepth - thisThread->lastChange > 8))
               r++;
 
           // More reductions for late moves if position was not in previous PV
@@ -1316,7 +1318,10 @@ moves_loop: // When in check, search starts from here
               // We record how often the best move has been changed in each
               // iteration. This information is used for time management and LMR
               if (moveCount > 1)
+              {
+                  thisThread->lastChange = depth;
                   ++thisThread->bestMoveChanges;
+              }
           }
           else
               // All other moves but the PV are set to the lowest value: this
