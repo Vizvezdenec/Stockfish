@@ -836,7 +836,7 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
     {
         if (ss->staticEval < beta && eval - ss->staticEval >= 2 && !pos.capture_or_promotion(ttMove))
-            update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), tte->depth());
+            update_quiet_stats(pos, ss, ttMove, stat_bonus(tte->depth()), depth);
         return eval;
     }
 
