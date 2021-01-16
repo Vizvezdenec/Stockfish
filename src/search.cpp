@@ -831,7 +831,7 @@ namespace {
 
     if (is_ok((ss-1)->currentMove) && is_ok((ss-2)->currentMove) && !priorCapture && !(ss-2)->inCheck)
     {
-        int bonus = std::clamp(- int(ss->staticEval - (ss-2)->staticEval), -100, 100);
+        int bonus = std::clamp( int(ss->staticEval - (ss-2)->staticEval), -100, 100);
         (*(ss-2)->continuationHistory)[pos.piece_on(prevSq)][prevSq] << bonus;
     }
 
