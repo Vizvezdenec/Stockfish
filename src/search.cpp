@@ -830,7 +830,7 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     if ((ss-1)->currentMove == MOVE_NULL)
-        improving = false;
+        improving = true;
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
