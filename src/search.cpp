@@ -829,18 +829,16 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (is_ok((ss-1)->currentMove) && is_ok((ss-2)->currentMove) && !priorCapture && !(ss-2)->inCheck)
-    {
-        int bonus = std::clamp( int(ss->staticEval - (ss-2)->staticEval), -100, 100);
-        (*(ss-2)->continuationHistory)[pos.piece_on(prevSq)][prevSq] << bonus;
-    }
-
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
+    {
+        if (ss->staticEval < beta && abs(eval) >= 2 && !pos.capture_or_promotion(ttMove))
+            update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), tte->depth());
         return eval;
+    }
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
