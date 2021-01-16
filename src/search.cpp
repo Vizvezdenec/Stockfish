@@ -829,6 +829,12 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
+    if (is_ok((ss-1)->currentMove) && is_ok((ss-2)->currentMove) && !priorCapture && !(ss-2)->inCheck)
+    {
+        int bonus = std::clamp(-depth * 4 * int(ss->staticEval - (ss-2)->staticEval), -1000, 1000);
+        (*(ss-2)->continuationHistory)[pos.piece_on(prevSq)][prevSq] << bonus;
+    }
+
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
