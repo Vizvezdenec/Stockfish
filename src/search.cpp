@@ -835,7 +835,7 @@ namespace {
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
     {
-        if (ss->staticEval < beta && abs(eval) >= 2 && !pos.capture_or_promotion(ttMove))
+        if (ss->staticEval < beta && eval - ss->staticEval >= 2 && !pos.capture_or_promotion(ttMove))
             update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), tte->depth());
         return eval;
     }
