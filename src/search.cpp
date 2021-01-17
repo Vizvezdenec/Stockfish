@@ -1178,7 +1178,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
-              r++;
+              r += 1 + (thisThread->rootDepth > 14 && thisThread->bestMoveChanges <= 1);
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
@@ -1239,7 +1239,7 @@ moves_loop: // When in check, search starts from here
                   r -= (thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
               else
-                  r -= (ss->statScore + (ss->statScore * std::abs(ss->statScore)) / 131072) / 14884;
+                  r -= ss->statScore / 14884;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
