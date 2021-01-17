@@ -1094,8 +1094,6 @@ moves_loop: // When in check, search starts from here
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
-          if (!captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] > 20000 && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
-              singularDepth -= 1;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
@@ -1241,7 +1239,7 @@ moves_loop: // When in check, search starts from here
                   r -= (thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
               else
-                  r -= ss->statScore / 14884;
+                  r -= (ss->statScore + (ss->statScore * std::abs(ss->statScore)) / 65536) / 14884;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
