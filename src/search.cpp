@@ -1593,8 +1593,8 @@ moves_loop: // When in check, search starts from here
       if (  !captureOrPromotion
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
-          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
-          && thisThread->mainHistory[pos.side_to_move()][from_to(move)] < CounterMovePruneThreshold)
+          && ((*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
+           ||  thisThread->mainHistory[pos.side_to_move()][from_to(move)] < CounterMovePruneThreshold))
           continue;
 
       // Make and search the move
