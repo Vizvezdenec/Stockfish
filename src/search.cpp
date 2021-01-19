@@ -829,6 +829,13 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
+    if (   !rootNode
+        && depth == 1
+        && eval < alpha - 528
+        && ttMove
+        && (pos.capture_or_promotion(ttMove) || pos.gives_check(ttMove)))
+        return qsearch<NT>(pos, ss, alpha, beta);
+
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
@@ -1046,13 +1053,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
-
-              if (   lmrDepth < 1
-                  && !captureOrPromotion
-                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // SEE based pruning
