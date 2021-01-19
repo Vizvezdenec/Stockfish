@@ -1048,6 +1048,13 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   lmrDepth < 1
+                  && !captureOrPromotion
+                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1591,7 +1598,6 @@ moves_loop: // When in check, search starts from here
 
       // CounterMove based pruning
       if (  !captureOrPromotion
-          && !givesCheck
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
