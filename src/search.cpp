@@ -834,7 +834,7 @@ namespace {
         && eval < alpha - 728
         && ss->ttHit
         && ttMove
-        && pos.legal(ttMove)
+        && ttValue != VALUE_NONE
         && (pos.capture_or_promotion(ttMove) || pos.gives_check(ttMove)))
         return qsearch<NT>(pos, ss, alpha, beta);
 
