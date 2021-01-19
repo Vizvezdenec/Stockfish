@@ -829,15 +829,6 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (   !rootNode
-        && depth == 1
-        && eval < alpha - 728
-        && ss->ttHit
-        && ttMove
-        && ttValue != VALUE_NONE
-        && (pos.capture_or_promotion(ttMove) || pos.gives_check(ttMove)))
-        return qsearch<NT>(pos, ss, alpha, beta);
-
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
