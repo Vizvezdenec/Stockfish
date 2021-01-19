@@ -831,8 +831,10 @@ namespace {
 
     if (   !rootNode
         && depth == 1
-        && eval < alpha - 328
+        && eval < alpha - 528
+        && ss->ttHit
         && ttMove
+        && pos.legal(ttMove)
         && (pos.capture_or_promotion(ttMove) || pos.gives_check(ttMove)))
         return qsearch<NT>(pos, ss, alpha, beta);
 
