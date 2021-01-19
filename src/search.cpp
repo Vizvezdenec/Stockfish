@@ -831,7 +831,7 @@ namespace {
 
     if (   !rootNode
         && depth == 1
-        && eval < alpha - 328
+        && eval < alpha - 728
         && ss->ttHit
         && ttMove
         && pos.legal(ttMove)
