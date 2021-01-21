@@ -1240,6 +1240,9 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
               else
                   r -= ss->statScore / 14884;
+
+              if (!givesCheck && ss->staticEval + 500 - moveCount * moveCount / 4 < alpha)
+                  r++;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
