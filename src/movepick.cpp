@@ -168,7 +168,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Best>([&](){
-                       return pos.see_ge(*cur, Value(-81 * cur->value / 1024)) ?
+                       return pos.see_ge(*cur, Value(-71 * cur->value / 1024)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
@@ -200,7 +200,7 @@ top:
           endMoves = generate<QUIETS>(pos, cur);
 
           score<QUIETS>();
-          partial_insertion_sort(cur, endMoves, -3363 * depth);
+          partial_insertion_sort(cur, endMoves, -3060 * depth);
       }
 
       ++stage;
