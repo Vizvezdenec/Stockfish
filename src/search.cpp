@@ -692,8 +692,8 @@ namespace {
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
-        && ((ttValue >= beta ? (tte->bound() & BOUND_LOWER)
-                             : (tte->bound() & BOUND_UPPER)) || ((tte->bound() & BOUND_EXACT) && std::abs(ttValue - beta) > 1000)))
+        && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
+                            : (tte->bound() & BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
@@ -702,7 +702,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), ttValue > beta + PawnValueMg ? stat_bonus(depth + 1) : stat_bonus(depth));
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
