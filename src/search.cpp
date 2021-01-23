@@ -702,7 +702,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), ttValue > beta + PawnValueMg ? stat_bonus(depth + 1) : stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -711,7 +711,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = -stat_bonus(depth);
+                int penalty = ttValue < beta - PawnValueMg ? -stat_bonus(depth + 1) : -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
