@@ -711,7 +711,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
-                int penalty = ttValue < beta - PawnValueMg ? -stat_bonus(depth + 1) : -stat_bonus(depth);
+                int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1348,7 +1348,7 @@ moves_loop: // When in check, search starts from here
       }
 
       // If the move is worse than some previously searched move, remember it to update its stats later
-      if (move != bestMove)
+      if (move != bestMove || bestValue < -VALUE_KNOWN_WIN)
       {
           if (captureOrPromotion && captureCount < 32)
               capturesSearched[captureCount++] = move;
