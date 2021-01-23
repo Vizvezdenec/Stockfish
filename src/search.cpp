@@ -693,7 +693,7 @@ namespace {
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && ((ttValue >= beta ? (tte->bound() & BOUND_LOWER)
-                             : (tte->bound() & BOUND_UPPER)) || ((tte->bound() & BOUND_EXACT) && std::abs(ttValue - beta) > 50)))
+                             : (tte->bound() & BOUND_UPPER)) || ((tte->bound() & BOUND_EXACT) && std::abs(ttValue - beta) > 200)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
