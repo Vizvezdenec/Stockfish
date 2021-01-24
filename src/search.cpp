@@ -1769,8 +1769,12 @@ moves_loop: // When in check, search starts from here
     // Update killers
     if (ss->killers[0] != move)
     {
+        if (ss->killers[0] != ss->excludedMove)
+        {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
+        }
+        else ss->killers[1] = move;
     }
 
     Color us = pos.side_to_move();
@@ -1783,7 +1787,7 @@ moves_loop: // When in check, search starts from here
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     // Update countermove history
-    if (!ss->excludedMove && is_ok((ss-1)->currentMove))
+    if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
