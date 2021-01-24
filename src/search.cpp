@@ -703,8 +703,6 @@ namespace {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
-                else if (prevSq != to_sq(ttMove))
-                    thisThread->captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth + 1);
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -717,7 +715,6 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
-            else thisThread->captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << -stat_bonus(depth + 1);
         }
 
         // Partial workaround for the graph history interaction problem
@@ -1770,7 +1767,7 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
-    if (ss->killers[0] != move)
+    if (ss->killers[0] != move && !ss->excludedMove)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
