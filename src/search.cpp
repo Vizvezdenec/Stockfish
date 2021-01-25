@@ -1734,7 +1734,7 @@ moves_loop: // When in check, search starts from here
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + (bestValue >= beta)));
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1 + (bestValue >= beta)));
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
