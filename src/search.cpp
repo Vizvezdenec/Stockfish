@@ -1204,6 +1204,8 @@ moves_loop: // When in check, search starts from here
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
+              else if (!ss->ttHit && ss->excludedMove && pos.capture_or_promotion(ss->excludedMove))
+                  r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
@@ -1783,7 +1785,7 @@ moves_loop: // When in check, search starts from here
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     // Update countermove history
-    if (!(ss->excludedMove && !pos.capture_or_promotion(ss->excludedMove)) && is_ok((ss-1)->currentMove))
+    if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
