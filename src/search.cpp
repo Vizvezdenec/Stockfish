@@ -714,8 +714,6 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                if (!priorCapture && !(ss-1)->ttHit && (ss-1)->moveCount > 20)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
             }
         }
 
@@ -1734,7 +1732,7 @@ moves_loop: // When in check, search starts from here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+    if (   bestValue >= beta && ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
