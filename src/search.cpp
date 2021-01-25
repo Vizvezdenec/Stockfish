@@ -1769,12 +1769,13 @@ moves_loop: // When in check, search starts from here
     // Update killers
     if (ss->killers[0] != move)
     {
-        if (!ss->excludedMove || ss->killers[0] != ss->excludedMove)
+        if (!ss->excludedMove && ss->killers[0] == MOVE_NONE)
+            ss->killers[1] = move;
+        else
         {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
-        }
-        else ss->killers[1] = move;
+        } 
     }
 
     Color us = pos.side_to_move();
