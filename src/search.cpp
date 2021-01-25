@@ -1734,7 +1734,7 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
-        if (goodQcount > 1)
+        if (goodQcount > 2)
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
