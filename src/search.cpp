@@ -1737,8 +1737,7 @@ moves_loop: // When in check, search starts from here
 
         if (priorBestMove)
         {
-            if (is_ok((ss-1)->currentMove))
-                thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = priorBestMove;
+            update_quiet_stats(pos, ss, priorBestMove, stat_bonus(depth), depth);
         }
     }
 
