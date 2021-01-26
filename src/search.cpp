@@ -1737,7 +1737,7 @@ moves_loop: // When in check, search starts from here
 
         if (priorBestMove)
         {
-            if (ss->killers[0] != priorBestMove)
+            if (!ss->killers[0])
             {
                 ss->killers[1] = ss->killers[0];
                 ss->killers[0] = priorBestMove;
