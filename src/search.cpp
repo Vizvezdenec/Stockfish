@@ -714,8 +714,6 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                if (depth >= 3 && !priorCapture && (ss-1)->moveCount > 3)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
             }
         }
 
@@ -1721,6 +1719,7 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
+        if (bestValue >= beta)
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
