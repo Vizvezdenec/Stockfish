@@ -1737,7 +1737,7 @@ moves_loop: // When in check, search starts from here
 
         if (priorBestMove)
         {
-            update_quiet_stats(pos, ss, priorBestMove, stat_bonus(depth), depth);
+            update_quiet_stats(pos, ss, priorBestMove, 0, depth);
         }
     }
 
