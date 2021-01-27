@@ -1723,24 +1723,30 @@ moves_loop: // When in check, search starts from here
     {
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+
+        for (int i = 0; i < quietCount; ++i)
+        {
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+        }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        // Decrease stats for all non-best quiet moves
+        for (int i = 0; i < bestQuietNumber; ++i)
+        {
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -stat_bonus(depth);
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -stat_bonus(depth));
+        }
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
-
-    // Decrease stats for all non-best quiet moves
-        for (int i = 0; i < bestQuietNumber; ++i)
-        {
-            int bonus = pos.capture_or_promotion(bestMove) ? bonus2 : stat_bonus(depth);
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
-        }
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
