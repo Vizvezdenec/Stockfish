@@ -1737,7 +1737,7 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (ss->bestQuiet != MOVE_NONE && bestValue < beta)
-            update_quiet_stats(pos, ss, ss->bestQuiet, 0, depth);
+            update_quiet_stats(pos, ss, ss->bestQuiet, stat_bonus(depth), depth);
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
