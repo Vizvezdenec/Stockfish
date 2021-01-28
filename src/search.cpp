@@ -852,7 +852,7 @@ namespace {
         // Null move dynamic reduction based on depth and value
         Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
-        if ((ss-1)->statScore < -45000)
+        if ((ss-1)->statScore < -10000)
             R++;
 
         ss->currentMove = MOVE_NULL;
