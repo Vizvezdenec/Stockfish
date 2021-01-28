@@ -1024,9 +1024,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      bool noRefutations = (!ss->killers[0] || !pos.legal(ss->killers[0])) 
-                        && (!ss->killers[1] || !pos.legal(ss->killers[1]))
-                        && (!countermove || !pos.legal(countermove));
+      bool noRefutations = !ss->killers[0]
+                        && !countermove;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
