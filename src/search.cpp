@@ -1254,8 +1254,8 @@ moves_loop: // When in check, search starts from here
           if (quietCount < 64)
           {
           if (value <= alpha)
-              quietDepth[quietCount] = d + 1;
-          else quietDepth[quietCount] = newDepth + 1;
+              quietDepth[quietCount] = std::clamp(depth / 2, d + 1, depth);
+          else quietDepth[quietCount] = depth;
           }
 
           didLMR = true;
@@ -1266,7 +1266,7 @@ moves_loop: // When in check, search starts from here
 
           didLMR = false;
 
-          quietDepth[quietCount] = newDepth + 1;
+          quietDepth[quietCount] = depth;
       }
 
       // Step 16. Full depth search when LMR is skipped or fails high
