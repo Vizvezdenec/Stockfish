@@ -1024,6 +1024,9 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool noRefutations = (!ss->killers[0] || !pos.legal(ss->killers[0])) 
+                        && (!ss->killers[1] || !pos.legal(ss->killers[1]))
+                        && (!countermove || !pos.legal(countermove));
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1203,7 +1206,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r += !(ss->killers[0]) && (!countermove || !pos.legal(countermove));
+                  r += 1 + noRefutations;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
