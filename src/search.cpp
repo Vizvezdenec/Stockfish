@@ -714,10 +714,10 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                if (ttMove == ss->killers[0] && ss->killers[1])
+                if (ttMove == ss->killers[0])
                 {
                     ss->killers[0] = ss->killers[1];
-                    ss->killers[1] = ttMove;
+                    ss->killers[1] = MOVE_NONE;
                 }
             }
         }
