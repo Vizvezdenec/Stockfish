@@ -1025,7 +1025,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      quietDepth[quietCount] = depth;
+      if (quietCount < 64)
+          quietDepth[quietCount] = depth;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1250,9 +1251,12 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
+          if (quietCount < 64)
+          {
           if (value <= alpha)
-              quietDepth[quietCount] = d + 1;
+              quietDepth[quietCount] = std::min(d + 1, depth);
           else quietDepth[quietCount] = depth;
+          }
 
           didLMR = true;
       }
