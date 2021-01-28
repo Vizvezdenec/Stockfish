@@ -852,9 +852,6 @@ namespace {
         // Null move dynamic reduction based on depth and value
         Depth R = (1015 + 85 * depth) / 256 + std::min(int(eval - beta) / 191, 3);
 
-        if ((ss-1)->statScore < -10000)
-            R++;
-
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
@@ -1206,7 +1203,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += !(ss->killers[0] || countermove);
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
