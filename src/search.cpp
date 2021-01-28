@@ -1251,7 +1251,7 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d != newDepth;
 
           if (value <= alpha)
-              quietDepth[quietCount] = d;
+              quietDepth[quietCount] = d + 1;
           else quietDepth[quietCount] = depth;
 
           didLMR = true;
