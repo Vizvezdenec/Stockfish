@@ -836,6 +836,12 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        &&  depth < 4
+        &&  eval + pos.non_pawn_material(us) + PawnValueMg * pos.count<PAWN>(us) + 1500 <= alpha
+        &&  eval > -VALUE_KNOWN_WIN)
+        return eval;
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -939,9 +945,6 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-
-                if (depth > 11 && value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, 2, !cutNode);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
