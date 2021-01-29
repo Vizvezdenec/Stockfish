@@ -940,8 +940,8 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                if (depth > 11 && value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 11, !cutNode);
+                if (depth > 8 && value >= probCutBeta)
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, 1, !cutNode);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
