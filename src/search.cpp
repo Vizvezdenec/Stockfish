@@ -940,9 +940,6 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                if (depth > 8 && value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, 1, !cutNode);
-
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
@@ -1218,7 +1215,7 @@ moves_loop: // When in check, search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break make_move(). (~2 Elo)
-              else if (    type_of(move) == NORMAL
+              else if (    type_of(move) == NORMAL && !(!PvNode && !formerPv)
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
