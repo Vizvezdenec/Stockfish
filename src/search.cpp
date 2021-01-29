@@ -838,7 +838,7 @@ namespace {
 
     if (   !PvNode
         &&  depth < 4
-        &&  eval + futility_margin(depth + 1, !improving) <= alpha
+        &&  eval + 5000 <= alpha
         &&  eval > -VALUE_KNOWN_WIN)
         return eval;
 
