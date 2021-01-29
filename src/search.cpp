@@ -836,6 +836,12 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        &&  depth < 6
+        &&  eval + futility_margin(depth + 1, !improving) <= alpha
+        &&  eval > -VALUE_KNOWN_WIN)
+        return eval;
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1024,8 +1030,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      bool noRefutations = !ss->killers[0]
-                        && !countermove;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1205,7 +1209,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r += 1 + noRefutations;
+                  r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
