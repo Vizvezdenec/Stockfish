@@ -79,6 +79,10 @@ namespace {
     return (3 + depth * depth) / (2 - improving);
   }
 
+  constexpr int futility_move_count2(bool improving, Depth depth) {
+    return (3 + 2 * depth * depth) / (2 - improving);
+  }
+
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
     return d > 14 ? 29 : 8 * d * d + 224 * d - 215;
@@ -1036,7 +1040,7 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          if (moveCount > futility_move_count(improving, depth) + 8 && !givesCheck && !ss->inCheck)
+          if (moveCount >= futility_move_count2(improving, depth) && !givesCheck && !ss->inCheck)
               continue;
 
           // Reduced depth of the next LMR search
