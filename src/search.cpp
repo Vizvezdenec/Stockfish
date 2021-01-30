@@ -1543,7 +1543,7 @@ moves_loop: // When in check, search starts from here
 
       moveCount++;
 
-      mcp = bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount > 10 + depth;
+      mcp = bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount > 12 + depth;
 
       // Futility pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
