@@ -1536,6 +1536,13 @@ moves_loop: // When in check, search starts from here
     {
       assert(is_ok(move));
 
+      // Check for legality just before making the move
+      if (!pos.legal(move))
+      {
+          moveCount--;
+          continue;
+      }
+
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
 
@@ -1570,19 +1577,11 @@ moves_loop: // When in check, search starts from here
 
       // Do not search moves with negative SEE values
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !(captureOrPromotion && 
-               thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 8000) && !pos.see_ge(move))
+          && !pos.see_ge(move))
           continue;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
-
-      // Check for legality just before making the move
-      if (!pos.legal(move))
-      {
-          moveCount--;
-          continue;
-      }
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
