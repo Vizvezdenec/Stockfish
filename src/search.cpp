@@ -1036,7 +1036,7 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          if (moveCount > 2 * futility_move_count(improving, depth) && !givesCheck && !ss->inCheck)
+          if (moveCount > futility_move_count(improving, depth) + 8 && !givesCheck && !ss->inCheck)
               continue;
 
           // Reduced depth of the next LMR search
