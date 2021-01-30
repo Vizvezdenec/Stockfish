@@ -1036,6 +1036,9 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
+          if (moveCount > 2 * futility_move_count(improving, depth) && !givesCheck && !ss->inCheck)
+              continue;
+
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
@@ -1531,10 +1534,8 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
-    bool mcp = false;
-
     // Loop through the moves until no moves remain or a beta cutoff occurs
-    while (!mcp && (move = mp.next_move()) != MOVE_NONE)
+    while ((move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1542,8 +1543,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
-
-      mcp = bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount > 12 + depth;
 
       // Futility pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
