@@ -1531,8 +1531,10 @@ moves_loop: // When in check, search starts from here
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
+    bool mcp = false;
+
     // Loop through the moves until no moves remain or a beta cutoff occurs
-    while ((move = mp.next_move()) != MOVE_NONE)
+    while (!mcp && (move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1540,6 +1542,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
+
+      mcp = bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount > 10 + depth;
 
       // Futility pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
