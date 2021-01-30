@@ -1570,7 +1570,8 @@ moves_loop: // When in check, search starts from here
 
       // Do not search moves with negative SEE values
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !pos.see_ge(move))
+          && !(captureOrPromotion && 
+               thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 8000) && !pos.see_ge(move))
           continue;
 
       // Speculative prefetch as early as possible
@@ -1591,10 +1592,9 @@ moves_loop: // When in check, search starts from here
 
       // CounterMove based pruning
       if (  !captureOrPromotion
-          && ss->inCheck
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
-          && thisThread->mainHistory[pos.side_to_move()][from_to(move)] < CounterMovePruneThreshold)
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
 
       // Make and search the move
