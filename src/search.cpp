@@ -965,7 +965,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth = std::max(5, depth - 3);
+        depth = std::max(5, depth - 4);
 
 moves_loop: // When in check, search starts from here
 
