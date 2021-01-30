@@ -965,7 +965,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
+        depth -= (pos.this_thread()->nodes & 1) ? 2 : 1;
 
 moves_loop: // When in check, search starts from here
 
@@ -1035,9 +1035,6 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-
-          if (moveCount > futility_move_count(improving, depth) + 8 && !givesCheck && !ss->inCheck && !PvNode && !formerPv)
-              continue;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
