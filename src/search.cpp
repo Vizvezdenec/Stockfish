@@ -1046,7 +1046,7 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 1
                   && (!ss->inCheck ? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                                   : PieceValue[MG][pos.piece_on(to_sq(move))] < PieceValue[MG][movedPiece]))
+                                   : !pos.see_ge(move)))
                   continue;
 
               // SEE based pruning
