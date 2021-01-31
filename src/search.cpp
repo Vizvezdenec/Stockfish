@@ -1061,12 +1061,15 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   !ss->inCheck
-                  && ss->staticEval + 254 + 159 * lmrDepth + (lmrDepth >= 7) * (lmrDepth - 6) * 4000 <= alpha
-                  &&  (*contHist[0])[movedPiece][to_sq(move)]
+              if (   lmrDepth < 7
+                  && !ss->inCheck
+                  && ss->staticEval + 254 + 159 * lmrDepth <= alpha
+                  && ((*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394)
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394 
+                   || ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                    && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)))
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
