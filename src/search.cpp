@@ -1064,16 +1064,14 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 254 + 159 * lmrDepth <= alpha
-                  && ((*contHist[0])[movedPiece][to_sq(move)]
+                  &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394 
-                   || ((*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                    && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)))
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(30 + 5 * (ss->inCheck && bestValue < alpha) - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
       }
