@@ -1222,10 +1222,12 @@ moves_loop: // When in check, search starts from here
               if (!ss->inCheck)
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + 2 * (*contHist[0])[movedPiece][to_sq(move)]
-                             + !ss->inCheck * ((*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             + (*contHist[5])[movedPiece][to_sq(move)])
+                             + (*contHist[5])[movedPiece][to_sq(move)]
                              - 5287;
+              else ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+                             + 2 * (*contHist[0])[movedPiece][to_sq(move)] - 4333;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
