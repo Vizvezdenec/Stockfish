@@ -1198,14 +1198,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (!ss->inCheck)
-              {
-                  ss->statScore = 6 * PieceValue[MG][pos.captured_piece()] 
-                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 2000;
-
-                  r-= ss->statScore / 8192;
-              }
           }
           else
           {
@@ -1228,10 +1220,11 @@ moves_loop: // When in check, search starts from here
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + 2 * (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             - 5287;
+                             + (*contHist[5])[movedPiece][to_sq(move)]
+                             - 8194;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
