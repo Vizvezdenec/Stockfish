@@ -1101,7 +1101,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture && !givesCheck;
+              singularQuietLMR = !ttCapture;
           }
 
           // Multi-cut pruning
@@ -1767,7 +1767,9 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
-    if (ss->killers[0] != move)
+    if (ss->excludedMove && ss->killers[0] == ss->excludedMove)
+        ss->killers[1] = move;
+    else if (ss->killers[0] != move)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
