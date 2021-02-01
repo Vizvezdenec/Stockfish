@@ -616,7 +616,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->singularKiller = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1065,10 +1064,10 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 254 + 159 * lmrDepth <= alpha
-                  &&  (*contHist[0])[movedPiece][to_sq(move)]
+                  &&  2 * (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 2 < 26394)
+                    + (*contHist[5])[movedPiece][to_sq(move)] < 36394)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1103,7 +1102,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              ss->singularKiller = MOVE_NONE;
           }
 
           // Multi-cut pruning
@@ -1112,15 +1110,7 @@ moves_loop: // When in check, search starts from here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-          {
-              if (!ttCapture)
-              {
-                  ss->killers[0] = move;
-                  ss->killers[1] = ss->singularKiller;
-                  ss->singularKiller = MOVE_NONE;
-              }
               return singularBeta;
-          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1131,17 +1121,8 @@ moves_loop: // When in check, search starts from here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-              {
-                  if (!ttCapture)
-                  {
-                      ss->killers[0] = move;
-                      ss->killers[1] = ss->singularKiller;
-                      ss->singularKiller = MOVE_NONE;
-                  }
                   return beta;
-              }
           }
-          ss->singularKiller = MOVE_NONE;
       }
 
       // Check extension (~2 Elo)
@@ -1351,9 +1332,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              if (excludedMove)
-                  ss->singularKiller = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
