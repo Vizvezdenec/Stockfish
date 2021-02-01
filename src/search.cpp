@@ -1101,7 +1101,7 @@ moves_loop: // When in check, search starts from here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture;
+              singularQuietLMR = !ttCapture && !givesCheck;
           }
 
           // Multi-cut pruning
@@ -1155,7 +1155,6 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(!captureOrPromotion && ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] > 25000)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
