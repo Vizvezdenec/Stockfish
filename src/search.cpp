@@ -1198,10 +1198,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (!ss->inCheck)
-                  r -= (6 * PieceValue[MG][pos.captured_piece()] 
-                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 2000) / 8192;
           }
           else
           {
@@ -1795,7 +1791,7 @@ moves_loop: // When in check, search starts from here
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
-        thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+        thisThread->lowPlyHistory[ss->ply][from_to(move)] << 2 * stat_bonus(depth - 7);
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
