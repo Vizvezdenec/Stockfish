@@ -703,7 +703,7 @@ namespace {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
-                else if (is_ok((ss-1)->currentMove))
+                else if (!ss->inCheck && is_ok((ss-1)->currentMove))
                     thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq] = ttMove;
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -977,7 +977,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-    Move countercapture = thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq];
+    Move countercapture = !ss->inCheck ? thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1528,7 +1528,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Square prevSq = to_sq((ss-1)->currentMove);
-    Move countercapture = thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq];
+    Move countercapture = !ss->inCheck ? thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
@@ -1740,7 +1740,7 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
-        if (is_ok((ss-1)->currentMove))
+        if (!ss->inCheck && is_ok((ss-1)->currentMove))
             thisThread->counterCaptures[pos.piece_on(prevSq)][prevSq] = bestMove;
     }
 
