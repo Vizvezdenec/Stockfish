@@ -1200,8 +1200,12 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               if (!ss->inCheck)
-                  r -= (6 * PieceValue[MG][pos.captured_piece()] 
-                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 1000) / 8192;
+              {
+                  ss->statScore = 6 * PieceValue[MG][pos.captured_piece()] 
+                          + captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] - 2000;
+
+                  r-= ss->statScore / 8192;
+              }
           }
           else
           {
