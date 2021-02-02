@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 11. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && (bestQ || quietCount > 0))) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && bestQ)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1025,6 +1025,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bestQ |= !captureOrPromotion;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1333,8 +1334,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              bestQ |= !captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
