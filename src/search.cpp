@@ -986,13 +986,14 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool bestQ = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
     // Step 11. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && (bestQ || quietCount > 0))) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1220,11 +1221,10 @@ moves_loop: // When in check, search starts from here
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + 2 * (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
-                             + (*contHist[5])[movedPiece][to_sq(move)]
-                             - 6287;
+                             - 5287;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -105 && (ss-1)->statScore < -103)
@@ -1240,7 +1240,7 @@ moves_loop: // When in check, search starts from here
                   r -= (thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
               else
-                  r -= ss->statScore / 16384;
+                  r -= ss->statScore / 14884;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
@@ -1333,6 +1333,8 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              bestQ = !captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
