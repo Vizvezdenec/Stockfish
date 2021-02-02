@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 11. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && bestQ)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && (bestQ || bestValue >= alpha))) != MOVE_NONE)
     {
       assert(is_ok(move));
 
