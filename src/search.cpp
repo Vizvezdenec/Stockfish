@@ -1210,7 +1210,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2 + (ss->staticEval < alpha - 120 * depth);
+                  r += 2 + (ss->staticEval < alpha - 250 * depth);
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
