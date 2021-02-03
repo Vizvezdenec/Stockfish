@@ -715,13 +715,6 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
-
-            if (ttValue < beta
-             && depth > 5
-             && ss->ply - 1 < MAX_LPH
-             && !priorCapture
-             && is_ok((ss-1)->currentMove))
-             thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
         }
 
         // Partial workaround for the graph history interaction problem
@@ -1217,7 +1210,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2;
+                  r += 2 + (ss->staticEval < alpha - 40 * depth);
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
