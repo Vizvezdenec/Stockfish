@@ -651,7 +651,7 @@ namespace {
     (ss+1)->ply = ss->ply + 1;
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0] = (ss+2)->killers[1] = (ss+2)->quietTt = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -975,12 +975,24 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move skillers[2];
+    if (!ss->killers[0] && !ttMove)
+    {
+        skillers[0] = ss->quietTt;
+        skillers[1] = MOVE_NONE;
+    }
+    else 
+    {
+    skillers[0] = ss->killers[0];
+    skillers[1] = ss->killers[1];
+    }        
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers,
+                                      skillers,
                                       ss->ply);
 
     value = bestValue;
@@ -1102,6 +1114,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (singularQuietLMR)
+                  ss->quietTt = move;
           }
 
           // Multi-cut pruning
@@ -1332,6 +1346,9 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (!captureOrPromotion && ttMove && ss->quietTt == ttMove && move != ttMove)
+                  ss->quietTt = MOVE_NONE;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
