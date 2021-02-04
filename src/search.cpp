@@ -839,7 +839,7 @@ namespace {
     if (   !PvNode
         && depth < 5
         && eval <= ss->staticEval
-        && eval + 3000 + 800 * depth < alpha
+        && eval + 2000 + 1000 * depth < alpha
         && std::abs(eval) < VALUE_KNOWN_WIN)
         return eval;
 
