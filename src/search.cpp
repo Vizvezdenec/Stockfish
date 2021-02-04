@@ -604,9 +604,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount;
+    int moveCount, captureCount, quietCount, singularQuietLMR;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -984,7 +984,8 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    moveCountPruning = false;
+    singularQuietLMR = 0;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1102,6 +1103,9 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (singularQuietLMR && (*contHist[0])[movedPiece][to_sq(move)] < -10000
+                                   && (*contHist[1])[movedPiece][to_sq(move)] < -10000)
+                  singularQuietLMR++;
           }
 
           // Multi-cut pruning
@@ -1189,8 +1193,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
-              r--;
+          r -= singularQuietLMR;
 
           if (captureOrPromotion)
           {
@@ -1244,12 +1247,6 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          if (ss->ttHit && (tte->bound() & BOUND_UPPER) && d + 1 <= (tte->depth() - 1) / 2 && ttValue <= alpha)
-          {
-              pos.undo_move(move);
-              continue;
-          }
-              
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
