@@ -839,9 +839,9 @@ namespace {
     if (   !PvNode
         && depth < 5
         && eval <= ss->staticEval
-        && eval + 3000 + 2000 * depth < alpha
+        && eval + QueenValueMg + 1000 * depth < alpha
         && std::abs(eval) < VALUE_KNOWN_WIN)
-        return eval;
+        return alpha;
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
