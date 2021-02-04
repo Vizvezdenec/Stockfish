@@ -836,13 +836,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        && depth < 5
-        && eval <= ss->staticEval
-        && eval + QueenValueMg + 1000 * depth < alpha
-        && std::abs(eval) < VALUE_KNOWN_WIN)
-        return alpha;
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -947,9 +940,12 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                Depth probcutDepth = depth - 4;
+                if (ss->staticEval > alpha + 200 * depth)
+                    probcutDepth--;
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, probcutDepth, !cutNode);
 
                 pos.undo_move(move);
 
