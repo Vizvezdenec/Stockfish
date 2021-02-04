@@ -836,6 +836,15 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        &&  depth < 9
+        &&  eval < ss->staticEval
+        &&  tte->depth() == depth - 1
+        &&  eval + 3000 < alpha
+        &&  eval > -VALUE_KNOWN_WIN) 
+        return eval;
+
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -940,12 +949,9 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                Depth probcutDepth = depth - 4;
-                if (ss->staticEval > alpha + 200 * depth)
-                    probcutDepth--;
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, probcutDepth, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -953,11 +959,11 @@ namespace {
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
                     if ( !(ss->ttHit
-                       && tte->depth() >= probcutDepth + 1
+                       && tte->depth() >= depth - 3
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
-                            probcutDepth + 1, move, ss->staticEval);
+                            depth - 3, move, ss->staticEval);
                     return value;
                 }
             }
