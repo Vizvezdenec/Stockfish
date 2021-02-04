@@ -976,8 +976,6 @@ moves_loop: // When in check, search starts from here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     Move skillers[2];
-    if (!ttMove)
-    {
     if (!ss->killers[0])
     {
         skillers[0] = ss->quietTt;
@@ -993,12 +991,6 @@ moves_loop: // When in check, search starts from here
         skillers[0] = ss->killers[0];
         skillers[1] = ss->killers[1];
     }    
-    }    
-    else
-    {
-        skillers[0] = ss->killers[0];
-        skillers[1] = ss->killers[1];
-    }  
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
