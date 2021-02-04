@@ -1244,7 +1244,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          if (ss->ttHit && (tte->bound() & BOUND_UPPER) && d + 1 <= tte->depth() && ttValue <= alpha)
+          if (ss->ttHit && (tte->bound() & BOUND_UPPER) && d + 1 <= (tte->depth() - 1) / 2 && ttValue <= alpha)
           {
               pos.undo_move(move);
               continue;
