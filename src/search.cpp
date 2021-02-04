@@ -840,8 +840,8 @@ namespace {
         &&  depth < 9
         &&  eval < ss->staticEval
         &&  tte->depth() == depth - 1
-        &&  eval + 3000 < alpha
-        &&  eval > -VALUE_KNOWN_WIN) 
+        &&  eval + 3000 + 1000 * depth < alpha
+        &&  std::abs(eval) < VALUE_KNOWN_WIN) 
         return eval;
 
 
