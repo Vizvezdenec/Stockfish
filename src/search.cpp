@@ -836,15 +836,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        &&  depth < 9
-        &&  eval < ss->staticEval
-        &&  tte->depth() == depth - 1
-        &&  eval + 3000 + 1000 * depth < alpha
-        &&  std::abs(eval) < VALUE_KNOWN_WIN) 
-        return eval;
-
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1253,6 +1244,12 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
+          if (ss->ttHit && (tte->bound() & BOUND_LOWER) && d + 1 <= tte->depth() && ttValue <= alpha)
+          {
+              pos.undo_move(move);
+              continue;
+          }
+              
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
