@@ -1103,8 +1103,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (singularQuietLMR && (*contHist[0])[movedPiece][to_sq(move)] < 0
-                                   && (*contHist[1])[movedPiece][to_sq(move)] < 0)
+              if (singularQuietLMR && (*contHist[0])[movedPiece][to_sq(move)] < -15000
+                                   && (*contHist[1])[movedPiece][to_sq(move)] < -15000)
                   singularQuietLMR++;
           }
 
