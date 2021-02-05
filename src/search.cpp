@@ -604,9 +604,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture;
+         ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, singularQuietLMR;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -984,8 +984,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    moveCountPruning = false;
-    singularQuietLMR = 0;
+    singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
@@ -1103,9 +1102,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (singularQuietLMR && (*contHist[0])[movedPiece][to_sq(move)] < -15000
-                                   && (*contHist[1])[movedPiece][to_sq(move)] < -15000)
-                  singularQuietLMR++;
           }
 
           // Multi-cut pruning
@@ -1193,7 +1189,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          r -= singularQuietLMR;
+          if (singularQuietLMR && !bestMove)
+              r--;
 
           if (captureOrPromotion)
           {
