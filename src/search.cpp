@@ -940,9 +940,12 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+
+                Depth probcutDepth = std::max(1, depth - 4 - (ss->staticEval > alpha));
+
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, probcutDepth, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1189,8 +1192,8 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR && !bestMove)
-              r -= 2;
+          if (singularQuietLMR)
+              r--;
 
           if (captureOrPromotion)
           {
