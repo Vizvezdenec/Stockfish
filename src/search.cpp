@@ -1061,12 +1061,6 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (   ss->inCheck
-                  && lmrDepth < 4
-                  && bestCapture
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1210,6 +1204,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+
+              if (bestCapture && ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] < 0)
                   r++;
 
               // Increase reduction at root if failing high
