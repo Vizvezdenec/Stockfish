@@ -607,6 +607,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    Depth probcutDepth;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -888,6 +889,8 @@ namespace {
 
     probCutBeta = beta + 194 - 49 * improving;
 
+    probcutDepth = std::max(1, depth - 4 - (ss->staticEval > alpha));
+
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -899,14 +902,14 @@ namespace {
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
-             && tte->depth() >= depth - 3
+             && tte->depth() >= probcutDepth + 1
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
         // if ttMove is a capture and value from transposition table is good enough produce probCut
         // cutoff without digging into actual probCut search
         if (   ss->ttHit
-            && tte->depth() >= depth - 3
+            && tte->depth() >= probcutDepth + 1
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
             && ttMove
@@ -939,9 +942,6 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-
-
-                Depth probcutDepth = std::max(1, depth - 4 - (ss->staticEval > alpha));
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
