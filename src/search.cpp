@@ -783,6 +783,8 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        if (!(ss-1)->inCheck && !(ss-2)->inCheck && !priorCapture && -(ss-1)->staticEval < (ss-2)->staticEval - 600)
+            improving = true;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -986,7 +988,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool bestCapture = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1206,9 +1207,6 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (bestCapture && ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] < 0)
-                  r++;
-
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
@@ -1336,8 +1334,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              bestCapture = captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
