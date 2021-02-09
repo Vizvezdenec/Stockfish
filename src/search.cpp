@@ -886,7 +886,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 199 - 44 * improving + 90 * ss->ttPv;
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1046,6 +1046,11 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  continue;
+
+              if (   !captureOrPromotion
+                  && lmrDepth < 1
+                  && !pos.see_ge(move, -PieceValue[MG][movedPiece] + 1))
                   continue;
 
               // SEE based pruning
