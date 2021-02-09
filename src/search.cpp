@@ -714,6 +714,7 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                thisThread->plyToHistory[ss->ply][pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty;
             }
         }
 
@@ -977,6 +978,7 @@ moves_loop: // When in check, search starts from here
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
+                                      &thisThread->plyToHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
@@ -1724,6 +1726,7 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->plyToHistory[ss->ply][pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
         }
     }
     else
@@ -1792,6 +1795,8 @@ moves_loop: // When in check, search starts from here
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+
+    thisThread->plyToHistory[ss->ply][pos.moved_piece(move)][to_sq(move)] << stat_bonus(depth);
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
