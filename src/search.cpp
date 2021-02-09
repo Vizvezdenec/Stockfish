@@ -1050,6 +1050,7 @@ moves_loop: // When in check, search starts from here
 
               if (   !captureOrPromotion
                   && lmrDepth < 1
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && !pos.see_ge(move, -PieceValue[MG][movedPiece] + 1))
                   continue;
 
