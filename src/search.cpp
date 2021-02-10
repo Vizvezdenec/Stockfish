@@ -833,7 +833,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving) - reply * 20 >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -843,7 +843,7 @@ namespace {
         && (ss-1)->statScore < 22661
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 24 * depth - 34 * improving + 162 * ss->ttPv + 159
+        &&  ss->staticEval >= beta - 24 * depth - 34 * improving + 162 * ss->ttPv + 159 + reply * 20
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
