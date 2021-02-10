@@ -887,7 +887,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 209 - 44 * improving + reply * 10;
+    probCutBeta = beta + 209 - 44 * improving + reply * 20;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
