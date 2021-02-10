@@ -1173,11 +1173,8 @@ moves_loop: // When in check, search starts from here
           if (th.marked())
               r++;
 
-          if (badPvNode)
-              r++;
-
           // Decrease reduction if position is or has been on the PV (~10 Elo)
-          if (ss->ttPv)
+          if (ss->ttPv && !badPvNode)
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
