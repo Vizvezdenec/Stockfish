@@ -1208,6 +1208,9 @@ moves_loop: // When in check, search starts from here
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
 
+              if (ss->inCheck && bestValue >= alpha && bestMove == ttMove && type_of(movedPiece) != KING)
+                  r++;
+
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
@@ -1219,15 +1222,11 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
-              if (ss->inCheck)
-                  ss->statScore = thisThread->mainHistory[us][from_to(move)]
-                              + (*contHist[0])[movedPiece][to_sq(move)] - 4341;
-              else
-                  ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                              + (*contHist[0])[movedPiece][to_sq(move)]
-                              + (*contHist[1])[movedPiece][to_sq(move)]
-                              + (*contHist[3])[movedPiece][to_sq(move)]
-                              - 5337;
+              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+                             + (*contHist[0])[movedPiece][to_sq(move)]
+                             + (*contHist[1])[movedPiece][to_sq(move)]
+                             + (*contHist[3])[movedPiece][to_sq(move)]
+                             - 5337;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
               if (ss->statScore >= -89 && (ss-1)->statScore < -116)
@@ -1239,7 +1238,11 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               // If we are not in check use statScore, if we are in check
               // use sum of main history and first continuation history with an offset
-              r -= ss->statScore / 14382;
+              if (ss->inCheck)
+                  r -= (thisThread->mainHistory[us][from_to(move)]
+                     + (*contHist[0])[movedPiece][to_sq(move)] - 4341) / 16384;
+              else
+                  r -= ss->statScore / 14382;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
