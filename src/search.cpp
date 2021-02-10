@@ -1024,6 +1024,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool badPvNode = PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue < alpha + 200 + 100 * depth && tte->depth() >= depth;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1172,6 +1173,9 @@ moves_loop: // When in check, search starts from here
           if (th.marked())
               r++;
 
+          if (badPvNode)
+              r++;
+
           // Decrease reduction if position is or has been on the PV (~10 Elo)
           if (ss->ttPv)
               r -= 2;
@@ -1207,9 +1211,6 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
-
-              if (ss->inCheck && bestValue >= alpha && bestMove == ttMove && type_of(movedPiece) != KING)
-                  r++;
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
