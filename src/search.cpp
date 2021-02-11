@@ -987,6 +987,12 @@ moves_loop: // When in check, search starts from here
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
+    bool likelyFailHigh =     PvNode 
+                           && ttMove 
+                           && (tte->bound() & BOUND_LOWER) 
+                           && ttValue >= beta
+                           && tte->depth() >= depth;
+
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
@@ -1184,6 +1190,9 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
               r -= 2;
+
+          if (likelyFailHigh)
+              r--;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
