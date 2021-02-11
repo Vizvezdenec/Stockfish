@@ -1024,7 +1024,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-      bool badPvNode = PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue < alpha + 100 + 50 * depth && tte->depth() >= depth;
+      bool badPvNode = PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue < alpha + 300 + 150 * depth && tte->depth() >= depth;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
