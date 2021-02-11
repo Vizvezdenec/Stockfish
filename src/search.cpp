@@ -990,7 +990,8 @@ moves_loop: // When in check, search starts from here
     bool likelyFailHigh =     PvNode 
                            && ttMove 
                            && (tte->bound() & BOUND_LOWER) 
-                           && ttValue >= beta
+                           && ttValue >= beta + 40 * depth
+                           && ttValue != VALUE_NONE
                            && tte->depth() >= depth;
 
     // Mark this node as being searched
