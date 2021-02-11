@@ -820,6 +820,11 @@ namespace {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
+    if (is_ok((ss-1)->currentMove) && (ss-1)->inCheck && !priorCapture && !(ss-2)->inCheck)
+    {
+        int bonus = std::clamp(depth * 4 * int((ss-2)->staticEval - ss->staticEval), -1000, 1000);
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+    }
 
     // Set up improving flag that is used in various pruning heuristics
     // We define position as improving if static evaluation of position is better
@@ -974,6 +979,9 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    if ((*contHist[0])[pos.moved_piece(countermove)][to_sq(countermove)] < 0)
+        countermove = MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1782,10 +1790,10 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
-    Square prevSq = to_sq((ss-1)->currentMove);
     // Update countermove history
-    if (is_ok((ss-1)->currentMove) && (!ss->inCheck || type_of(pos.moved_piece(move)) == KING || !thisThread->counterMoves[pos.piece_on(prevSq)][prevSq]))
+    if (is_ok((ss-1)->currentMove))
     {
+        Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 
