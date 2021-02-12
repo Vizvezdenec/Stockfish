@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
       bool likelyFailLow =    PvNode 
                            && ttMove 
                            && (tte->bound() & BOUND_UPPER) 
-                           && ttValue < alpha - 100 * depth 
+                           && ttValue < alpha - 20 * depth 
                            && tte->depth() >= depth;
 
       // Calculate new depth for this move
