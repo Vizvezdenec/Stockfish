@@ -840,7 +840,7 @@ namespace {
         && ss->ttHit
         && (tte->bound() & BOUND_UPPER)
         && tte->depth() == depth - 1
-        && ttValue < alpha - 4777
+        && ttValue < alpha - 5821
         && ttValue > -VALUE_KNOWN_WIN)
         return ttValue;
 
