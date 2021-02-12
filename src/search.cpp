@@ -1776,7 +1776,7 @@ moves_loop: // When in check, search starts from here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
-    if (ss->killers[0] != move)
+    if (ss->killers[0] != move && !ss->inCheck)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
@@ -1791,11 +1791,12 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
-    Square prevSq = to_sq((ss-1)->currentMove);
-
     // Update countermove history
-    if (is_ok((ss-1)->currentMove) && (!ss->inCheck || !thisThread->counterMoves[pos.piece_on(prevSq)][prevSq])) 
+    if (is_ok((ss-1)->currentMove))
+    {
+        Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+    }
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
