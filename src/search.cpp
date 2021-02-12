@@ -1166,7 +1166,6 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || (PvNode && !rootNode && ttCapture && !ss->inCheck && !givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= eval)
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
@@ -1201,6 +1200,10 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (   ss->ttHit && (tte->bound() & BOUND_UPPER) && !PvNode 
+              && tte->depth() < depth && ttValue < alpha - (depth - tte->depth()) * 242)
+              r++;
 
           if (captureOrPromotion)
           {
