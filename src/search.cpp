@@ -1030,7 +1030,7 @@ moves_loop: // When in check, search starts from here
       bool likelyFailLow =    PvNode 
                            && ttMove 
                            && (tte->bound() & BOUND_UPPER) 
-                           && ttValue < alpha + 200 + 100 * depth 
+                           && ttValue < alpha - 100 * depth 
                            && tte->depth() >= depth;
 
       // Calculate new depth for this move
@@ -1253,10 +1253,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          if (givesCheck && d == 1)
-              value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
-          else
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
