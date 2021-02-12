@@ -653,6 +653,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
+    ss->seAdjust = Value(0);
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -720,7 +721,11 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (!ss->inCheck && !(ss-1)->inCheck && tte->eval() != VALUE_NONE)
+            (ss-1)->seAdjust += tte->eval() - 2 * Tempo + (ss-1)->staticEval;
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -819,6 +824,7 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        (ss-1)->seAdjust += (ss-1)->staticEval + ss->staticEval - 2 * Tempo;
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -1165,7 +1171,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || (bestValue > VALUE_MATED_IN_MAX_PLY && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
+              || ss->staticEval - (ss->seAdjust / (moveCount * 32)) + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
