@@ -1254,8 +1254,9 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           if (givesCheck && d == 1)
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+              value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
+          else
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
