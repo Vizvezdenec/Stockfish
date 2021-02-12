@@ -987,13 +987,6 @@ moves_loop: // When in check, search starts from here
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
-    bool likelyFailHigh =     PvNode 
-                           && ttMove 
-                           && (tte->bound() & BOUND_LOWER) 
-                           && ttValue >= beta
-                           && ttValue != VALUE_NONE
-                           && tte->depth() >= depth;
-
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
@@ -1191,9 +1184,6 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
               r -= 2;
-
-          if (likelyFailHigh)
-              r -= (ttValue - beta) / 256;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
@@ -1801,12 +1791,11 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
+    Square prevSq = to_sq((ss-1)->currentMove);
+
     // Update countermove history
-    if (is_ok((ss-1)->currentMove))
-    {
-        Square prevSq = to_sq((ss-1)->currentMove);
+    if (is_ok((ss-1)->currentMove) && (!ss->inCheck || !thisThread->counterMoves[pos.piece_on(prevSq)][prevSq])) 
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
-    }
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
