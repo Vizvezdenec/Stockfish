@@ -1025,6 +1025,14 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      // Indicate PvNodes that will probably fail low if node was searched with non-PV search 
+      // at depth equal or greater to current depth and result of this search was far below alpha
+      bool likelyFailLow =    PvNode 
+                           && ttMove 
+                           && (tte->bound() & BOUND_UPPER) 
+                           && ttValue < alpha + 200 + 100 * depth 
+                           && tte->depth() >= depth;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1158,6 +1166,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || (PvNode && !rootNode && ttCapture && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= eval)
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
@@ -1174,7 +1183,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV 
           // and node is not likely to fail low (~10 Elo)
-          if (ss->ttHit && tte->is_pv())
+          if (ss->ttPv && !likelyFailLow)
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
