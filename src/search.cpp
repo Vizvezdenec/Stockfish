@@ -990,7 +990,7 @@ moves_loop: // When in check, search starts from here
     bool likelyFailHigh =     PvNode 
                            && ttMove 
                            && (tte->bound() & BOUND_LOWER) 
-                           && ttValue >= beta + 40 * depth
+                           && ttValue >= beta
                            && ttValue != VALUE_NONE
                            && tte->depth() >= depth;
 
@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           if (likelyFailHigh)
-              r--;
+              r -= (ttValue - beta) / 256;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
