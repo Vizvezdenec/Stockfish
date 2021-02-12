@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || (PvNode && !rootNode && ttCapture && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= eval)
+              || (PvNode && !rootNode && ttCapture && !ss->inCheck && !givesCheck && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= eval)
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
