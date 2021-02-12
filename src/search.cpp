@@ -986,7 +986,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    ss->bestCapt = MOVE_NONE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1166,7 +1165,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || (bestValue > VALUE_MATED_IN_MAX_PLY && ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha)
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
@@ -1342,9 +1341,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              if (captureOrPromotion)
-                  ss->bestCapt = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
@@ -1738,9 +1734,6 @@ moves_loop: // When in check, search starts from here
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
-
-        if (bestValue < beta && ss->bestCapt)
-            captureHistory[pos.moved_piece(ss->bestCapt)][to_sq(ss->bestCapt)][type_of(pos.piece_on(to_sq(ss->bestCapt)))] << stat_bonus(depth);
     }
     else
         // Increase stats for the best move in case it was a capture move
