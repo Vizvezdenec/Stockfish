@@ -836,6 +836,14 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        && ss->ttHit
+        && (tte->bound() & BOUND_UPPER)
+        && tte->depth() == depth - 1
+        && ttValue < alpha - 4777
+        && ttValue > -VALUE_KNOWN_WIN)
+        return ttValue;
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1200,10 +1208,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-
-          if (   ss->ttHit && (tte->bound() & BOUND_UPPER) && !PvNode 
-              && tte->depth() < depth && ttValue < alpha - (depth - tte->depth()) * 966)
-              r++;
 
           if (captureOrPromotion)
           {
