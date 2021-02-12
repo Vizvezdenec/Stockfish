@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           if (   ss->ttHit && (tte->bound() & BOUND_UPPER) && !PvNode 
-              && tte->depth() < depth && ttValue < alpha - (depth - tte->depth()) * 242)
+              && tte->depth() < depth && ttValue < alpha - (depth - tte->depth()) * 136)
               r++;
 
           if (captureOrPromotion)
