@@ -1094,7 +1094,7 @@ moves_loop: // When in check, search starts from here
           &&  ttValue != VALUE_NONE
           &&  (tte->bound() & BOUND_LOWER)
           &&  tte->depth() > depth
-          &&  ttValue >= beta + 30 * depth)
+          &&  ttValue > alpha)
           extension = 1;
       // Singular extension search (~70 Elo). If all moves but one fail low on a
       // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
