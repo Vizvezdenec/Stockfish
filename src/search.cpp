@@ -1086,22 +1086,12 @@ moves_loop: // When in check, search starts from here
 
       // Step 13. Extensions (~75 Elo)
 
-      if (    PvNode 
-          &&  depth >= 7
-          &&  move == ttMove
-          &&  !rootNode
-          &&  !excludedMove
-          &&  ttValue != VALUE_NONE
-          &&  (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() > depth
-          &&  ttValue > alpha)
-          extension = 1;
       // Singular extension search (~70 Elo). If all moves but one fail low on a
       // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
-      else if (    depth >= 7
+      if (    depth >= 7
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
@@ -1263,6 +1253,8 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
+          if (givesCheck && d == 1)
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
