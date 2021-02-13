@@ -836,15 +836,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        && depth < 9
-        && ss->ttHit
-        && (tte->bound() & BOUND_UPPER)
-        && tte->depth() == depth - 1
-        && ttValue < alpha - 5821
-        && ttValue > -VALUE_KNOWN_WIN)
-        return ttValue;
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -995,6 +986,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    bool consecutiveLmrFail = true;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1210,6 +1202,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (consecutiveLmrFail && moveCount > 15)
+              r++;
+
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1265,6 +1260,8 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
+
+          consecutiveLmrFail &= value <= alpha;
 
           didLMR = true;
       }
