@@ -354,7 +354,11 @@ void Thread::search() {
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
 
   for (int i = 0; i < MAX_PLY; ++i)
-      captQAverage[i] = CaptQAverageWindow * CaptQAverageResolution / 2;
+  {
+      if (i == MAX_PLY - 1)
+          captQAverage[i] = CaptQAverageWindow * CaptQAverageResolution / 2;
+      else captQAverage[i] = captQAverage[i + 1];
+  }
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
