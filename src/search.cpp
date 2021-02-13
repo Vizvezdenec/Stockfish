@@ -1223,14 +1223,14 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (thisThread->captQAverage[ss->ply] > 600 * CaptQAverageResolution * CaptQAverageWindow / 1024)
-                  r--;
           }
           else
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+
+              if (thisThread->captQAverage[ss->ply] > 600 * CaptQAverageResolution * CaptQAverageWindow / 1024)
                   r++;
 
               // Increase reduction at root if failing high
