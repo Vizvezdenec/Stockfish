@@ -62,6 +62,9 @@ namespace {
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
 
+  constexpr uint64_t CaptQAverageWindow     = 4096;
+  constexpr uint64_t CaptQAverageResolution = 1024;
+
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(234 * (d - improving));
@@ -349,6 +352,9 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
+
+  for (int i = 0; i < MAX_PLY; ++i)
+      captQAverage[i] = CaptQAverageWindow * CaptQAverageResolution / 2;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
@@ -986,7 +992,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    int consecutiveLmrFail = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1169,7 +1174,8 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
-              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024
+              || thisThread->captQAverage[ss->ply] < 470 * CaptQAverageResolution * CaptQAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1201,9 +1207,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-
-          if (consecutiveLmrFail > 30)
-              r++;
 
           if (captureOrPromotion)
           {
@@ -1260,11 +1263,6 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
-
-          if (value <= alpha) 
-              consecutiveLmrFail++;
-          else
-              consecutiveLmrFail = 0;
 
           didLMR = true;
       }
@@ -1350,6 +1348,9 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              thisThread->captQAverage[ss->ply] =   (CaptQAverageWindow - 1) * thisThread->captQAverage[ss->ply] / CaptQAverageWindow
+                                + CaptQAverageResolution * captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
