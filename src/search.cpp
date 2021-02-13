@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (consecutiveLmrFail && moveCount > 15)
+          if (consecutiveLmrFail && moveCount > 25)
               r++;
 
           if (captureOrPromotion)
