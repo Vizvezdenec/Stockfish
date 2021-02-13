@@ -92,6 +92,8 @@ typedef Stats<int16_t, 13365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> Butterf
 constexpr int MAX_LPH = 4;
 typedef Stats<int16_t, 10692, MAX_LPH, int(SQUARE_NB) * int(SQUARE_NB)> LowPlyHistory;
 
+typedef Stats<int16_t, 10692, int(SQUARE_NB) * int(SQUARE_NB), int(SQUARE_NB) * int(SQUARE_NB)> DoubleHistory;
+
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
@@ -130,6 +132,8 @@ public:
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           const DoubleHistory*,
+                                           bool,
                                            Move,
                                            const Move*,
                                            int);
@@ -146,7 +150,9 @@ private:
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
+  const DoubleHistory* doubleHistory;
   Move ttMove;
+  bool ttQuiet;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
