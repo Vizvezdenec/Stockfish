@@ -1059,6 +1059,9 @@ moves_loop: // When in check, search starts from here
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
+
+              if (!PvNode && !pos.see_ge(move, Value(-622) * lmrDepth))
+                  continue;
           }
           else
           {
@@ -1091,7 +1094,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
-      if (    depth >= 7 + th.marked()
+      if (    depth >= 7
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
