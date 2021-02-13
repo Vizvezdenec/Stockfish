@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    bool consecutiveLmrFail = true;
+    int consecutiveLmrFail = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (consecutiveLmrFail && moveCount > 25)
+          if (consecutiveLmrFail > 15)
               r++;
 
           if (captureOrPromotion)
@@ -1261,7 +1261,10 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          consecutiveLmrFail &= value <= alpha;
+          if (value <= alpha) 
+              consecutiveLmrFail++;
+          else
+              consecutiveLmrFail = 0;
 
           didLMR = true;
       }
