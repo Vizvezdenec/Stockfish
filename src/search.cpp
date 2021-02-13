@@ -1060,7 +1060,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
 
-              if (!PvNode && !pos.see_ge(move, Value(-622) * lmrDepth))
+              if (cutNode && !pos.see_ge(move, Value(-422) * lmrDepth))
                   continue;
           }
           else
