@@ -712,7 +712,13 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
+                {
+                    thisThread->captQAverage[ss->ply] =   (CaptQAverageWindow - 1) * thisThread->captQAverage[ss->ply] / CaptQAverageWindow;
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
+                }
+                else 
+                    thisThread->captQAverage[ss->ply] =   (CaptQAverageWindow - 1) * thisThread->captQAverage[ss->ply] / CaptQAverageWindow
+                                + CaptQAverageResolution;
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -1179,7 +1185,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024
-              || thisThread->captQAverage[ss->ply] < 102 * CaptQAverageResolution * CaptQAverageWindow / 1024))
+              || thisThread->captQAverage[ss->ply] < 222 * CaptQAverageResolution * CaptQAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
 
