@@ -1732,7 +1732,7 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
         if (ttQuiet && bestMove != ttMove)
-            thisThread->doubleHistory[from_to(ttMove)][from_to(bestMove)] << bonus2;
+            thisThread->doubleHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][pos.moved_piece(bestMove)][to_sq(bestMove)] << bonus2;
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1740,7 +1740,7 @@ moves_loop: // When in check, search starts from here
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
             if (ttQuiet && quietsSearched[i] != ttMove && bestMove != ttMove)
-                thisThread->doubleHistory[from_to(ttMove)][from_to(quietsSearched[i])] << -bonus2;
+                thisThread->doubleHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
         }
     }
     else
