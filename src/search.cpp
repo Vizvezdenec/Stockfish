@@ -1057,10 +1057,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
-                  continue;
-
-              if (cutNode && !pos.see_ge(move, Value(-422) * lmrDepth))
+              if (!pos.see_ge(move, std::max(Value(-218) * depth, Value(-722) * lmrDepth))) // (~25 Elo)
                   continue;
           }
           else
