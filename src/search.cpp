@@ -1139,8 +1139,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][pos.piece_on(to_sq(move))] > PawnValueEg
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > -5000
+      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
@@ -1164,6 +1163,7 @@ moves_loop: // When in check, search starts from here
       // re-searched at full depth.
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && !(captureOrPromotion && extension)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
