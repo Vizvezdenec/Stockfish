@@ -99,7 +99,7 @@ typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
 /// CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
 typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
 
-typedef Stats<int16_t, 10692, MAX_PLY, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> PlyToCaptHistory;
+typedef Stats<int16_t, 29952, MAX_PLY, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> PlyToCaptHistory;
 
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
