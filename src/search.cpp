@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, std::max(Value(-218) * depth, Value(-722) * lmrDepth))) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1066,6 +1066,11 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
+              if (   !ss->inCheck
+                  && lmrDepth < 1
+                  && thisThread->mainHistory[us][from_to(move)] < 0)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
