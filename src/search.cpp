@@ -1201,6 +1201,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (formerPv && ss->ttHit && (tte->bound() & BOUND_EXACT) && ttValue > beta && tte->depth() >= depth)
+              r--;
+
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
