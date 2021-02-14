@@ -1199,7 +1199,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 1 + (captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 6000);
 
           if (captureOrPromotion)
           {
