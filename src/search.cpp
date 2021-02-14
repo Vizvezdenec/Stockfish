@@ -1201,9 +1201,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (formerPv && ss->ttHit && (tte->bound() & BOUND_EXACT) && ttValue > beta && tte->depth() >= depth)
-              r--;
-
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1241,7 +1238,7 @@ moves_loop: // When in check, search starts from here
               if (ss->statScore >= -89 && (ss-1)->statScore < -116)
                   r--;
 
-              else if ((ss-1)->statScore >= -112 && ss->statScore < -100)
+              else if ((ss-1)->statScore >= -112 && ss->statScore < -100 && (ss-1)->currentMove != MOVE_NULL)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
