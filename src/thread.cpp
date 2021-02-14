@@ -59,6 +59,7 @@ void Thread::clear() {
   mainHistory.fill(0);
   lowPlyHistory.fill(0);
   captureHistory.fill(0);
+  plyToCaptHistory.fill(0);
 
   for (bool inCheck : { false, true })
       for (StatsType c : { NoCaptures, Captures })
@@ -203,6 +204,7 @@ void ThreadPool::start_thinking(Position& pos, StateListPtr& states,
       th->rootMoves = rootMoves;
       th->rootPos.set(pos.fen(), pos.is_chess960(), &th->rootState, th);
       th->rootState = setupStates->back();
+      th->plyToCaptHistory.fill(0);
   }
 
   main()->start_searching();
