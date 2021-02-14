@@ -1140,6 +1140,7 @@ moves_loop: // When in check, search starts from here
 
       // Last captures extension
       else if (   PieceValue[EG][pos.piece_on(to_sq(move))] > PawnValueEg
+               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > -5000
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
