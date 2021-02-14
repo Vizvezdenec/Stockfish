@@ -1235,10 +1235,10 @@ moves_loop: // When in check, search starts from here
                              - 5337;
 
               // Decrease/increase reduction by comparing opponent's stat score (~10 Elo)
-              if (ss->statScore >= -89 && (ss-1)->statScore < -116)
+              if (ss->statScore >= -89 && (ss-1)->statScore < -116 && (ss-1)->currentMove != MOVE_NULL)
                   r--;
 
-              else if ((ss-1)->statScore >= -112 && ss->statScore < -100 && (ss-1)->currentMove != MOVE_NULL)
+              else if ((ss-1)->statScore >= -112 && ss->statScore < -100)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
