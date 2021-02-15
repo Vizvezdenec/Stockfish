@@ -1033,12 +1033,6 @@ moves_loop: // When in check, search starts from here
                            && ttValue < alpha + 200 + 100 * depth 
                            && tte->depth() >= depth;
 
-      bool badNonPvNode =     formerPv
-                           && ttMove
-                           && (tte->bound() & BOUND_UPPER)
-                           && ttValue < alpha - 500 * depth
-                           && tte->depth() >= depth - 2;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1072,6 +1066,11 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
+              if (   lmrDepth < 3
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[1])[movedPiece][to_sq(move)] == CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1188,7 +1187,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV 
           // and node is not likely to fail low (~10 Elo)
-          if (ss->ttPv && !likelyFailLow && !badNonPvNode)
+          if (ss->ttPv && !likelyFailLow)
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
