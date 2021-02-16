@@ -1793,7 +1793,7 @@ moves_loop: // When in check, search starts from here
 
     Square prevSq = to_sq((ss-1)->currentMove);
     // Update countermove history
-    if (is_ok((ss-1)->currentMove) && thisThread->counterDepth[pos.piece_on(prevSq)][prevSq] - depth < 5)
+    if (is_ok((ss-1)->currentMove) && thisThread->counterDepth[pos.piece_on(prevSq)][prevSq] - depth < 10)
     {
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
         thisThread->counterDepth[pos.piece_on(prevSq)][prevSq] = depth;
