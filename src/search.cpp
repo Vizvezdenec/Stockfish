@@ -1204,7 +1204,7 @@ moves_loop: // When in check, search starts from here
           if ((ss+1)->killers[0])
           {
               const PieceToHistory* contHist1[] = {ss->continuationHistory};
-              if ((*contHist1[0])[pos.moved_piece((ss+1)->killers[0])][to_sq((ss+1)->killers[0])] > 20000)
+              if ((*contHist1[0])[pos.moved_piece((ss+1)->killers[0])][to_sq((ss+1)->killers[0])] > 25000)
                   r++;
           }
 
