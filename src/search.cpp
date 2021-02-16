@@ -969,19 +969,6 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    probCutBeta = beta + 500;
-
-    if (    ss->inCheck
-         && !PvNode
-         && depth >= 3
-         && depth < 10
-         && ttCapture
-         && (tte->bound() & BOUND_LOWER)
-         && tte->depth() >= depth - 2
-         && ttValue >= probCutBeta)
-        return probCutBeta;
-
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -998,6 +985,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1212,6 +1200,13 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if ((ss+1)->killers[0])
+          {
+              const PieceToHistory* contHist1[] = {ss->continuationHistory};
+              if ((*contHist1[0])[pos.moved_piece((ss+1)->killers[0])][to_sq((ss+1)->killers[0])] > 20000)
+                  r++;
+          }
 
           if (captureOrPromotion)
           {
