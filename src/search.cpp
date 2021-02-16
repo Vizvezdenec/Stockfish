@@ -970,12 +970,11 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    probCutBeta = beta + 209;
+    probCutBeta = beta + 400;
 
     if (    ss->inCheck
          && !PvNode
          && depth >= 3
-         && depth < 10
          && ttCapture
          && (tte->bound() & BOUND_LOWER)
          && tte->depth() >= depth - 2
