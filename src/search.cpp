@@ -81,7 +81,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return d > 14 ? 66 : 6 * d * d + 231 * d - 206;
+    return d > 14 ? 66 : 300 * d - 269;
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -969,19 +969,6 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    probCutBeta = beta + 400;
-
-    if (    ss->inCheck
-         && !PvNode
-         && depth >= 3
-         && depth < 10
-         && ttCapture
-         && (tte->bound() & BOUND_LOWER)
-         && tte->depth() >= depth - 2
-         && ttValue >= probCutBeta)
-        return probCutBeta;
-
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -998,6 +985,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
