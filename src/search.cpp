@@ -653,6 +653,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
+    (ss+2)->killersDepth = 0;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -974,9 +975,6 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-
-    if (!!pos.piece_on(to_sq(countermove)))
-        countermove = thisThread->counterMovesB[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
@@ -1781,8 +1779,16 @@ moves_loop: // When in check, search starts from here
     // Update killers
     if (ss->killers[0] != move)
     {
-        ss->killers[1] = ss->killers[0];
-        ss->killers[0] = move;
+        if (ss->killersDepth == 0)
+            ss->killersDepth = depth;
+        if (depth > ss->killersDepth / 2 - 1)
+        {
+            ss->killers[1] = ss->killers[0];
+            ss->killers[0] = move;
+            ss->killersDepth = depth;
+        }
+        else
+            ss->killers[1] = move;
     }
 
     Color us = pos.side_to_move();
@@ -1798,7 +1804,6 @@ moves_loop: // When in check, search starts from here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        thisThread->counterMovesB[pos.piece_on(prevSq)][prevSq] = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 
