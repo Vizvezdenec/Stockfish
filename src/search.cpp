@@ -81,7 +81,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return d > 14 ? 66 : 300 * d - 269;
+    return d > 14 ? 66 : 310 * d - 279;
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
