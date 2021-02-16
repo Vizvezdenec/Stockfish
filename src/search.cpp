@@ -1791,11 +1791,12 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
+    Square prevSq = to_sq((ss-1)->currentMove);
     // Update countermove history
-    if (is_ok((ss-1)->currentMove))
+    if (is_ok((ss-1)->currentMove) && thisThread->counterDepth[pos.piece_on(prevSq)][prevSq] - depth < 8)
     {
-        Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterDepth[pos.piece_on(prevSq)][prevSq] = depth;
     }
 
     // Update low ply history
