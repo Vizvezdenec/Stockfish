@@ -975,7 +975,7 @@ moves_loop: // When in check, search starts from here
          && !PvNode
          && ttCapture
          && (tte->bound() & BOUND_LOWER)
-         && tte->depth() >= depth - 2
+         && tte->depth() >= depth - 1
          && ttValue >= beta + 300)
         return beta + 300;
 
