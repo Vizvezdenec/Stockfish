@@ -653,7 +653,6 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
-    (ss+2)->killersDepth = 0;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -970,6 +969,16 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    
+    if (    ss->inCheck
+         && !PvNode
+         && ttCapture
+         && (tte->bound() & BOUND_LOWER)
+         && tte->depth() >= depth - 3
+         && ttValue >= beta + 300)
+        return beta + 300;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -986,7 +995,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1779,16 +1787,8 @@ moves_loop: // When in check, search starts from here
     // Update killers
     if (ss->killers[0] != move)
     {
-        if (ss->killersDepth == 0)
-            ss->killersDepth = depth;
-        if (depth > ss->killersDepth / 2 - 1)
-        {
-            ss->killers[1] = ss->killers[0];
-            ss->killers[0] = move;
-            ss->killersDepth = depth;
-        }
-        else
-            ss->killers[1] = move;
+        ss->killers[1] = ss->killers[0];
+        ss->killers[0] = move;
     }
 
     Color us = pos.side_to_move();
