@@ -969,6 +969,18 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    probCutBeta = beta + 400;
+
+    if (    ss->inCheck
+         && !PvNode
+         && depth >= 4
+         && ttCapture
+         && (tte->bound() & BOUND_LOWER)
+         && tte->depth() >= depth - 3
+         && ttValue >= probCutBeta)
+        return probCutBeta;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -985,7 +997,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1253,13 +1264,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          int margin = 300 * d + 300;
-          if (d > 4 && !captureOrPromotion && !givesCheck && ss->staticEval + 2 * margin < alpha)
-              value = -search<NonPV>(pos, ss+1, -(alpha-margin+1), -(alpha-margin), d - 4, true);
-          else value = alpha - margin + 1;
-
-          if (value > alpha - margin)
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
