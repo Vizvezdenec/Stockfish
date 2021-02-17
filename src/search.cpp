@@ -970,7 +970,7 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-    probCutBeta = beta + 400;
+    probCutBeta = beta + 500;
 
     if (    ss->inCheck
          && !PvNode
