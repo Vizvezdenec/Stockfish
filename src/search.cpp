@@ -1253,7 +1253,7 @@ moves_loop: // When in check, search starts from here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
-          int margin = 70 * d + 100;
+          int margin = 30 * d + 50;
           if (d > 4 && !captureOrPromotion && !givesCheck && ss->staticEval + 2 * margin < alpha)
               value = -search<NonPV>(pos, ss+1, -(alpha-margin+1), -(alpha-margin), d - 4, true);
           else value = alpha - margin + 1;
