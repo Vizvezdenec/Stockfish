@@ -833,7 +833,7 @@ namespace {
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval >= ss->staticEval - futility_margin(depth + 1, improving)
+        &&  eval >= ss->staticEval - futility_margin(depth + 1, improving) / 2
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
