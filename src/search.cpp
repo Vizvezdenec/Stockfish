@@ -1144,7 +1144,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       if (   !rootNode && ss->inCheck && moveCount == 1 && depth < 10
-          && !ttMove && type_of(movedPiece) == KING && (*contHist[0])[movedPiece][to_sq(move)] > 20000)
+          && !ttMove && type_of(movedPiece) == KING && (*contHist[0])[movedPiece][to_sq(move)] > 27000)
           extension = 1;
 
       // Add extension to new depth
