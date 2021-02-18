@@ -969,6 +969,15 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
+    if (   !PvNode
+        &&  depth < 9
+        &&  ss->ttHit
+        &&  ttValue != VALUE_NONE
+        && (tte->bound() & BOUND_LOWER)
+        &&  ttValue - 2 * futility_margin(depth, improving) >= beta
+        &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
+        return ttValue;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
