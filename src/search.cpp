@@ -970,11 +970,11 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     if (   !PvNode
-        &&  depth < 9
+        &&  depth < 6
         &&  ss->ttHit
         &&  ttValue != VALUE_NONE
         && (tte->bound() & BOUND_LOWER)
-        &&  ttValue - 2 * futility_margin(depth + 1, improving) >= beta
+        &&  ttValue - 3 * futility_margin(depth, improving) / 2 >= beta
         &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
         return ttValue;
 
