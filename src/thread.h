@@ -72,6 +72,7 @@ public:
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  Value prevScore;
   Score contempt;
   int failedHighCnt;
 };

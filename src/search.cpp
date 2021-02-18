@@ -404,6 +404,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].previousScore;
+              prevScore = prev;
               delta = Value(17);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
@@ -1143,10 +1144,6 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
-      if (   !rootNode && ss->inCheck && moveCount == 1
-          && !ttMove && type_of(movedPiece) == KING && (*contHist[0])[movedPiece][to_sq(move)] > 27000)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
 
@@ -1192,6 +1189,9 @@ moves_loop: // When in check, search starts from here
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
+
+          if (rootNode && thisThread->rootDepth > 4 && !ss->inCheck && std::abs(bestValue - thisThread->prevScore) < 2)
+              r--;
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
