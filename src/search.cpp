@@ -1190,7 +1190,9 @@ moves_loop: // When in check, search starts from here
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
 
-          if (rootNode && thisThread->rootDepth > 4 && !ss->inCheck && std::abs(bestValue - thisThread->prevScore) < 2)
+          if (rootNode && thisThread->rootDepth > 4 && !ss->inCheck 
+           && std::abs(bestValue - ss->staticEval) > 100
+           && std::abs(bestValue - thisThread->prevScore) < 2)
               r--;
 
           // More reductions for late moves if position was not in previous PV
