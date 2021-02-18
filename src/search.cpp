@@ -1143,7 +1143,7 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
-      if (   !rootNode && ss->inCheck && moveCount == 1 && depth < 10
+      if (   !rootNode && ss->inCheck && moveCount == 1
           && !ttMove && type_of(movedPiece) == KING && (*contHist[0])[movedPiece][to_sq(move)] > 27000)
           extension = 1;
 
