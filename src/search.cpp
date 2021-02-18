@@ -833,7 +833,6 @@ namespace {
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval >= ss->staticEval - futility_margin(depth + 1, improving) / 2
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1142,6 +1141,10 @@ moves_loop: // When in check, search starts from here
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
+          extension = 1;
+
+      if (   !rootNode && ss->inCheck && moveCount == 1 
+          && !ttMove && type_of(movedPiece) == KING && (*contHist[0])[movedPiece][to_sq(move)] > 25000)
           extension = 1;
 
       // Add extension to new depth
