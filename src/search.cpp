@@ -974,7 +974,7 @@ moves_loop: // When in check, search starts from here
         &&  ss->ttHit
         &&  ttValue != VALUE_NONE
         && (tte->bound() & BOUND_LOWER)
-        &&  ttValue - 3 * futility_margin(depth, improving) / 2 >= beta
+        &&  ttValue - 5 * futility_margin(depth, improving) / 2 >= beta
         &&  ttValue < VALUE_KNOWN_WIN) // Do not return unproven wins
         return ttValue;
 
