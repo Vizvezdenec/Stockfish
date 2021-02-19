@@ -867,12 +867,9 @@ namespace {
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
                 nullValue = beta;
 
-            bool nullCut = false;
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-                nullCut = true;
+                return nullValue;
 
-            if (!nullCut)
-            {
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
             // Do verification search at high depths, with null move pruning disabled
@@ -885,15 +882,7 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
-                nullCut = true;
-            }
-            if (nullCut)
-            {
-                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
-                            BOUND_LOWER,
-                            depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
-            }
         }
     }
 
@@ -1218,6 +1207,8 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              r -= (ss->statScore + 4 * PieceValue[MG][pos.captured_piece()]) / 16384;
           }
           else
           {
