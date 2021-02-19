@@ -404,7 +404,6 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].previousScore;
-              prevScore = prev;
               delta = Value(17);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
@@ -1163,13 +1162,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Reduced depth search (LMR, ~200 Elo). If the move fails high it will be
       // re-searched at full depth.
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
-          && (  !captureOrPromotion
-              || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
-              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+          &&  moveCount > 1 + 2 * rootNode + captureOrPromotion)
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1189,10 +1182,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
-
-          if (  rootNode && thisThread->rootDepth > 12 && !ss->inCheck 
-             && std::abs(bestValue - thisThread->prevScore) < 2)
-              r--;
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
