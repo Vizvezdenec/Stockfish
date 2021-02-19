@@ -1208,7 +1208,7 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
 
-              r -= ss->statScore / 32768;
+              r -= ss->statScore / 16384;
           }
           else
           {
