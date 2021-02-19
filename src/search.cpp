@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts from here
           extension = 1;
 
       // Last captures extension
-      else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
+      else if (   PieceValue[NN][pos.captured_piece()] > PawnValueNN
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
@@ -1165,9 +1165,8 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[NN][pos.captured_piece()] <= alpha
               || cutNode
-              || (PvNode && !givesCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 0)
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 4506)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
@@ -1206,7 +1205,7 @@ moves_loop: // When in check, search starts from here
           {
               // Unless giving check, this capture is likely bad
               if (   !givesCheck
-                  && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
+                  && ss->staticEval + PieceValue[NN][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
           }
           else
@@ -1563,7 +1562,7 @@ moves_loop: // When in check, search starts from here
           if (moveCount > 2)
               continue;
 
-          futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
+          futilityValue = futilityBase + PieceValue[NN][pos.piece_on(to_sq(move))];
 
           if (futilityValue <= alpha)
           {

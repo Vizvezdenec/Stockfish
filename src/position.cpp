@@ -350,7 +350,7 @@ void Position::set_state(StateInfo* si) const {
 
   si->key = si->materialKey = 0;
   si->pawnKey = Zobrist::noPawns;
-  si->nonPawnMaterial[WHITE] = si->nonPawnMaterial[BLACK] = VALUE_ZERO;
+  si->nonPawnMaterial[WHITE] = si->nonPawnMaterial[BLACK] = si->NNMaterial = VALUE_ZERO;
   si->checkersBB = attackers_to(square<KING>(sideToMove)) & pieces(~sideToMove);
 
   set_check_info(si);
@@ -364,8 +364,10 @@ void Position::set_state(StateInfo* si) const {
       if (type_of(pc) == PAWN)
           si->pawnKey ^= Zobrist::psq[pc][s];
 
-      else if (type_of(pc) != KING)
+      else
           si->nonPawnMaterial[color_of(pc)] += PieceValue[MG][pc];
+
+      si->NNMaterial += PieceValue[NN][pc];
   }
 
   if (si->epSquare != SQ_NONE)
@@ -752,6 +754,8 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
       else
           st->nonPawnMaterial[them] -= PieceValue[MG][captured];
 
+      st->NNMaterial -= PieceValue[NN][captured];
+
       if (Eval::useNNUE)
       {
           dp.dirty_num = 2;  // 1 piece moved, 1 piece captured
@@ -845,6 +849,7 @@ void Position::do_move(Move m, StateInfo& newSt, bool givesCheck) {
 
           // Update material
           st->nonPawnMaterial[us] += PieceValue[MG][promotion];
+          st->NNMaterial += PieceValue[NN][promotion] - PieceValue[NN][PAWN];
       }
 
       // Update pawn hash key

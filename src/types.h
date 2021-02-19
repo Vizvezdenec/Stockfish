@@ -154,7 +154,7 @@ enum CastlingRights {
 enum Phase {
   PHASE_ENDGAME,
   PHASE_MIDGAME = 128,
-  MG = 0, EG = 1, PHASE_NB = 2
+  MG = 0, EG = 1, NN = 2, PHASE_NB = 3
 };
 
 enum ScaleFactor {
@@ -184,11 +184,11 @@ enum Value : int {
   VALUE_MATE_IN_MAX_PLY  =  VALUE_MATE - MAX_PLY,
   VALUE_MATED_IN_MAX_PLY = -VALUE_MATE_IN_MAX_PLY,
 
-  PawnValueMg   = 126,   PawnValueEg   = 208,
-  KnightValueMg = 781,   KnightValueEg = 854,
-  BishopValueMg = 825,   BishopValueEg = 915,
-  RookValueMg   = 1276,  RookValueEg   = 1380,
-  QueenValueMg  = 2538,  QueenValueEg  = 2682,
+  PawnValueMg   = 126,   PawnValueEg   = 208,  PawnValueNN   = 238,
+  KnightValueMg = 781,   KnightValueEg = 854,  KnightValueNN = 710,
+  BishopValueMg = 825,   BishopValueEg = 915,  BishopValueNN = 841,
+  RookValueMg   = 1276,  RookValueEg   = 1380, RookValueNN   = 1327,
+  QueenValueMg  = 2538,  QueenValueEg  = 2682, QueenValueNN  = 2419,
   Tempo = 28,
 
   MidgameLimit  = 15258, EndgameLimit  = 3915
@@ -211,7 +211,9 @@ constexpr Value PieceValue[PHASE_NB][PIECE_NB] = {
   { VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg, VALUE_ZERO, VALUE_ZERO,
     VALUE_ZERO, PawnValueMg, KnightValueMg, BishopValueMg, RookValueMg, QueenValueMg, VALUE_ZERO, VALUE_ZERO },
   { VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg, QueenValueEg, VALUE_ZERO, VALUE_ZERO,
-    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg, QueenValueEg, VALUE_ZERO, VALUE_ZERO }
+    VALUE_ZERO, PawnValueEg, KnightValueEg, BishopValueEg, RookValueEg, QueenValueEg, VALUE_ZERO, VALUE_ZERO },
+  { VALUE_ZERO, PawnValueNN, KnightValueNN, BishopValueNN, RookValueNN, QueenValueNN, VALUE_ZERO, VALUE_ZERO,
+    VALUE_ZERO, PawnValueNN, KnightValueNN, BishopValueNN, RookValueNN, QueenValueNN, VALUE_ZERO, VALUE_ZERO }
 };
 
 typedef int Depth;

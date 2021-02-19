@@ -42,6 +42,7 @@ struct StateInfo {
   Key    pawnKey;
   Key    materialKey;
   Value  nonPawnMaterial[COLOR_NB];
+  Value  NNMaterial;
   int    castlingRights;
   int    rule50;
   int    pliesFromNull;
@@ -164,6 +165,7 @@ public:
   Score psq_score() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
+  Value NN_material() const;
 
   // Position consistency check, for debugging
   bool pos_is_ok() const;
@@ -341,6 +343,10 @@ inline Value Position::non_pawn_material(Color c) const {
 
 inline Value Position::non_pawn_material() const {
   return non_pawn_material(WHITE) + non_pawn_material(BLACK);
+}
+
+inline Value Position::NN_material() const {
+  return st->NNMaterial;
 }
 
 inline int Position::game_ply() const {
