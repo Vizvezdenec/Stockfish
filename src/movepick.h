@@ -121,18 +121,21 @@ class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, Square, bool);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square);
+                                           Square,
+                                           bool);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
                                            const Move*,
-                                           int);
+                                           int,
+                                           Square,
+                                           bool);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -153,6 +156,7 @@ private:
   Value threshold;
   Depth depth;
   int ply;
+  bool probcut;
   ExtMove moves[MAX_MOVES];
 };
 
