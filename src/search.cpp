@@ -404,6 +404,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].previousScore;
+              prevScore = prev;
               delta = Value(17);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
@@ -1188,6 +1189,10 @@ moves_loop: // When in check, search starts from here
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
+
+          if (  rootNode && thisThread->rootDepth > 12 && !ss->inCheck 
+             && std::abs(bestValue - thisThread->prevScore) < 2)
+              r--;
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
