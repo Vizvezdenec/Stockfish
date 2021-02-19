@@ -1196,6 +1196,8 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~5 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
+          else if ((ss-1)->inCheck && (ss-1)->moveCount > 6)
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
@@ -1207,9 +1209,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-             if (!cutNode && formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 5981)
-                  r--;
           }
           else
           {
