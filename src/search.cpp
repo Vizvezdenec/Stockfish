@@ -867,9 +867,12 @@ namespace {
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
                 nullValue = beta;
 
+            bool nullCut = false;
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-                return nullValue;
+                nullCut = true;
 
+            if (!nullCut)
+            {
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
             // Do verification search at high depths, with null move pruning disabled
@@ -882,7 +885,15 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
+                nullCut = true;
+            }
+            if (nullCut)
+            {
+                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
+            }
         }
     }
 
@@ -1720,10 +1731,8 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bonus1 <= stat_bonus(depth) ?  bonus1 :
-             bestValue > beta + 256      ?  bonus1 :
-             bestValue > beta            ? (bonus1 * (bestValue - beta) + stat_bonus(depth) * (256 + beta - bestValue)) / 256 
-                                         :  stat_bonus(depth);
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
+                                            : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
     {
