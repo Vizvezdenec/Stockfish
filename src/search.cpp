@@ -1737,7 +1737,7 @@ moves_loop: // When in check, search starts from here
     }
     else
     {
-        bool goodCapt = ss->staticEval + PieceValue[EG][captured] + 100 * depth < bestValue;
+        bool goodCapt = ss->staticEval + PieceValue[EG][captured] + 25 * depth < bestValue;
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
     }
