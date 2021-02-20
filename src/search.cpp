@@ -1349,9 +1349,9 @@ moves_loop: // When in check, search starts from here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
-                  alpha = value;
-                  if (!captureOrPromotion)
+                  if (!captureOrPromotion && value >= (alpha + beta) / 2)
                       bestQ = move;
+                  alpha = value;
               }
               else
               {
@@ -1399,8 +1399,6 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
         if (!ss->killers[0])
             ss->killers[0] = bestQ;
-        else if (!ss->killers[1])
-            ss->killers[1] = bestQ;
     }
 
     // Bonus for prior countermove that caused the fail low
