@@ -366,6 +366,8 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
+  Value prev = Value(0);
+
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -403,8 +405,12 @@ void Thread::search() {
           // Reset aspiration window starting size
           if (rootDepth >= 4)
           {
-              Value prev = rootMoves[pvIdx].previousScore;
+              Value oldPrev = prev;
+              prev = rootMoves[pvIdx].previousScore;
               delta = Value(17);
+
+              if (prev == oldPrev)
+                  delta = delta - Value(4);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -1736,11 +1742,8 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
-        bool goodCapt = ss->staticEval + PieceValue[EG][captured] + 25 * depth < bestValue;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
-    }
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
