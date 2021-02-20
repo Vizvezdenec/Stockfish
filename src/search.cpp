@@ -410,7 +410,7 @@ void Thread::search() {
               delta = Value(17);
 
               if (prev == oldPrev)
-                  delta = delta - Value(1);
+                  delta = delta - Value(2);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
