@@ -400,12 +400,10 @@ void Thread::search() {
           // Reset UCI info selDepth for each depth and each PV line
           selDepth = 0;
 
-          Value prev = VALUE_NONE;
-
           // Reset aspiration window starting size
           if (rootDepth >= 4)
           {
-              prev = rootMoves[pvIdx].previousScore;
+              Value prev = rootMoves[pvIdx].previousScore;
               delta = Value(17);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
@@ -465,11 +463,7 @@ void Thread::search() {
                   ++failedHighCnt;
               }
               else
-              {
-                  if (std::abs(bestValue - prev) < 2)
-                      lastVC = rootDepth;
                   break;
-              }
 
               delta += delta / 4 + 5;
 
@@ -1194,8 +1188,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
-          else if (rootNode && depth - thisThread->lastVC > 7)
-              r++;
 
           // More reductions for late moves if position was not in previous PV
           if (moveCountPruning && !formerPv)
@@ -1744,8 +1736,11 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
+        bool goodCapt = ss->staticEval + PieceValue[EG][captured] + 100 * depth < bestValue;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
