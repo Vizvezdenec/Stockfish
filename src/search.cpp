@@ -366,8 +366,6 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
-  Value prev = Value(0);
-
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -405,12 +403,8 @@ void Thread::search() {
           // Reset aspiration window starting size
           if (rootDepth >= 4)
           {
-              Value oldPrev = prev;
-              prev = rootMoves[pvIdx].previousScore;
+              Value prev = rootMoves[pvIdx].previousScore;
               delta = Value(17);
-
-              if (prev == oldPrev)
-                  delta = delta - Value(2);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -452,6 +446,7 @@ void Thread::search() {
                   && Time.elapsed() > 3000)
                   sync_cout << UCI::pv(rootPos, rootDepth, alpha, beta) << sync_endl;
 
+              int fhValue = 0;
               // In case of failing low/high increase aspiration window and
               // re-search, otherwise exit the loop.
               if (bestValue <= alpha)
@@ -465,13 +460,14 @@ void Thread::search() {
               }
               else if (bestValue >= beta)
               {
+                  fhValue = bestValue - beta;
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
               }
               else
                   break;
 
-              delta += delta / 4 + 5;
+              delta += delta / 4 + 5 + (fhValue / 64);
 
               assert(alpha >= -VALUE_INFINITE && beta <= VALUE_INFINITE);
           }
