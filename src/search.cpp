@@ -1399,6 +1399,8 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
         if (!ss->killers[0])
             ss->killers[0] = bestQ;
+        else if (!ss->killers[1])
+            ss->killers[1] = bestQ;
     }
 
     // Bonus for prior countermove that caused the fail low
