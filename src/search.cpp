@@ -975,10 +975,9 @@ moves_loop: // When in check, search starts from here
     probCutBeta = beta + 400;
     if (   ss->inCheck
         && !PvNode
-        && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3
+        && tte->depth() >= std::max(depth - 3, 1)
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
@@ -1752,11 +1751,8 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
-        bool goodCapt = ss->staticEval + PieceValue[EG][captured] * 2 < bestValue;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
-    }
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
