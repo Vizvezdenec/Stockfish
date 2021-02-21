@@ -972,7 +972,7 @@ moves_loop: // When in check, search starts from here
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 430;
+    probCutBeta = beta + 400;
     if (   ss->inCheck
         && !PvNode
         && depth >= 4
@@ -1223,6 +1223,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              if (   givesCheck && type_of(movedPiece) == BISHOP && (attacks_bb<KING>(to_sq(move)) & pos.pieces(~us, KING)))
+                  r--;
           }
           else
           {
