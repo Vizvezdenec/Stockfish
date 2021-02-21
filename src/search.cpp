@@ -1266,7 +1266,7 @@ moves_loop: // When in check, search starts from here
               else
                   r -= ss->statScore / 14790;
 
-              r -= thisThread->lmrPlyHistory[ss->ply][movedPiece][to_sq(move)] / 16384;
+              r -= thisThread->lmrPlyHistory[ss->ply][movedPiece][to_sq(move)] / 8192;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
