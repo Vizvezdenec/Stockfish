@@ -956,11 +956,20 @@ namespace {
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
                     captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
+                    for (int i = 0; i < captureCount; ++i)
+                    {
+                        movedPiece = pos.moved_piece(capturesSearched[i]);
+                        PieceType captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
+                        captureHistory[movedPiece][to_sq(capturesSearched[i])][captured] << -stat_bonus(depth - 3);
+                    }
                     return value;
                 }
+                else capturesSearched[captureCount++] = move;
             }
          ss->ttPv = ttPv;
     }
+
+    captureCount = 0;
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
