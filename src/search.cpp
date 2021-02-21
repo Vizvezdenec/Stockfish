@@ -1003,6 +1003,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     int worseQcnt = 0;
+    bool isBestQ = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1359,8 +1360,7 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (!captureOrPromotion)
-                  worseQcnt = quietCount;
+              isBestQ = !captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
@@ -1383,7 +1383,11 @@ moves_loop: // When in check, search starts from here
               capturesSearched[captureCount++] = move;
 
           else if (!captureOrPromotion && quietCount < 64)
+          {
+              if (isBestQ)
+                  worseQcnt = quietCount;
               quietsSearched[quietCount++] = move;
+          }
       }
     }
 
