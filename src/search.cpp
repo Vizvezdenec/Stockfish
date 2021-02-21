@@ -892,6 +892,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
+        &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -905,15 +906,13 @@ namespace {
         // if ttMove is a capture and value from transposition table is good enough produce probCut
         // cutoff without digging into actual probCut search
         if (   ss->ttHit
-            && tte->depth() >= std::max(depth - 3, 1)
+            && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
             && ttMove
             && pos.capture_or_promotion(ttMove))
             return probCutBeta;
 
-        if (depth > 4)
-        {
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -960,7 +959,6 @@ namespace {
                 }
             }
          ss->ttPv = ttPv;
-         }
     }
 
     // Step 10. If the position is not in TT, decrease depth by 2
@@ -1754,8 +1752,11 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
+        bool goodCapt = ss->staticEval + PieceValue[EG][captured] * 3 < bestValue;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
