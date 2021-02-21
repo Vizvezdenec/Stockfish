@@ -1356,6 +1356,15 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
+              if (pos.capture_or_promotion(bestMove))
+              {
+                  if (captureCount < 32)
+                      capturesSearched[captureCount++] = bestMove;
+              }
+
+              else if (quietCount < 64)
+                  quietsSearched[quietCount++] = bestMove;
+
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
