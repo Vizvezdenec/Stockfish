@@ -1265,11 +1265,19 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
+
+              r -= thisThread->lmrPlyHistory[ss->ply][movedPiece][to_sq(move)] / 16384;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              thisThread->lmrPlyHistory[ss->ply][movedPiece][to_sq(move)] << bonus;
+          }
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
