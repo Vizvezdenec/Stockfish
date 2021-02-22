@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (ttMove && thisThread->ttTrueAverage > 899 * TtTrueAverageResolution * TtTrueAverageWindow / 1024)
+          if (ttMove && thisThread->ttTrueAverage > 999 * TtTrueAverageResolution * TtTrueAverageWindow / 1024)
               r++;
 
           if (captureOrPromotion)
