@@ -62,9 +62,6 @@ namespace {
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
 
-  constexpr uint64_t TtTrueAverageWindow     = 4096;
-  constexpr uint64_t TtTrueAverageResolution = 1024;
-
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(234 * (d - improving));
@@ -352,7 +349,6 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
-  ttTrueAverage = TtTrueAverageWindow * TtTrueAverageResolution / 2;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
@@ -1163,6 +1159,15 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
+      if ( PvNode
+        && depth >= 6
+        && !ttMove
+        && moveCount == 1
+        && !ss->inCheck
+        && (*contHist[0])[movedPiece][to_sq(move)] > 20000
+        && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
+          extension = 1;
+
       // Add extension to new depth
       newDepth += extension;
 
@@ -1220,9 +1225,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-
-          if (ttMove && thisThread->ttTrueAverage > 999 * TtTrueAverageResolution * TtTrueAverageWindow / 1024)
-              r++;
 
           if (captureOrPromotion)
           {
@@ -1411,13 +1413,8 @@ moves_loop: // When in check, search starts from here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
-    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-        bool notBestTt = ttMove && bestMove != ttMove;
-        thisThread->ttTrueAverage =   (TtTrueAverageWindow - 1) * thisThread->ttTrueAverage / TtTrueAverageWindow
-                                + TtTrueAverageResolution * (1 - notBestTt);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
