@@ -831,10 +831,20 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return eval;
+    {
+        if (depth < 9)
+            return eval;
+        else if (ttMove && ttValue > ss->staticEval)
+        {
+            ss->excludedMove = ttMove;
+            value = search<NonPV>(pos, ss, (eval + beta) / 2 - 1, (eval + beta) / 2, depth / 2, cutNode);
+            ss->excludedMove = MOVE_NONE;
+            if (value >= (eval + beta) / 2)
+                return (eval + beta) / 2;
+        }
+    }
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
