@@ -831,20 +831,10 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
-    {
-        if (depth < 9)
-            return eval;
-        else if (ttMove && ttValue > ss->staticEval)
-        {
-            ss->excludedMove = ttMove;
-            value = search<NonPV>(pos, ss, (eval + beta) / 2 - 1, (eval + beta) / 2, depth / 2, cutNode);
-            ss->excludedMove = MOVE_NONE;
-            if (value >= (eval + beta) / 2)
-                return (eval + beta) / 2;
-        }
-    }
+        return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1059,6 +1049,13 @@ moves_loop: // When in check, search starts from here
                            && ttValue < alpha + 200 + 100 * depth
                            && tte->depth() >= depth;
 
+      bool whatever = PvNode
+                           && ttMove
+                           && (tte->bound() & BOUND_LOWER)
+                           && ttValue > alpha - 200 - 100 * depth
+                           && tte->depth() >= depth;
+
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1210,6 +1207,9 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
               r -= 2;
+
+          if (whatever)
+              r--;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
