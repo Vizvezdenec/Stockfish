@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts from here
       bool whatever = PvNode
                            && ttMove
                            && (tte->bound() & BOUND_LOWER)
-                           && ttValue > alpha - 200 - 100 * depth
+                           && ttValue > alpha
                            && tte->depth() >= depth;
 
 
