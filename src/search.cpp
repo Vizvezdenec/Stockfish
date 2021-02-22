@@ -62,6 +62,9 @@ namespace {
   constexpr uint64_t TtHitAverageWindow     = 4096;
   constexpr uint64_t TtHitAverageResolution = 1024;
 
+  constexpr uint64_t TtTrueAverageWindow     = 4096;
+  constexpr uint64_t TtTrueAverageResolution = 1024;
+
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(234 * (d - improving));
@@ -349,6 +352,7 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
   ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
+  ttTrueAverage = TtTrueAverageWindow * TtTrueAverageResolution / 2;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
@@ -1049,13 +1053,6 @@ moves_loop: // When in check, search starts from here
                            && ttValue < alpha + 200 + 100 * depth
                            && tte->depth() >= depth;
 
-      bool whatever = PvNode
-                           && ttMove
-                           && (tte->bound() & BOUND_LOWER)
-                           && ttValue > alpha
-                           && tte->depth() >= depth;
-
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1208,9 +1205,6 @@ moves_loop: // When in check, search starts from here
           if (ss->ttPv && !likelyFailLow)
               r -= 2;
 
-          if (whatever)
-              r--;
-
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
               r++;
@@ -1226,6 +1220,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (ttMove && thisThread->ttTrueAverage > 722 * TtTrueAverageResolution * TtTrueAverageWindow / 1024)
+              r++;
 
           if (captureOrPromotion)
           {
@@ -1414,8 +1411,13 @@ moves_loop: // When in check, search starts from here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
+    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        bool notBestTt = ttMove && bestMove != ttMove;
+        thisThread->ttTrueAverage =   (TtTrueAverageWindow - 1) * thisThread->ttTrueAverage / TtTrueAverageWindow
+                                + TtTrueAverageResolution * (1 - notBestTt);
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
