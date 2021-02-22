@@ -55,8 +55,8 @@ namespace {
 
 /// MovePicker constructor for the main search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const LowPlyHistory* lp,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
-           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch),
+                       const CapturePieceToHistory* cph, const CaptureMatHistory* cmh, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
+           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), captureMatHistory(cmh), continuationHistory(ch),
              ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(pl) {
 
   assert(d > 0);
@@ -67,8 +67,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for quiescence search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
+                       const CapturePieceToHistory* cph, const CaptureMatHistory* cmh, const PieceToHistory** ch, Square rs)
+           : pos(p), mainHistory(mh), captureHistory(cph), captureMatHistory(cmh), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
 
   assert(d <= 0);
 
@@ -80,8 +80,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th) {
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph, const CaptureMatHistory* cmh)
+           : pos(p), captureHistory(cph), captureMatHistory(cmh), ttMove(ttm), threshold(th) {
 
   assert(!pos.checkers());
 
@@ -101,7 +101,13 @@ void MovePicker::score() {
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
           m.value =  int(PieceValue[MG][pos.piece_on(to_sq(m))]) * 6
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
+                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
+                   + (pos.side_to_move() == WHITE ? (*captureMatHistory)[type_of(pos.moved_piece(m))][WHITE][std::min(1, pos.count<QUEEN>(WHITE))]
+                     [std::min(2, pos.count<ROOK>(WHITE))][std::min(4, pos.count<KNIGHT>(WHITE) + pos.count<BISHOP>(WHITE))]
+                     [type_of(pos.piece_on(to_sq(m)))] 
+                                                  : (*captureMatHistory)[type_of(pos.moved_piece(m))][BLACK][std::min(1, pos.count<QUEEN>(BLACK))]
+                     [std::min(2, pos.count<ROOK>(BLACK))][std::min(4, pos.count<KNIGHT>(BLACK) + pos.count<BISHOP>(BLACK))]
+                     [type_of(pos.piece_on(to_sq(m)))]);
 
       else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]

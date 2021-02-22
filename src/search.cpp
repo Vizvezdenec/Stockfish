@@ -776,6 +776,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureMatHistory& captureMatHistory = thisThread->captureMatHistory;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -914,7 +915,7 @@ namespace {
             return probCutBeta;
 
         assert(probCutBeta < VALUE_INFINITE);
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, &captureMatHistory);
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
@@ -995,6 +996,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &captureMatHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
@@ -1553,6 +1555,7 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->captureMatHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1732,6 +1735,7 @@ moves_loop: // When in check, search starts from here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    CaptureMatHistory& captureMatHistory = thisThread->captureMatHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
@@ -1752,8 +1756,12 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureMatHistory[type_of(moved_piece)][us][std::min(pos.count<QUEEN>(us), 1)][std::min(pos.count<ROOK>(us), 2)]
+                                                   [std::min(pos.count<BISHOP>(us) + pos.count<KNIGHT>(us), 4)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1767,6 +1775,8 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureMatHistory[type_of(moved_piece)][us][std::min(pos.count<QUEEN>(us), 1)][std::min(pos.count<ROOK>(us), 2)]
+                                                   [std::min(pos.count<BISHOP>(us) + pos.count<KNIGHT>(us), 4)][captured] << -bonus1;
     }
   }
 
