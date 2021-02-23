@@ -1146,7 +1146,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (ttCapture && ttValue >= beta + depth)
+              else if (ttValue >= beta + depth)
                   extension = 1;
           }
       }
