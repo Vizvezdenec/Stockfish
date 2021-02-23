@@ -1067,8 +1067,7 @@ moves_loop: // When in check, search starts from here
               || givesCheck)
           {
               // Capture history based pruning when the move doesn't give check
-              if (   captureOrPromotion
-                  && (!givesCheck || (cutNode && !formerPv))
+              if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
@@ -1117,8 +1116,8 @@ moves_loop: // When in check, search starts from here
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
-          Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Value singularBeta = ttValue - (((formerPv && !cutNode) + 4) * depth) / 2;
+          Depth singularDepth = (depth - 1 + 3 * (formerPv && !cutNode)) / 2;
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
