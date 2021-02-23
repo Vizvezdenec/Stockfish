@@ -1049,12 +1049,6 @@ moves_loop: // When in check, search starts from here
                            && ttValue < alpha + 200 + 100 * depth
                            && tte->depth() >= depth;
 
-      bool whatever = PvNode
-                           && ttMove
-                           && (tte->bound() & BOUND_LOWER)
-                           && ttValue > alpha - 200 - 100 * depth
-                           && tte->depth() >= depth;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1066,9 +1060,6 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          if (captureOrPromotion && cutNode && !formerPv && !givesCheck && captureCount >= futility_move_count(improving, depth))
-              continue;
-
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
@@ -1076,7 +1067,8 @@ moves_loop: // When in check, search starts from here
               || givesCheck)
           {
               // Capture history based pruning when the move doesn't give check
-              if (   !givesCheck
+              if (   captureOrPromotion
+                  && (!givesCheck || cutNode)
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
@@ -1208,9 +1200,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
           if (ss->ttPv && !likelyFailLow)
-              r -= 2;
-
-          if (whatever)
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
