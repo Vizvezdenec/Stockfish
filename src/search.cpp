@@ -1146,7 +1146,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (ttCapture && ttValue >= beta + 3 * depth / 2)
+              else if (ttCapture && !PvNode && ttValue >= beta + depth)
                   extension = 1;
           }
       }
