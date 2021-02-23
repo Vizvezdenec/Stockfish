@@ -1146,6 +1146,8 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else if (ttCapture && ttValue >= beta + depth)
+                  extension = 1;
           }
       }
 
@@ -1215,7 +1217,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + (formerPv && !cutNode);
+              r--;
 
           if (captureOrPromotion)
           {
