@@ -1095,10 +1095,10 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   ss->inCheck
-                  && lmrDepth < 3
+                  && lmrDepth < 4
                   && !(ss-1)->inCheck
                   && !priorCapture
-                  && -(ss-1)->staticEval + 390 + 370 * lmrDepth <= alpha
+                  && -(ss-1)->staticEval + 290 + 270 * lmrDepth <= alpha
                   && (*contHist[0])[movedPiece][to_sq(move)] < 0)
                   continue;
 
