@@ -1184,6 +1184,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
+              || (!givesCheck && thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -7000)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1272,6 +1273,12 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           doFullDepthSearch = value > alpha && d != newDepth;
+
+          if (captureOrPromotion && !givesCheck)
+          {
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << bonus;
+          }
 
           didLMR = true;
       }
