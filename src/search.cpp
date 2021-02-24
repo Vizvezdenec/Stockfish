@@ -1184,7 +1184,6 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || (!givesCheck && thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -7000)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1224,6 +1223,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              if (!givesCheck)
+                  r-= thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] / 8192;
           }
           else
           {
