@@ -1223,9 +1223,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (!givesCheck)
-                  r-= thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] / 8192;
           }
           else
           {
@@ -1268,6 +1265,9 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
+
+              if (!givesCheck)
+                  r-= thisThread->quietLmrHistory[us][from_to(move)] / 8192;
           }
 
           Depth d = std::clamp(newDepth - r, 1, newDepth);
@@ -1276,10 +1276,10 @@ moves_loop: // When in check, search starts from here
 
           doFullDepthSearch = value > alpha && d != newDepth;
 
-          if (captureOrPromotion && !givesCheck)
+          if (!captureOrPromotion && !givesCheck)
           {
               int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
-              thisThread->captLmrHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] << bonus;
+              thisThread->quietLmrHistory[us][from_to(move)] << bonus;
           }
 
           didLMR = true;
