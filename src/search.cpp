@@ -919,7 +919,6 @@ namespace {
         int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
-        bool isKillerSearched = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
                && probCutCount < 2 + 2 * cutNode)
@@ -930,7 +929,6 @@ namespace {
 
                 captureOrPromotion = true;
                 probCutCount++;
-                isKillerSearched |= ss->captKiller == move;
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
@@ -961,29 +959,6 @@ namespace {
                     return value;
                 }
             }
-         if (!isKillerSearched && ss->captKiller != MOVE_NONE 
-           && ss->staticEval + PieceValue[MG][type_of(pos.piece_on(to_sq(ss->captKiller)))] >= probCutBeta 
-           && pos.pseudo_legal(ss->captKiller) && pos.legal(ss->captKiller))
-         {
-             ss->continuationHistory = &thisThread->continuationHistory[false]
-                                                                          [true]
-                                                                          [pos.moved_piece(ss->captKiller)]
-                                                                          [to_sq(ss->captKiller)];
-             pos.do_move(ss->captKiller, st);
-             value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-             pos.undo_move(ss->captKiller);
-             if (value >= probCutBeta)
-                {
-                    // if transposition table doesn't have equal or more deep info write probCut data into it
-                    if ( !(ss->ttHit
-                       && tte->depth() >= depth - 3
-                       && ttValue != VALUE_NONE))
-                        tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
-                            BOUND_LOWER,
-                            depth - 3, ss->captKiller, ss->staticEval);
-                    return value;
-                }
-         }
          ss->ttPv = ttPv;
     }
 
@@ -1018,7 +993,7 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+    MovePicker mp(pos, ttMove ? ttMove : ss->captKiller, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
@@ -1781,7 +1756,6 @@ moves_loop: // When in check, search starts from here
     {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-
         ss->captKiller = bestMove;
     }
 
