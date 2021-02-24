@@ -1278,7 +1278,7 @@ moves_loop: // When in check, search starts from here
 
           if (!captureOrPromotion && !givesCheck)
           {
-              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              int bonus = value > alpha ? stat_bonus(d) : value <= alpha && moveCount == 2 ? -stat_bonus(d) : 0;
               thisThread->quietLmrHistory[us][from_to(move)] << bonus;
           }
 
