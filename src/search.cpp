@@ -1128,6 +1128,8 @@ moves_loop: // When in check, search starts from here
               singularQuietLMR = !ttCapture;
               if (!ttCapture)
                   update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
+              else 
+                  captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(singularDepth);
           }
 
           // Multi-cut pruning
