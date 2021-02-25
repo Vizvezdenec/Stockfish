@@ -836,14 +836,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode
-        && depth < 4
-        && eval < ss->staticEval
-        && ss->staticEval < alpha - 5822
-        && std::abs(eval) < VALUE_KNOWN_WIN
-        && std::abs(ss->staticEval) < VALUE_KNOWN_WIN)
-        return alpha;
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -983,6 +975,7 @@ moves_loop: // When in check, search starts from here
     probCutBeta = beta + 400;
     if (   ss->inCheck
         && !PvNode
+        && !formerPv
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
