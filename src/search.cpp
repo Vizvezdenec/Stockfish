@@ -833,6 +833,7 @@ namespace {
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
+        &&  (improving || pos.non_pawn_material(us))
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
