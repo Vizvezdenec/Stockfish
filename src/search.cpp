@@ -1271,8 +1271,7 @@ moves_loop: // When in check, search starts from here
               else
                   r -= ss->statScore / 14790;
 
-              if (ss->distanceFromPv > 100)
-                  r++;
+              r += ss->distanceFromPv / 32;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
