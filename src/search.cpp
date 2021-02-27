@@ -616,7 +616,6 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -675,6 +674,8 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
     formerPv = ss->ttPv && !PvNode;
+
+    ss->distanceFromPv = (tte->is_pv() ? 0 : ss->distanceFromPv);
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
@@ -1272,14 +1273,10 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
-          bool whatever =  (captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] >= 0)
-                       || (!captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] >= 0 
-                        && (*contHist[1])[movedPiece][to_sq(move)] >= 0);
-
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 && whatever));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
