@@ -63,8 +63,8 @@ namespace {
   constexpr uint64_t TtHitAverageResolution = 1024;
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving) {
-    return Value(234 * (d - improving));
+  Value futility_margin(Depth d, bool improving, int dist) {
+    return Value((234 - std::min(40, dist / 16)) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -833,7 +833,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving, ss->distanceFromPv) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -887,7 +887,7 @@ namespace {
         }
     }
 
-    probCutBeta = std::max(beta, beta + 209 - 44 * improving - (ss->distanceFromPv / 8));
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
