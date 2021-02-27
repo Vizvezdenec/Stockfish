@@ -63,8 +63,8 @@ namespace {
   constexpr uint64_t TtHitAverageResolution = 1024;
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving, int dist) {
-    return Value((234 - std::min(40, dist / 16)) * (d - improving));
+  Value futility_margin(Depth d, bool improving) {
+    return Value(234 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -833,7 +833,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving, ss->distanceFromPv) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1 || ss->distanceFromPv > 80)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
