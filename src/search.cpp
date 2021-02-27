@@ -1272,8 +1272,8 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
-          bool whatever =  captureOrPromotion
-                       || ((*contHist[0])[movedPiece][to_sq(move)] >= 0 
+          bool whatever =  (captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] >= 0)
+                       || (!captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] >= 0 
                         && (*contHist[1])[movedPiece][to_sq(move)] >= 0);
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
