@@ -912,7 +912,6 @@ namespace {
             && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
-            && ttMove
             && ttCapture)
             return probCutBeta;
 
