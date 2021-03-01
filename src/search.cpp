@@ -1776,6 +1776,8 @@ moves_loop: // When in check, search starts from here
             }
             if (!ss->killers[0])
                 ss->killers[0] = bestQuiet;
+            thisThread->mainHistory[us][from_to(bestQuiet)] << bonus2;
+            update_continuation_histories(ss, pos.moved_piece(bestQuiet), to_sq(bestQuiet), bonus2);
         }
     }
 
