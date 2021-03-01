@@ -70,9 +70,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, int chist) {
+  Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 503 - chist / 64) / 1024 + (!i && r > 915);
+    return (r + 503) / 1024 + (!i && r > 915);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -976,15 +976,49 @@ moves_loop: // When in check, search starts from here
     probCutBeta = beta + 400;
     if (   ss->inCheck
         && !PvNode
-        && depth >= 4
-        && ttCapture
-        && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3
-        && ttValue >= probCutBeta
-        && abs(ttValue) <= VALUE_KNOWN_WIN
-        && abs(beta) <= VALUE_KNOWN_WIN
+        && depth >= 4 
+        && abs(beta) <= VALUE_KNOWN_WIN   
        )
-        return probCutBeta;
+    {
+        if (    ttCapture
+            && (tte->bound() & BOUND_LOWER)
+            && tte->depth() >= depth - 3
+            && ttValue >= probCutBeta
+            && abs(ttValue) <= VALUE_KNOWN_WIN )
+            return probCutBeta;
+
+        MovePicker mp(pos, ttMove, Value(0), &captureHistory);
+        int probCutCount = 0;
+        bool ttPv = ss->ttPv;
+        ss->ttPv = false;
+
+        while (   (move = mp.next_move()) != MOVE_NONE
+               && probCutCount < 2)
+        {
+            if (move != excludedMove && pos.pseudo_legal(move) && pos.legal(move))
+            {
+                probCutCount++;
+
+                ss->currentMove = move;
+                ss->continuationHistory = &thisThread->continuationHistory[true]
+                                                                          [true]
+                                                                          [pos.moved_piece(move)]
+                                                                          [to_sq(move)];
+
+                pos.do_move(move, st);
+
+                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
+                pos.undo_move(move);
+
+                if (value >= probCutBeta)
+                {
+                    return probCutBeta;
+                }
+            }
+        }
+        ss->ttPv = ttPv;            
+    }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1061,9 +1095,8 @@ moves_loop: // When in check, search starts from here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          int captHist = captureOrPromotion ? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] : 0;
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, captHist), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1192,9 +1225,7 @@ moves_loop: // When in check, search starts from here
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
-          int captHist = captureOrPromotion ? captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] : 0;
-
-          Depth r = reduction(improving, depth, moveCount, captHist);
+          Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
