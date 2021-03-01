@@ -988,17 +988,13 @@ moves_loop: // When in check, search starts from here
             return probCutBeta;
 
         MovePicker mp(pos, ttMove, Value(0), &captureHistory);
-        int probCutCount = 0;
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2)
+        while (   (move = mp.next_move()) != MOVE_NONE)
         {
             if (move != excludedMove && pos.pseudo_legal(move) && pos.legal(move))
             {
-                probCutCount++;
-
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[true]
                                                                           [true]
