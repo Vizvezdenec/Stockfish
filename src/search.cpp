@@ -992,17 +992,15 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-    Move followupmove = is_ok((ss-2)->currentMove) ? thisThread->followupMoves[pos.moved_piece((ss-2)->currentMove)][to_sq((ss-2)->currentMove)] : MOVE_NONE;
 
-    if (followupmove == ss->killers[0] || followupmove == ss->killers[1] || followupmove == countermove)
-        followupmove = MOVE_NONE;
+    if (countermove == MOVE_NONE)
+        countermove = is_ok((ss-2)->currentMove) ? thisThread->followupMoves[pos.moved_piece((ss-2)->currentMove)][to_sq((ss-2)->currentMove)] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      followupmove,
                                       ss->killers,
                                       ss->ply);
 
