@@ -1287,7 +1287,7 @@ moves_loop: // When in check, search starts from here
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
-          if (   moveCount == 1 && !extension && !ttMove && !captureOrPromotion && ss->distanceFromPv == 0
+          if (   moveCount == 1 && !extension && !ttMove && !captureOrPromotion && ss->distanceFromPv <= 3
               && thisThread->mainHistory[us][from_to(move)]
                  + (*contHist[0])[movedPiece][to_sq(move)]
                  + (*contHist[1])[movedPiece][to_sq(move)]
