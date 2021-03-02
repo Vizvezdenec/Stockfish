@@ -1222,10 +1222,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (std::abs(bestValue) == VALUE_DRAW && pos.count<PAWN>(us) > pos.count<PAWN>(~us) + 1 
-           && pos.non_pawn_material(us) == pos.non_pawn_material(~us) && (captureOrPromotion || type_of(movedPiece) == PAWN))
-              r--;
-
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1244,7 +1240,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2;
+                  r += 2 - (ss->distanceFromPv == 0);
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
