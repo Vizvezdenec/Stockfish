@@ -617,6 +617,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    ss->distanceFromRoot = (rootNode ? 0 : ss->distanceFromRoot);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1178,6 +1179,8 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
+      (ss+1)->distanceFromRoot = ss->distanceFromRoot + moveCount - 1;
+
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1220,6 +1223,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (ss->distanceFromRoot == 0 && moveCount < 4)
               r--;
 
           if (captureOrPromotion)
