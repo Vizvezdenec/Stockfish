@@ -1225,8 +1225,8 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (ss->distanceFromRoot == 0 && moveCount < 4)
-              r--;
+          if (ss->distanceFromRoot > ss->ply * 16)
+              r++;
 
           if (captureOrPromotion)
           {
