@@ -1282,7 +1282,7 @@ moves_loop: // When in check, search starts from here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-              if (value <= alpha && !captureOrPromotion)
+              if (value <= alpha)
               {
                   if (captureOrPromotion)
                       capturesDepth[captureCount] = d + 1;
@@ -1301,7 +1301,7 @@ moves_loop: // When in check, search starts from here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-          if (value <= alpha && !captureOrPromotion)
+          if (value <= alpha)
               {
                   if (captureOrPromotion)
                       capturesDepth[captureCount] = newDepth + 1;
@@ -1328,7 +1328,7 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-          if (value <= alpha && !captureOrPromotion)
+          if (value <= alpha)
               {
                   if (captureOrPromotion)
                       capturesDepth[captureCount] = newDepth + 1;
