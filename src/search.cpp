@@ -1756,9 +1756,13 @@ moves_loop: // When in check, search starts from here
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
-    {
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+    else
+    {
+        // Increase stats for the best move in case it was a capture move
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+    }
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1767,10 +1771,6 @@ moves_loop: // When in check, search starts from here
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), 
                                                                        (goodFH ? -stat_bonus(quietsDepth[i] + 1) : -stat_bonus(quietsDepth[i])));
         }
-    }
-    else
-        // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
