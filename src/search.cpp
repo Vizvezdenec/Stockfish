@@ -617,7 +617,6 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
-    ss->distanceFromRoot = (rootNode ? 0 : ss->distanceFromRoot);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1178,7 +1177,6 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
-      (ss+1)->distanceFromRoot = ss->distanceFromRoot + moveCount - 1;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1222,9 +1220,6 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r--;
-
-          if ((ss+1)->distanceFromRoot < 3)
               r--;
 
           if (captureOrPromotion)
@@ -1280,7 +1275,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 && !th.marked()));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
