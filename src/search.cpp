@@ -1285,7 +1285,7 @@ moves_loop: // When in check, search starts from here
               if (value <= alpha)
               {
                   if (captureOrPromotion)
-                      capturesDepth[captureCount] = d + 1;
+                      capturesDepth[captureCount] = d + 2;
                   else quietsDepth[quietCount] = d + 1;
               }
           didLMR = true;
@@ -1304,7 +1304,7 @@ moves_loop: // When in check, search starts from here
           if (value <= alpha)
               {
                   if (captureOrPromotion)
-                      capturesDepth[captureCount] = newDepth + 1;
+                      capturesDepth[captureCount] = newDepth + 2;
                   else quietsDepth[quietCount] = newDepth + 1;
               }
 
@@ -1331,7 +1331,7 @@ moves_loop: // When in check, search starts from here
           if (value <= alpha)
               {
                   if (captureOrPromotion)
-                      capturesDepth[captureCount] = newDepth + 1;
+                      capturesDepth[captureCount] = newDepth + 2;
                   else quietsDepth[quietCount] = newDepth + 1;
               }
       }
