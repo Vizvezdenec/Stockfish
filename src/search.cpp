@@ -155,7 +155,7 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth* quietsDepth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth* capturesDepth, Depth* quietsDepth);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -594,7 +594,7 @@ namespace {
     assert(!(PvNode && cutNode));
 
     Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
-    Depth quietsDepth[64];
+    Depth capturesDepth[32], quietsDepth[64];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::kCacheLineSize);
 
@@ -1283,7 +1283,11 @@ moves_loop: // When in check, search starts from here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
               if (value <= alpha && !captureOrPromotion)
-                  quietsDepth[quietCount] = d + 1;
+              {
+                  if (captureOrPromotion)
+                      capturesDepth[captureCount] = d + 2;
+                  else quietsDepth[quietCount] = d + 1;
+              }
           didLMR = true;
       }
       else
@@ -1298,7 +1302,11 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           if (value <= alpha && !captureOrPromotion)
-              quietsDepth[quietCount] = newDepth + 1;
+              {
+                  if (captureOrPromotion)
+                      capturesDepth[captureCount] = newDepth + 2;
+                  else quietsDepth[quietCount] = newDepth + 1;
+              }
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1321,7 +1329,11 @@ moves_loop: // When in check, search starts from here
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
           if (value <= alpha && !captureOrPromotion)
-              quietsDepth[quietCount] = newDepth + 1;
+              {
+                  if (captureOrPromotion)
+                      capturesDepth[captureCount] = newDepth + 2;
+                  else quietsDepth[quietCount] = newDepth + 1;
+              }
       }
 
       // Step 18. Undo move
@@ -1420,7 +1432,7 @@ moves_loop: // When in check, search starts from here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth, quietsDepth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, capturesDepth, quietsDepth);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
@@ -1741,7 +1753,7 @@ moves_loop: // When in check, search starts from here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth* quietsDepth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth* capturesDepth, Depth* quietsDepth) {
 
     int bonus1, bonus2;
     Color us = pos.side_to_move();
@@ -1753,7 +1765,7 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bool goodFH = bestValue > beta + PawnValueMg;
     bonus2 = goodFH ? bonus1                                 // larger bonus
-                                            : std::min(bonus1, stat_bonus(depth));   // smaller bonus
+                    : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
         // Increase stats for the best move in case it was a quiet move
@@ -1764,13 +1776,13 @@ moves_loop: // When in check, search starts from here
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
     }
 
-        // Decrease stats for all non-best quiet moves
-        for (int i = 0; i < quietCount; ++i)
-        {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << (goodFH ? -stat_bonus(quietsDepth[i] + 1) : -stat_bonus(quietsDepth[i]));
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), 
-                                                                       (goodFH ? -stat_bonus(quietsDepth[i] + 1) : -stat_bonus(quietsDepth[i])));
-        }
+    // Decrease stats for all non-best quiet moves
+    for (int i = 0; i < quietCount; ++i)
+    {
+        thisThread->mainHistory[us][from_to(quietsSearched[i])] << (goodFH ? -stat_bonus(quietsDepth[i] + 1) : -stat_bonus(quietsDepth[i]));
+        update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), 
+                                                                   (goodFH ? -stat_bonus(quietsDepth[i] + 1) : -stat_bonus(quietsDepth[i])));
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1783,7 +1795,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -stat_bonus(capturesDepth[i]);
     }
   }
 
