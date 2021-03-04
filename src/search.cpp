@@ -678,7 +678,7 @@ namespace {
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
-        && depth > 9
+        && depth > 12
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
         && is_ok((ss-1)->currentMove))
@@ -689,7 +689,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !PvNode
+    if (  (!PvNode || (PvNode && !rootNode && ttValue >= beta))
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -832,7 +832,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -964,7 +964,7 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 4
+        && depth >= 6
         && !ttMove)
         depth -= 2;
 
@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 8
+              if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
