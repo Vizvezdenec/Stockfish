@@ -678,7 +678,7 @@ namespace {
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
-        && depth > 11
+        && depth > 9
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
         && is_ok((ss-1)->currentMove))
@@ -832,7 +832,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9
+        &&  depth < 8
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -964,7 +964,7 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 5
+        && depth >= 4
         && !ttMove)
         depth -= 2;
 
