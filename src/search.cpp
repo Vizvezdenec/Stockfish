@@ -1178,8 +1178,6 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
-      bool pvLMR = false;
-
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1277,11 +1275,9 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 - rootNode));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          pvLMR = d > newDepth && value > alpha;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1317,7 +1313,7 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + pvLMR), false);
+                              std::min(maxNextDepth, newDepth), false);
       }
 
       // Step 18. Undo move
