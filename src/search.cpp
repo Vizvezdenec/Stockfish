@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[ss->inCheck][movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // SEE based pruning
@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 7
+              if (   lmrDepth < 7 + (eval < ss->staticEval)
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && captureHistory[ss->inCheck][movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1760,7 +1760,7 @@ moves_loop: // When in check, search starts from here
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[ss->inCheck][moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1773,7 +1773,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[ss->inCheck][moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
