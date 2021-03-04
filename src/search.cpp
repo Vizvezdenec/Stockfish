@@ -689,7 +689,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  (!PvNode || (PvNode && !rootNode && ttValue >= beta))
+    if (  (!PvNode || (PvNode && !rootNode && ttValue >= beta + PawnValueMg))
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
