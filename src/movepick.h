@@ -97,9 +97,7 @@ typedef Stats<int16_t, 10692, MAX_LPH, int(SQUARE_NB) * int(SQUARE_NB)> LowPlyHi
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
 
 /// CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
-typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
-
-typedef Stats<int16_t, 29952, PIECE_TYPE_NB, SQUARE_NB, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CaptEvHistory;
+typedef Stats<int16_t, 10692, 2, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
 
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
@@ -126,15 +124,12 @@ public:
   MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
-                                           const CaptEvHistory*,
                                            const PieceToHistory**,
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
-                                           const CaptEvHistory*,
                                            const PieceToHistory**,
-                                           Square,
                                            Move,
                                            const Move*,
                                            int);
@@ -150,7 +145,6 @@ private:
   const ButterflyHistory* mainHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
-  const CaptEvHistory* captEvHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
