@@ -678,7 +678,7 @@ namespace {
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
-        && depth > 12
+        && depth > 11
         && ss->ply - 1 < MAX_LPH
         && !priorCapture
         && is_ok((ss-1)->currentMove))
@@ -964,7 +964,7 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
+        && depth >= 5
         && !ttMove)
         depth -= 2;
 
@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 7
+              if (   lmrDepth < 8
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
