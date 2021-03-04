@@ -996,7 +996,9 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
+                                      &thisThread->captEvHistory,
                                       contHist,
+                                      prevSq,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1275,7 +1277,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 && (!rootNode || captureOrPromotion)));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1560,6 +1562,7 @@ moves_loop: // When in check, search starts from here
     // will be generated.
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
+                                      &thisThread->captEvHistory,
                                       contHist,
                                       to_sq((ss-1)->currentMove));
 
@@ -1759,8 +1762,12 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (ss->inCheck)
+            thisThread->captEvHistory[type_of(pos.piece_on(to_sq((ss-1)->currentMove)))][to_sq((ss-1)->currentMove)][moved_piece][to_sq(bestMove)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1774,6 +1781,8 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        if (ss->inCheck)
+            thisThread->captEvHistory[type_of(pos.piece_on(to_sq((ss-1)->currentMove)))][to_sq((ss-1)->currentMove)][moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
