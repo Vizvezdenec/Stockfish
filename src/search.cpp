@@ -1115,8 +1115,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3
-          && !(!captureOrPromotion && !(ss-1)->ttHit && (*contHist[0])[movedPiece][to_sq(move)] < -20000))
+          &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
@@ -1178,6 +1177,8 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+
+      bool pvLMR = false;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1280,6 +1281,8 @@ moves_loop: // When in check, search starts from here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
+          pvLMR = d > newDepth && value > alpha;
+
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
@@ -1314,7 +1317,7 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
+                              std::min(maxNextDepth, newDepth + pvLMR), false);
       }
 
       // Step 18. Undo move
