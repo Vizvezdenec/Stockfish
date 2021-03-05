@@ -1007,8 +1007,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    bool extendedTt = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1129,7 +1127,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              extendedTt = true;
           }
 
           // Multi-cut pruning
@@ -1187,6 +1184,7 @@ moves_loop: // When in check, search starts from here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1278,7 +1276,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 && !extendedTt));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
