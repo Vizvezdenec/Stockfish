@@ -689,7 +689,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  (!PvNode && ss->distanceFromPv > 0)
+    if (  !PvNode
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -1108,7 +1108,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
-      if (    depth >= 7
+      if (    depth >= 7 + (ss->distanceFromPv > 64)
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
