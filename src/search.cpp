@@ -1753,6 +1753,8 @@ moves_loop: // When in check, search starts from here
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
+        ss->captureKiller = MOVE_NONE;
+
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
