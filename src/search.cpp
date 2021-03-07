@@ -617,7 +617,6 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
-    ss->distanceFromRoot = (rootNode ? 0 : ss->distanceFromRoot);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1178,7 +1177,6 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
-      (ss+1)->distanceFromRoot = ss->distanceFromRoot + moveCount - 1;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1191,7 +1189,7 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || (PvNode && ss->distanceFromRoot > ss->ply * 24)
+              || (rootNode && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 1) 
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
