@@ -1055,12 +1055,7 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         int npm = pos.non_pawn_material();
-         Score psqScore = pos.psq_score();
-         int psq = npm >= MidgameLimit ? mg_value(psqScore) :
-                   npm <= EndgameLimit ? eg_value(psqScore) :
-                   (mg_value(psqScore) * (npm - EndgameLimit) + int(MidgameLimit - npm) * eg_value(psqScore)) / (MidgameLimit - EndgameLimit);
-         return (NNUE::evaluate(pos) + psq / 16) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+         return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
