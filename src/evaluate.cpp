@@ -1060,7 +1060,7 @@ Value Eval::evaluate(const Position& pos) {
          int psq = npm >= MidgameLimit ? mg_value(psqScore) :
                    npm <= EndgameLimit ? eg_value(psqScore) :
                    (mg_value(psqScore) * (npm - EndgameLimit) + int(MidgameLimit - npm) * eg_value(psqScore)) / (MidgameLimit - EndgameLimit);
-         return (NNUE::evaluate(pos) + psq / 32) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+         return (NNUE::evaluate(pos) + psq / 64) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
