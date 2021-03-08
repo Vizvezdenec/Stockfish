@@ -1178,7 +1178,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - (thisThread->nodes & 1);
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1251,10 +1251,6 @@ moves_loop: // When in check, search starts from here
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
-              if (ss->inCheck) 
-                  ss->statScore = thisThread->mainHistory[us][from_to(move)]
-                     + (*contHist[0])[movedPiece][to_sq(move)] - 3833;
-              else
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1271,7 +1267,11 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               // If we are not in check use statScore, but if we are in check we use
               // the sum of main history and first continuation history with an offset.
-              r -= ss->statScore / 14790;
+              if (ss->inCheck)
+                  r -= (thisThread->mainHistory[us][from_to(move)]
+                     + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
+              else
+                  r -= ss->statScore / 14790;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
