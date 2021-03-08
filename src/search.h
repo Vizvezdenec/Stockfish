@@ -50,7 +50,6 @@ struct Stack {
   int statScore;
   int moveCount;
   int distanceFromPv;
-  int distanceFromRoot;
   bool inCheck;
   bool ttPv;
   bool ttHit;
