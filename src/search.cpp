@@ -1363,8 +1363,8 @@ moves_loop: // When in check, search starts from here
       {
           bestValue = value;
 
-          if (bestValue >= -2 && value == 0 && ss->staticEval < 0)
-              alpha = Value(-1);
+          if (bestValue <= -2 && value == 0 && ss->staticEval < 0)
+              value = Value(-1);
           else if (beta > 1 && value == 0 && !ss->inCheck && ss->staticEval > 0)
               alpha = Value(1);
 
