@@ -1363,6 +1363,11 @@ moves_loop: // When in check, search starts from here
       {
           bestValue = value;
 
+          if (bestValue >= -2 && value == 0 && ss->staticEval < 0)
+              alpha = Value(-1);
+          else if (beta > 1 && value == 0 && !ss->inCheck && ss->staticEval > 0)
+              alpha = Value(1);
+
           if (value > alpha)
           {
               bestMove = move;
@@ -1579,8 +1584,10 @@ moves_loop: // When in check, search starts from here
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.pawn_passed(pos.side_to_move(), to_sq(move)))
+          && !pos.advanced_pawn_push(move))
       {
+          assert(type_of(move) != EN_PASSANT); // Due to !pos.advanced_pawn_push
+
           // moveCount pruning
           if (moveCount > 2)
               continue;
