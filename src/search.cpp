@@ -619,6 +619,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    ss->closePvExt = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -693,7 +694,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() >= depth
+        && tte->depth() >= depth - (ss-1)->closePvExt
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -1279,7 +1280,12 @@ moves_loop: // When in check, search starts from here
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
           Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
+          if (d > newDepth)
+              ss->closePvExt = true;
+
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          ss->closePvExt = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1362,11 +1368,6 @@ moves_loop: // When in check, search starts from here
       if (value > bestValue)
       {
           bestValue = value;
-
-          if (bestValue <= -2 && value == 0 && ss->staticEval < 0)
-              value = Value(-1);
-          else if (beta > 1 && value == 0 && !ss->inCheck && ss->staticEval > 0)
-              alpha = Value(1);
 
           if (value > alpha)
           {
