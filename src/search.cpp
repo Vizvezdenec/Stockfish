@@ -1481,6 +1481,7 @@ moves_loop: // When in check, search starts from here
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
+    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1651,8 +1652,8 @@ moves_loop: // When in check, search starts from here
                   alpha = value;
               else
               {
-                  if (!captureOrPromotion)
-                      update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), 25 + depth * 3);
+                  if (!captureOrPromotion && !ss->killers[0])
+                      ss->killers[0] = move;
                   break; // Fail high
               }
           }
