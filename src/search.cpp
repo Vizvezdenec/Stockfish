@@ -1579,7 +1579,7 @@ moves_loop: // When in check, search starts from here
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
           &&  futilityBase > -VALUE_KNOWN_WIN
-          && type_of(move) != PROMOTION)
+          && !pos.advanced_pawn_push(move))
       {
 
           if (moveCount > 2)
@@ -1650,7 +1650,14 @@ moves_loop: // When in check, search starts from here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  if (!captureOrPromotion)
+                  {
+                      Depth normDepth = depth + 6;
+                      update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), normDepth * 4);
+                  }
                   break; // Fail high
+              }
           }
        }
     }
