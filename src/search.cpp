@@ -1652,7 +1652,7 @@ moves_loop: // When in check, search starts from here
               else
               {
                   if (!captureOrPromotion)
-                      update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), stat_bonus(1));
+                      update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), 25 + depth * 3);
                   break; // Fail high
               }
           }
