@@ -1578,8 +1578,7 @@ moves_loop: // When in check, search starts from here
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
-          &&  futilityBase > -VALUE_KNOWN_WIN
-          && !pos.advanced_pawn_push(move))
+          &&  futilityBase > -VALUE_KNOWN_WIN)
       {
 
           if (moveCount > 2)
@@ -1650,17 +1649,7 @@ moves_loop: // When in check, search starts from here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
-              {
-                  if (!captureOrPromotion)
-                  {
-                      if (is_ok((ss-1)->currentMove))
-                      {
-                          Square prevSq = to_sq((ss-1)->currentMove);
-                          thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
-                      }
-                  }
                   break; // Fail high
-              }
           }
        }
     }
