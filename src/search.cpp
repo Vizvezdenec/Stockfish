@@ -1280,7 +1280,7 @@ moves_loop: // When in check, search starts from here
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
           Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
-          if (doLmr || (newDepth < d && moveCount > 1))
+          if (doLmr || newDepth < d)
           {
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
