@@ -1652,7 +1652,11 @@ moves_loop: // When in check, search starts from here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  if (!captureOrPromotion)
+                      update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), stat_bonus(1));
                   break; // Fail high
+              }
           }
        }
     }
