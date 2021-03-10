@@ -1481,7 +1481,6 @@ moves_loop: // When in check, search starts from here
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
-    (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1654,10 +1653,10 @@ moves_loop: // When in check, search starts from here
               {
                   if (!captureOrPromotion)
                   {
-                      if (ss->killers[0] != move)
+                      if (is_ok((ss-1)->currentMove))
                       {
-                          ss->killers[1] = ss->killers[0];
-                          ss->killers[0] = move;
+                          Square prevSq = to_sq((ss-1)->currentMove);
+                          thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
                       }
                   }
                   break; // Fail high
