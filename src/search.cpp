@@ -1180,7 +1180,9 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
-      bool captureLmr = captureOrPromotion && (moveCountPruning
+      bool doLmr = moveCount > 1 + 2 * rootNode
+          && (  !captureOrPromotion
+              || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
@@ -1190,8 +1192,7 @@ moves_loop: // When in check, search starts from here
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
-      if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode)
+      if (    depth >= 3 )
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1279,7 +1280,7 @@ moves_loop: // When in check, search starts from here
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
           Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
-          if (!captureOrPromotion || captureLmr || d > newDepth)
+          if (doLmr || (newDepth < d && moveCount > 1))
           {
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
