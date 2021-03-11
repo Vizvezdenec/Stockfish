@@ -1628,14 +1628,9 @@ moves_loop: // When in check, search starts from here
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
 
-      bool doZeroWindowSearch = !PvNode || moveCount > 1;
-
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (doZeroWindowSearch)
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
-      if (PvNode && (moveCount == 1 || value > alpha))
-          value = -qsearch<NT>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<NT>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
@@ -1655,7 +1650,17 @@ moves_loop: // When in check, search starts from here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  if (depth > -2 && !captureOrPromotion)
+                  {
+                      if (ss->killers[0] != move)
+                      {
+                          ss->killers[1] = ss->killers[0];
+                          ss->killers[0] = move;
+                      }
+                  }
                   break; // Fail high
+              }
           }
        }
     }
