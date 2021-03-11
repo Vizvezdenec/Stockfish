@@ -1501,7 +1501,7 @@ moves_loop: // When in check, search starts from here
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
     pvHit = ss->ttHit && tte->is_pv();
 
-    if (  (!PvNode || ttValue >= beta)
+    if (  !PvNode
         && ss->ttHit
         && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
@@ -1539,9 +1539,9 @@ moves_loop: // When in check, search starts from here
         if (bestValue >= beta)
         {
             // Save gathered info in transposition table
-            if (!ss->ttHit)
+            if (!ss->ttHit || tte->depth() < depth)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
-                          DEPTH_NONE, MOVE_NONE, ss->staticEval);
+                          depth, ss->ttHit? ttMove : MOVE_NONE, ss->staticEval);
 
             return bestValue;
         }
