@@ -87,7 +87,7 @@ namespace {
   }
 
   int qstat_bonus(Depth d) {
-    return 24 + d * 4;
+    return 6 + d;
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
