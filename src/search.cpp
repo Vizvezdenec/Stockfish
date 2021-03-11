@@ -86,6 +86,10 @@ namespace {
     return d > 14 ? 66 : 6 * d * d + 231 * d - 206;
   }
 
+  int qstat_bonus(Depth d) {
+    return 24 + d * 4;
+  }
+
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -157,6 +161,8 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+  void update_qsearch_stats(const Position& pos, Stack* ss, Move bestMove,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
@@ -1457,7 +1463,7 @@ moves_loop: // When in check, search starts from here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[32];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::kCacheLineSize);
 
@@ -1467,7 +1473,7 @@ moves_loop: // When in check, search starts from here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount;
+    int moveCount, captureCount, quietCount;
 
     if (PvNode)
     {
@@ -1480,7 +1486,7 @@ moves_loop: // When in check, search starts from here
     (ss+1)->ply = ss->ply + 1;
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = 0;
+    moveCount = captureCount = quietCount = 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1653,6 +1659,16 @@ moves_loop: // When in check, search starts from here
                   break; // Fail high
           }
        }
+
+
+      if (move != bestMove)
+      {
+          if (captureOrPromotion && captureCount < 32)
+              capturesSearched[captureCount++] = move;
+
+          else if (!captureOrPromotion && quietCount < 32)
+              quietsSearched[quietCount++] = move;
+      }
     }
 
     // All legal moves have been searched. A special case: if we're in check
@@ -1663,6 +1679,9 @@ moves_loop: // When in check, search starts from here
 
         return mated_in(ss->ply); // Plies to mate from the root
     }
+    else if (bestMove) 
+        update_qsearch_stats(pos, ss, bestMove,
+                        quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
@@ -1774,6 +1793,43 @@ moves_loop: // When in check, search starts from here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+    }
+  }
+
+  void update_qsearch_stats(const Position& pos, Stack* ss, Move bestMove,
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth)
+  {
+    int bonusq = qstat_bonus(depth);
+    int bonuscapt = qstat_bonus(depth + 1);
+    Color us = pos.side_to_move();
+    Thread* thisThread = pos.this_thread();
+    CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    Piece moved_piece = pos.moved_piece(bestMove);
+    PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
+
+    if (!pos.capture_or_promotion(bestMove))
+    {
+        // Increase stats for the best move in case it was a quiet move
+        thisThread->mainHistory[us][from_to(bestMove)] << bonusq;
+        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonusq);
+
+        // Decrease stats for all non-best quiet moves
+        for (int i = 0; i < quietCount; ++i)
+        {
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonusq;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonusq);
+        }
+    }
+    else
+        // Increase stats for the best move in case it was a capture move
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonuscapt;
+
+    // Decrease stats for all non-best capture moves
+    for (int i = 0; i < captureCount; ++i)
+    {
+        moved_piece = pos.moved_piece(capturesSearched[i]);
+        captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonuscapt;
     }
   }
 
