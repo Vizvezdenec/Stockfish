@@ -1799,8 +1799,7 @@ moves_loop: // When in check, search starts from here
   void update_qsearch_stats(const Position& pos, Stack* ss, Move bestMove,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth)
   {
-    int bonusq = qstat_bonus(depth);
-    int bonuscapt = qstat_bonus(depth + 1);
+    int bonus = qstat_bonus(depth);
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
@@ -1810,26 +1809,26 @@ moves_loop: // When in check, search starts from here
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
-        thisThread->mainHistory[us][from_to(bestMove)] << bonusq;
-        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonusq);
+        thisThread->mainHistory[us][from_to(bestMove)] << bonus;
+        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonusq;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonusq);
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
         }
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonuscapt;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus;
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonuscapt;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus;
     }
   }
 
