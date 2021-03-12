@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR && (captureOrPromotion || to_sq(move) != to_sq(ttMove)))
+          if (singularQuietLMR && (captureOrPromotion || to_sq(move) != to_sq(ttMove) || type_of(movedPiece) == type_of(pos.moved_piece(ttMove))))
               r--;
 
           if (captureOrPromotion)
