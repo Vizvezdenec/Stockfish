@@ -972,7 +972,7 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
-    ttCapture = (ttValue > alpha - 140 - 110 * depth || !(tte->depth() & BOUND_UPPER)) && ttMove && pos.capture_or_promotion(ttMove);
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 400;
@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
+          if (singularQuietLMR && (captureOrPromotion || to_sq(move) != to_sq(ttMove)))
               r--;
 
           if (captureOrPromotion)
