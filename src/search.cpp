@@ -972,7 +972,7 @@ namespace {
 
 moves_loop: // When in check, search starts from here
 
-    ttCapture = (ttValue > alpha - 200 - 180 * depth || !(tte->depth() & BOUND_UPPER)) && ttMove && pos.capture_or_promotion(ttMove);
+    ttCapture = ttValue > alpha - 140 - 110 * depth && ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 400;
