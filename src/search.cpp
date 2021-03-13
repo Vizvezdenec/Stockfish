@@ -619,6 +619,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    ss->nullTt = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -677,6 +678,12 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
     formerPv = ss->ttPv && !PvNode;
+
+    if (!ss->ttHit && (ss-2)->currentMove == MOVE_NULL)
+    {
+        ttMove = (ss-2)->nullTt;
+        ttValue = VALUE_NONE;
+    }
 
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
@@ -858,11 +865,16 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
+        if (ttMove)
+            ss->nullTt = ttMove;
+
         pos.do_null_move(st);
 
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
+
+        ss->nullTt = MOVE_NONE;
 
         if (nullValue >= beta)
         {
@@ -940,7 +952,8 @@ namespace {
 
                 pos.do_move(move, st);
 
-                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, std::max(0, depth - 11), !cutNode);
+                // Perform a preliminary qsearch to verify that the move holds
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -986,7 +999,6 @@ moves_loop: // When in check, search starts from here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
-
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
