@@ -940,7 +940,7 @@ namespace {
 
                 pos.do_move(move, st);
 
-                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, std::max(0, depth - 9), !cutNode);
+                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, std::max(0, depth - 11), !cutNode);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
