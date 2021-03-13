@@ -940,8 +940,7 @@ namespace {
 
                 pos.do_move(move, st);
 
-                // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, std::max(0, depth - 10), !cutNode);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -1221,7 +1220,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR && (captureOrPromotion || to_sq(move) != to_sq(ttMove) || type_of(movedPiece) == type_of(pos.moved_piece(ttMove))))
+          if (singularQuietLMR)
               r--;
 
           if (captureOrPromotion)
