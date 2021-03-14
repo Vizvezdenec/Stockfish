@@ -156,7 +156,7 @@ namespace {
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
-  void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
+  void update_all_stats(const Position& pos, Stack* ss, Move bestMove, bool gbv, int quietC, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
@@ -1009,6 +1009,9 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    bool gbv = false;
+    int quietC = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1367,6 +1370,9 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
+              gbv = value > alpha + PawnValueMg;
+              quietC = gbv * quietCount;
+
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1413,7 +1419,7 @@ moves_loop: // When in check, search starts from here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
-        update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
+        update_all_stats(pos, ss, bestMove, gbv, quietC, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
@@ -1732,7 +1738,7 @@ moves_loop: // When in check, search starts from here
 
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
-  void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
+  void update_all_stats(const Position& pos, Stack* ss, Move bestMove, bool gbv, int quietC, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
 
     int bonus1, bonus2;
@@ -1743,8 +1749,8 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
-                                            : std::min(bonus1, stat_bonus(depth));   // smaller bonus
+    bonus2 = gbv ? bonus1                                 // larger bonus
+                 : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
     {
@@ -1754,8 +1760,9 @@ moves_loop: // When in check, search starts from here
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            int bonus = quietCount > quietC ? std::min(bonus1, stat_bonus(depth)) : bonus2;
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
         }
     }
     else
