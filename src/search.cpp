@@ -981,25 +981,12 @@ moves_loop: // When in check, search starts from here
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
+        && tte->depth() >= depth - 3
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-    {
-        if (tte->depth() >= depth - 3)
-            return probCutBeta;
-        else if (ttValue >= probCutBeta && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
-        {
-            pos.do_move(ttMove, st);
-
-            value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-
-            pos.undo_move(ttMove);
-
-            if (value > probCutBeta)
-                return probCutBeta;
-        }
-    }
+        return probCutBeta;
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1312,8 +1299,8 @@ moves_loop: // When in check, search starts from here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              int bonus = value > alpha ?  stat_bonus(newDepth + 1)
+                                        : -stat_bonus(newDepth + 1);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
