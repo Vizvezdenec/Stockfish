@@ -840,6 +840,7 @@ namespace {
         return eval;
 
     if (    (ss-1)->currentMove == MOVE_NULL
+        &&  depth < 3
         &&  eval < ss->staticEval
         &&  eval + 3000 < alpha)
         return alpha;
