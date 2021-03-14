@@ -988,7 +988,7 @@ moves_loop: // When in check, search starts from here
     {
         if (tte->depth() >= depth - 3)
             return probCutBeta;
-        else if (ttValue >= probCutBeta + (depth - 3 - tte->depth()) * 50 && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+        else if (ttValue >= probCutBeta && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
         {
             pos.do_move(ttMove, st);
 
