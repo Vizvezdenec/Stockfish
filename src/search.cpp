@@ -1249,7 +1249,7 @@ moves_loop: // When in check, search starts from here
               // hence break make_move(). (~2 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN || ss->staticEval + PieceValue[EG][type_of(movedPiece)] < bestValue);
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1759,8 +1759,13 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
+    {
+        int bonus = bonus1;
+        if (ss->staticEval + PieceValue[EG][captured] < bestValue)
+            bonus = std::max(bonus1, stat_bonus(depth + 2));
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
