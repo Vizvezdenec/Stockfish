@@ -941,7 +941,7 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 7);
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -981,12 +981,25 @@ moves_loop: // When in check, search starts from here
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-        return probCutBeta;
+    {
+        if (tte->depth() >= depth - 3)
+            return probCutBeta;
+        else if (ttValue >= probCutBeta + (depth - 3 - tte->depth()) * 150 && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+        {
+            pos.do_move(ttMove, st);
+
+            value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
+            pos.undo_move(ttMove);
+
+            if (value > probCutBeta)
+                return probCutBeta;
+        }
+    }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1455,6 +1468,7 @@ moves_loop: // When in check, search starts from here
 
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
+    assert(depth <= 0);
 
     Move pv[MAX_PLY+1];
     StateInfo st;
