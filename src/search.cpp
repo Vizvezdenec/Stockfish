@@ -840,7 +840,7 @@ namespace {
         return eval;
 
     if (    (ss-1)->currentMove == MOVE_NULL
-        &&  eval + 3000 < alpha)
+        &&  eval + 4000 < alpha)
         return alpha;
 
     // Step 8. Null move search with verification search (~40 Elo)
