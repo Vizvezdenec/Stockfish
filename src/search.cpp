@@ -941,7 +941,7 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, std::min(depth - 7, 0));
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 7);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -1455,7 +1455,6 @@ moves_loop: // When in check, search starts from here
 
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
-    assert(depth <= 0);
 
     Move pv[MAX_PLY+1];
     StateInfo st;
