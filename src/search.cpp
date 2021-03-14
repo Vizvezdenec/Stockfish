@@ -981,12 +981,25 @@ moves_loop: // When in check, search starts from here
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-        return probCutBeta;
+    {
+        if (tte->depth() >= depth - 3)
+            return probCutBeta;
+        else if (ttValue >= probCutBeta + (depth - 3 - tte->depth()) * 100 && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+        {
+            pos.do_move(ttMove, st);
+
+            value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
+            pos.undo_move(ttMove);
+
+            if (value > probCutBeta)
+                return probCutBeta;
+        }
+    }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1745,7 +1758,6 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
-    int bonusC = ss->staticEval + PieceValue[MG][captured] < std::min(bestValue, beta) ? std::max(stat_bonus(depth + 2), bonus1) : bonus1;
 
     if (!pos.capture_or_promotion(bestMove))
     {
@@ -1761,7 +1773,7 @@ moves_loop: // When in check, search starts from here
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonusC;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1774,7 +1786,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonusC;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
