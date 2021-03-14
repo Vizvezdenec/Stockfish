@@ -1761,7 +1761,7 @@ moves_loop: // When in check, search starts from here
     else
     {
         int bonus = bonus1;
-        if (ss->staticEval + PieceValue[MG][captured] < bestValue)
+        if (ss->staticEval + PieceValue[MG][captured] < std::min(bestValue, beta))
             bonus = std::max(bonus1, stat_bonus(depth + 2));
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus;
