@@ -839,13 +839,17 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (    (ss-1)->currentMove == MOVE_NULL
+        &&  eval < ss->staticEval
+        &&  eval + 4000 < alpha)
+        return alpha;
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 24185
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  (eval > ss->staticEval || eval >= beta + 2 * Tempo)
         &&  ss->staticEval >= beta - 24 * depth - 34 * improving + 162 * ss->ttPv + 159
         && !excludedMove
         &&  pos.non_pawn_material(us)
