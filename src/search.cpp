@@ -839,11 +839,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (    (ss-1)->currentMove == MOVE_NULL
-        &&  eval < ss->staticEval
-        &&  eval + 5000 < alpha)
-        return alpha;
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1239,7 +1234,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && (!givesCheck || from_sq(move) == from_sq(ttMove)))
                   r++;
 
               // Increase reduction at root if failing high
