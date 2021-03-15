@@ -834,7 +834,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9 + std::max(tte->depth() / 2, 0)
+        &&  depth < 8 + std::max(tte->depth(), 0)
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
