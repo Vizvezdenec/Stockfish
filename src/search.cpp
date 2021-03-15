@@ -839,7 +839,7 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   (ss-2)->currentMove == MOVE_NULL && (ss-2)->eval < eval - 400)
+    if (   (ss-2)->currentMove == MOVE_NULL && (ss-2)->eval < eval - 200)
         return beta;
 
     // Step 8. Null move search with verification search (~40 Elo)
