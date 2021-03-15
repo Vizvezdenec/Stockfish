@@ -784,34 +784,34 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = ss->eval = VALUE_NONE;
+        ss->staticEval = eval = VALUE_NONE;
         improving = false;
         goto moves_loop;
     }
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        ss->staticEval = eval = ss->eval = tte->eval();
+        ss->staticEval = eval = tte->eval();
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos);
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
-            eval = ss->eval = value_draw(thisThread);
+            eval = value_draw(thisThread);
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
-            eval = ss->eval = ttValue;
+            eval = ttValue;
     }
     else
     {
         // In case of null move search use previous static eval with a different sign
         // and addition of two tempos
         if ((ss-1)->currentMove != MOVE_NULL)
-            ss->staticEval = ss->eval = eval = evaluate(pos);
+            ss->staticEval = eval = evaluate(pos);
         else
-            ss->staticEval = ss->eval = eval = -(ss-1)->staticEval + 2 * Tempo;
+            ss->staticEval = eval = -(ss-1)->staticEval + 2 * Tempo;
 
         // Save static evaluation into transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
@@ -838,9 +838,6 @@ namespace {
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
-
-    if (   (ss-2)->currentMove == MOVE_NULL && (ss-2)->eval < eval - 600)
-        return beta;
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
@@ -1280,7 +1277,9 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth 
+                             + ((ss+1)->distanceFromPv <= 4 + (captureOrPromotion 
+                                                            && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 6000)));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
