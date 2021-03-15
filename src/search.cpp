@@ -834,7 +834,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8 + (eval > ss->staticEval) * tte->depth()
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1277,7 +1277,9 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth 
+                             + ((ss+1)->distanceFromPv <= 4 + (captureOrPromotion 
+                               * 3 * captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] / 16384)));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
