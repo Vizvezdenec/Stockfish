@@ -1191,7 +1191,8 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || (PvNode && !rootNode && !ss->inCheck && !givesCheck && !pos.see_ge(move, ss->staticEval - alpha))
+              || (PvNode && !rootNode && !ss->inCheck && !givesCheck && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 7000
+                         && !pos.see_ge(move, ss->staticEval - alpha))
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
           Depth r = reduction(improving, depth, moveCount);
