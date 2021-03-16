@@ -1062,7 +1062,7 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth)
-                          || ss->distanceFromPv * moveCount > 2 * futility_move_count(improving, depth) * futility_move_count(improving, depth);
+                          || ss->distanceFromPv * moveCount > 8 * futility_move_count(improving, depth) * futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
