@@ -839,12 +839,6 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
-    if (   !PvNode 
-        &&  depth < 5
-        &&  ss->staticEval - futility_margin(depth, false) >= beta
-        &&  ss->staticEval < VALUE_KNOWN_WIN)
-        return ss->staticEval;
-
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -993,6 +987,14 @@ moves_loop: // When in check, search starts from here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
+
+    if (   !PvNode
+        && depth < 7
+        && ss->inCheck
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue >= beta + 400 * depth
+        && abs(ttValue) <= VALUE_KNOWN_WIN)
+        return ttValue;
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
