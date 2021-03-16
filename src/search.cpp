@@ -912,9 +912,11 @@ namespace {
             && tte->depth() >= depth - 3
             && ttValue != VALUE_NONE
             && ttValue >= probCutBeta
-            && ttMove
-            && pos.capture_or_promotion(ttMove))
-            return probCutBeta;
+            && ttMove)
+        {
+            if (pos.capture_or_promotion(ttMove) || (ttValue >= (probCutBeta - beta) * 3 + beta && (tte->bound() & BOUND_LOWER)))
+                return probCutBeta;
+        }
 
         assert(probCutBeta < VALUE_INFINITE);
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
@@ -1234,7 +1236,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture && !(ttValue <= alpha && (tte->bound() & BOUND_UPPER) && tte->depth() >= depth))
+              if (ttCapture)
                   r++;
 
               // Increase reduction at root if failing high
