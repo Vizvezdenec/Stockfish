@@ -992,6 +992,7 @@ moves_loop: // When in check, search starts from here
         && depth < 6
         && ss->inCheck
         && (tte->bound() & BOUND_LOWER)
+        && ttValue != VALUE_NONE
         && ttValue >= beta + 700 * depth
         && abs(beta) < VALUE_KNOWN_WIN)
         return beta;
