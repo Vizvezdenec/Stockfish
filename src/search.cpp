@@ -1230,7 +1230,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          int mcDiff = (thisThread->sameColorMc - thisThread->oppColorMc) / 32;
+          int mcDiff = (thisThread->sameColorMc - thisThread->oppColorMc) / 128;
               r += thisThread->rootColor == us ? mcDiff : -mcDiff;
 
           if (captureOrPromotion)
