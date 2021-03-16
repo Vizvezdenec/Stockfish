@@ -368,6 +368,8 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
+  rootColor = rootPos.side_to_move();
+
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -423,6 +425,8 @@ void Thread::search() {
           failedHighCnt = 0;
           while (true)
           {
+              sameColorMc = 0;
+              oppColorMc = 0;
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
               bestValue = Stockfish::search<PV>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
@@ -1055,16 +1059,13 @@ moves_loop: // When in check, search starts from here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
-
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth)
-                          || (ss+1)->distanceFromPv >= futility_move_count(improving, depth + 1);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1181,6 +1182,10 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+      thisThread->sameColorMc += thisThread->rootColor == us ? moveCount : 0;
+      thisThread->oppColorMc += thisThread->rootColor != us ? moveCount : 0;
+
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1224,6 +1229,14 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (thisThread->rootColor == us)
+          {
+              if (thisThread->sameColorMc < thisThread->oppColorMc - 100)
+                  r--;
+          }
+          else if (thisThread->sameColorMc > thisThread->oppColorMc + 100)
+                  r++;
 
           if (captureOrPromotion)
           {
@@ -1321,6 +1334,9 @@ moves_loop: // When in check, search starts from here
 
       // Step 18. Undo move
       pos.undo_move(move);
+
+      thisThread->sameColorMc -= thisThread->rootColor == us ? moveCount : 0;
+      thisThread->oppColorMc -= thisThread->rootColor != us ? moveCount : 0;
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 

@@ -74,7 +74,10 @@ public:
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
+  Color rootColor;
   int failedHighCnt;
+  int sameColorMc;
+  int oppColorMc;
 };
 
 
