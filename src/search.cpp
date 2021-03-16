@@ -1131,7 +1131,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              singularCapture = ttCapture;
+              singularCapture = true;
           }
 
           // Multi-cut pruning
