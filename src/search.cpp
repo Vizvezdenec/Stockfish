@@ -834,10 +834,10 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9
+        &&  depth < 10
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  beta < VALUE_KNOWN_WIN) // Do not return unproven wins
-        return std::min(eval, VALUE_KNOWN_WIN - 1);
+        &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
+        return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
