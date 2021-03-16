@@ -989,11 +989,11 @@ moves_loop: // When in check, search starts from here
         return probCutBeta;
 
     if (   !PvNode
-        && depth < 6
+        && depth < 7
         && ss->inCheck
         && (tte->bound() & BOUND_LOWER)
         && ttValue != VALUE_NONE
-        && ttValue >= beta + 700 * depth
+        && ttValue >= beta + 600 * depth
         && abs(beta) < VALUE_KNOWN_WIN)
         return beta;
 
