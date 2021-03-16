@@ -988,14 +988,6 @@ moves_loop: // When in check, search starts from here
        )
         return probCutBeta;
 
-    if (   !PvNode
-        && depth < 7
-        && ss->inCheck
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue != VALUE_NONE
-        && ttValue >= beta + 600 * depth
-        && abs(beta) < VALUE_KNOWN_WIN)
-        return beta;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1242,7 +1234,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
-              if (ttCapture)
+              if (ttCapture && !(ttValue <= alpha && (tte->bound() & BOUND_UPPER) && tte->depth() >= depth))
                   r++;
 
               // Increase reduction at root if failing high
