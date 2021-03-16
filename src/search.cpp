@@ -368,8 +368,6 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
-  rootColor = rootPos.side_to_move();
-
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -425,8 +423,6 @@ void Thread::search() {
           failedHighCnt = 0;
           while (true)
           {
-              sameColorMc = 0;
-              oppColorMc = 0;
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
               bestValue = Stockfish::search<PV>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
@@ -1009,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool singularCapture = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1133,6 +1130,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              singularCapture = ttCapture;
           }
 
           // Multi-cut pruning
@@ -1183,8 +1181,6 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
-      thisThread->sameColorMc += thisThread->rootColor == us ? moveCount : 0;
-      thisThread->oppColorMc += thisThread->rootColor != us ? moveCount : 0;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1229,9 +1225,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-
-          int mcDiff = (thisThread->sameColorMc - thisThread->oppColorMc) / 128;
-              r += thisThread->rootColor == us ? mcDiff : -mcDiff;
 
           if (captureOrPromotion)
           {
@@ -1286,7 +1279,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 && !singularCapture));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1329,9 +1322,6 @@ moves_loop: // When in check, search starts from here
 
       // Step 18. Undo move
       pos.undo_move(move);
-
-      thisThread->sameColorMc -= thisThread->rootColor == us ? moveCount : 0;
-      thisThread->oppColorMc -= thisThread->rootColor != us ? moveCount : 0;
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
