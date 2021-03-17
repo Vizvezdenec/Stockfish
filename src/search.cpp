@@ -824,7 +824,7 @@ namespace {
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
     else if (   is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && priorCapture 
-             && (ss->staticEval > -(ss-1)->staticEval + PieceValue[MG][pos.captured_piece()]))
+             && (ss->staticEval > -(ss-1)->staticEval + PieceValue[EG][pos.captured_piece()]))
         captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << -stat_bonus(depth);
 
     // Set up improving flag that is used in various pruning heuristics
