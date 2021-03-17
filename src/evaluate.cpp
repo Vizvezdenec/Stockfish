@@ -1061,11 +1061,11 @@ Value Eval::evaluate(const Position& pos) {
 
          if (   (pos.pieces(Us, KING) & relative_square(Us, SQ_E1))
              && !pos.castling_rights(Us))
-             nnueValue -= Value(73) * int(pos.non_pawn_material()) / 16384;
+             nnueValue -= Value(73) * std::max(int(pos.non_pawn_material()) - 10000, 0) / 16384;
 
          if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
              && !pos.castling_rights(~Us))
-             nnueValue += Value(73) * int(pos.non_pawn_material()) / 16384;
+             nnueValue += Value(73) * std::max(int(pos.non_pawn_material()) - 10000, 0) / 16384;
 
          return nnueValue;
       };
