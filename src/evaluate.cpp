@@ -1061,11 +1061,11 @@ Value Eval::evaluate(const Position& pos) {
 
          if (   (pos.pieces(Us, KING) & relative_square(Us, SQ_E1))
              && !pos.castling_rights(Us))
-             nnueValue -= Value(33);
+             nnueValue -= Value(53);
 
          if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
              && !pos.castling_rights(~Us))
-             nnueValue += Value(33);
+             nnueValue += Value(53);
 
          return nnueValue;
       };
