@@ -1009,7 +1009,7 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    int lmrSuccessMc = 1;
+    int lmrSuccessMc = 0;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1226,7 +1226,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (moveCount - lmrSuccessMc > 24)
+          if (lmrSuccessMc > 8)
               r++;
 
           if (captureOrPromotion)
@@ -1290,8 +1290,7 @@ moves_loop: // When in check, search starts from here
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
 
-          if (value > alpha)
-              lmrSuccessMc = moveCount;
+          lmrSuccessMc = value <= alpha ? lmrSuccessMc + 1 : 0;
       }
       else
       {
