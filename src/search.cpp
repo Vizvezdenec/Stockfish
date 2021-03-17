@@ -1225,7 +1225,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (rootNode && !failMid && thisThread->failedHighCnt)
+          if (rootNode && !failMid && thisThread->bestMoveChanges > 5 && thisThread->failedHighCnt)
               r--;
 
           if (captureOrPromotion)
