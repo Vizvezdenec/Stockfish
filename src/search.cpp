@@ -1005,7 +1005,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    bool failMid = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1083,7 +1082,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 5 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1111,7 +1110,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
-      if (    depth >= 7
+      if (    depth >= 5
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
@@ -1224,9 +1223,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-
-          if (rootNode && !failMid && thisThread->failedHighCnt)
-              r++;
 
           if (captureOrPromotion)
           {
@@ -1370,8 +1366,6 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
-
-              failMid = true;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
