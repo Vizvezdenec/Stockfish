@@ -1059,21 +1059,13 @@ Value Eval::evaluate(const Position& pos) {
 
          Color Us = pos.side_to_move();
 
-         if (   ((pos.pieces(Us, BISHOP) & relative_square(Us, SQ_B1)) || (pos.pieces(Us, BISHOP) & relative_square(Us, SQ_A2)))
-              && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_B3)) && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_C2)))
-             nnueValue -= Value(40);
+         if (   (pos.pieces(Us, KING) & relative_square(Us, SQ_E1))
+             && !pos.castling_rights(Us))
+             nnueValue -= Value(33);
 
-         if (   ((pos.pieces(Us, BISHOP) & relative_square(Us, SQ_G1)) || (pos.pieces(Us, BISHOP) & relative_square(Us, SQ_H2)))
-              && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_G3)) && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_F2)))
-             nnueValue -= Value(40);
-
-         if (   ((pos.pieces(~Us, BISHOP) & relative_square(~Us, SQ_B8)) || (pos.pieces(~Us, BISHOP) & relative_square(~Us, SQ_A7)))
-              && (pos.pieces(~Us, PAWN) & relative_square(~Us, SQ_B6)) && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_C7)))
-             nnueValue += Value(40);
-
-         if (   ((pos.pieces(Us, BISHOP) & relative_square(~Us, SQ_G8)) || (pos.pieces(Us, BISHOP) & relative_square(~Us, SQ_H7)))
-              && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_G6)) && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_F7)))
-             nnueValue += Value(40);
+         if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
+             && !pos.castling_rights(~Us))
+             nnueValue += Value(33);
 
          return nnueValue;
       };
