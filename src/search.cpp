@@ -1009,8 +1009,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-    int lmrSuccessMc = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1226,9 +1224,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (lmrSuccessMc > 16)
-              r++;
-
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1289,8 +1284,6 @@ moves_loop: // When in check, search starts from here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
-
-          lmrSuccessMc = value <= alpha ? lmrSuccessMc + 1 : 0;
       }
       else
       {

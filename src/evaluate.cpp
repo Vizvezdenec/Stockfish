@@ -1055,7 +1055,27 @@ Value Eval::evaluate(const Position& pos) {
       // Scale and shift NNUE for compatibility with search and classical evaluation
       auto  adjusted_NNUE = [&](){
          int mat = pos.non_pawn_material() + 2 * PawnValueMg * pos.count<PAWN>();
-         return NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+         Value nnueValue = NNUE::evaluate(pos) * (641 + mat / 32 - 4 * pos.rule50_count()) / 1024 + Tempo;
+
+         Color Us = pos.side_to_move();
+
+         if (   ((pos.pieces(Us, BISHOP) & relative_square(Us, SQ_B1)) || (pos.pieces(Us, BISHOP) & relative_square(Us, SQ_A2)))
+              && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_B3)) && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_C2)))
+             nnueValue -= Value(40);
+
+         if (   ((pos.pieces(Us, BISHOP) & relative_square(Us, SQ_G1)) || (pos.pieces(Us, BISHOP) & relative_square(Us, SQ_H2)))
+              && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_G3)) && (pos.pieces(Us, PAWN) & relative_square(Us, SQ_F2)))
+             nnueValue -= Value(40);
+
+         if (   ((pos.pieces(~Us, BISHOP) & relative_square(~Us, SQ_B8)) || (pos.pieces(~Us, BISHOP) & relative_square(~Us, SQ_A7)))
+              && (pos.pieces(~Us, PAWN) & relative_square(~Us, SQ_B6)) && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_C7)))
+             nnueValue += Value(40);
+
+         if (   ((pos.pieces(Us, BISHOP) & relative_square(~Us, SQ_G8)) || (pos.pieces(Us, BISHOP) & relative_square(~Us, SQ_H7)))
+              && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_G6)) && (pos.pieces(Us, PAWN) & relative_square(~Us, SQ_F7)))
+             nnueValue += Value(40);
+
+         return nnueValue;
       };
 
       // If there is PSQ imbalance use classical eval, with small probability if it is small
