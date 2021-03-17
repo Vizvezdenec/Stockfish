@@ -1226,7 +1226,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (lmrSuccessMc > 8)
+          if (lmrSuccessMc > 16)
               r++;
 
           if (captureOrPromotion)
