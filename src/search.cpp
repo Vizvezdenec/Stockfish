@@ -1015,6 +1015,9 @@ moves_loop: // When in check, search starts from here
     {
       assert(is_ok(move));
 
+      if (move == excludedMove)
+          continue;
+
       // At root obey the "searchmoves" option and skip moves not listed in Root
       // Move List. As a consequence any illegal move is also skipped. In MultiPV
       // mode we also skip PV moves which have been already searched and those
@@ -1028,9 +1031,6 @@ moves_loop: // When in check, search starts from here
           continue;
 
       ss->moveCount = ++moveCount;
-
-      if (move == excludedMove)
-          continue;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth
@@ -1185,7 +1185,7 @@ moves_loop: // When in check, search starts from here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          && (moveCount > 1 + 2 * rootNode || excludedMove)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
