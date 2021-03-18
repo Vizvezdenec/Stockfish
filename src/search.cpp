@@ -613,6 +613,7 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
+    bool inDoubleCheck = ss->inCheck && more_than_one(pos.checkers());
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
@@ -995,10 +996,18 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Value checkerValue = Value(0);
+    if (ss->inCheck && !inDoubleCheck)
+    {
+        Bitboard b = pos.checkers();
+        checkerValue = PieceValue[MG][pos.piece_on(pop_lsb(&b))];
+    }
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
+                                      checkerValue,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1160,9 +1169,6 @@ moves_loop: // When in check, search starts from here
       // Last captures extension
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
-          extension = 1;
-
-      else if (ss->inCheck && captureOrPromotion && pos.see_ge(move))
           extension = 1;
 
       // Add extension to new depth
@@ -1559,6 +1565,13 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    Value checkerValue = Value(0);
+    if (ss->inCheck && !more_than_one(pos.checkers()))
+    {
+        Bitboard b = pos.checkers();
+        checkerValue = PieceValue[MG][pos.piece_on(pop_lsb(&b))];
+    }
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
@@ -1566,6 +1579,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      checkerValue,
                                       to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
