@@ -1100,17 +1100,17 @@ Value Eval::evaluate(const Position& pos) {
             nnueValue += fix_FRC(pos);
 
          Color Us = pos.side_to_move();
-         if (   (pos.pieces(Us, KING) & relative_square(Us, SQ_E1))
+         if (   ((pos.pieces(Us, KING) & relative_square(Us, SQ_E1)) || (pos.pieces(Us, KING) & relative_square(Us, SQ_D1)))
                  && !pos.castling_rights(Us)
                  && (    (pos.pieces(Us, ROOK) & relative_square(Us, SQ_H1))
                      ||  (pos.pieces(Us, ROOK) & relative_square(Us, SQ_A1))))
-             nnueValue -= Value(91) * int(pos.non_pawn_material()) / 16384;
+             nnueValue -= Value(61) * int(pos.non_pawn_material()) / 16384;
 
-         if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
+         if (   ((pos.pieces(~Us, KING) & relative_square(Us, SQ_E8)) || (pos.pieces(~Us, KING) & relative_square(Us, SQ_D8)))
                  && !pos.castling_rights(~Us)
                  && (    (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_H8))
                      ||  (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_A8))))
-             nnueValue += Value(91) * int(pos.non_pawn_material()) / 16384;
+             nnueValue += Value(61) * int(pos.non_pawn_material()) / 16384;
 
          return nnueValue;
       };
