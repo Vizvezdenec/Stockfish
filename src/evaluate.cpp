@@ -1104,13 +1104,13 @@ Value Eval::evaluate(const Position& pos) {
                  && !pos.castling_rights(Us)
                  && (    (pos.pieces(Us, ROOK) & relative_square(Us, SQ_H1))
                      ||  (pos.pieces(Us, ROOK) & relative_square(Us, SQ_A1))))
-             nnueValue -= Value(31);
+             nnueValue -= Value(41) * int(pos.non_pawn_material()) / 16384;
 
          if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
                  && !pos.castling_rights(~Us)
                  && (    (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_H8))
                      ||  (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_A8))))
-             nnueValue += Value(31);
+             nnueValue += Value(41) * int(pos.non_pawn_material()) / 16384;
 
          return nnueValue;
       };
