@@ -127,13 +127,11 @@ public:
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Value,
                                            Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Value,
                                            Move,
                                            const Move*,
                                            int);
@@ -150,7 +148,6 @@ private:
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
-  Value checkerValue;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;

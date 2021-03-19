@@ -57,8 +57,8 @@ namespace {
 
 /// MovePicker constructor for the main search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const LowPlyHistory* lp,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Value cv, Move cm, const Move* killers, int pl)
-           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch), checkerValue(cv),
+                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Move cm, const Move* killers, int pl)
+           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch),
              ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(pl) {
 
   assert(d > 0);
@@ -69,8 +69,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for quiescence search
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
-                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Value cv, Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), checkerValue(cv), ttMove(ttm), recaptureSquare(rs), depth(d) {
+                       const CapturePieceToHistory* cph, const PieceToHistory** ch, Square rs)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d) {
 
   assert(d <= 0);
 
@@ -121,7 +121,7 @@ void MovePicker::score() {
           else
               m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                       - (1 << 27) - (1 << 27) * (PieceValue[MG][pos.moved_piece(m)] > checkerValue && type_of(pos.moved_piece(m)) != KING);
+                       - (1 << 27) - (1 << 27) * (type_of(pos.moved_piece(m)) == KING);
       }
 }
 

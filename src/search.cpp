@@ -613,7 +613,6 @@ namespace {
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
     ss->inCheck = pos.checkers();
-    bool inDoubleCheck = ss->inCheck && more_than_one(pos.checkers());
     priorCapture = pos.captured_piece();
     Color us = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
@@ -996,18 +995,10 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Value checkerValue = VALUE_NONE;
-    if (ss->inCheck && !inDoubleCheck)
-    {
-        Bitboard b = pos.checkers();
-        checkerValue = PieceValue[MG][pos.piece_on(pop_lsb(&b))];
-    }
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
-                                      checkerValue,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1565,13 +1556,6 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Value checkerValue = VALUE_NONE;
-    if (ss->inCheck && !more_than_one(pos.checkers()))
-    {
-        Bitboard b = pos.checkers();
-        checkerValue = PieceValue[MG][pos.piece_on(pop_lsb(&b))];
-    }
-
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen and checking knight promotions, and other checks(only if depth >= DEPTH_QS_CHECKS)
@@ -1579,7 +1563,6 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      checkerValue,
                                       to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
