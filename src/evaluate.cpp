@@ -1099,6 +1099,19 @@ Value Eval::evaluate(const Position& pos) {
          if (pos.is_chess960())
             nnueValue += fix_FRC(pos);
 
+         Color Us = pos.side_to_move();
+         if (   (pos.pieces(Us, KING) & relative_square(Us, SQ_E1))
+                 && !pos.castling_rights(Us)
+                 && (    (pos.pieces(Us, ROOK) & relative_square(Us, SQ_H1))
+                     ||  (pos.pieces(Us, ROOK) & relative_square(Us, SQ_A1))))
+             nnueValue -= Value(21) * int(pos.non_pawn_material()) / 16384;
+
+         if (   (pos.pieces(~Us, KING) & relative_square(Us, SQ_E8))
+                 && !pos.castling_rights(~Us)
+                 && (    (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_H8))
+                     ||  (pos.pieces(~Us, ROOK) & relative_square(Us, SQ_A8))))
+             nnueValue += Value(21) * int(pos.non_pawn_material()) / 16384;
+
          return nnueValue;
       };
 
