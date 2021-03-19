@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Value checkerValue = Value(0);
+    Value checkerValue = VALUE_NONE;
     if (ss->inCheck && !inDoubleCheck)
     {
         Bitboard b = pos.checkers();
@@ -1565,7 +1565,7 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Value checkerValue = Value(0);
+    Value checkerValue = VALUE_NONE;
     if (ss->inCheck && !more_than_one(pos.checkers()))
     {
         Bitboard b = pos.checkers();
