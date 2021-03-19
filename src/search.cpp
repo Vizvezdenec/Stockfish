@@ -1180,6 +1180,46 @@ moves_loop: // When in check, search starts from here
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
+      int red = 0;
+      int db = 0;
+
+      // Decrease reduction if the ttHit running average is large
+      if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+          red--;
+
+          // Increase reduction if other threads are searching this position
+      if (th.marked())
+          red++;
+
+          // Decrease reduction if position is or has been on the PV
+          // and node is not likely to fail low. (~10 Elo)
+      if (ss->ttPv && !likelyFailLow)
+          red -= 2;
+
+          // Increase reduction at root and non-PV nodes when the best move does not change frequently
+      if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+          red++;
+
+          // More reductions for late moves if position was not in previous PV
+      if (moveCountPruning && !formerPv)
+          red++;
+
+          // Decrease reduction if opponent's move count is high (~5 Elo)
+      if ((ss-1)->moveCount > 13)
+          red--;
+
+          // Decrease reduction if ttMove has been singularly extended (~3 Elo)
+      if (singularQuietLMR)
+          red--;
+
+      if (captureOrPromotion)
+      {
+              // Unless giving check, this capture is likely bad
+          if (   !givesCheck
+              && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
+              red++;
+      }
+
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1195,43 +1235,8 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          // Decrease reduction if the ttHit running average is large
-          if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
-              r--;
-
-          // Increase reduction if other threads are searching this position
-          if (th.marked())
-              r++;
-
-          // Decrease reduction if position is or has been on the PV
-          // and node is not likely to fail low. (~10 Elo)
-          if (ss->ttPv && !likelyFailLow)
-              r -= 2;
-
-          // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if ((rootNode || !PvNode) && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
-              r++;
-
-          // More reductions for late moves if position was not in previous PV
-          if (moveCountPruning && !formerPv)
-              r++;
-
-          // Decrease reduction if opponent's move count is high (~5 Elo)
-          if ((ss-1)->moveCount > 13)
-              r--;
-
-          // Decrease reduction if ttMove has been singularly extended (~3 Elo)
-          if (singularQuietLMR)
-              r--;
-
-          if (captureOrPromotion)
-          {
-              // Unless giving check, this capture is likely bad
-              if (   !givesCheck
-                  && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
-                  r++;
-          }
-          else
+          
+          if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
@@ -1274,6 +1279,8 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
+          r += red;
+
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
@@ -1289,12 +1296,14 @@ moves_loop: // When in check, search starts from here
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
+          if (red < 0 && captureOrPromotion && (ss+1)->distanceFromPv < 4)
+              db = 1;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + db, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
