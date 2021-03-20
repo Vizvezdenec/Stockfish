@@ -519,6 +519,7 @@ void Thread::search() {
           {
               totBestMoveChanges += th->bestMoveChanges;
               th->bestMoveChanges = 0;
+              th->bestMoveMc = 0;
           }
           double bestMoveInstability = 1 + 2 * totBestMoveChanges / Threads.size();
 
@@ -1224,6 +1225,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (rootNode && thisThread->bestMoveMc > 8 * depth)
+              r--;
+
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1309,7 +1313,7 @@ moves_loop: // When in check, search starts from here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta + PawnValueMg))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
@@ -1350,7 +1354,10 @@ moves_loop: // When in check, search starts from here
               // We record how often the best move has been changed in each
               // iteration. This information is used for time management and LMR
               if (moveCount > 1)
+              {
                   ++thisThread->bestMoveChanges;
+                  thisThread->bestMoveMc += moveCount - 1;
+              }
           }
           else
               // All other moves but the PV are set to the lowest value: this
