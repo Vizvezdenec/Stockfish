@@ -691,7 +691,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !PvNode
+    if (  (!PvNode || (!rootNode && tte->depth() >= depth + 1 && ttValue >= beta))
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -1005,7 +1005,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    bool gege = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1130,8 +1129,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (ttCapture && value < singularBeta - 10 * depth)
-                  gege = true;
           }
 
           // Multi-cut pruning
@@ -1226,8 +1223,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
-          else if (gege)
-              r++;
 
           if (captureOrPromotion)
           {
@@ -1240,7 +1235,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r += 1;
+                  r++;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
