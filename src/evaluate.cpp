@@ -1067,9 +1067,12 @@ make_v:
     Bitboard ourPawns = pos.pieces(Us, PAWN);
     Bitboard theirPawns = pos.pieces(~Us, PAWN);
 
-    Bitboard lockedB = pos.pieces(Us, BISHOP) & rank1 & notDefaultBB & shift<SOUTH_WEST>(ourPawns) & shift<SOUTH_EAST>(ourPawns);
+    Bitboard lockedB = pos.pieces(Us, BISHOP) & rank1 & notDefaultBB;
+    lockedB &= Us == WHITE ? shift<SOUTH_WEST>(ourPawns) & shift<SOUTH_EAST>(ourPawns) : shift<NORTH_WEST>(ourPawns) & shift<NORTH_EAST>(ourPawns);
     bAdjust -= Value(50) * popcount(lockedB);
-    lockedB = pos.pieces(~Us, BISHOP) & rank8 & notDefaultBB & shift<NORTH_WEST>(theirPawns) & shift<NORTH_EAST>(theirPawns);
+
+    lockedB = pos.pieces(~Us, BISHOP) & rank8 & notDefaultBB;
+    lockedB &= Us == WHITE ? shift<NORTH_WEST>(theirPawns) & shift<NORTH_EAST>(theirPawns) : shift<SOUTH_WEST>(theirPawns) & shift<SOUTH_EAST>(theirPawns);
     bAdjust += Value(50) * popcount(lockedB);
 
     if (   (pos.pieces(~Us, BISHOP) & relative_square(Us, SQ_A8))
