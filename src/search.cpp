@@ -1005,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool gege = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1129,6 +1130,8 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              if (ttCapture && value < singularBeta - 10 * depth)
+                  gege = true;
           }
 
           // Multi-cut pruning
@@ -1149,8 +1152,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (!formerPv && value < singularBeta)
-                  extension = 1;
           }
       }
 
@@ -1237,7 +1238,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
-                  r++;
+                  r += 1 + gege;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
