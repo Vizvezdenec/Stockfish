@@ -1143,8 +1143,6 @@ moves_loop: // When in check, search starts from here
           // move that pushes it over beta, if so also produce a cutoff.
           else if (ttValue >= beta)
           {
-              if (tte->depth() >= depth)
-                  return beta;
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
@@ -1289,7 +1287,7 @@ moves_loop: // When in check, search starts from here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !rootNode || moveCount > 1;
           didLMR = false;
       }
 
