@@ -691,7 +691,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  (!PvNode || (!rootNode && tte->depth() >= depth + 1 && ttValue >= beta))
+    if (  !PvNode
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -1143,6 +1143,8 @@ moves_loop: // When in check, search starts from here
           // move that pushes it over beta, if so also produce a cutoff.
           else if (ttValue >= beta)
           {
+              if (tte->depth() >= depth)
+                  return beta;
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
               ss->excludedMove = MOVE_NONE;
