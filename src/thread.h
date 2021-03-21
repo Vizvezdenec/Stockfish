@@ -62,7 +62,7 @@ public:
   uint64_t ttHitAverage;
   int selDepth, nmpMinPly;
   Color nmpColor;
-  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
+  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges, bestMoveMc;
 
   Position rootPos;
   StateInfo rootState;
@@ -75,6 +75,7 @@ public:
   ContinuationHistory continuationHistory[2][2];
   Score contempt;
   int failedHighCnt;
+//  int iterationNumber;
 };
 
 
