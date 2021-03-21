@@ -369,6 +369,7 @@ void Thread::search() {
   int searchAgainCounter = 0;
 
   bestMoveMc = 0;
+  iterationNumber = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -425,6 +426,7 @@ void Thread::search() {
           failedHighCnt = 0;
           while (true)
           {
+              iterationNumber++;
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
               bestValue = Stockfish::search<PV>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
@@ -1226,7 +1228,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (rootNode && thisThread->bestMoveMc > 32 * depth)
+          if (rootNode && thisThread->bestMoveMc > 8 * depth * thisThread->iterationNumber)
               r--;
 
           if (captureOrPromotion)
