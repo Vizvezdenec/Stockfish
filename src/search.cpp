@@ -368,6 +368,8 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
+  bestMoveMc = 0;
+
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -1224,6 +1226,9 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
+          if (rootNode && thisThread->bestMoveMc > 16 * depth)
+              r--;
+
           if (captureOrPromotion)
           {
               // Unless giving check, this capture is likely bad
@@ -1350,7 +1355,10 @@ moves_loop: // When in check, search starts from here
               // We record how often the best move has been changed in each
               // iteration. This information is used for time management and LMR
               if (moveCount > 1)
+              {
                   ++thisThread->bestMoveChanges;
+                  thisThread->bestMoveMc += moveCount - 1;
+              }
           }
           else
               // All other moves but the PV are set to the lowest value: this
