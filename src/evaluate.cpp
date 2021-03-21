@@ -1060,21 +1060,6 @@ make_v:
                        : pos.piece_on(relative_square(Us,SQ_F3)) == make_piece(Us, PAWN) ? p2
                                                                                          : p3;
     }
-
-    Bitboard rank1 = Us == WHITE ? Rank1BB : Rank8BB;
-    Bitboard rank8 = Us == WHITE ? Rank8BB : Rank1BB;
-    Bitboard notDefaultBB = AllSquares & ~(FileCBB | FileFBB);
-    Bitboard ourPawns = pos.pieces(Us, PAWN);
-    Bitboard theirPawns = pos.pieces(~Us, PAWN);
-
-    Bitboard lockedB = pos.pieces(Us, BISHOP) & rank1 & notDefaultBB;
-    lockedB &= Us == WHITE ? shift<SOUTH_WEST>(ourPawns) & shift<SOUTH_EAST>(ourPawns) : shift<NORTH_WEST>(ourPawns) & shift<NORTH_EAST>(ourPawns);
-    bAdjust -= Value(50) * popcount(lockedB);
-
-    lockedB = pos.pieces(~Us, BISHOP) & rank8 & notDefaultBB;
-    lockedB &= Us == WHITE ? shift<NORTH_WEST>(theirPawns) & shift<NORTH_EAST>(theirPawns) : shift<SOUTH_WEST>(theirPawns) & shift<SOUTH_EAST>(theirPawns);
-    bAdjust += Value(50) * popcount(lockedB);
-
     if (   (pos.pieces(~Us, BISHOP) & relative_square(Us, SQ_A8))
         && (pos.pieces(~Us, PAWN) & relative_square(Us, SQ_B7)))
     {
