@@ -1226,7 +1226,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (rootNode && thisThread->bestMoveMc > 16 * depth)
+          if (rootNode && thisThread->bestMoveMc > 32 * depth)
               r--;
 
           if (captureOrPromotion)
