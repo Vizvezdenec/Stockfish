@@ -889,7 +889,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 209 - 44 * improving;
+    probCutBeta = beta + 229 - 44 * improving - std::min(ss->distanceFromPv, 128);
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1230,11 +1230,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if ((ss-1)->statScore > 5000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -3000)
-                  r++;
-              else if ((ss-1)->statScore > -5000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 6000)
-                  r--;
           }
           else
           {
