@@ -618,7 +618,7 @@ namespace {
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
-    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    ss->distanceFromPv = (PvNode ? std::min(0, ss->distanceFromPv) : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
