@@ -889,7 +889,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 229 - 44 * improving - std::min(ss->distanceFromPv, 128);
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1178,7 +1178,7 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 2 * ss->ttPv;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
