@@ -1230,6 +1230,11 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              if ((ss-1)->statScore > 5000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < -3000)
+                  r++;
+              else if ((ss-1)->statScore > -5000 && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 6000)
+                  r--;
           }
           else
           {
@@ -1263,8 +1268,6 @@ moves_loop: // When in check, search starts from here
 
               else if ((ss-1)->statScore >= -112 && ss->statScore < -100)
                   r++;
-
-              r -= (ss->statScore - (ss-1)->statScore) / 65536;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               // If we are not in check use statScore, but if we are in check we use
