@@ -1357,7 +1357,8 @@ moves_loop: // When in check, search starts from here
               if (moveCount > 1)
               {
                   ++thisThread->bestMoveChanges;
-                  thisThread->bestMoveMc += moveCount - 1;
+                  if (depth > 4)
+                      thisThread->bestMoveMc += moveCount - 1;
               }
           }
           else
