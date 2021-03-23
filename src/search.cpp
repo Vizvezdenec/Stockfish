@@ -72,8 +72,8 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, bool eg) {
-    int r = Reductions[d] * Reductions[mn] * 31 / (31 + eg);
+  Depth reduction(bool i, Depth d, int mn) {
+    int r = Reductions[d] * Reductions[mn];
     return (r + 503) / 1024 + (!i && r > 915);
   }
 
@@ -619,7 +619,6 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
-    bool endgame = pos.non_pawn_material() < 2 * QueenValueMg && pos.count<PAWN>() < 10;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1065,7 +1064,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, endgame), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1194,7 +1193,7 @@ moves_loop: // When in check, search starts from here
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth, moveCount, endgame);
+          Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
@@ -1367,6 +1366,9 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (PvNode && alpha < -1 && bestValue == Value(0))
+                  bestValue = Value(-1);
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
