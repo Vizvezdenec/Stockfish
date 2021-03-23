@@ -72,8 +72,8 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn) {
-    int r = Reductions[d] * Reductions[mn];
+  Depth reduction(bool i, Depth d, int mn, bool eg) {
+    int r = Reductions[d] * Reductions[mn] / (1 + eg);
     return (r + 503) / 1024 + (!i && r > 915);
   }
 
@@ -195,7 +195,7 @@ namespace {
 void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
-      Reductions[i] = int((21.3 + 3 * std::log(Threads.size())) * std::log(i + 0.25 * std::log(i)));
+      Reductions[i] = int((21.3 + 2 * std::log(Threads.size())) * std::log(i + 0.25 * std::log(i)));
 }
 
 
@@ -619,6 +619,7 @@ namespace {
     bestValue = -VALUE_INFINITE;
     maxValue = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    bool endgame = pos.non_pawn_material() < 2 * QueenValueMg && pos.count<PAWN>() < 10;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1064,7 +1065,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, endgame), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1193,7 +1194,7 @@ moves_loop: // When in check, search starts from here
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(improving, depth, moveCount, endgame);
 
           // Decrease reduction if the ttHit running average is large
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
