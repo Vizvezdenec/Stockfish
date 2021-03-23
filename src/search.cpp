@@ -1368,7 +1368,7 @@ moves_loop: // When in check, search starts from here
               bestMove = move;
 
               if (PvNode && alpha < -1 && bestValue == Value(0))
-                  bestValue = Value(-1);
+                  bestValue = ss->staticEval < 0 ? Value(-1) : Value(1);
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
