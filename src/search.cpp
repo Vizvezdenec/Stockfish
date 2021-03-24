@@ -1182,6 +1182,29 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      if (!PvNode && !ttCapture && ss->inCheck && depth > 4 && captureOrPromotion && std::abs(beta + 400) < VALUE_KNOWN_WIN)
+      {
+          probCutBeta = beta + 400;
+          // Perform a preliminary qsearch to verify that the move holds
+          value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+
+          // If the qsearch held, perform the regular search
+          if (value >= probCutBeta)
+              value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+          if (value >= probCutBeta)
+          {
+              pos.undo_move(move);
+              // if transposition table doesn't have equal or more deep info write probCut data into it
+              if ( !(ss->ttHit
+                  && tte->depth() >= depth - 3
+                  && ttValue != VALUE_NONE))
+                  tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth - 3, move, ss->staticEval);
+              return value;
+          }
+      }
+
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
