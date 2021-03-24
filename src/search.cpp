@@ -1178,6 +1178,31 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+
+      if (!PvNode && !ttCapture && ss->inCheck && depth > 4 && ss->distanceFromPv > 0 
+        && captureOrPromotion && moveCount == 1 + bool(ttMove) && std::abs(beta + 400) < VALUE_KNOWN_WIN)
+      {
+          probCutBeta = beta + 400;
+          // Perform a preliminary qsearch to verify that the move holds
+          value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+
+          // If the qsearch held, perform the regular search
+          if (value >= probCutBeta)
+              value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+          if (value >= probCutBeta)
+          {
+              pos.undo_move(move);
+              // if transposition table doesn't have equal or more deep info write probCut data into it
+              if ( !(ss->ttHit
+                  && tte->depth() >= depth - 3
+                  && ttValue != VALUE_NONE))
+                  tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth - 3, move, ss->staticEval);
+              return value;
+          }
+      }
+
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
@@ -1474,7 +1499,6 @@ moves_loop: // When in check, search starts from here
         oldAlpha = alpha; // To flag BOUND_EXACT when eval above alpha and no available moves
         (ss+1)->pv = pv;
         ss->pv[0] = MOVE_NONE;
-        ss->distanceFromPv = 0;
     }
 
     Thread* thisThread = pos.this_thread();
@@ -1583,7 +1607,7 @@ moves_loop: // When in check, search starts from here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > 2 && ss->distanceFromPv > 0)
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1615,8 +1639,6 @@ moves_loop: // When in check, search starts from here
           moveCount--;
           continue;
       }
-
-      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
