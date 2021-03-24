@@ -1181,12 +1181,10 @@ moves_loop: // When in check, search starts from here
       if (!PvNode && !ttCapture && ss->inCheck && depth > 4 && captureOrPromotion && moveCount == 1 + bool(ttMove) && std::abs(beta + 400) < VALUE_KNOWN_WIN)
       {
           probCutBeta = beta + 400;
-          // Perform a preliminary qsearch to verify that the move holds
-          value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
           // If the qsearch held, perform the regular search
-          if (value >= probCutBeta)
-              value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
           if (value >= probCutBeta)
           {
               pos.undo_move(move);
