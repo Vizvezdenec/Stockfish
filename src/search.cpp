@@ -1011,7 +1011,7 @@ moves_loop: // When in check, search starts from here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && ss->distanceFromPv >= 3)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1582,7 +1582,7 @@ moves_loop: // When in check, search starts from here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > 2)
+          if (moveCount > 2 && ss->distanceFromPv > 0)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1614,6 +1614,8 @@ moves_loop: // When in check, search starts from here
           moveCount--;
           continue;
       }
+
+      (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
