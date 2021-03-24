@@ -1178,9 +1178,9 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      if (!PvNode && !ttCapture && ss->inCheck && depth > 4 && captureOrPromotion && std::abs(beta + 400) < VALUE_KNOWN_WIN)
+      if (!PvNode && !ttCapture && ss->inCheck && depth > 4 && captureOrPromotion && moveCount == 1 + bool(ttMove) && std::abs(beta + 400) < VALUE_KNOWN_WIN)
       {
-          probCutBeta = beta + 500;
+          probCutBeta = beta + 400;
           // Perform a preliminary qsearch to verify that the move holds
           value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
