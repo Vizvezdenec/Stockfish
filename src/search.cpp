@@ -1163,8 +1163,6 @@ moves_loop: // When in check, search starts from here
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
-      else if (   ss->inCheck && moveCount == 1 && !captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] > 15000)
-          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1324,6 +1322,15 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
+
+          if (doFullDepthSearch && !captureOrPromotion)
+          {
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
+
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+          }
+          
       }
 
       // Step 18. Undo move
