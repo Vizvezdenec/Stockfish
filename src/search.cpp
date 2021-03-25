@@ -620,7 +620,7 @@ namespace {
     maxValue = VALUE_INFINITE;
     if (rootNode)
         ss->totalMovecount = 0;
-    ss->distanceFromPv = (ss->totalMovecount > 50 ? ss->distanceFromPv : PvNode ? 0 : ss->distanceFromPv);
+    ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1280,7 +1280,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But for nodes
           // close to the principal variation the cap is at (newDepth + 1), which will
           // allow these nodes to be searched deeper than the pv (up to 4 plies deeper).
-          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4 - ss->totalMovecount / 32));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
