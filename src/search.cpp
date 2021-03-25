@@ -1749,17 +1749,18 @@ moves_loop: // When in check, search starts from here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
-    bonus3 = bestValue > secondBest + PawnValueMg ? bonus1 : std::max(bonus1, stat_bonus(depth));
+    bonus3 = bestValue > secondBest + PawnValueMg ? std::max(bonus1, stat_bonus(depth)) : std::min(bonus1, stat_bonus(depth));
 
     if (!pos.capture_or_promotion(bestMove))
     {
+        int bonus = bestValue > beta ? bonus3 : bonus2;
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+        update_quiet_stats(pos, ss, bestMove, bonus, depth);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            int bonus = quietCntB >= i ? bonus3 : bonus2;
+            bonus = quietCntB >= i ? bonus3 : bonus2;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
         }
