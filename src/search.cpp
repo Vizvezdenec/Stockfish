@@ -1005,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool fullMovecountPruning = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1014,6 +1015,9 @@ moves_loop: // When in check, search starts from here
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
+
+      if (fullMovecountPruning)
+          break;
 
       if (move == excludedMove)
           continue;
@@ -1062,6 +1066,7 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          fullMovecountPruning = ss->distanceFromPv > 50 && moveCount >= 2 * futility_move_count(improving, depth) + 1;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1297,7 +1302,7 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
-          if (didLMR && !captureOrPromotion && (value <= alpha || !PvNode))
+          if (didLMR && !captureOrPromotion)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1316,9 +1321,6 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-          if (didLMR && !captureOrPromotion && value > alpha)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(newDepth));
-
       }
 
       // Step 18. Undo move
