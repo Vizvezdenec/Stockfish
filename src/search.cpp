@@ -1119,7 +1119,7 @@ moves_loop: // When in check, search starts from here
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
-          if (cutNode && ttValue >= beta + KnightValueMg)
+          if (cutNode && ttValue >= beta + KnightValueMg && givesCheck)
               return ttValue;
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
