@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts from here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + rootNode + ((ss+1)->distanceFromMainPv < 2)
+          &&  moveCount > 1 + rootNode + (PvNode && (ss+1)->distanceFromMainPv < 2)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
