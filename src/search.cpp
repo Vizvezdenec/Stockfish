@@ -619,6 +619,8 @@ namespace {
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
     ss->distanceFromPv = (PvNode ? 0 : ss->distanceFromPv);
+    if (rootNode)
+        ss->distanceFromMainPv = 0;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -710,8 +712,6 @@ namespace {
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
-                else if (priorCapture && (ss-1)->moveCount == 1 && ttValue >= beta + PieceValue[MG][pos.piece_on(prevSq)])
-                    thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << -stat_bonus(depth + 1);
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
@@ -1183,13 +1183,14 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
 
       (ss+1)->distanceFromPv = ss->distanceFromPv + moveCount - 1;
+      (ss+1)->distanceFromMainPv = ss->distanceFromMainPv + moveCount - 1;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + rootNode + ((ss+1)->distanceFromMainPv < 2)
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
