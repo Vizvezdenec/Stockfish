@@ -860,7 +860,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, cutNode);
 
         pos.undo_null_move();
 
@@ -1419,7 +1419,7 @@ moves_loop: // When in check, search starts from here
                                  : VALUE_DRAW;
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
-    else if (bestMove || (ss-1)->currentMove == MOVE_NULL)
+    else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
@@ -1753,8 +1753,6 @@ moves_loop: // When in check, search starts from here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
-    if (bestMove)
-    {
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
@@ -1770,11 +1768,10 @@ moves_loop: // When in check, search starts from here
     else
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   bestMove && ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
