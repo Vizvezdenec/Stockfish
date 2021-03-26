@@ -1753,11 +1753,12 @@ moves_loop: // When in check, search starts from here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
-    if (!bestMove || !pos.capture_or_promotion(bestMove))
+    if (bestMove)
     {
-        if (bestMove)
-            // Increase stats for the best move in case it was a quiet move
-            update_quiet_stats(pos, ss, bestMove, bonus2, depth);
+    if (!pos.capture_or_promotion(bestMove))
+    {
+        // Increase stats for the best move in case it was a quiet move
+        update_quiet_stats(pos, ss, bestMove, bonus2, depth);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1769,6 +1770,7 @@ moves_loop: // When in check, search starts from here
     else
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
