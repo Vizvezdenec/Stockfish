@@ -852,8 +852,6 @@ namespace {
     {
         assert(eval - beta >= 0);
 
-        bool nullCut = false;
-
         // Null move dynamic reduction based on depth and value
         Depth R = (1062 + 68 * depth) / 256 + std::min(int(eval - beta) / 190, 3);
 
@@ -873,9 +871,8 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-                nullCut = true;
-            else 
-            {
+                return nullValue;
+
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
             // Do verification search at high depths, with null move pruning disabled
@@ -889,16 +886,6 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
-            }
-        }
-
-        if (nullCut)
-        {
-            if ( !ss->ttHit)
-                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
-                            BOUND_LOWER,
-                            depth, MOVE_NONE, ss->staticEval);
-            return nullValue;
         }
     }
 
@@ -1134,7 +1121,7 @@ moves_loop: // When in check, search starts from here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
-          Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
+          Depth singularDepth = (depth - 1 + (1 + 2 * !cutNode) * formerPv) / 2;
 
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
