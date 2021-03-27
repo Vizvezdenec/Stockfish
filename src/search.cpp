@@ -699,7 +699,7 @@ namespace {
                             : (tte->bound() & BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
-        if (ttMove && ttMove != MOVE_NULL)
+        if (ttMove)
         {
             if (ttValue >= beta)
             {
@@ -888,7 +888,7 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
-                nullCut = true;
+                return nullValue;
             }
         }
 
@@ -897,7 +897,7 @@ namespace {
             if ( !ss->ttHit)
                 tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
                             BOUND_LOWER,
-                            depth, MOVE_NULL, ss->staticEval);
+                            depth, MOVE_NONE, ss->staticEval);
             return nullValue;
         }
     }
