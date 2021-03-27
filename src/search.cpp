@@ -699,7 +699,7 @@ namespace {
                             : (tte->bound() & BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
-        if (ttMove)
+        if (ttMove && ttMove != MOVE_NULL)
         {
             if (ttValue >= beta)
             {
@@ -852,6 +852,8 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        bool nullCut = false;
+
         // Null move dynamic reduction based on depth and value
         Depth R = (1062 + 68 * depth) / 256 + std::min(int(eval - beta) / 190, 3);
 
@@ -860,7 +862,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, true);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -871,8 +873,9 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-                return nullValue;
-
+                nullCut = true;
+            else 
+            {
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
             // Do verification search at high depths, with null move pruning disabled
@@ -885,7 +888,17 @@ namespace {
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
-                return nullValue;
+                nullCut = true;
+            }
+        }
+
+        if (nullCut)
+        {
+            if ( !ss->ttHit)
+                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth, MOVE_NULL, ss->staticEval);
+            return nullValue;
         }
     }
 
