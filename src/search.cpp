@@ -1006,6 +1006,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    int quietLmrPass = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1118,7 +1119,6 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          && (!cutNode || ttValue >= beta - 34 * depth)
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
@@ -1279,6 +1279,9 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
+
+              if (quietLmrPass > 3)
+                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
@@ -1291,6 +1294,8 @@ moves_loop: // When in check, search starts from here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
+          if (!captureOrPromotion && value > alpha)
+              quietLmrPass++;
       }
       else
       {
