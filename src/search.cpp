@@ -1281,7 +1281,7 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
 
               if (quietLmrPass > 3)
-                  r++;
+                  r--;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
