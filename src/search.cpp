@@ -1006,7 +1006,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    int quietLmrPass = 0;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1107,6 +1106,8 @@ moves_loop: // When in check, search starts from here
 
       // Step 14. Extensions (~75 Elo)
 
+      if (    move == ttMove || !cutNode)
+      {
       // Singular extension search (~70 Elo). If all moves but one fail low on a
       // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
       // then that move is singular and should be extended. To verify this we do
@@ -1164,6 +1165,7 @@ moves_loop: // When in check, search starts from here
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
+      }
 
       // Add extension to new depth
       newDepth += extension;
@@ -1279,9 +1281,6 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
-
-              if (quietLmrPass > 3)
-                  r--;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
@@ -1294,8 +1293,6 @@ moves_loop: // When in check, search starts from here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           didLMR = true;
-          if (!captureOrPromotion && value > alpha)
-              quietLmrPass++;
       }
       else
       {
