@@ -1155,7 +1155,9 @@ moves_loop: // When in check, search starts from here
       }
 
       // Check extension (~2 Elo)
-      else if (    givesCheck
+      else if (!cutNode || formerPv)
+      {
+      if (    givesCheck
                && (pos.is_discovered_check_on_king(~us, move) || pos.see_ge(move)))
           extension = 1;
 
@@ -1163,6 +1165,7 @@ moves_loop: // When in check, search starts from here
       else if (   PieceValue[EG][pos.captured_piece()] > PawnValueEg
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
+      }
 
       // Add extension to new depth
       newDepth += extension;
