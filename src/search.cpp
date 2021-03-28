@@ -839,6 +839,14 @@ namespace {
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
+    if (   !PvNode
+        && ss->ttHit
+        && (tte->bound() & BOUND_UPPER)
+        && tte->depth() == depth - 1
+        && ttValue < alpha - 5821
+        && ttValue > -VALUE_KNOWN_WIN)
+        return ttValue;
+
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1766,11 +1774,8 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
-        bool goodCapt = ss->staticEval + PieceValue[EG][captured] * 2 < bestValue;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << (goodCapt ? std::max(stat_bonus(depth + 2), bonus1) : bonus1);
-    }
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
