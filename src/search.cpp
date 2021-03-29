@@ -609,7 +609,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    bool ttQueenWin;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -990,8 +989,6 @@ moves_loop: // When in check, search starts from here
        )
         return probCutBeta;
 
-    ttQueenWin = ttCapture && pos.see_ge(ttMove, QueenValueMg);
-
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1195,7 +1192,6 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || ttQueenWin
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
@@ -1637,6 +1633,11 @@ moves_loop: // When in check, search starts from here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
+          continue;
+
+      if (  !givesCheck && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && captureOrPromotion
+         && moveCount > 2
+         && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
       // Make and search the move
