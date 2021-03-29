@@ -1050,7 +1050,6 @@ moves_loop: // When in check, search starts from here
       bool likelyFailLow =    PvNode
                            && ttMove
                            && (tte->bound() & BOUND_UPPER)
-                           && ttValue < beta
                            && ttValue < alpha + 200 + 100 * depth
                            && tte->depth() >= depth;
 
@@ -1822,10 +1821,11 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
+    Square prevSq = to_sq((ss-1)->currentMove);
     // Update countermove history
-    if (is_ok((ss-1)->currentMove))
+    if (is_ok((ss-1)->currentMove) && (!ss->inCheck || type_of(pos.moved_piece(move)) == KING || !thisThread->counterMoves[pos.piece_on(prevSq)][prevSq]))
     {
-        Square prevSq = to_sq((ss-1)->currentMove);
+
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 
