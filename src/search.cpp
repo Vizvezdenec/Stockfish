@@ -889,7 +889,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 199 - 44 * improving + 60 * ss->ttPv;
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] + 200 * rootNode <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
