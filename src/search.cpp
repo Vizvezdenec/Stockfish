@@ -717,6 +717,11 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                if (ttMove == ss->killers[0] && ss->killers[1])
+                {
+                    ss->killers[0] = ss->killers[1];
+                    ss->killers[1] = ttMove;
+                }
             }
         }
 
@@ -1630,17 +1635,9 @@ moves_loop: // When in check, search starts from here
 
       // CounterMove based pruning
       if (  !captureOrPromotion
-          && !ss->inCheck
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
-          continue;
-
-      if (  !captureOrPromotion
-          && ss->inCheck
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
-          && thisThread->mainHistory[pos.side_to_move()][from_to(move)] < CounterMovePruneThreshold)
           continue;
 
       // Make and search the move
