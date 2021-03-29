@@ -1082,6 +1082,11 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
+              if (   lmrDepth < 3
+                  && ss->inCheck
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1151,29 +1156,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
-      }
-
-      else if (depth >= 9
-            && captureOrPromotion 
-            && moveCount == 1 
-            && !rootNode 
-            && PvNode
-            && !ttMove
-            && !excludedMove)
-      {
-          pos.do_move(move, st, givesCheck);
-          Value singValue = -search<NonPV>(pos, ss+1, -beta, -beta + 1, depth - 4, true);
-          pos.undo_move(move);
-          if (singValue >= beta)
-          {
-              Depth singularDepth = depth / 2;
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value < beta)
-                  extension = 1;
-              else return beta;
           }
       }
 
