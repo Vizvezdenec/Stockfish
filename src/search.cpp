@@ -1050,6 +1050,7 @@ moves_loop: // When in check, search starts from here
       bool likelyFailLow =    PvNode
                            && ttMove
                            && (tte->bound() & BOUND_UPPER)
+                           && ttValue < beta
                            && ttValue < alpha + 200 + 100 * depth
                            && tte->depth() >= depth;
 
@@ -1084,15 +1085,8 @@ moves_loop: // When in check, search starts from here
           {
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
-                  && !ss->inCheck
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
-              if (   lmrDepth < 3
-                  && ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
