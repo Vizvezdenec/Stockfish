@@ -1253,7 +1253,7 @@ moves_loop: // When in check, search starts from here
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
               // hence break reverse_move() (~2 Elo)
-              else if (    type_of(move) == NORMAL
+              else if (    type_of(move) == NORMAL && ss->ttPv
                        && !pos.see_ge(reverse_move(move)))
                   r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
@@ -1793,7 +1793,7 @@ moves_loop: // When in check, search starts from here
     for (int i : {1, 2, 4, 6})
     {
         // Only update first 2 continuation histories if we are in check
-        if (ss->inCheck && i > 2 - (type_of(pc) == KING))
+        if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
