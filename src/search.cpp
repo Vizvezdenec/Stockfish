@@ -1188,6 +1188,7 @@ moves_loop: // When in check, search starts from here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
@@ -1821,11 +1822,10 @@ moves_loop: // When in check, search starts from here
     if (type_of(pos.moved_piece(move)) != PAWN)
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
-    Square prevSq = to_sq((ss-1)->currentMove);
     // Update countermove history
-    if (is_ok((ss-1)->currentMove) && (!ss->inCheck || type_of(pos.moved_piece(move)) == KING || !thisThread->counterMoves[pos.piece_on(prevSq)][prevSq]))
+    if (is_ok((ss-1)->currentMove))
     {
-
+        Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 
