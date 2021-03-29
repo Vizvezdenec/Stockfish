@@ -609,6 +609,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    bool ttQueenWin;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -989,6 +990,8 @@ moves_loop: // When in check, search starts from here
        )
         return probCutBeta;
 
+    ttQueenWin = ttCapture && pos.see_ge(ttMove, QueenValueMg);
+
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1082,11 +1085,6 @@ moves_loop: // When in check, search starts from here
           }
           else
           {
-              if (   lmrDepth < 3
-                  && ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
               // Countermoves based pruning (~20 Elo)
               if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
@@ -1197,6 +1195,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
+              || ttQueenWin
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
       {
