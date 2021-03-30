@@ -1213,7 +1213,8 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
-              && thisThread->bestMoveChanges <= thisThread->rootDepth / 4)
+              && thisThread->rootDepth > 10
+              && thisThread->bestMoveChanges <= 2)
               r++;
 
           // More reductions for late moves if position was not in previous PV
@@ -1765,8 +1766,15 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-        // Increase stats for the best move in case it was a capture move
+    {
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        int penalty = -stat_bonus(depth) / 4;
+        for (int i = 0; i < quietCount; ++i)
+        {
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << penalty;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), penalty);
+        }
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
