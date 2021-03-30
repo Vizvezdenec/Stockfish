@@ -1088,12 +1088,6 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (   lmrDepth < 3
-                  && ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1836,7 +1830,11 @@ moves_loop: // When in check, search starts from here
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)
+    {
         thisThread->lowPlyHistory[ss->ply][from_to(move)] << stat_bonus(depth - 7);
+        if (type_of(pos.moved_piece(move)) != PAWN)
+            thisThread->lowPlyHistory[ss->ply][from_to(reverse_move(move))] << -stat_bonus(depth - 9);
+    }
   }
 
   // When playing with strength handicap, choose best move among a set of RootMoves
