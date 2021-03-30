@@ -832,9 +832,6 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (rootNode && thisThread->failedHighCnt > 0)
-        improving = true;
-
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
@@ -1281,6 +1278,8 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
+
+              r -= thisThread->lmrHistory[us][givesCheck][from_to(move)] / 8192;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But for nodes
@@ -1289,6 +1288,12 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth + ((ss+1)->distanceFromPv <= 4));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!captureOrPromotion)
+          {
+              int bonus = value > alpha ? stat_bonus(d) : -stat_bonus(d);
+              thisThread->lmrHistory[us][givesCheck][from_to(move)] << bonus;
+          }
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
