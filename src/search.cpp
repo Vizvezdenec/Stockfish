@@ -833,8 +833,8 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     if (   !rootNode
-        && eval < ss->staticEval
-        && ss->staticEval < alpha - 4000
+        && eval <= ss->staticEval
+        && ss->staticEval < alpha - 3000
         && depth > 1)
         depth--;
 
