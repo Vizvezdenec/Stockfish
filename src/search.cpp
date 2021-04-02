@@ -655,7 +655,6 @@ namespace {
     (ss+1)->ttPv = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
-    ss->failedExt = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -832,6 +831,12 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
+
+    if (   !rootNode
+        && eval < ss->staticEval
+        && ss->staticEval < alpha - 2000
+        && depth > 1)
+        depth--;
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
@@ -1114,7 +1119,6 @@ moves_loop: // When in check, search starts from here
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (    depth >= 7
           &&  move == ttMove
-          &&  move != (ss-2)->failedExt
           && !rootNode
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1140,10 +1144,7 @@ moves_loop: // When in check, search starts from here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else
-          {
-          ss->failedExt = move;
-          if (singularBeta >= beta)
+          else if (singularBeta >= beta)
               return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is another
@@ -1156,7 +1157,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-          }
           }
       }
 
