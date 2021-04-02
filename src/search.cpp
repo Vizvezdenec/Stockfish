@@ -834,7 +834,7 @@ namespace {
 
     if (   !rootNode
         && eval < ss->staticEval
-        && ss->staticEval < alpha - 3000
+        && ss->staticEval < alpha - 4000
         && depth > 1)
         depth--;
 
