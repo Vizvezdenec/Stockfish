@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts from here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1 + !pos.pieces(PAWN)
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1090,6 +1090,7 @@ moves_loop: // When in check, search starts from here
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
+                  && lmrDepth < newDepth
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
