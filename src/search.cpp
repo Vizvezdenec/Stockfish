@@ -1031,6 +1031,8 @@ moves_loop: // When in check, search starts from here
       if (!rootNode && !pos.legal(move))
           continue;
 
+      bool firstExt = false;
+
       ss->moveCount = ++moveCount;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
@@ -1164,6 +1166,14 @@ moves_loop: // When in check, search starts from here
                && pos.non_pawn_material() <= 2 * RookValueMg)
           extension = 1;
 
+      else if (    moveCount == 1 && !PvNode && !captureOrPromotion 
+               &&  thisThread->mainHistory[us][from_to(move)]
+                 + (*contHist[0])[movedPiece][to_sq(move)]
+                 + (*contHist[1])[movedPiece][to_sq(move)]
+                 + (*contHist[3])[movedPiece][to_sq(move)] > 55000)
+          firstExt = true;
+               
+
       // Add extension to new depth
       newDepth += extension;
 
@@ -1248,7 +1258,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 2 + (bestValue <= alpha - PawnValueMg);
+                  r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
@@ -1300,7 +1310,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + firstExt, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
