@@ -609,6 +609,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    ss->nullMoveSearch = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -655,7 +656,6 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
-    ss->probCut = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -817,15 +817,15 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    if ((ss-1)->nullMoveSearch && eval > ss->staticEval)
+        return beta;
+
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
-
-    if ((ss-1)->probCut && ss->staticEval >= beta)
-        return beta;
 
     // Set up improving flag that is used in various pruning heuristics
     // We define position as improving if static evaluation of position is better
@@ -863,7 +863,11 @@ namespace {
 
         pos.do_null_move(st);
 
+        ss->nullMoveSearch = true;
+
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+
+        ss->nullMoveSearch = false;
 
         pos.undo_null_move();
 
@@ -944,11 +948,12 @@ namespace {
 
                 pos.do_move(move, st);
 
-                ss->probCut = true;
+                // Perform a preliminary qsearch to verify that the move holds
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-
-                ss->probCut = false;
+                // If the qsearch held, perform the regular search
+                if (value >= probCutBeta)
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
