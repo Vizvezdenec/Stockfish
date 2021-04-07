@@ -824,6 +824,9 @@ namespace {
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
+    if ((ss-1)->probCut && ss->staticEval >= beta)
+        return beta;
+
     // Set up improving flag that is used in various pruning heuristics
     // We define position as improving if static evaluation of position is better
     // Than the previous static evaluation at our turn
@@ -942,13 +945,10 @@ namespace {
                 pos.do_move(move, st);
 
                 ss->probCut = true;
-                // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-                ss->probCut = false;
 
-                // If the qsearch held, perform the regular search
-                if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
+                ss->probCut = false;
 
                 pos.undo_move(move);
 
@@ -1558,9 +1558,6 @@ moves_loop: // When in check, search starts from here
 
         futilityBase = bestValue + 155;
     }
-
-    if ((ss-1)->probCut && ss->staticEval >= beta)
-        return beta;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
