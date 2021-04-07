@@ -817,7 +817,7 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if ((ss-1)->nullMoveSearch && eval > ss->staticEval)
+    if ((ss-1)->nullMoveSearch && eval > ss->staticEval && ss->staticEval >= beta)
         return beta;
 
     // Use static evaluation difference to improve quiet move ordering
