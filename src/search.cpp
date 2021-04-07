@@ -655,6 +655,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
+    ss->probCut = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -940,8 +941,10 @@ namespace {
 
                 pos.do_move(move, st);
 
+                ss->probCut = true;
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+                ss->probCut = false;
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -1225,7 +1228,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
-              r -= 1 + formerPv;
+              r--;
 
           if (captureOrPromotion)
           {
@@ -1555,6 +1558,9 @@ moves_loop: // When in check, search starts from here
 
         futilityBase = bestValue + 155;
     }
+
+    if ((ss-1)->probCut && ss->staticEval >= beta)
+        return beta;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
