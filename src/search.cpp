@@ -1030,6 +1030,8 @@ moves_loop: // When in check, search starts from here
       if (!rootNode && !pos.legal(move))
           continue;
 
+      bool pseudoExt = false;
+
       ss->moveCount = ++moveCount;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
@@ -1184,13 +1186,7 @@ moves_loop: // When in check, search starts from here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
-          && (  !captureOrPromotion
-              || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024))
+          &&  moveCount > 1 + 2 * rootNode)
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1282,10 +1278,18 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          if (   !captureOrPromotion
+              || moveCountPruning
+              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || cutNode
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
+              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+              else pseudoExt = d > newDepth;
 
           // If the son is reduced and fails high it will be re-searched at full depth
-          doFullDepthSearch = value > alpha && d < newDepth;
+          doFullDepthSearch = (value > alpha && d < newDepth) || pseudoExt;
           didLMR = true;
       }
       else
@@ -1297,7 +1301,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + pseudoExt, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
