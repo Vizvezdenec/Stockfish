@@ -609,7 +609,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    ss->nullMoveSearch = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -817,9 +816,6 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    if ((ss-1)->nullMoveSearch && eval > ss->staticEval && ss->staticEval >= beta)
-        return beta;
-
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
@@ -863,11 +859,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        ss->nullMoveSearch = true;
-
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
-
-        ss->nullMoveSearch = false;
 
         pos.undo_null_move();
 
@@ -986,6 +978,7 @@ moves_loop: // When in check, search starts from here
     probCutBeta = beta + 400;
     if (   ss->inCheck
         && !PvNode
+        && !formerPv
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
