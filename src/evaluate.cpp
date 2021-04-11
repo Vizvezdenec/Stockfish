@@ -1099,7 +1099,7 @@ Value Eval::evaluate(const Position& pos) {
          bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
                                  && (pos.pieces(PAWN) & KingSide);
          if (!pawnsOnBothFlanks)
-             scale -= 24;
+             scale -= 48;
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
 
