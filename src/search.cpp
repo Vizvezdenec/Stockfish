@@ -1276,7 +1276,7 @@ moves_loop: // When in check, search starts from here
               else
                   r -= ss->statScore / 14790;
 
-              if (thisThread->pvFailHistory[us][from_to(move)] < -10000)
+              if (PvNode && thisThread->pvFailHistory[us][from_to(move)] < -10000)
                   r++;
           }
 
