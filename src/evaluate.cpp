@@ -1096,9 +1096,6 @@ Value Eval::evaluate(const Position& pos) {
                     + material / 32
                     - 4 * pos.rule50_count();
 
-         if (!pos.non_pawn_material())
-             scale += 100;
-
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
 
          if (pos.is_chess960())

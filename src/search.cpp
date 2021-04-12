@@ -1275,6 +1275,9 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
+
+              if (thisThread->pvFailHistory[us][from_to(move)] < -10000)
+                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
@@ -1319,6 +1322,9 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
+
+          if (moveCount != 1 && !captureOrPromotion && value <= alpha)
+              thisThread->pvFailHistory[us][from_to(move)] << -stat_bonus(depth);
       }
 
       // Step 18. Undo move
