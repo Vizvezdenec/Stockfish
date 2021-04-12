@@ -1096,10 +1096,8 @@ Value Eval::evaluate(const Position& pos) {
                     + material / 32
                     - 4 * pos.rule50_count();
 
-         bool pawnsOnBothFlanks =   (pos.pieces(PAWN) & QueenSide)
-                                 && (pos.pieces(PAWN) & KingSide);
-         if (!pawnsOnBothFlanks)
-             scale -= 64;
+         if (!pos.non_pawn_material())
+             scale += 67;
 
          Value nnue = NNUE::evaluate(pos) * scale / 1024 + Tempo;
 
