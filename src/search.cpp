@@ -1322,6 +1322,14 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
+
+          if (didLMR && !captureOrPromotion)
+          {
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
+
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+          }
       }
 
       // Step 18. Undo move
