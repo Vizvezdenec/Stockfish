@@ -1044,7 +1044,7 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      bool failedLmr = false;
+      bool lmrStatsAssign = false;
 
       // Indicate PvNodes that will probably fail low if node was searched with non-PV search
       // at depth equal or greater to current depth and result of this search was far below alpha
@@ -1288,17 +1288,16 @@ moves_loop: // When in check, search starts from here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          failedLmr = value <= alpha;
           didLMR = true;
       }
       else
       {
-          doFullDepthSearch = true;
+          doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
-      if (doFullDepthSearch && !PvNode)
+      if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
@@ -1309,13 +1308,15 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+
+              lmrStatsAssign = true;
           }
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && !failedLmr)
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
@@ -1323,13 +1324,8 @@ moves_loop: // When in check, search starts from here
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
 
-          if (didLMR && !captureOrPromotion)
-          {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
-
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-          }
+          if (lmrStatsAssign && value <= alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
