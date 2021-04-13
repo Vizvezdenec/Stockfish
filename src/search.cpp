@@ -1275,9 +1275,6 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
-
-              if (PvNode && thisThread->pvFailHistory[us][from_to(move)] < -10000)
-                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
@@ -1293,7 +1290,7 @@ moves_loop: // When in check, search starts from here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 1 + 2 * rootNode;
           didLMR = false;
       }
 
@@ -1315,16 +1312,13 @@ moves_loop: // When in check, search starts from here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount <= 1 + 2 * rootNode || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-
-          if (moveCount != 1 && !captureOrPromotion && value <= alpha)
-              thisThread->pvFailHistory[us][from_to(move)] << -stat_bonus(depth);
       }
 
       // Step 18. Undo move
