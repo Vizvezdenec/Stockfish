@@ -1044,6 +1044,8 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      bool failedLmr = false;
+
       // Indicate PvNodes that will probably fail low if node was searched with non-PV search
       // at depth equal or greater to current depth and result of this search was far below alpha
       bool likelyFailLow =    PvNode
@@ -1286,16 +1288,17 @@ moves_loop: // When in check, search starts from here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
+          failedLmr = value <= alpha;
           didLMR = true;
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = true;
           didLMR = false;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
-      if (doFullDepthSearch)
+      if (doFullDepthSearch && !PvNode)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
@@ -1312,7 +1315,7 @@ moves_loop: // When in check, search starts from here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && !failedLmr)
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
