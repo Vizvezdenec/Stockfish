@@ -1044,8 +1044,6 @@ moves_loop: // When in check, search starts from here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      bool lmrStatsAssign = false;
-
       // Indicate PvNodes that will probably fail low if node was searched with non-PV search
       // at depth equal or greater to current depth and result of this search was far below alpha
       bool likelyFailLow =    PvNode
@@ -1211,7 +1209,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !PvNode)
+          if (   (rootNode || (!PvNode && ss->ttHit))
               && thisThread->rootDepth > 10
               && thisThread->bestMoveChanges <= 2)
               r++;
@@ -1308,8 +1306,6 @@ moves_loop: // When in check, search starts from here
                                         : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-              lmrStatsAssign = true;
           }
       }
 
@@ -1323,9 +1319,6 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-
-          if (lmrStatsAssign && value <= alpha)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
