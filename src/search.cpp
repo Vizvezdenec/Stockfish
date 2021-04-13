@@ -1209,7 +1209,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   ((PvNode && ss->ttHit) || !PvNode)
+          if (   ss->ttHit
               && thisThread->rootDepth > 10
               && thisThread->bestMoveChanges <= 2)
               r++;
