@@ -831,9 +831,14 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
+    if (   (ss-1)->currentMove == MOVE_NULL
+        && eval > ss->staticEval
+        && ss->staticEval >= beta)
+        return beta;
+
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9 - (ss-1)->statScore / 32768
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
