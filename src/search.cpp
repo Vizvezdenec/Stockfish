@@ -831,11 +831,6 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (   (ss-1)->currentMove == MOVE_NULL
-        && eval > ss->staticEval
-        && ss->staticEval >= beta)
-        return beta;
-
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
         &&  depth < 9
@@ -1798,7 +1793,7 @@ moves_loop: // When in check, search starts from here
         if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << bonus;
+            (*(ss-i)->continuationHistory)[pc][to] << (i != 6 ? bonus : bonus / 2);
     }
   }
 
