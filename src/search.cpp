@@ -1005,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    PieceType ttType = ttMove ? type_of(pos.moved_piece(ttMove)) : NO_PIECE_TYPE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1158,10 +1159,6 @@ moves_loop: // When in check, search starts from here
                && (pos.is_discovered_check_on_king(~us, move) || pos.see_ge(move)))
           extension = 1;
 
-      else if (    captureOrPromotion && type_of(pos.piece_on(to_sq(move))) != PAWN
-                && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 4)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
 
@@ -1237,6 +1234,8 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+              else if (ttMove && to_sq(move) == to_sq(ttMove) && type_of(movedPiece) != ttType)
                   r++;
 
               // Increase reduction at root if failing high
