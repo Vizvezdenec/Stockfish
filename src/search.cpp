@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
-                  &&  (*contHist[0])[movedPiece][to_sq(move)]
+                  &&  (*contHist[0])[movedPiece][to_sq(move)] * 2
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255)
@@ -1793,7 +1793,7 @@ moves_loop: // When in check, search starts from here
         if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << (i != 6 ? bonus : bonus / 3);
+            (*(ss-i)->continuationHistory)[pc][to] << bonus;
     }
   }
 
