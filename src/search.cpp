@@ -833,7 +833,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9 + ((ss-1)->statScore < -21322)
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1156,6 +1156,10 @@ moves_loop: // When in check, search starts from here
       // Check extension (~2 Elo)
       else if (    givesCheck
                && (pos.is_discovered_check_on_king(~us, move) || pos.see_ge(move)))
+          extension = 1;
+
+      else if (    captureOrPromotion && type_of(pos.piece_on(to_sq(move))) != PAWN
+                && pos.count<ALL_PIECES>() - pos.count<PAWN>() <= 4)
           extension = 1;
 
       // Add extension to new depth
