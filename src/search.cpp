@@ -1280,7 +1280,7 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           if (value <= alpha)
-              ss->statScore = std::min(ss->statScore, 20000);
+              ss->statScore = std::min(ss->statScore, 0);
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
