@@ -606,7 +606,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR, enoughCaptures;
+         ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -1004,7 +1004,9 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = enoughCaptures = false;
+    singularQuietLMR = moveCountPruning = false;
+    bool bestQuiet = false;
+    Move bqm = MOVE_NONE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1062,7 +1064,6 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          enoughCaptures = captureCount >= futility_move_count(improving, depth) * 3 / 4;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1183,7 +1184,6 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
-              || enoughCaptures
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
@@ -1367,11 +1367,20 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
+              if (bestQuiet && !(ss+2)->killers[0])
+                  (ss+2)->killers[0] = bqm;
+
+              if (bestQuiet)
+
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
                   alpha = value;
+                  bestQuiet = !captureOrPromotion;
+                  bqm = move;
+              }
               else
               {
                   assert(value >= beta); // Fail high
