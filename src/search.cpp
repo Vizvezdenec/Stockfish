@@ -609,18 +609,21 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    ss->checkSet = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
+    ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
-    if ((ss-1)->checkSet == false)
-        ss->inCheck    = pos.checkers();
+    if (rootNode)
+    {
+        thisThread->betaa = beta;
+        thisThread->rootColor = us;
+    }
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -861,12 +864,8 @@ namespace {
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
-        ss->checkSet = true;
-        (ss+1)->inCheck = false;
 
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
-
-        ss->checkSet = false;
 
         pos.undo_null_move();
 
@@ -1181,9 +1180,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      ss->checkSet = true;
-      (ss+1)->inCheck = givesCheck;
-
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1325,11 +1321,17 @@ moves_loop: // When in check, search starts from here
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
+      else if (PvNode && value >= beta && us == thisThread->rootColor && value >= thisThread->betaa)
+      {
+          (ss+1)->pv = pv;
+          (ss+1)->pv[0] = MOVE_NONE;
+
+          value = -search<PV>(pos, ss+1, -thisThread->betaa, -alpha,
+                              std::min(maxNextDepth, newDepth), false);
+      }
 
       // Step 18. Undo move
       pos.undo_move(move);
-
-      ss->checkSet = false;
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
