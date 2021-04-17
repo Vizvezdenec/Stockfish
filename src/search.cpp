@@ -1130,7 +1130,6 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              ss->statScore = 0;
           }
 
           // Multi-cut pruning
@@ -1260,7 +1259,7 @@ moves_loop: // When in check, search starts from here
               if (ss->statScore >= -89 && (ss-1)->statScore < -116)
                   r--;
 
-              else if ((ss-1)->statScore >= -112 && ss->statScore < -100)
+              else if (((ss-1)->statScore >= -112 || (ss-1)->moveCount == 1) && ss->statScore < -100)
                   r++;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
