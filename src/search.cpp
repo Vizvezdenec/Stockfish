@@ -606,7 +606,7 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool formerPv, givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, enoughCaptures;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
 
@@ -1004,7 +1004,7 @@ moves_loop: // When in check, search starts from here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = enoughCaptures = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1062,6 +1062,7 @@ moves_loop: // When in check, search starts from here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          enoughCaptures = captureCount >= futility_move_count(improving, depth) / 2;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1091,10 +1092,10 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
-                  && ((*contHist[0])[movedPiece][to_sq(move)]
+                  &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255 || (*contHist[0])[movedPiece][to_sq(move)] < 0))
+                    + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1182,6 +1183,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || moveCountPruning
+              || enoughCaptures
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
