@@ -1088,7 +1088,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   lmrDepth < 1
-                  && (ss-1)->statScore > 70000
+                  && (ss-1)->statScore > 82752
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
