@@ -1130,6 +1130,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              ss->statScore = 0;
           }
 
           // Multi-cut pruning
