@@ -1005,8 +1005,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    bool bestQuiet = false;
-    Move bqm = MOVE_NONE;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1277,7 +1275,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 + rootNode));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1367,26 +1365,11 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (bestQuiet)
-              { 
-                  if (!(ss+2)->killers[0])
-                      (ss+2)->killers[0] = bqm;
-                  else if (!(ss+2)->killers[1])
-                      (ss+2)->killers[1] = bqm;
-              }
-              
-
-              if (bestQuiet)
-
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
-              {
                   alpha = value;
-                  bestQuiet = !captureOrPromotion;
-                  bqm = move;
-              }
               else
               {
                   assert(value >= beta); // Fail high
