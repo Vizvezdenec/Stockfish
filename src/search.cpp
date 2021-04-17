@@ -1367,8 +1367,14 @@ moves_loop: // When in check, search starts from here
           {
               bestMove = move;
 
-              if (bestQuiet && !(ss+2)->killers[0])
-                  (ss+2)->killers[0] = bqm;
+              if (bestQuiet)
+              { 
+                  if (!(ss+2)->killers[0])
+                      (ss+2)->killers[0] = bqm;
+                  else if (!(ss+2)->killers[1])
+                      (ss+2)->killers[1] = bqm;
+              }
+              
 
               if (bestQuiet)
 
