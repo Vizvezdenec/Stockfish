@@ -619,12 +619,6 @@ namespace {
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
-    if (rootNode)
-    {
-        thisThread->betaa = beta;
-        thisThread->rootColor = us;
-    }
-
     // Check for the available remaining time
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
@@ -1081,6 +1075,11 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   !givesCheck
+                  && lmrDepth < 3
+                  && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 872 + 133 * lmrDepth < alpha)
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1319,14 +1318,6 @@ moves_loop: // When in check, search starts from here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
-      }
-      else if (PvNode && value >= beta && us == thisThread->rootColor && value >= thisThread->betaa)
-      {
-          (ss+1)->pv = pv;
-          (ss+1)->pv[0] = MOVE_NONE;
-
-          value = -search<PV>(pos, ss+1, -thisThread->betaa, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
