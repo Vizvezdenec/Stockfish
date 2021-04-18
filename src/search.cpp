@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts from here
 
       // Step 13. Pruning at shallow depth (~200 Elo)
       if (  !rootNode
-          && pos.non_pawn_material(us)
+          && (pos.non_pawn_material(us) || pos.non_pawn_material(~us) > RookValueMg)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
@@ -1285,7 +1285,7 @@ moves_loop: // When in check, search starts from here
       }
       else
       {
-          doFullDepthSearch = (!PvNode || moveCount > 1) && !rootNode;
+          doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
 
