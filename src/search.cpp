@@ -1076,7 +1076,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   !givesCheck
-                  && lmrDepth < 3
+                  && depth < 3
                   && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 872 + 333 * lmrDepth < alpha)
                   continue;
 
