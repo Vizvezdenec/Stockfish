@@ -1076,8 +1076,8 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   !givesCheck
-                  && depth < 4
-                  && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 1282 * depth < alpha)
+                  && depth < 2
+                  && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 782 < alpha)
                   continue;
 
               // SEE based pruning
