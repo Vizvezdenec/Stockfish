@@ -1222,7 +1222,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (!pos.non_pawn_material(us))
+          if (!pos.non_pawn_material(~us))
               r--;
 
           if (captureOrPromotion)
