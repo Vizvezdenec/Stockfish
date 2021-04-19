@@ -1064,7 +1064,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - th.marked(), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1240,7 +1240,7 @@ moves_loop: // When in check, search starts from here
 
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
-                  r += 3 - 2 * formerPv;
+                  r += 2;
 
               // Decrease reduction for moves that escape a capture. Filter out
               // castling moves, because they are coded as "king captures rook" and
