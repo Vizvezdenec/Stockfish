@@ -1064,7 +1064,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - th.marked(), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1082,7 +1082,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth + th.marked() < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1275,7 +1275,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && depth >= 7));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
