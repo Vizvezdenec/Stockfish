@@ -1228,6 +1228,9 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
+
+              if (PvNode && PieceValue[MG][pos.captured_piece()] > 4 * (beta - alpha))
+                  r--;
           }
           else
           {
@@ -1270,9 +1273,6 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
-
-              if ((ss-1)->statScore > 68000 && (*contHist[0])[movedPiece][to_sq(move)] < -20000)
-                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
