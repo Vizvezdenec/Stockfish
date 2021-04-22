@@ -969,8 +969,7 @@ namespace {
         && !ttMove)
         depth -= (depth >= 6) ? 2 : 1;
 
-    if (depth <= 0)
-        return qsearch<NT>(pos, ss, alpha, beta);
+    depth = std::max(depth, 1);
 
 moves_loop: // When in check, search starts from here
 
