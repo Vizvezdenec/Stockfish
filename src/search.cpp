@@ -968,7 +968,7 @@ moves_loop: // When in check, search starts from here
 
     if (   PvNode
         && !ttMove)
-        depth--;
+        depth -= 2;
 
     if (depth <= 0)
         return qsearch<NT>(pos, ss, alpha, beta);
