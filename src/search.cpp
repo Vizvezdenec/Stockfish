@@ -966,9 +966,11 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
         && !ttMove)
-        depth -= 2;
+        depth--;
+
+    if (depth <= 0)
+        return qsearch<NT>(pos, ss, alpha, beta);
 
 moves_loop: // When in check, search starts from here
 
