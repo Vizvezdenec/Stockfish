@@ -1271,7 +1271,7 @@ moves_loop: // When in check, search starts from here
               else
                   r -= ss->statScore / 14790;
 
-              if ((ss-1)->statScore > 58000 && (*contHist[0])[movedPiece][to_sq(move)] < 0)
+              if ((ss-1)->statScore > 68000 && (*contHist[0])[movedPiece][to_sq(move)] < -20000)
                   r++;
           }
 
