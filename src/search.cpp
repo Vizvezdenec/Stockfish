@@ -1228,9 +1228,6 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-              if (PvNode && PieceValue[MG][pos.captured_piece()] > 4 * (beta - alpha))
-                  r--;
           }
           else
           {
@@ -1310,7 +1307,7 @@ moves_loop: // When in check, search starts from here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (ss->ply < thisThread->rootDepth / 2 || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
