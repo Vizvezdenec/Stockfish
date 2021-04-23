@@ -1075,13 +1075,6 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              if (   !givesCheck
-                  && !ss->inCheck
-                  && lmrDepth < 7
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                  && ss->staticEval + 366 + 247 * lmrDepth <= alpha)
-                  continue;
-
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1282,6 +1275,14 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
+          if (    newDepth - r < 0 && !captureOrPromotion 
+              && (*contHist[0])[movedPiece][to_sq(move)] < 0 
+              && (*contHist[1])[movedPiece][to_sq(move)] < 0)
+          {
+              pos.undo_move(move);
+              continue;
+          }
+
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
