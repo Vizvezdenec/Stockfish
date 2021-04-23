@@ -967,11 +967,9 @@ namespace {
 moves_loop: // When in check, search starts from here
 
     if (   PvNode
+        && depth >= 3
         && !ttMove)
-        depth -= depth >= 9 ? 2 : 1;
-
-    if (depth <= 0)
-        return qsearch<NT>(pos, ss, alpha, beta);
+        depth -= depth >= 7 ? 2 : 1;
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
