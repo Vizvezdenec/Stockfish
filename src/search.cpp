@@ -1280,6 +1280,8 @@ moves_loop: // When in check, search starts from here
               && (*contHist[1])[movedPiece][to_sq(move)] < 0)
           {
               pos.undo_move(move);
+              if (quietCount < 64)
+                  quietsSearched[quietCount++] = move;
               continue;
           }
 
