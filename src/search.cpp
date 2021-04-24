@@ -1272,10 +1272,18 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
+          if (    newDepth - r < 0 && !captureOrPromotion && !givesCheck && !ss->inCheck
+              && (*contHist[0])[movedPiece][to_sq(move)] < 0 
+              && (*contHist[1])[movedPiece][to_sq(move)] < 0)
+          {
+              pos.undo_move(move);
+              continue;
+          }
+
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1 - (newDepth - r < -2), newDepth + (r < -1 && moveCount <= 5));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
