@@ -1064,7 +1064,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - th.marked() * !captureOrPromotion, 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1128,7 +1128,7 @@ moves_loop: // When in check, search starts from here
 
           if (value < singularBeta)
           {
-              extension = 1;
+              extension = PvNode && value < singularBeta - 140 ? 2 : 1;
               singularQuietLMR = !ttCapture;
           }
 
