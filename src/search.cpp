@@ -1064,7 +1064,7 @@ moves_loop: // When in check, search starts from here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount) - th.marked() * !captureOrPromotion, 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1270,14 +1270,6 @@ moves_loop: // When in check, search starts from here
                      + (*contHist[0])[movedPiece][to_sq(move)] - 3833) / 16384;
               else
                   r -= ss->statScore / 14790;
-          }
-
-          if (    newDepth - r < 0 && !captureOrPromotion && !givesCheck && !ss->inCheck
-              && (*contHist[0])[movedPiece][to_sq(move)] < 0 
-              && (*contHist[1])[movedPiece][to_sq(move)] < 0)
-          {
-              pos.undo_move(move);
-              continue;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
