@@ -959,7 +959,7 @@ namespace {
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
                     if (value > probCutBeta + 400)
-                        captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
+                        captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
             }
