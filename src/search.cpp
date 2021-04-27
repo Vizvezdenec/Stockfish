@@ -847,7 +847,6 @@ namespace {
         &&  ss->staticEval >= beta - 24 * depth - 34 * improving + 162 * ss->ttPv + 159
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && (ss->ply >= 2 || thisThread->id() % 8 != 7)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -965,13 +964,12 @@ namespace {
          ss->ttPv = ttPv;
     }
 
+moves_loop: // When in check, search starts from here
+
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
         && !ttMove)
-        depth -= 2;
-
-moves_loop: // When in check, search starts from here
+        depth -= depth >= 11 ? 2 : depth >= 3 ? 1 : 0;
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
