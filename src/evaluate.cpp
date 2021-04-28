@@ -1115,7 +1115,7 @@ Value Eval::evaluate(const Position& pos) {
       // One critical case is the draw for bishop + A/H file pawn vs naked king.
       bool lowPieceEndgame =   pos.non_pawn_material() == BishopValueMg
                             || (pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2)
-                            || pos.count<QUEEN>() > 2;
+                            || pos.count<QUEEN>() > 3;
 
       v = classical || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value() 
                                        : adjusted_NNUE();
@@ -1133,7 +1133,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (100 - pos.rule50_count()) / 100;
+  v = v * (100 - pos.rule50_count()) / 100;	
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
