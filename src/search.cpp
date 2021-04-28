@@ -964,12 +964,13 @@ namespace {
          ss->ttPv = ttPv;
     }
 
-    moves_loop: // When in check, search starts from here
-
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
+        && depth >= thisThread->rootDepth / 3
         && !ttMove)
-        depth -= depth > 11 ? 3 : depth > 3 ? 2 : depth - 1;
+        depth = std::max(1, depth - 2);
+
+moves_loop: // When in check, search starts from here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
