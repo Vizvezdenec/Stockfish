@@ -968,9 +968,8 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
         && !ttMove)
-        depth -= depth > 11 ? 3 : 2;
+        depth -= depth > 11 ? 3 : depth > 3 ? 2 : depth - 1;
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
