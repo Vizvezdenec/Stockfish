@@ -966,7 +966,7 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= thisThread->rootDepth / 2
+        && depth >= thisThread->rootDepth / 4
         && !ttMove)
         depth = std::max(1, depth - 2);
 
