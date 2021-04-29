@@ -690,7 +690,7 @@ namespace {
                                 + TtHitAverageResolution * ss->ttHit;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  (!PvNode || (!rootNode && depth <= 5 && ttValue >= beta))
+    if (  !PvNode
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -966,9 +966,9 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= 6
+        && depth >= thisThread->rootDepth / 2
         && !ttMove)
-        depth -= 2;
+        depth = std::max(1, depth - 2);
 
 moves_loop: // When in check, search starts from here
 
