@@ -423,7 +423,7 @@ void Thread::search() {
           failedHighCnt = 0;
           while (true)
           {
-              Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
+              Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - (failedHighCnt > 2) - searchAgainCounter);
               bestValue = Stockfish::search<PV>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
               // Bring the best move to the front. It is critical that sorting
@@ -964,13 +964,13 @@ namespace {
          ss->ttPv = ttPv;
     }
 
-moves_loop: // When in check, search starts from here
-
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
-        && depth >= thisThread->rootDepth / 3
+        && depth >= 6
         && !ttMove)
-        depth = std::max(1, depth - 2);
+        depth -= 2;
+
+moves_loop: // When in check, search starts from here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
