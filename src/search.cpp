@@ -1009,12 +1009,6 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
-      // Indicate PvNodes that will probably fail low if node was searched with non-PV search
-      // at depth equal or greater to current depth and result of this search was far below alpha
-      bool likelyFailLow =    PvNode
-                           && (tte->bound() & BOUND_UPPER)
-                           && tte->depth() >= depth;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1049,6 +1043,14 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+
+      // Indicate PvNodes that will probably fail low if node was searched with non-PV search
+      // at depth equal or greater to current depth and result of this search was far below alpha
+      bool likelyFailLow =    PvNode
+                           && ttMove
+                           && (tte->bound() & BOUND_UPPER)
+                           && ttValue < alpha + 200 + 100 * depth
+                           && tte->depth() >= depth;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1279,6 +1281,9 @@ moves_loop: // When in check, search starts from here
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (d > newDepth && value > alpha)
+              newDepth = d;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
