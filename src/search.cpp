@@ -1046,11 +1046,11 @@ moves_loop: // When in check, search starts from here
 
       // Indicate PvNodes that will probably fail low if node was searched with non-PV search
       // at depth equal or greater to current depth and result of this search was far below alpha
-      bool likelyFailLow =    PvNode
+      ss->ttPv &=         !(PvNode
                            && ttMove
                            && (tte->bound() & BOUND_UPPER)
                            && ttValue < alpha + 200 + 100 * depth
-                           && tte->depth() >= depth;
+                           && tte->depth() >= depth);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1202,8 +1202,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
-          if (   ss->ttPv
-              && !likelyFailLow)
+          if (   ss->ttPv)
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
@@ -1250,7 +1249,7 @@ moves_loop: // When in check, search starts from here
               // hence break reverse_move() (~2 Elo)
               else if (    type_of(move) == NORMAL
                        && !pos.see_ge(reverse_move(move)))
-                  r -= 2 + (ss->ttPv && !likelyFailLow && !(ttValue <= alpha)) - (type_of(movedPiece) == PAWN);
+                  r -= 2 + ss->ttPv - (type_of(movedPiece) == PAWN);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
