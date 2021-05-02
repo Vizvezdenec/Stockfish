@@ -1626,7 +1626,7 @@ moves_loop: // When in check, search starts from here
           continue;
 
       // Make and search the move
-      bool matWinCheck = givesCheck && pos.see_ge(move);
+      bool matWinCheck = givesCheck && pos.see_ge(move, Value(1));
       pos.do_move(move, st, givesCheck);
       value = -qsearch<NT>(pos, ss+1, -beta, -alpha, depth + matWinCheck - 1);
       pos.undo_move(move);
