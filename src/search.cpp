@@ -1005,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool doubleExt = false;
 
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
@@ -1131,7 +1132,7 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularQuietLMR = !ttCapture;
               if (!PvNode && value < singularBeta - 140)
-                  extension = 2;
+                  extension = 2, doubleExt = true;
           }
 
           // Multi-cut pruning
@@ -1219,6 +1220,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (doubleExt)
+              r++;
 
           if (captureOrPromotion)
           {
@@ -1362,6 +1366,8 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              doubleExt = false;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
@@ -1626,9 +1632,8 @@ moves_loop: // When in check, search starts from here
           continue;
 
       // Make and search the move
-      bool matWinCheck = givesCheck && pos.see_ge(move, PieceValue[MG][pos.piece_on(to_sq(move))]);
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<NT>(pos, ss+1, -beta, -alpha, depth + matWinCheck - 1);
+      value = -qsearch<NT>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
