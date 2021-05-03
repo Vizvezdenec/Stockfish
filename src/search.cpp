@@ -1221,9 +1221,6 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (doubleExt)
-              r++;
-
           if (captureOrPromotion)
           {
               // Increase reduction for non-checking captures likely to be bad
@@ -1235,6 +1232,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
+                  r++;
+
+              if (doubleExt)
                   r++;
 
               // Increase reduction at root if failing high
