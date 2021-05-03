@@ -1234,7 +1234,7 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              if (doubleExt)
+              if (doubleExt && !givesCheck)
                   r++;
 
               // Increase reduction at root if failing high
