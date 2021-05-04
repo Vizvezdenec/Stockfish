@@ -1220,7 +1220,7 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (givesCheck && type_of(movedPiece) != PAWN)
+          if (givesCheck && (type_of(movedPiece) != PAWN || type_of(move) == PROMOTION))
               r--;
 
           if (captureOrPromotion)
