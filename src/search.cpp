@@ -1070,8 +1070,8 @@ moves_loop: // When in check, search starts from here
               || givesCheck)
           {
               // Capture history based pruning when the move doesn't give check
-              if (   !givesCheck
-                  && lmrDepth < 1
+              if (   lmrDepth < 1
+                  && captureOrPromotion
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1269,9 +1269,6 @@ moves_loop: // When in check, search starts from here
               else
                   r -= ss->statScore / 14790;
           }
-
-          if (r > 8)
-              r += thisThread->nodes & 1;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
