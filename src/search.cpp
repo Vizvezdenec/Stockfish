@@ -1270,10 +1270,13 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14790;
           }
 
+          if (r > 7)
+              r += thisThread->nodes & 1;
+
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1 - (r > 5), newDepth + (r < -1 && moveCount <= 5));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
