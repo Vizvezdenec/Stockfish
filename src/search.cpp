@@ -1070,8 +1070,8 @@ moves_loop: // When in check, search starts from here
               || givesCheck)
           {
               // Capture history based pruning when the move doesn't give check
-              if (   lmrDepth < 1
-                  && captureOrPromotion
+              if (   !givesCheck
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1218,6 +1218,9 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (givesCheck && type_of(movedPiece) == QUEEN)
               r--;
 
           if (captureOrPromotion)
