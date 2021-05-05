@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && (!givesCheck || captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678))
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
@@ -1416,6 +1416,9 @@ moves_loop: // When in check, search starts from here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+
+    if (PvNode && depth >= 3 && bestValue == mated_in(ss->ply) && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
     if (PvNode)
