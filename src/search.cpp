@@ -1226,15 +1226,15 @@ moves_loop: // When in check, search starts from here
               if (   !givesCheck
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
-
-          if (givesCheck && type_of(movedPiece) == QUEEN)
-              r--;
           }
           else
           {
               // Increase reduction if ttMove is a capture (~5 Elo)
               if (ttCapture)
                   r++;
+
+              if (givesCheck && type_of(movedPiece) == QUEEN)
+                  r--;
 
               // Increase reduction at root if failing high
               r += rootNode ? thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512 : 0;
