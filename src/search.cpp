@@ -717,8 +717,8 @@ namespace {
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
 
-                if (!priorCapture && depth >= 3)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+                if (!priorCapture && depth >= 6)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth - 5));
             }
         }
 
