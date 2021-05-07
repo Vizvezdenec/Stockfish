@@ -716,9 +716,6 @@ namespace {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-
-                if (!priorCapture && depth >= 8)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth - 7));
             }
         }
 
@@ -1185,7 +1182,9 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
-          && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
+          && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3)
+          && !(    captureOrPromotion && givesCheck && thisThread->id() % 8 == 7 && type_of(movedPiece) == BISHOP
+               && (attacks_bb<KING>(pos.square<KING>(~us)) & to_sq(move))))
       {
           Depth r = reduction(improving, depth, moveCount);
 
