@@ -1182,9 +1182,7 @@ moves_loop: // When in check, search starts from here
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
-          && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3)
-          && !(    captureOrPromotion && givesCheck && thisThread->id() % 8 == 7 && type_of(movedPiece) == BISHOP
-               && (attacks_bb<KING>(pos.square<KING>(~us)) & to_sq(move))))
+          && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
 
@@ -1193,7 +1191,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction if other threads are searching this position
-          if (th.marked())
+          if (th.marked() && !rootNode)
               r++;
 
           // Decrease reduction if position is or has been on the PV
