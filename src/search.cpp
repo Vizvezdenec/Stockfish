@@ -1179,7 +1179,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || !(PvNode || formerPv)
+              || !(PvNode || (formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0))
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
