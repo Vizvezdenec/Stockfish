@@ -1179,8 +1179,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
-              || cutNode
-              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
+              || !(PvNode || formerPv)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
@@ -1191,7 +1190,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction if other threads are searching this position
-          if (th.marked() && !rootNode)
+          if (th.marked())
               r++;
 
           // Decrease reduction if position is or has been on the PV
