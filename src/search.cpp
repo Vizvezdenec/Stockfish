@@ -619,9 +619,6 @@ namespace {
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
-    if (rootNode)
-       ss->mainPvLine = true;
-
     // Check for the available remaining time
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
@@ -1008,6 +1005,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool goodCaptureF = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1053,8 +1051,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      ss->mainPvLine = (rootNode && moveCount == 1) || ((ss-1)->mainPvLine && (ss-1)->moveCount == 1);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1184,6 +1180,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
+              || goodCaptureF
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
@@ -1206,7 +1203,7 @@ moves_loop: // When in check, search starts from here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !PvNode || ss->mainPvLine)
+          if (   (rootNode || !PvNode)
               && thisThread->rootDepth > 10
               && thisThread->bestMoveChanges <= 2)
               r++;
@@ -1366,6 +1363,8 @@ moves_loop: // When in check, search starts from here
           if (value > alpha)
           {
               bestMove = move;
+
+              goodCaptureF |= captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
