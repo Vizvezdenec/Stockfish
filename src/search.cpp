@@ -725,6 +725,16 @@ namespace {
             return ttValue;
     }
 
+    if (    ss->ttHit 
+         && (tte->bound() & BOUND_LOWER) 
+         && ttMove
+         && PvNode 
+         && !rootNode 
+         && tte->depth() > depth 
+         && ttValue >= beta 
+         && pos.rule50_count() < 90)
+         return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1013,11 +1023,6 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool likelyFailHigh =   PvNode
-                         && ttMove
-                         && (tte->bound() & BOUND_LOWER)
-                         && tte->depth() >= depth;
-
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
@@ -1203,7 +1208,7 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~10 Elo)
           if (   ss->ttPv
               && !likelyFailLow)
-              r -= 2 + 2 * likelyFailHigh;
+              r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
