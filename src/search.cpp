@@ -1223,8 +1223,8 @@ moves_loop: // When in check, search starts from here
           if (singularQuietLMR)
               r--;
 
-          if (icNoCapt)
-              r += 2;
+          if (icNoCapt && type_of(movedPiece) != KING)
+              r++;
 
           if (captureOrPromotion)
           {
