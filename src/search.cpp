@@ -1091,8 +1091,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (   lmrDepth < 3 && icNoCapt 
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && thisThread->mainHistory[us][from_to(move)] < CounterMovePruneThreshold)
+                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
