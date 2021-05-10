@@ -725,15 +725,14 @@ namespace {
             return ttValue;
     }
 
-    if (    ss->ttHit 
-         && (tte->bound() & BOUND_LOWER) 
-         && ttMove
-         && PvNode 
-         && !rootNode 
-         && tte->depth() > depth 
-         && ttValue >= beta 
-         && pos.rule50_count() < 90)
-         return ttValue;
+    if (   PvNode
+        && ss->ttHit
+        && tte->depth() > depth
+        && ttValue != VALUE_NONE // Possible in case of TT access race
+        && ttValue > alpha
+        && ttValue < beta
+        && (tte->bound() & BOUND_EXACT))
+        return ttValue;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
