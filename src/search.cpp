@@ -725,15 +725,6 @@ namespace {
             return ttValue;
     }
 
-    if (   PvNode
-        && ss->ttHit
-        && tte->depth() > depth
-        && ttValue != VALUE_NONE // Possible in case of TT access race
-        && ttValue > alpha
-        && ttValue < beta
-        && (tte->bound() & BOUND_EXACT))
-        return ttValue;
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1025,6 +1016,8 @@ moves_loop: // When in check, search starts from here
     // Mark this node as being searched
     ThreadHolding th(thisThread, posKey, ss->ply);
 
+    bool icNoCapt = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1059,6 +1052,8 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+
+      icNoCapt |= ss->inCheck && moveCount == 1 && !captureOrPromotion;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1227,6 +1222,9 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if ttMove has been singularly extended (~3 Elo)
           if (singularQuietLMR)
               r--;
+
+          if (icNoCapt)
+              r++;
 
           if (captureOrPromotion)
           {
