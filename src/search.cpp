@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts from here
                    && type_of(move) == NORMAL
                    && type_of(movedPiece) != PAWN
                    && !pos.see_ge(reverse_move(move)))
-                  r--;
+                  r -= 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
