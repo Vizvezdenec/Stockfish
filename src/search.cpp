@@ -1102,8 +1102,6 @@ moves_loop: // When in check, search starts from here
           }
       }
 
-      bool checkEv = ss->inCheck && moveCount == 1 && !captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] > 20000;
-
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1118,7 +1116,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3 - checkEv)
+          &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - ((formerPv + 4) * depth) / 2;
           Depth singularDepth = (depth - 1 + 3 * formerPv) / 2;
@@ -1412,7 +1410,7 @@ moves_loop: // When in check, search starts from here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (extension == 2));
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
