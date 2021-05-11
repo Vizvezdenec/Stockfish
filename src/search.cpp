@@ -1760,13 +1760,11 @@ moves_loop: // When in check, search starts from here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (!pos.captured_piece())
-    {
-        int bonus = (ss-1)->moveCount == 1 + (ss-1)->ttHit || (ss-1)->moveCount == 2 + (ss-1)->ttHit ? bonus1 :
-                    (ss-1)->moveCount == (ss-1)->ttHit ? 0 :
-                    bonus1 / ((ss-1)->moveCount - (ss-1)->ttHit);
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus);
-    }
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+        && !pos.captured_piece())
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+    else if (pos.captured_piece() && (ss-1)->moveCount == 1 + (ss-1)->ttHit)
+        captureHistory[pos.piece_on(prevSq)][prevSq][pos.captured_piece()] << -bonus1;
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
