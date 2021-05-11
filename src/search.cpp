@@ -1184,7 +1184,7 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2;
 
-              if (    PvNode 
+              if (   (PvNode || formerPv)
                    && type_of(move) == NORMAL
                    && type_of(movedPiece) != PAWN
                    && !pos.see_ge(reverse_move(move)))
