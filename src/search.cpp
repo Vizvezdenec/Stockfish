@@ -1184,6 +1184,12 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2;
 
+              if (    PvNode 
+                   && type_of(move) == NORMAL
+                   && type_of(movedPiece) != PAWN
+                   && !pos.see_ge(reverse_move(move)))
+                  r--;
+
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
