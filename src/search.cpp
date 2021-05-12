@@ -1171,7 +1171,7 @@ moves_loop: // When in check, search starts from here
                   && ss->staticEval + PieceValue[EG][pos.captured_piece()] + 210 * depth <= alpha)
                   r++;
 
-              if (moveCountPruning && cutNode)
+              if (moveCountPruning && cutNode && !formerPv)
                   r++;
           }
           else
