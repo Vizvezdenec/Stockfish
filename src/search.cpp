@@ -1185,10 +1185,11 @@ moves_loop: // When in check, search starts from here
                   r += 2;
 
               if (    PvNode 
+                   && !likelyFailLow
                    && type_of(move) == NORMAL
                    && type_of(movedPiece) != PAWN
                    && !pos.see_ge(reverse_move(move)))
-                  r -= 2;
+                  r--;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
