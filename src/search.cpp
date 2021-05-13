@@ -1176,8 +1176,8 @@ moves_loop: // When in check, search starts from here
               // Increase reduction for cut nodes (~10 Elo)
               if (cutNode)
                   r += 2;
-              else if (!PvNode && !formerPv)
-                  r++;
+              else if (!PvNode && formerPv)
+                  r--;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
