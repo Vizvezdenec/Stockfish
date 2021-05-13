@@ -1334,7 +1334,7 @@ moves_loop: // When in check, search starts from here
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
 
     if (!moveCount)
-        bestValue = excludedMove ? alpha :
+        bestValue = excludedMove ? alpha - 141:
                     ss->inCheck  ? mated_in(ss->ply)
                                  : VALUE_DRAW;
 
@@ -1670,7 +1670,7 @@ moves_loop: // When in check, search starts from here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + 140 ? bonus1                                 // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
