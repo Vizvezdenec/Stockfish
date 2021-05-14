@@ -778,6 +778,8 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - 2 * Tempo), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        if (ss->ply - 1 < MAX_LPH && depth > 10)
+            thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << bonus;
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -1035,7 +1037,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Countermoves based pruning (~20 Elo)
-              if (   lmrDepth < 4 + ((ss-1)->moveCount == 1)
+              if (   lmrDepth < 4 + ((ss-1)->statScore > 0 || (ss-1)->moveCount == 1)
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
