@@ -61,6 +61,9 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV };
 
+  constexpr uint64_t TtHitAverageWindow     = 4096;
+  constexpr uint64_t TtHitAverageResolution = 1024;
+
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(234 * (d - improving));
@@ -304,6 +307,7 @@ void Thread::search() {
       multiPV = std::max(multiPV, (size_t)4);
 
   multiPV = std::min(multiPV, rootMoves.size());
+  ttHitAverage = TtHitAverageWindow * TtHitAverageResolution / 2;
 
   int ct = int(Options["Contempt"]) * PawnValueEg / 100; // From centipawns
 
@@ -638,6 +642,10 @@ namespace {
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
+    // thisThread->ttHitAverage can be used to approximate the running average of ttHit
+    thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
+                                + TtHitAverageResolution * ss->ttHit;
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -781,7 +789,7 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo)
-    if (   !PvNode
+    if (   (!PvNode || ss->ply > 3 * thisThread->rootDepth / 4)
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -1126,10 +1134,15 @@ moves_loop: // When in check, search starts from here
               || moveCountPruning
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678))
+              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
+              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
+
+          // Decrease reduction if the ttHit running average is large
+          if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+              r--;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~10 Elo)
