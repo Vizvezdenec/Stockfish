@@ -613,14 +613,6 @@ namespace {
     (ss+2)->killers[0] = (ss+2)->killers[1] = MOVE_NONE;
     Square prevSq = to_sq((ss-1)->currentMove);
 
-    // Initialize statScore to zero for the grandchildren of the current position.
-    // So statScore is shared between all grandchildren and only the first grandchild
-    // starts with statScore = 0. Later grandchildren start with the last calculated
-    // statScore of the previous grandchild. This influences the reduction rules in
-    // LMR which are based on the statScore of parent position.
-    if (!rootNode)
-        (ss+2)->statScore = 0;
-
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
@@ -798,7 +790,7 @@ namespace {
     // Step 8. Null move search with verification search (~40 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 24185
+        && (ss-1)->moveCount != 2
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 24 * depth - 34 * improving + 162 * ss->ttPv + 159
@@ -1177,7 +1169,7 @@ moves_loop: // When in check, search starts from here
               if (cutNode)
                   r += 2;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+              int history =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1187,7 +1179,7 @@ moves_loop: // When in check, search starts from here
               // If we are not in check use statScore, but if we are in check we use
               // the sum of main history and first continuation history with an offset.
               if (!ss->inCheck)
-                  r -= ss->statScore / 14790;
+                  r -= history / 14790;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
@@ -1291,7 +1283,6 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  ss->statScore = 0;
                   break;
               }
           }
