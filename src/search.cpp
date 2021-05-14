@@ -789,7 +789,7 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo)
-    if (   !PvNode
+    if (   (!PvNode || depth < thisThread->rootDepth - 10)
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
@@ -1135,7 +1135,6 @@ moves_loop: // When in check, search starts from here
               || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
               || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || (PvNode && !ss->ttHit && ss->ply >= thisThread->rootDepth / 2)
               || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
