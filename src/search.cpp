@@ -1097,6 +1097,10 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
+      else if (    givesCheck
+               &&  pos.count<PAWN>() < 8
+               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
+          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
