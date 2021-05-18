@@ -1025,7 +1025,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Continuation history based pruning (~20 Elo)
-              if (   lmrDepth < 4 + thisThread->rootDepth / 16
+              if (   lmrDepth < 4
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1053,7 +1053,7 @@ moves_loop: // When in check, search starts from here
       // then that move is singular and should be extended. To verify this we do
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
-      if (    depth >= 7
+      if (    depth >= 6
           &&  move == ttMove
           && !rootNode
           && !excludedMove // Avoid recursive singular search
