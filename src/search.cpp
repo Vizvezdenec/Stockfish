@@ -1097,10 +1097,6 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
-      else if (    givesCheck
-               &&  pos.count<PAWN>() < 5
-               && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
-          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1125,11 +1121,8 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || moveCountPruning
-              || ss->staticEval + PieceValue[EG][pos.captured_piece()] <= alpha
               || cutNode
-              || (!PvNode && !formerPv && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] < 3678)
-              || thisThread->ttHitAverage < 432 * TtHitAverageResolution * TtHitAverageWindow / 1024)
+              || (!PvNode && !formerPv))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
