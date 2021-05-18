@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts from here
           }
       }
       else if (    givesCheck
-               &&  pos.count<PAWN>() < 8
+               &&  pos.count<PAWN>() < 5
                && (pos.blockers_for_king(~us) & from_sq(move) || pos.see_ge(move)))
           extension = 1;
 
