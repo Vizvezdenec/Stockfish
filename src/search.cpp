@@ -1025,7 +1025,7 @@ moves_loop: // When in check, search starts from here
           else
           {
               // Continuation history based pruning (~20 Elo)
-              if (   lmrDepth < 1 + thisThread->rootDepth / 4
+              if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
@@ -1120,6 +1120,7 @@ moves_loop: // When in check, search starts from here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
+          && !(PvNode && ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] > 21000)
           && (  !captureOrPromotion
               || cutNode
               || (!PvNode && !formerPv))
