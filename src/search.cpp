@@ -1097,6 +1097,8 @@ moves_loop: // When in check, search starts from here
                   return beta;
           }
       }
+      else if (PvNode && givesCheck && type_of(movedPiece) == QUEEN && pos.see_ge(move))
+          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1162,8 +1164,8 @@ moves_loop: // When in check, search starts from here
                   r += thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512;
 
               // Increase reduction for cut nodes (~3 Elo)
-              if (!PvNode)
-                  r += 2 * cutNode + (!cutNode && !givesCheck);
+              if (cutNode)
+                  r += 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
