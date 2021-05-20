@@ -1162,8 +1162,8 @@ moves_loop: // When in check, search starts from here
                   r += thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 512;
 
               // Increase reduction for cut nodes (~3 Elo)
-              if (cutNode)
-                  r += 2;
+              if (!PvNode)
+                  r += 1 + cutNode;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
