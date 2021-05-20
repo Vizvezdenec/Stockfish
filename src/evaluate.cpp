@@ -1120,7 +1120,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale = 903 + 28 * pos.count<PAWN>() + 28 * pos.non_pawn_material() / 1024;
 
          int scaling = std::max(0, int(pos.non_pawn_material() - MidgameLimit)) * 
-                       std::max(distance<Rank>(pos.square<KING>(WHITE), pos.square<KING>(BLACK)), 4);
+                       std::max(distance<File>(pos.square<KING>(WHITE), pos.square<KING>(BLACK)), 4);
     
          Value nnue = NNUE::evaluate(pos) * (scale + scaling / 128) / 1024;
 
