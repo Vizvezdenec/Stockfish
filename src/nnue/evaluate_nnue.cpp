@@ -170,15 +170,17 @@ namespace Stockfish::Eval::NNUE {
       int positional  = output[0];
 
       int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
+      int difference =   std::abs(pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 10
+                       + std::abs(pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 5
+                       + std::abs(pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3
+                       + std::abs(pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 3;
+
+      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg + 18 * difference ? 7 : 0);
 
       int A = 128 - entertainment;
       int B = 128 + entertainment;
 
       int sum = (A * materialist + B * positional) / 128;
-
-      if (sum * positional < 0 && std::abs(sum) <= std::abs(positional) / 32)
-          sum = 0;
 
       return static_cast<Value>( sum / OutputScale );
     }
