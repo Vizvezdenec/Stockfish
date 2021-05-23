@@ -1121,8 +1121,8 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || ((cutNode
-              || (!PvNode && !formerPv)) && (ss-1)->moveCount > 1))
+              || (cutNode && (ss-1)->moveCount > 1)
+              || (!PvNode && !formerPv))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1144,7 +1144,7 @@ moves_loop: // When in check, search starts from here
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 13)
+          if ((ss-1)->moveCount > 13 && (PvNode || captureOrPromotion || formerPv))
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
