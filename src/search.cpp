@@ -850,7 +850,7 @@ namespace {
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   (!PvNode || ss->ply > thisThread->rootDepth)
+    if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -1121,8 +1121,8 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
-              || (!PvNode && !formerPv))
+              || ((cutNode
+              || (!PvNode && !formerPv)) && (ss-1)->moveCount > 1))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
