@@ -922,9 +922,9 @@ moves_loop: // When in check, search starts from here
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409;
+    probCutBeta = beta + 409 + 271 * PvNode;
     if (   ss->inCheck
-        && !PvNode
+        && (ss->ply >= 4)
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -1153,7 +1153,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode)
-              r += 1 + (!captureOrPromotion || !formerPv);
+              r += 1 + !captureOrPromotion;
 
           if (!captureOrPromotion)
           {
