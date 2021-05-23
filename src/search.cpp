@@ -871,7 +871,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && (probCutCount < 2 || (cutNode && !formerPv)))
+               && probCutCount < 2 + (2 + 2 * !formerPv) * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
