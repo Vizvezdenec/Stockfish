@@ -850,7 +850,7 @@ namespace {
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
+    if (   (!PvNode || ss->ply > thisThread->rootDepth)
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -924,7 +924,7 @@ moves_loop: // When in check, search starts from here
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
-        && (!PvNode || ss->ply > thisThread->rootDepth)
+        && !PvNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
