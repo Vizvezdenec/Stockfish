@@ -175,7 +175,7 @@ namespace Stockfish::Eval::NNUE {
                        + std::abs(pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3
                        + std::abs(pos.count<KNIGHT>(WHITE) - pos.count<KNIGHT>(BLACK)) * 3;
 
-      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg + 18 * difference ? 7 : 0);
+      int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg + 8 * difference ? 7 : 0);
 
       int A = 128 - entertainment;
       int B = 128 + entertainment;
