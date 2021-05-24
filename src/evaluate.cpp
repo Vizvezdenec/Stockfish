@@ -1135,10 +1135,10 @@ Value Eval::evaluate(const Position& pos, const bool qsearch) {
 
       // Use classical evaluation for really low piece endgames.
       // One critical case is the draw for bishop + A/H file pawn vs naked king.
-      bool lowPieceEndgame =   qsearch || pos.non_pawn_material() == BishopValueMg
+      bool lowPieceEndgame =   pos.non_pawn_material() == BishopValueMg
                             || (pos.non_pawn_material() < 2 * RookValueMg && pos.count<PAWN>() < 2);
 
-      v = largePsq || lowPieceEndgame ? Evaluation<NO_TRACE>(pos).value()  // classical
+      v = (largePsq || lowPieceEndgame) && !qsearch ? Evaluation<NO_TRACE>(pos).value()  // classical
                                       : adjusted_NNUE();                   // NNUE
 
       // If the classical eval is small and imbalance large, use NNUE nevertheless.
