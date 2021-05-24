@@ -1199,7 +1199,7 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
-          if (didLMR && !captureOrPromotion)
+          if (didLMR && !captureOrPromotion && (!PvNode || value <= alpha))
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1219,8 +1219,8 @@ moves_loop: // When in check, search starts from here
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
 
-          if (doFullDepthSearch && didLMR && !captureOrPromotion && value <= alpha)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
+          if (doFullDepthSearch && didLMR && !captureOrPromotion && value > alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
