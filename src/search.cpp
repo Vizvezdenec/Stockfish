@@ -814,11 +814,16 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
+        Color nmpColorTemp = thisThread->nmpColor1;
+        thisThread->nmpColor1 = us;
+
         pos.do_null_move(st);
 
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
+
+        thisThread->nmpColor1 = nmpColorTemp;
 
         if (nullValue >= beta)
         {
@@ -1159,6 +1164,9 @@ moves_loop: // When in check, search starts from here
           if (cutNode)
               r += 1 + !captureOrPromotion;
 
+          if (us == thisThread->nmpColor1)
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
@@ -1199,7 +1207,7 @@ moves_loop: // When in check, search starts from here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
-          if (didLMR && !captureOrPromotion && (!PvNode || value <= alpha))
+          if (didLMR && !captureOrPromotion)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1218,9 +1226,6 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-
-          if (doFullDepthSearch && didLMR && !captureOrPromotion && value > alpha)
-              update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
