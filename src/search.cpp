@@ -377,7 +377,7 @@ void Thread::search() {
           // Start with a small aspiration window and, in the case of a fail
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
-          failedHighCnt = 0;
+          int failedHighCnt = 0;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -1174,9 +1174,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               if (!ss->inCheck)
                   r -= ss->statScore / 14721;
-
-              if (rootNode && !givesCheck)
-                  r += thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
@@ -1221,6 +1218,9 @@ moves_loop: // When in check, search starts from here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
+
+          if (doFullDepthSearch && didLMR && !captureOrPromotion && value <= alpha)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 18. Undo move
