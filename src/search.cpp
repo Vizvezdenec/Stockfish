@@ -1178,6 +1178,10 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               if (!ss->inCheck)
                   r -= ss->statScore / 14721;
+
+              int pieceCount = pos.count<ALL_PIECES>();
+              if (pieceCount % 2 == 1 && pieceCount > 20)
+                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
