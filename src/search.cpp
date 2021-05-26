@@ -569,6 +569,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    ss->exResearch = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1183,9 +1184,11 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 2 + 6 * PvNode));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && (PvNode || !(ss-1)->exResearch)));
 
+          ss->exResearch = d > newDepth;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          ss->exResearch = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
