@@ -789,7 +789,7 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (rootNode && eval > (ss-2)->staticEval)
+    if (rootNode && eval > ss->staticEval)
         improving = true;
 
     // Step 7. Futility pruning: child node (~50 Elo)
