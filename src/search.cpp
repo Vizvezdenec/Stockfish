@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!PvNode && value < singularBeta - 93 && depth <= thisThread->rootDepth)
+              if (!PvNode && value < singularBeta - 93 && depth < thisThread->rootDepth)
                   extension = 2;
           }
 
