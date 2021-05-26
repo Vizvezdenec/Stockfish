@@ -578,6 +578,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->fds = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1126,7 +1127,7 @@ moves_loop: // When in check, search starts from here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
+              || (cutNode && (ss-1)->fds)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
@@ -1197,7 +1198,9 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
+          ss->fds = true;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          ss->fds = false;
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
