@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts from here
                   r -= ss->statScore / 14721;
 
               int pieceCount = pos.count<ALL_PIECES>();
-              if (pieceCount % 2 == 1 && pieceCount > 24)
+              if (pieceCount % 2 == 1 && pieceCount > 26)
                   r++;
           }
 
