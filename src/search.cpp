@@ -791,7 +791,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 8 + (pos.count<ALL_PIECES>() * 3 / 32)
+        &&  depth < 7 + ((pos.count<ALL_PIECES>() - 1) / 8)
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
