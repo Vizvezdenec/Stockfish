@@ -791,7 +791,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
-        &&  depth < 9
+        &&  depth < 8 + (pos.count<ALL_PIECES>() - 1) / 16
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1178,10 +1178,6 @@ moves_loop: // When in check, search starts from here
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
               if (!ss->inCheck)
                   r -= ss->statScore / 14721;
-
-              int pieceCount = pos.count<ALL_PIECES>();
-              if (pieceCount % 2 == 1 && pieceCount > 26)
-                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
