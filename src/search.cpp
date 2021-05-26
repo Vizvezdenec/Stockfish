@@ -1056,7 +1056,6 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          && !(ss-1)->exResearch
           &&  depth >= 7
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
@@ -1185,7 +1184,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !(ss-1)->exResearch));
 
           ss->exResearch = d > newDepth;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
