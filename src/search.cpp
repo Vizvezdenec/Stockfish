@@ -569,6 +569,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    ss->exResearch = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1055,6 +1056,7 @@ moves_loop: // When in check, search starts from here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
+          && !(ss-1)->exResearch
           &&  depth >= 7
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
@@ -1132,6 +1134,9 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
+          if (PvNode)
+              r--;
+
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
               r--;
@@ -1140,7 +1145,7 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
               && !likelyFailLow)
-              r -= 3;
+              r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
@@ -1182,7 +1187,9 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5));
 
+          ss->exResearch = d > newDepth;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          ss->exResearch = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
