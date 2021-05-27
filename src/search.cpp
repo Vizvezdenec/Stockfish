@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!PvNode && value < singularBeta - 93 && ss->ply > 1)
+              if (!PvNode && value < singularBeta - 93)
                   extension = 2;
           }
 
@@ -1132,7 +1132,7 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          if (PvNode)
+          if (PvNode && ss->ply <= thisThread->rootDepth / 4)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
