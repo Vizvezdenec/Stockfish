@@ -953,6 +953,7 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
+    bool extremeBSS = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1075,7 +1076,10 @@ moves_loop: // When in check, search starts from here
               extension = 1;
               singularQuietLMR = !ttCapture;
               if (!PvNode && value < singularBeta - 93)
+              {
                   extension = 2;
+                  extremeBSS = value < singularBeta - 322;
+              }
           }
 
           // Multi-cut pruning
@@ -1134,8 +1138,6 @@ moves_loop: // When in check, search starts from here
 
           if (PvNode)
               r--;
-          else
-              r += cutNode + !captureOrPromotion;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
@@ -1159,12 +1161,19 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;              
+              r--;
+
+          // Increase reduction for cut nodes (~3 Elo)
+          if (cutNode)
+              r += 1 + !captureOrPromotion;
 
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
+                  r++;
+
+              if (extremeBSS)
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
