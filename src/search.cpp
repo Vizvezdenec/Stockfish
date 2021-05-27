@@ -579,8 +579,6 @@ namespace {
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
-    depth = std::min(depth, thisThread->rootDepth);
-
     // Check for the available remaining time
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
@@ -1076,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!PvNode && value < singularBeta - 93)
+              if (!PvNode && value < singularBeta - 93 && ss->ply > 1)
                   extension = 2;
           }
 
