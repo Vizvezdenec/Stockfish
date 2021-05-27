@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
-              if (!PvNode && value < singularBeta - 93 && ss->ply <= thisThread->rootDepth / 2)
+              if (!PvNode && value < singularBeta - 93)
                   extension = 2;
           }
 
@@ -1134,6 +1134,8 @@ moves_loop: // When in check, search starts from here
 
           if (PvNode)
               r--;
+          else
+              r += cutNode + !captureOrPromotion;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
@@ -1157,11 +1159,7 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;
-
-          // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode)
-              r += 1 + !captureOrPromotion;
+              r--;              
 
           if (!captureOrPromotion)
           {
