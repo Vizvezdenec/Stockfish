@@ -1078,7 +1078,7 @@ moves_loop: // When in check, search starts from here
               if (!PvNode && value < singularBeta - 93)
               {
                   extension = 2;
-                  extremeBSS = ttCapture && value < singularBeta - 322;
+                  extremeBSS = ttCapture && value < singularBeta - 162;
               }
           }
 
