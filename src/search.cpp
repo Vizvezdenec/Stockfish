@@ -1101,6 +1101,8 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else if (value < beta - 128)
+                  extension = 1;
           }
       }
       else if (   givesCheck
