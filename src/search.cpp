@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts from here
               if (   !PvNode
                   && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
-                  extension = 2;
+                  extension = 2, singularQuietLMR = false;
           }
 
           // Multi-cut pruning
@@ -1101,8 +1101,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (value < beta - 128)
-                  extension = 1;
           }
       }
       else if (   givesCheck
