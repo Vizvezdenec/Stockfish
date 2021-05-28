@@ -666,7 +666,7 @@ namespace {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
+                if ((ss-1)->moveCount <= 2 + (ss-1)->ttHit && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
@@ -1679,9 +1679,6 @@ moves_loop: // When in check, search starts from here
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
-
-    else if ((ss-1)->moveCount == (ss-1)->ttHit && !pos.captured_piece())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus2 / 2);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
