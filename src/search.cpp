@@ -1101,6 +1101,9 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
+              else if (   !PvNode
+                  && value < beta - 93)
+                  extension = 1;
           }
       }
       else if (   givesCheck
