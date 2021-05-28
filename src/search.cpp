@@ -1168,10 +1168,7 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
-                  r++;
-
-              if (ss->excludedBreaker)
-                  r += 2;
+                  r += 1 + bool(ss->excludedBreaker);
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
