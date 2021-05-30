@@ -955,6 +955,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
+    bool wasLmrExtension = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1194,6 +1195,7 @@ moves_loop: // When in check, search starts from here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
+          wasLmrExtension |= d > newDepth;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1210,7 +1212,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + (didLMR && wasLmrExtension), !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
