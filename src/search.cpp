@@ -1425,9 +1425,6 @@ moves_loop: // When in check, search starts from here
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
 
-    if (PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE && ttValue >= beta && (tte->bound() & BOUND_LOWER))
-        return ttValue;
-
     // Evaluate the position statically
     if (ss->inCheck)
     {
@@ -1549,6 +1546,9 @@ moves_loop: // When in check, search starts from here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
+      if (PvNode)
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
+      if (!PvNode || value > alpha)
       value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
