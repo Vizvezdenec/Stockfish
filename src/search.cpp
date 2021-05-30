@@ -955,8 +955,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
-
-    Value originalAlpha = alpha;
+    bool ssHardExt = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -999,8 +998,6 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      likelyFailLow |= moveCount > 1 && doubleExtension && bestValue <= originalAlpha;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1080,6 +1077,7 @@ moves_loop: // When in check, search starts from here
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
+              ssHardExt = PvNode && value < singularBeta - 191;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
@@ -1146,7 +1144,7 @@ moves_loop: // When in check, search starts from here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          if (PvNode)
+          if (PvNode && !ssHardExt)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
