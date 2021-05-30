@@ -1425,6 +1425,9 @@ moves_loop: // When in check, search starts from here
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
 
+    if (PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE && ttValue >= beta && (tte->bound() & BOUND_LOWER))
+        return ttValue;
+
     // Evaluate the position statically
     if (ss->inCheck)
     {
