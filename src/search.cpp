@@ -1548,7 +1548,7 @@ moves_loop: // When in check, search starts from here
       pos.do_move(move, st, givesCheck);
       if (PvNode && moveCount > 1)
           value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
-      if (!PvNode || moveCount == 1 || (value > alpha && value < beta))
+      if (!PvNode || moveCount == 1 || value > alpha)
           value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
