@@ -778,8 +778,10 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
+        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        bonus = std::clamp(-int((ss-1)->staticEval + ss->staticEval), -50, 50);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     // Set up improving flag that is used in various pruning heuristics
