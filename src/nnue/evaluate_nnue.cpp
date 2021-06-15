@@ -166,7 +166,7 @@ namespace Stockfish::Eval::NNUE {
 
     int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
     int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
-    int flatOcb = (adjusted && pos.non_pawn_material(WHITE) == BishopValueMg && pos.non_pawn_material(BLACK) == BishopValueMg ? 4 : 0);
+    int flatOcb = (adjusted && pos.non_pawn_material(WHITE) == BishopValueMg && pos.non_pawn_material(BLACK) == BishopValueMg ? 14 : 0);
 
     int A = 128 - entertainment - flatOcb;
     int B = 128 + entertainment + flatOcb;
