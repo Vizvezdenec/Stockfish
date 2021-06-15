@@ -578,6 +578,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->fhMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -907,6 +908,7 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    ss->fhMove = move;
                     return value;
                 }
             }
@@ -935,7 +937,10 @@ moves_loop: // When in check, search starts from here
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
+    {
+        ss->fhMove = ttMove;
         return probCutBeta;
+    }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -955,6 +960,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
+    bool fhmoveSkip = true;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -962,9 +968,6 @@ moves_loop: // When in check, search starts from here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    bool stableBM = thisThread->rootDepth > 10
-              && thisThread->bestMoveChanges <= 2;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1109,6 +1112,8 @@ moves_loop: // When in check, search starts from here
               if (value >= beta)
                   return beta;
           }
+          else if (value >= ttValue + 100)
+              fhmoveSkip = false;
       }
       else if (   givesCheck
                && depth > 6
@@ -1140,8 +1145,8 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || (!PvNode && stableBM))
+              || !ss->ttPv)
+          && !(!fhmoveSkip && move == ss->fhMove)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1161,7 +1166,8 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
-              && stableBM)
+              && thisThread->rootDepth > 10
+              && thisThread->bestMoveChanges <= 2)
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
@@ -1294,6 +1300,7 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
+                  ss->fhMove = move;
                   break;
               }
           }
