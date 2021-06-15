@@ -811,7 +811,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1090 + 81 * depth) / 256 + std::min(int(eval - beta) * 5 / 1024, 3);
+        Depth R = (1090 + 81 * depth) / 256 + std::min(int(eval - beta) / 205, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1177,6 +1177,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
+                  r++;
+
+              if (doubleExtension && ttValue <= alpha)
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
