@@ -956,6 +956,8 @@ moves_loop: // When in check, search starts from here
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
 
+    int prunedCount = 0;
+
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
@@ -1006,6 +1008,8 @@ moves_loop: // When in check, search starts from here
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
+          prunedCount++;
+
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
@@ -1022,10 +1026,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
-                  continue;
-
-              if (!captureOrPromotion && lmrDepth < 1 && !pos.see_ge(move, -PieceValue[MG][movedPiece] + 1))
+              if (prunedCount < 5 && !pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1050,6 +1051,7 @@ moves_loop: // When in check, search starts from here
               if (!pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
           }
+          prunedCount--;
       }
 
       // Step 14. Extensions (~75 Elo)
