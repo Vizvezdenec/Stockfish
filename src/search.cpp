@@ -1024,6 +1024,9 @@ moves_loop: // When in check, search starts from here
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
+
+              if (!captureOrPromotion && lmrDepth < 1 && !pos.see_ge(move, -PieceValue[MG][movedPiece] + 1))
+                  continue;
           }
           else
           {
@@ -1177,9 +1180,6 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
-                  r++;
-
-              if (doubleExtension && ttValue <= alpha)
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
