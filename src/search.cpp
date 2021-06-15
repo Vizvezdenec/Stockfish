@@ -578,7 +578,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    ss->fhMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -819,7 +818,23 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = alpha;
+
+        if (   (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14)) 
+            && ss->staticEval >= beta + 20 * depth
+            && eval >= ss->staticEval + 20 * depth
+            && depth - R >= 1)
+            nullValue = -search<NonPV>(pos, ss+1, -(beta + 10 * depth), -(beta + 10 * depth)+1, depth-R - 4, !cutNode);
+
+        if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
+            nullValue = (beta + 10 * depth);
+        if (nullValue >= (beta + 10 * depth))
+        {
+            pos.undo_null_move();
+            return nullValue;
+        }
+
+        nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -908,7 +923,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    ss->fhMove = move;
                     return value;
                 }
             }
@@ -937,10 +951,7 @@ moves_loop: // When in check, search starts from here
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-    {
-        ss->fhMove = ttMove;
         return probCutBeta;
-    }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -960,7 +971,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
-    bool fhmoveSkip = true;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1112,8 +1122,6 @@ moves_loop: // When in check, search starts from here
               if (value >= beta)
                   return beta;
           }
-          else if (value >= ttValue + 100)
-              fhmoveSkip = false;
       }
       else if (   givesCheck
                && depth > 6
@@ -1180,9 +1188,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode)
               r += 1 + !captureOrPromotion;
-
-          if (!fhmoveSkip && move == ss->fhMove)
-              r--;
 
           if (!captureOrPromotion)
           {
@@ -1302,7 +1307,6 @@ moves_loop: // When in check, search starts from here
               else
               {
                   assert(value >= beta); // Fail high
-                  ss->fhMove = move;
                   break;
               }
           }
