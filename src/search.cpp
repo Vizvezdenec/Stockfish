@@ -780,8 +780,6 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        bonus = std::clamp(-int((ss-1)->staticEval + ss->staticEval) / 8, -50, 50);
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -813,7 +811,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = (1090 + 81 * depth) / 256 + std::min(int(eval - beta) / 205, 3);
+        Depth R = (1090 + 81 * depth) / 256 + std::min(int(eval - beta) * 5 / 1024, 3);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
