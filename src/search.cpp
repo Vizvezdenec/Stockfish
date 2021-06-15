@@ -963,6 +963,9 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool stableBM = thisThread->rootDepth > 10
+              && thisThread->bestMoveChanges <= 2;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1137,7 +1140,8 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv)
+              || !ss->ttPv
+              || (!PvNode && stableBM))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1157,9 +1161,8 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
-              && thisThread->rootDepth > 10
-              && thisThread->bestMoveChanges <= 2)
-              r += 1 + (!captureOrPromotion && ttCapture);
+              && stableBM)
+              r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
