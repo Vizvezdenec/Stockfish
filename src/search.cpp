@@ -960,7 +960,7 @@ moves_loop: // When in check, search starts from here
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    ttMove
                          && (tte->bound() & BOUND_UPPER)
-                         && tte->depth() >= depth - !PvNode;
+                         && tte->depth() >= depth;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
