@@ -569,7 +569,6 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
-    ss->lmrExtended = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -959,10 +958,9 @@ moves_loop: // When in check, search starts from here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =    PvNode
-                         && ttMove
+    bool likelyFailLow =    ttMove
                          && (tte->bound() & BOUND_UPPER)
-                         && tte->depth() >= depth;
+                         && tte->depth() >= depth - 2 * !PvNode;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1165,8 +1163,6 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
-          else if ((ss-1)->moveCount == 2 && (ss-1)->lmrExtended)
-              r++;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
@@ -1198,9 +1194,7 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
 
-          ss->lmrExtended = d > newDepth;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-          ss->lmrExtended = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
