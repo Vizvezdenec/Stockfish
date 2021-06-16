@@ -955,7 +955,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
-    bool singularFail = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1106,9 +1105,7 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else singularFail = true;
           }
-          else singularFail = true;
       }
       else if (   givesCheck
                && depth > 6
@@ -1196,7 +1193,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || singularFail) && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1213,7 +1210,13 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          bool goodFirstMove =    moveCount == 1
+                               && !ttMove
+                               && !captureOrPromotion
+                               && (*contHist[0])[movedPiece][to_sq(move)] > 27000
+                               && (*contHist[1])[movedPiece][to_sq(move)] > 27000;
+
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + goodFirstMove, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
