@@ -1213,8 +1213,8 @@ moves_loop: // When in check, search starts from here
           bool goodFirstMove =    moveCount == 1
                                && !ttMove
                                && !captureOrPromotion
-                               && (*contHist[0])[movedPiece][to_sq(move)] > 27000
-                               && (*contHist[1])[movedPiece][to_sq(move)] > 27000;
+                               && (*contHist[0])[movedPiece][to_sq(move)] > 29000
+                               && (*contHist[1])[movedPiece][to_sq(move)] > 29000;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + goodFirstMove, !cutNode);
 
