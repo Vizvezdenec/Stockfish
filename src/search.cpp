@@ -569,6 +569,7 @@ namespace {
          ttCapture, singularQuietLMR;
     Piece movedPiece;
     int moveCount, captureCount, quietCount;
+    ss->lmrExtended = false;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -1164,6 +1165,8 @@ moves_loop: // When in check, search starts from here
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
+          else if ((ss-1)->moveCount == 2 && (ss-1)->lmrExtended)
+              r++;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
@@ -1195,7 +1198,9 @@ moves_loop: // When in check, search starts from here
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
 
+          ss->lmrExtended = d > newDepth;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          ss->lmrExtended = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1210,13 +1215,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          bool goodFirstMove =    moveCount == 1
-                               && !ttMove
-                               && !captureOrPromotion
-                               && (*contHist[0])[movedPiece][to_sq(move)] > 29000
-                               && (*contHist[1])[movedPiece][to_sq(move)] > 29000;
-
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + goodFirstMove, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
