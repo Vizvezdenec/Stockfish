@@ -791,7 +791,7 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     if (   !ss->ttHit && depth < 2 && !rootNode
-        && ss->staticEval < alpha - pos.non_pawn_material() / 8 - pos.count<PAWN>() * PawnValueMg / 8 - 2888
+        && ss->staticEval < alpha - pos.non_pawn_material() / 2 - pos.count<PAWN>() * PawnValueMg / 2 - 1888
         && alpha > -VALUE_KNOWN_WIN)
         return alpha;
 
