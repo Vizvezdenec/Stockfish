@@ -66,7 +66,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(209 * (d - improving));
+    return Value(214 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -653,8 +653,9 @@ namespace {
         && ss->ttHit
         && tte->depth() >= depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
-        && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
-                            : (tte->bound() & BOUND_UPPER)))
+        && ((ttValue >= beta ? (tte->bound() & BOUND_LOWER)
+                            : (tte->bound() & BOUND_UPPER)) 
+            || (std::abs(ttValue - alpha >= 300) && (tte->bound() & BOUND_EXACT))))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
@@ -1036,7 +1037,7 @@ moves_loop: // When in check, search starts from here
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 169 + 152 * lmrDepth <= alpha
+                  && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
