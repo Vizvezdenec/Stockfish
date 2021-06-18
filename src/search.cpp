@@ -655,7 +655,7 @@ namespace {
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && ((ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)) 
-            || (std::abs(ttValue - alpha >= 300) && (tte->bound() & BOUND_EXACT))))
+            || (std::abs(ttValue - alpha <= 15) && (tte->bound() & BOUND_EXACT))))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
