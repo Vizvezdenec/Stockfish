@@ -1579,7 +1579,7 @@ moves_loop: // When in check, search starts from here
         return mated_in(ss->ply); // Plies to mate from the root
     }
 
-    if (!ss->ttHit)
+    if (!ss->ttHit || tte->depth() <= 0)
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER :
