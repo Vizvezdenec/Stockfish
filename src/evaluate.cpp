@@ -1094,7 +1094,7 @@ Value Eval::evaluate(const Position& pos) {
          int scale =   883
                      + 32 * pos.count<PAWN>()
                      + 32 * pos.non_pawn_material() / 1024
-                     +      std::abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) / 4;
+                     +      std::abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
 
          Value nnue = NNUE::evaluate(pos, true) * scale / 1024;
 
