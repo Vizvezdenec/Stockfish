@@ -176,7 +176,7 @@ namespace Stockfish::Eval::NNUE {
                          std::abs(pos.count<BISHOP>(WHITE) - pos.count<BISHOP>(BLACK)) * 3 + 
                          std::abs(pos.count<ROOK>(WHITE) - pos.count<ROOK>(BLACK)) * 5 + 
                          std::abs(pos.count<QUEEN>(WHITE) - pos.count<QUEEN>(BLACK)) * 10;
-        entertainment += disbalance / 8; 
+        entertainment += disbalance / 16; 
     }
 
     int A = 128 - entertainment;
