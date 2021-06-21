@@ -944,6 +944,9 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    if (ttMove && !ttCapture && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 399)
+        ttMove = MOVE_NONE;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
@@ -962,8 +965,6 @@ moves_loop: // When in check, search starts from here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    bool excludedCapt = excludedMove && pos.capture_or_promotion(excludedMove);
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1178,9 +1179,6 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
-                  r++;
-
-              if (excludedCapt)
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
