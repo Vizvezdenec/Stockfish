@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts from here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
+                  && value < singularBeta - 97 - 14 * captureOrPromotion
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
@@ -1188,9 +1188,6 @@ moves_loop: // When in check, search starts from here
               if (!ss->inCheck)
                   r -= ss->statScore / 14721;
           }
-
-          if (r < 0 && captureOrPromotion && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 6322)
-              r--;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
