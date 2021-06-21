@@ -963,6 +963,8 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool excludedCapt = excludedMove && pos.capture_or_promotion(excludedMove);
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1079,7 +1081,7 @@ moves_loop: // When in check, search starts from here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 97 - 14 * captureOrPromotion
+                  && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
@@ -1176,6 +1178,9 @@ moves_loop: // When in check, search starts from here
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
               if (ttCapture)
+                  r++;
+
+              if (excludedCapt && moveCount >= 6)
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
