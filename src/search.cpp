@@ -789,7 +789,7 @@ namespace {
         {
             pos.do_null_move(st);
 
-            Value pseudobeta = (eval + beta) / 2;
+            Value pseudobeta = (eval * 3 + beta) / 4;
 
             Value nullValue = -qsearch<NonPV>(pos, ss+1, -pseudobeta, -pseudobeta +1);
 
