@@ -951,6 +951,9 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    if (ttMove && !ttCapture && (tte->bound() & BOUND_UPPER) && ttValue <= alpha)
+        ttMove = MOVE_NONE;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
