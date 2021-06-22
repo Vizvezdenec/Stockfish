@@ -175,9 +175,6 @@ namespace Stockfish::Eval::NNUE {
 
     int sum = (A * materialist + B * positional) / 128;
 
-    if (std::abs(sum) < 30 && std::abs(positional) > 500)
-        sum += positional / 16;
-
     return static_cast<Value>( sum / OutputScale );
   }
 
