@@ -1009,8 +1009,10 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              int chadjust = captureOrPromotion ? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512 : 0;
+
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218 - Value(chadjust)) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1125,8 +1127,7 @@ moves_loop: // When in check, search starts from here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || ss->ply > thisThread->rootDepth + 1)
+              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
