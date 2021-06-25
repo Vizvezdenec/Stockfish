@@ -875,7 +875,7 @@ namespace {
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
-                int probCutAdjust = captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512;
+                int probCutAdjust = captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 256;
 
                 Value probCutBeta2 = probCutBeta - Value(probCutAdjust);
 
