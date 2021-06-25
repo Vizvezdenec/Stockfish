@@ -875,18 +875,14 @@ namespace {
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
-                int probCutAdjust = captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 256;
-
-                Value probCutBeta2 = probCutBeta - Value(probCutAdjust);
-
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta2, -probCutBeta2+1);
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta2, -probCutBeta2+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -940,6 +936,7 @@ moves_loop: // When in check, search starts from here
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
+                                      &thisThread->pieceSquareH,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1470,6 +1467,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      &thisThread->pieceSquareH,
                                       to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
@@ -1663,6 +1661,8 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
         }
     }
     else
@@ -1716,6 +1716,9 @@ moves_loop: // When in check, search starts from here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+
+    thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus;
+    thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus;
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)

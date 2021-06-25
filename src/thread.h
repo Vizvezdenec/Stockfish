@@ -74,6 +74,7 @@ public:
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  PieceToHistory2 pieceSquareH;
   Score trend;
 };
 
