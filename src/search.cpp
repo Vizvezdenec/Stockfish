@@ -875,14 +875,18 @@ namespace {
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
+                int probCutAdjust = captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512;
+
+                Value probCutBeta2 = probCutBeta - Value(probCutAdjust);
+
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta2, -probCutBeta2+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta2, -probCutBeta2+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -1009,10 +1013,8 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              int chadjust = captureOrPromotion ? captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512 : 0;
-
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218 - Value(chadjust)) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
