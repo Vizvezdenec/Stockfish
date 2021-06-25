@@ -1661,8 +1661,8 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
-            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
-            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2 / 2;
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2 / 2;
         }
     }
     else
@@ -1717,8 +1717,8 @@ moves_loop: // When in check, search starts from here
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
-    thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus;
-    thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus;
+    thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus / 2;
+    thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus / 2;
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)
