@@ -624,9 +624,6 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
-    if (PvNode && !rootNode && !(ss-1)->inCheck && !(ss-1)->ttHit && depth >= 6 && ttMove)
-        depth++;
-
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
         && depth > 12
@@ -907,8 +904,8 @@ namespace {
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ttMove)
-        depth -= 2;
+        && !ss->ttHit)
+        depth -= 1 + !ttMove;
 
 moves_loop: // When in check, search starts from here
 
