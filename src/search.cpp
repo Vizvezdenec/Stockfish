@@ -1172,6 +1172,8 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+                             + thisThread->pieceSquareH[movedPiece][to_sq(move)]
+                             - thisThread->pieceSquareH[movedPiece][from_sq(move)]                         
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
                              + (*contHist[3])[movedPiece][to_sq(move)]
