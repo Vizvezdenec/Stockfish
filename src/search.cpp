@@ -936,6 +936,7 @@ moves_loop: // When in check, search starts from here
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
+                                      &thisThread->pieceSquareH,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1019,13 +1020,6 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
-              if (   lmrDepth < 2 
-                  && ss->inCheck
-                  && type_of(movedPiece) != KING
-                  && type_of(movedPiece) != PAWN
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1473,6 +1467,7 @@ moves_loop: // When in check, search starts from here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      &thisThread->pieceSquareH,
                                       to_sq((ss-1)->currentMove));
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
@@ -1666,6 +1661,8 @@ moves_loop: // When in check, search starts from here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
         }
     }
     else
@@ -1719,6 +1716,9 @@ moves_loop: // When in check, search starts from here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+
+    thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus;
+    thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus;
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)
