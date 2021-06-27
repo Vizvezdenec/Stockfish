@@ -661,7 +661,6 @@ namespace {
             else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
                 thisThread->pieceSquareH[pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty;
                 thisThread->pieceSquareH[pos.moved_piece(ttMove)][from_sq(ttMove)] << -penalty;
@@ -769,7 +768,6 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
         thisThread->pieceSquareH[pos.moved_piece((ss-1)->currentMove)][to_sq((ss-1)->currentMove)] << bonus;
         thisThread->pieceSquareH[pos.moved_piece((ss-1)->currentMove)][from_sq((ss-1)->currentMove)] << -bonus;
     }
@@ -936,8 +934,7 @@ moves_loop: // When in check, search starts from here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->lowPlyHistory,
+    MovePicker mp(pos, ttMove, depth, &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       &thisThread->pieceSquareH,
@@ -1171,8 +1168,7 @@ moves_loop: // When in check, search starts from here
               if (ttCapture)
                   r++;
 
-              ss->statScore =  thisThread->mainHistory[us][from_to(move)]
-                             + thisThread->pieceSquareH[movedPiece][to_sq(move)]
+              ss->statScore =  thisThread->pieceSquareH[movedPiece][to_sq(move)]
                              - thisThread->pieceSquareH[movedPiece][from_sq(move)]                         
                              + (*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1470,8 +1466,7 @@ moves_loop: // When in check, search starts from here
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
-                                      &thisThread->captureHistory,
+    MovePicker mp(pos, ttMove, depth, &thisThread->captureHistory,
                                       contHist,
                                       &thisThread->pieceSquareH,
                                       to_sq((ss-1)->currentMove));
@@ -1665,7 +1660,6 @@ moves_loop: // When in check, search starts from here
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
             thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
             thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
@@ -1720,15 +1714,10 @@ moves_loop: // When in check, search starts from here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus;
     thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus;
-
-    // Penalty for reversed move in case of moved piece not being a pawn
-    if (type_of(pos.moved_piece(move)) != PAWN)
-        thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     // Update countermove history
     if (is_ok((ss-1)->currentMove))

@@ -82,12 +82,6 @@ struct Stats<T, D, Size> : public std::array<StatsEntry<T, D>, Size> {};
 enum StatsParams { NOT_USED = 0 };
 enum StatsType { NoCaptures, Captures };
 
-/// ButterflyHistory records how often quiet moves have been successful or
-/// unsuccessful during the current search, and is used for reduction and move
-/// ordering decisions. It uses 2 tables (one for each color) indexed by
-/// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
-typedef Stats<int16_t, 13365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
-
 /// At higher depths LowPlyHistory records successful quiet moves near the root
 /// and quiet moves which are/were in the PV (ttPv). It is cleared with each new
 /// search and filled during iterative deepening.
@@ -126,13 +120,11 @@ public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
   MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
+  MovePicker(const Position&, Move, Depth, const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            const PieceToHistory2*,
                                            Square);
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const LowPlyHistory*,
+  MovePicker(const Position&, Move, Depth, const LowPlyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            const PieceToHistory2*,
@@ -148,7 +140,6 @@ private:
   ExtMove* end() { return endMoves; }
 
   const Position& pos;
-  const ButterflyHistory* mainHistory;
   const LowPlyHistory* lowPlyHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;

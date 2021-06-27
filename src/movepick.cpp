@@ -56,9 +56,9 @@ namespace {
 /// ordering is at the current node.
 
 /// MovePicker constructor for the main search
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh, const LowPlyHistory* lp,
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const LowPlyHistory* lp,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, const PieceToHistory2* ph, Move cm, const Move* killers, int pl)
-           : pos(p), mainHistory(mh), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch), pieceSquareH(ph),
+           : pos(p), lowPlyHistory(lp), captureHistory(cph), continuationHistory(ch), pieceSquareH(ph),
              ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(pl) {
 
   assert(d > 0);
@@ -68,9 +68,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 }
 
 /// MovePicker constructor for quiescence search
-MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
+MovePicker::MovePicker(const Position& p, Move ttm, Depth d,
                        const CapturePieceToHistory* cph, const PieceToHistory** ch, const PieceToHistory2* ph, Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), pieceSquareH(ph), ttMove(ttm), recaptureSquare(rs), depth(d) {
+           : pos(p), captureHistory(cph), continuationHistory(ch), pieceSquareH(ph), ttMove(ttm), recaptureSquare(rs), depth(d) {
 
   assert(d <= 0);
 
@@ -106,8 +106,7 @@ void MovePicker::score() {
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
-          m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-                   + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
+          m.value =      2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
@@ -121,8 +120,7 @@ void MovePicker::score() {
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                        - Value(type_of(pos.moved_piece(m)));
           else
-              m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-                   +     (* pieceSquareH)[pos.moved_piece(m)][to_sq(m)]
+              m.value =  (* pieceSquareH)[pos.moved_piece(m)][to_sq(m)]
                    -     (* pieceSquareH)[pos.moved_piece(m)][from_sq(m)]
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
