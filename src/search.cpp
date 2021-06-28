@@ -904,8 +904,8 @@ namespace {
     // Step 10. If the position is not in TT, decrease depth by 2
     if (   PvNode
         && depth >= 6
-        && !ss->ttHit)
-        depth -= 1 + !ttMove;
+        && !ttMove)
+        depth -= 2;
 
 moves_loop: // When in check, search starts from here
 
@@ -1020,6 +1020,13 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
+
+              if (   lmrDepth < 3
+                  && pos.rule50_count() > 15
+                  && !ss->inCheck
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+                  
 
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
