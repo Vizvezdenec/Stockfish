@@ -1024,7 +1024,9 @@ moves_loop: // When in check, search starts from here
               if (   lmrDepth < 2
                   && pos.rule50_count() > 20
                   && !ss->inCheck
-                  && (*contHist[0])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
                   
 
