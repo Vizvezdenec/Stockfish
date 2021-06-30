@@ -1021,8 +1021,8 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (   lmrDepth < 2
-                  && pos.rule50_count() > 20
+              if (   lmrDepth < 3
+                  && pos.rule50_count() > 30
                   && !ss->inCheck
                   && type_of(movedPiece) != PAWN
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
