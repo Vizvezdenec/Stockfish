@@ -1009,7 +1009,7 @@ moves_loop: // When in check, search starts from here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              if (lmrDepth < 5
+              if (lmrDepth < 2
                   && type_of(move) == PROMOTION
                   && (promotion_type(move) == BISHOP || promotion_type(move) == ROOK))
                   continue;
