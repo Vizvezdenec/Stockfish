@@ -726,6 +726,8 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    bool highTempo = false;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -762,6 +764,9 @@ namespace {
         // Save static evaluation into transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
+
+    if ((ss-1)->currentMove == MOVE_NULL && std::abs(ss->staticEval + (ss-1)->staticEval) > 60)
+        highTempo = true;
 
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
@@ -1021,15 +1026,6 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (   lmrDepth < 1
-                  && pos.rule50_count() > 15
-                  && !ss->inCheck
-                  && type_of(movedPiece) != PAWN
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   lmrDepth < 7
                   && !ss->inCheck
@@ -1140,6 +1136,9 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           if (PvNode)
+              r--;
+
+          if (highTempo)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
