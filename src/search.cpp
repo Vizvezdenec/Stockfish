@@ -1117,6 +1117,10 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool subPromo = (type_of(move) == PROMOTION 
+              &&  (   type_of(pos.piece_on(to_sq(move))) == BISHOP 
+                  || type_of(pos.piece_on(to_sq(move))) == ROOK));
+
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1126,8 +1130,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv
-              || (type_of(move) == PROMOTION 
-              &&  type_of(pos.piece_on(to_sq(move))) != QUEEN))
+              || subPromo)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1162,8 +1165,7 @@ moves_loop: // When in check, search starts from here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
-          if (type_of(move) == PROMOTION 
-              &&  type_of(pos.piece_on(to_sq(move))) != QUEEN)
+          if (subPromo)
               r += 2;
 
           if (!captureOrPromotion)
