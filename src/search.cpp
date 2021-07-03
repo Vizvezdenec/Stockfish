@@ -1011,7 +1011,7 @@ moves_loop: // When in check, search starts from here
 
               if (lmrDepth < 1
                   && type_of(move) == PROMOTION
-                  && (promotion_type(move) == BISHOP || promotion_type(move) == ROOK))
+                  && (promotion_type(move) != QUEEN))
                   continue;
 
               // SEE based pruning
