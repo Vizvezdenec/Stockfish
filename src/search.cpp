@@ -942,7 +942,6 @@ moves_loop: // When in check, search starts from here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
-    bool doubleExtension = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1069,10 +1068,7 @@ moves_loop: // When in check, search starts from here
               if (   !PvNode
                   && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
-              {
                   extension = 2;
-                  doubleExtension = true;
-              }
           }
 
           // Multi-cut pruning
@@ -1117,10 +1113,6 @@ moves_loop: // When in check, search starts from here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool subPromo = (type_of(move) == PROMOTION 
-              &&  (   type_of(pos.piece_on(to_sq(move))) == BISHOP 
-                  || type_of(pos.piece_on(to_sq(move))) == ROOK));
-
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1164,9 +1156,6 @@ moves_loop: // When in check, search starts from here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
-          if (subPromo)
-              r += 2;
-
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
@@ -1187,7 +1176,7 @@ moves_loop: // When in check, search starts from here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
