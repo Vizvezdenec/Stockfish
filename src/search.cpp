@@ -1162,6 +1162,10 @@ moves_loop: // When in check, search starts from here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
+          if (type_of(move) == PROMOTION 
+              &&  type_of(pos.piece_on(to_sq(move))) != QUEEN)
+              r++;
+
           if (!captureOrPromotion)
           {
               // Increase reduction if ttMove is a capture (~3 Elo)
