@@ -1164,7 +1164,7 @@ moves_loop: // When in check, search starts from here
 
           if (type_of(move) == PROMOTION 
               &&  type_of(pos.piece_on(to_sq(move))) != QUEEN)
-              r++;
+              r += 2;
 
           if (!captureOrPromotion)
           {
