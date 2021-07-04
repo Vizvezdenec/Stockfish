@@ -1106,7 +1106,7 @@ Value Eval::evaluate(const Position& pos) {
       // NNUE eval faster when shuffling or if the material on the board is high.
       int r50 = pos.rule50_count();
       Value psq = Value(abs(eg_value(pos.psq_score())));
-      bool classical = psq * 5 > (850 + pos.non_pawn_material() / 64) * (5 + r50);
+      bool classical = psq * 5 > (750 + pos.non_pawn_material() / 64) * (5 + r50);
 
       v = classical ? Evaluation<NO_TRACE>(pos).value()  // classical
                     : adjusted_NNUE();                   // NNUE

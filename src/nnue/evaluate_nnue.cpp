@@ -173,7 +173,7 @@ namespace Stockfish::Eval::NNUE {
     int A = 128 - entertainment;
     int B = 128 + entertainment;
 
-    int sum = (A * materialist + B * positional) / 128;
+    int sum = (A * materialist + B * positional + std::abs(positional) * positional / 256) / 128;
 
     return static_cast<Value>( sum / OutputScale );
   }
