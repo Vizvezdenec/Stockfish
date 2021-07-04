@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captureKiller = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -850,9 +850,14 @@ namespace {
         && !(   ss->ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
+             && (tte->bound() & BOUND_UPPER)
              && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
+
+        if (ss->ttHit && ttMove && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER)
+            && tte->depth() >= depth - 3 && ttValue >= probCutBeta)
+            return probCutBeta;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         int probCutCount = 0;
@@ -1157,7 +1162,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0] && move != ss->captureKiller)
+          if (cutNode && move != ss->killers[0])
               r += 2;
 
           if (!captureOrPromotion)
@@ -1277,7 +1282,6 @@ moves_loop: // When in check, search starts from here
                   alpha = value;
               else
               {
-                  ss->captureKiller = captureOrPromotion ? move : ss->captureKiller;
                   assert(value >= beta); // Fail high
                   break;
               }
