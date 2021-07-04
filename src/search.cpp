@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captureKiller = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1022,7 +1022,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
-              if (   lmrDepth < 8
+              if (   lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts from here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0])
+          if (cutNode && move != ss->killers[0] && move != ss->captureKiller)
               r += 2;
 
           if (!captureOrPromotion)
@@ -1277,6 +1277,7 @@ moves_loop: // When in check, search starts from here
                   alpha = value;
               else
               {
+                  ss->captureKiller = captureOrPromotion ? move : ss->captureKiller;
                   assert(value >= beta); // Fail high
                   break;
               }
