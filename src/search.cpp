@@ -768,6 +768,7 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][from_to(reverse_move((ss-1)->currentMove))] << -bonus;
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -780,6 +781,7 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo)
     if (   !PvNode
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
