@@ -1093,8 +1093,6 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (value < beta - 392)
-                  extension = 1;
           }
       }
       else if (   givesCheck
@@ -1322,9 +1320,15 @@ moves_loop: // When in check, search starts from here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 || PvNode)
+    else 
+    {
+    if (   (depth >= 3 || PvNode)
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
+    if (excludedMove)
+        update_all_stats(pos, ss, excludedMove, beta, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
