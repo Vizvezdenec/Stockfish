@@ -1021,8 +1021,7 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
                   continue;
 
-              if (lmrDepth > 0 && (*contHist[0])[movedPiece][to_sq(move)] < -14322
-                               && (*contHist[1])[movedPiece][to_sq(move)] < -14322)
+              if (lmrDepth > 0 && ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] < -6977)
                   lmrDepth--;
 
               // Futility pruning: parent node (~5 Elo)
