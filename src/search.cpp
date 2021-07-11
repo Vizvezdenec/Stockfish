@@ -1167,7 +1167,7 @@ moves_loop: // When in check, search starts from here
                   r++;
 
               if (move == (ss-4)->currentMove)
-                  r++;
+                  r += 2;
 
               ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                              + (*contHist[0])[movedPiece][to_sq(move)]
