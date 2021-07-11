@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts from here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 2 - 2 * (!PvNode))
+          &&  tte->depth() >= depth - 3 - !PvNode)
       {
           Value singularBeta = ttValue - 2 * depth;
           Depth singularDepth = (depth - 1) / 2;
