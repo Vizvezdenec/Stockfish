@@ -1092,13 +1092,13 @@ moves_loop: // When in check, search starts from here
 
               if (value >= beta)
                   return beta;
-              else if (!PvNode && value < beta - 93)
-                  extension = 1;
           }
       }
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > Value(100))
+          extension = 1;
+      else if (ss->inCheck && givesCheck)
           extension = 1;
 
       // Add extension to new depth
