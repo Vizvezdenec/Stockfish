@@ -1006,7 +1006,7 @@ moves_loop: // When in check, search starts from here
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  && captureHistory[ss->inCheck][movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // SEE based pruning
@@ -1097,8 +1097,6 @@ moves_loop: // When in check, search starts from here
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > Value(100))
-          extension = 1;
-      else if (ss->inCheck && givesCheck)
           extension = 1;
 
       // Add extension to new depth
@@ -1664,7 +1662,7 @@ moves_loop: // When in check, search starts from here
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[ss->inCheck][moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1677,7 +1675,7 @@ moves_loop: // When in check, search starts from here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[ss->inCheck][moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
