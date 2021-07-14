@@ -1160,7 +1160,7 @@ moves_loop: // When in check, search starts from here
               r += 2;
 
           if ((ss-1)->currentMove == MOVE_NULL)
-              r--;
+              r++;
 
           if (!captureOrPromotion)
           {
