@@ -731,6 +731,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
+        if (ss->ttHit && (tte->bound() & BOUND_UPPER))
+            eval = ttValue;
         improving = false;
         goto moves_loop;
     }
@@ -1030,6 +1032,11 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255)
                   continue;
 
+              if (    ss->inCheck 
+                  &&  eval + 250 + 250 * lmrDepth < alpha
+                  &&  (*contHist[0])[movedPiece][to_sq(move)] < 0)
+                  continue;
+
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(30 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth)))
                   continue;
@@ -1158,9 +1165,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
-
-          if ((ss-1)->currentMove == MOVE_NULL)
-              r++;
 
           if (!captureOrPromotion)
           {
