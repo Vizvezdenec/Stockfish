@@ -184,8 +184,9 @@ top:
           || refutations[1].move == refutations[3].move
           || refutations[2].move == refutations[3].move)
           --endMoves;
-      else if (refutations[0].move == refutations[2].move
-            || refutations[1].move == refutations[2].move)
+      
+      if (   refutations[0].move == refutations[2].move
+          || refutations[1].move == refutations[2].move)
       {
            refutations[2].move = refutations[3].move;
            --endMoves;
