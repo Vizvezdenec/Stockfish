@@ -1035,7 +1035,7 @@ moves_loop: // When in check, search starts from here
                   continue;
 
               if (    ss->inCheck
-                  &&  staticE + 288 + 288 * lmrDepth <= alpha
+                  &&  staticE + 411 + 411 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)] < 0)
                   continue;
 
