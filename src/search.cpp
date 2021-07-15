@@ -726,13 +726,15 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    Value staticE = VALUE_NONE;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        if (ss->ttHit && (tte->bound() & BOUND_UPPER))
-            eval = ttValue;
+        if (!priorCapture && !(ss-1)->inCheck)
+            staticE = -(ss-1)->staticEval;
         improving = false;
         goto moves_loop;
     }
@@ -1032,8 +1034,8 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255)
                   continue;
 
-              if (    ss->inCheck 
-                  &&  eval + 250 + 250 * lmrDepth < alpha
+              if (    ss->inCheck
+                  &&  staticE + 288 + 288 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)] < 0)
                   continue;
 
