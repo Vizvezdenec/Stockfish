@@ -726,15 +726,11 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    Value staticE = VALUE_NONE;
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        if (!priorCapture && !(ss-1)->inCheck)
-            staticE = -(ss-1)->staticEval;
         improving = false;
         goto moves_loop;
     }
@@ -935,12 +931,14 @@ moves_loop: // When in check, search starts from here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move followmove = thisThread->followMoves[pos.moved_piece((ss-2)->currentMove)][to_sq((ss-2)->currentMove)];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
+                                      followmove,
                                       ss->killers,
                                       ss->ply);
 
@@ -1032,11 +1030,6 @@ moves_loop: // When in check, search starts from here
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
                     + (*contHist[5])[movedPiece][to_sq(move)] / 3 < 28255)
-                  continue;
-
-              if (    ss->inCheck
-                  &&  staticE + 174 + 157 * lmrDepth <= alpha
-                  &&  (*contHist[0])[movedPiece][to_sq(move)] < 0)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1731,6 +1724,8 @@ moves_loop: // When in check, search starts from here
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
+    if (is_ok((ss-2)->currentMove))
+        thisThread->followMoves[pos.moved_piece((ss-2)->currentMove)][to_sq((ss-2)->currentMove)] = move;
 
     // Update low ply history
     if (depth > 11 && ss->ply < MAX_LPH)

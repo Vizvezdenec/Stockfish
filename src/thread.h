@@ -70,6 +70,7 @@ public:
   Search::RootMoves rootMoves;
   Depth rootDepth, completedDepth;
   CounterMoveHistory counterMoves;
+  CounterMoveHistory followMoves;
   ButterflyHistory mainHistory;
   LowPlyHistory lowPlyHistory;
   CapturePieceToHistory captureHistory;
