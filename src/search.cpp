@@ -869,6 +869,9 @@ namespace {
                 captureOrPromotion = true;
                 probCutCount++;
 
+                if (captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -3958)
+                    continue;
+
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
@@ -990,7 +993,8 @@ moves_loop: // When in check, search starts from here
       newDepth = depth - 1;
 
       // Step 13. Pruning at shallow depth (~200 Elo)
-      if (   pos.non_pawn_material(us)
+      if (  !rootNode
+          && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
