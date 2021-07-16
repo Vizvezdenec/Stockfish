@@ -1477,6 +1477,13 @@ moves_loop: // When in check, search starts from here
 
       moveCount++;
 
+      // Check for legality just before making the move
+      if (!pos.legal(move))
+      {
+          moveCount--;
+          continue;
+      }
+
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
@@ -1500,13 +1507,6 @@ moves_loop: // When in check, search starts from here
               bestValue = std::max(bestValue, futilityBase);
               continue;
           }
-      }
-
-      // Check for legality just before making the move
-      if (!pos.legal(move))
-      {
-          moveCount--;
-          continue;
       }
 
       // Do not search moves with negative SEE values
