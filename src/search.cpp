@@ -866,9 +866,6 @@ namespace {
                 assert(pos.capture_or_promotion(move));
                 assert(depth >= 5);
 
-                if (captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -3958)
-                    continue;
-
                 captureOrPromotion = true;
                 probCutCount++;
 
@@ -1505,6 +1502,13 @@ moves_loop: // When in check, search starts from here
           }
       }
 
+      // Check for legality just before making the move
+      if (!pos.legal(move))
+      {
+          moveCount--;
+          continue;
+      }
+
       // Do not search moves with negative SEE values
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !pos.see_ge(move))
@@ -1512,13 +1516,6 @@ moves_loop: // When in check, search starts from here
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
-
-      // Check for legality just before making the move
-      if (!pos.legal(move))
-      {
-          moveCount--;
-          continue;
-      }
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
