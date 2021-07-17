@@ -943,7 +943,6 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
-    bool hotGarbage = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1067,12 +1066,11 @@ moves_loop: // When in check, search starts from here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
+                  && value < singularBeta - 78 + 3 * singularDepth
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
                   doubleExtension = true;
-                  hotGarbage = value < singularBeta - 888;
               }
           }
 
@@ -1160,9 +1158,6 @@ moves_loop: // When in check, search starts from here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
-
-          if (hotGarbage)
-              r++;
 
           if (!captureOrPromotion)
           {
