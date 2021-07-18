@@ -943,6 +943,7 @@ moves_loop: // When in check, search starts from here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
+    bool firstKillerS = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -985,6 +986,7 @@ moves_loop: // When in check, search starts from here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      firstKillerS |= move == ss->killers[0];
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1267,6 +1269,12 @@ moves_loop: // When in check, search starts from here
 
           if (value > alpha)
           {
+              if (move == ss->killers[1] && firstKillerS)
+              {
+                  ss->killers[1] = ss->killers[0];
+                  ss->killers[0] = move;
+              }
+
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
