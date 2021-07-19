@@ -1069,15 +1069,8 @@ moves_loop: // When in check, search starts from here
                   && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
               {
-                  ss->excludedMove = move;
-                  singularBeta = singularBeta - 93;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value < singularBeta)
-                  {
-                      extension = 2;
-                      doubleExtension = true;
-                  }
+                  extension = 2;
+                  doubleExtension = true;
               }
           }
 
@@ -1164,7 +1157,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 2 - (move == ss->killers[1]);
 
           if (!captureOrPromotion)
           {
