@@ -1125,7 +1125,7 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && (!ss->inCheck || !PvNode)
+          && (!givesCheck || !PvNode)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1173,7 +1173,8 @@ moves_loop: // When in check, search starts from here
                              - 4923;
 
               // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-              r -= ss->statScore / 14721;
+              if (!ss->inCheck)
+                  r -= ss->statScore / 14721;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
