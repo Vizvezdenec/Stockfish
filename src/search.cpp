@@ -1175,7 +1175,7 @@ moves_loop: // When in check, search starts from here
               r -= ss->statScore / 14721;
 
               if (r < -1 && (*contHist[0])[movedPiece][to_sq(move)] < 0)
-                  r = 0;
+                  r++;
           }
 
           // In general we want to cap the LMR depth search at newDepth. But if
