@@ -1125,7 +1125,6 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(captureOrPromotion && type_of(pos.captured_piece()) != PAWN && pos.count<ALL_PIECES>() - pos.count<PAWN>() < 4)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1161,7 +1160,7 @@ moves_loop: // When in check, search starts from here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture)
+          if (ttCapture && (!captureOrPromotion || !ss->ttPv))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
