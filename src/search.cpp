@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + (cutNode && !captureOrPromotion);
+              r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1269,7 +1269,11 @@ moves_loop: // When in check, search starts from here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
+              {
                   alpha = value;
+                  if (ss->killers[0] == MOVE_NONE && !captureOrPromotion)
+                      ss->killers[0] = move;
+              }
               else
               {
                   assert(value >= beta); // Fail high
