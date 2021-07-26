@@ -951,6 +951,8 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    Move bestQuiet = MOVE_NONE;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1271,8 +1273,7 @@ moves_loop: // When in check, search starts from here
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
                   alpha = value;
-                  if (ss->killers[0] == MOVE_NONE && !captureOrPromotion)
-                      ss->killers[0] = move;
+                  bestQuiet = !captureOrPromotion ? move : MOVE_NONE;
               }
               else
               {
@@ -1323,6 +1324,8 @@ moves_loop: // When in check, search starts from here
              && !priorCapture)
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
 
+    if (ss->killers[0] == MOVE_NONE && bestQuiet)
+        ss->killers[0] = bestQuiet;
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
 
