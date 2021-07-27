@@ -1153,14 +1153,14 @@ moves_loop: // When in check, search starts from here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 1 + (move == ss->killers[0]);
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && (bestMove == ttMove || !bestMove))
+          if (ttCapture)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
