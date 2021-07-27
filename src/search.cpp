@@ -1130,7 +1130,7 @@ moves_loop: // When in check, search starts from here
           Depth r = reduction(improving, depth, moveCount);
 
           if (PvNode)
-              r--;
+              r -= 1 + (move == ss->killers[0]);
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
@@ -1140,7 +1140,7 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
               && !likelyFailLow)
-              r -= 2 + (move == ss->killers[0]);
+              r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
