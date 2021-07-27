@@ -1140,12 +1140,11 @@ moves_loop: // When in check, search starts from here
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
               && !likelyFailLow)
-              r -= 2;
+              r -= 2 + (move == ss->killers[0]);
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
-              && thisThread->bestMoveChanges <= 2
-              && (move != ss->killers[0]))
+              && thisThread->bestMoveChanges <= 2)
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
