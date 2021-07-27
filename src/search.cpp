@@ -1144,12 +1144,13 @@ moves_loop: // When in check, search starts from here
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
-              && thisThread->bestMoveChanges <= 2)
+              && thisThread->bestMoveChanges <= 2
+              && (move != ss->killers[0]))
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
-              r -= 1 + (move == ss->killers[0]);
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
