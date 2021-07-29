@@ -1021,11 +1021,8 @@ moves_loop: // When in check, search starts from here
                   && (*contHist[1])[movedPiece][to_sq(move)] <= -stat_bonus(depth))
                   continue;
 
-              if (   lmrDepth < 1
-                  && (*contHist[0])[movedPiece][to_sq(move)] < 0)
-                  continue;
-
-              if (   lmrDepth < 1
+              if (   lmrDepth < 3
+                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
                   && (*contHist[1])[movedPiece][to_sq(move)] < 0)
                   continue;
 
