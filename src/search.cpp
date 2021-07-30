@@ -951,6 +951,8 @@ moves_loop: // When in check, search starts from here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int bonusDepth = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1098,6 +1100,8 @@ moves_loop: // When in check, search starts from here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
+
+      bonusDepth = extension;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1312,7 +1316,7 @@ moves_loop: // When in check, search starts from here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (moveCount == 1 && doubleExtension));
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (moveCount == 1) * bonusDepth);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
