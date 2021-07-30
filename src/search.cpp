@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captKiller = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1087,7 +1087,7 @@ moves_loop: // When in check, search starts from here
           else if (ttValue >= beta)
           {
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
+              value = search<NonPV>(pos, ss, beta - 1, beta, std::min(depth - 3, (depth + 3) / 2), cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
@@ -1125,7 +1125,6 @@ moves_loop: // When in check, search starts from here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && (move != ss->captKiller)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1193,7 +1192,7 @@ moves_loop: // When in check, search starts from here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + (move == ss->captKiller && moveCount != 1), !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1655,11 +1654,8 @@ moves_loop: // When in check, search starts from here
         }
     }
     else
-    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        ss->captKiller = bestMove;
-    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
