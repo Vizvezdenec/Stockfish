@@ -78,7 +78,7 @@ namespace {
   }
 
   constexpr int futility_move_count(bool improving, Depth depth, bool pv) {
-    return (3 + (depth + pv) * (depth + pv)) / (2 - improving);
+    return (3 + depth * depth * (1 + pv)) / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
