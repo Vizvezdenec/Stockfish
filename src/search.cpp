@@ -77,8 +77,8 @@ namespace {
     return (r + 534) / 1024 + (!i && r > 904);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+  constexpr int futility_move_count(bool improving, Depth depth, bool pv) {
+    return (3 + (depth + pv) * (depth + pv)) / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
@@ -995,7 +995,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth, PvNode);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1124,8 +1124,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || (!PvNode && ttCapture))
+              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1161,7 +1160,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && !(captureOrPromotion && ss->ttPv && !cutNode))
+          if (ttCapture)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
