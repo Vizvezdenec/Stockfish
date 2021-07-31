@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->killerCh = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -932,12 +932,16 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move killerCheck = ss->killerCh && ss->killerCh != ss->killers[0] && ss->killerCh != ss->killers[1] && ss->killerCh != countermove &&
+                       pos.gives_check(ss->killerCh) ? ss->killerCh : MOVE_NONE;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
+                                      killerCheck,
                                       ss->ply);
 
     value = bestValue;
@@ -984,7 +988,7 @@ moves_loop: // When in check, search starts here
       extension = 0;
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
-      givesCheck = pos.gives_check(move);
+      givesCheck = move == killerCheck || pos.gives_check(move);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1125,7 +1129,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(PvNode && givesCheck)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1265,6 +1268,9 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (givesCheck && !captureOrPromotion)
+                  ss->killerCh = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
