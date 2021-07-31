@@ -1023,7 +1023,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && ss->staticEval + 174 + 157 * (lmrDepth - cutNode) <= alpha
+                  && ss->staticEval + 174 + 157 * lmrDepth <= alpha
                   &&  (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1125,6 +1125,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
+          && !(PvNode && givesCheck)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
