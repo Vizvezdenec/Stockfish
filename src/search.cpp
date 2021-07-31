@@ -1021,12 +1021,6 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1)))
                   continue;
 
-              if (  !ss->inCheck
-                  && lmrDepth < 2
-                  && (*contHist[1])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1))
-                  && thisThread->mainHistory[us][from_to(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1)))
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
@@ -1129,7 +1123,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
+              || (cutNode && ((ss-1)->moveCount > 1 || ttCapture))
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
