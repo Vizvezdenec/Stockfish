@@ -1529,7 +1529,7 @@ moves_loop: // When in check, search starts here
       // Make and search the move
       pos.do_move(move, st, givesCheck);
 
-      if (moveCount > 2 && PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+      if (moveCount > 1 && PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
           lmrFail = value <= alpha;
