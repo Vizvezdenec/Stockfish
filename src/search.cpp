@@ -1473,6 +1473,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       bool lmrFail = false;
+      bool lmrFailHigh = false;
 
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
@@ -1532,9 +1533,10 @@ moves_loop: // When in check, search starts here
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
           lmrFail = value <= alpha;
+          lmrFailHigh = value >= beta;
       }
 
-      if (!lmrFail)
+      if (!lmrFail && !lmrFailHigh)
           value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
 
       pos.undo_move(move);
