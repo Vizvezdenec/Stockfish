@@ -66,7 +66,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(194 * (d - improving));
+    return Value(214 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -780,8 +780,8 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo)
-    if (   !PvNode
-        &&  eval - futility_margin(depth, improving) >= beta
+    if (   !rootNode
+        &&  eval - futility_margin(depth, improving) * (1 + 3 * PvNode) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
