@@ -1472,11 +1472,9 @@ moves_loop: // When in check, search starts here
       if (!pos.legal(move))
           continue;
 
-      bool lmrFail = false;
-      bool lmrFailHigh = false;
-
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
+      bool lmrFail = false;
 
       moveCount++;
 
@@ -1528,17 +1526,14 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-
       if (moveCount > 1 && PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
           lmrFail = value <= alpha;
-          lmrFailHigh = value >= beta;
       }
 
-      if (!lmrFail && !lmrFailHigh)
+      if (!lmrFail)
           value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
-
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
