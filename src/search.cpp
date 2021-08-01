@@ -780,8 +780,8 @@ namespace {
                : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo)
-    if (   !rootNode
-        &&  eval - futility_margin(depth, improving) * (1 + 3 * PvNode) >= beta
+    if (   !PvNode
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -1018,7 +1018,8 @@ moves_loop: // When in check, search starts here
               // Continuation history based pruning (~20 Elo)
               if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1))
-                  && (*contHist[1])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1)))
+                  && (*contHist[1])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1))
+                  && ((*contHist[3])[movedPiece][to_sq(move)] <= 0 || (*contHist[5])[movedPiece][to_sq(move)] <= 0 || depth < 4))
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
