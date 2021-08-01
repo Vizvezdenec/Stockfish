@@ -1021,13 +1021,6 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < (depth == 1 ? 0 : -stat_bonus(depth-1)))
                   continue;
 
-              if (   depth <= 2 
-                  && !ss->inCheck
-                  && (*contHist[1])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1)
-                  && (*contHist[3])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1)
-                  && (*contHist[5])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1))
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha
@@ -1525,10 +1518,16 @@ moves_loop: // When in check, search starts here
 
       // Continuation history based pruning
       if (  !captureOrPromotion
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
-          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
-          continue;
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+      {
+          int margin = depth < -6 ? -stat_bonus(8) : stat_bonus(-depth + 1);
+
+          if (ss->inCheck && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < margin)
+              continue;
+
+          if (!ss->inCheck && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < margin)
+              continue;
+      }
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
