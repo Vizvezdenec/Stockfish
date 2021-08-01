@@ -1472,6 +1472,8 @@ moves_loop: // When in check, search starts here
       if (!pos.legal(move))
           continue;
 
+      bool lmrFail = false;
+
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
 
@@ -1518,20 +1520,23 @@ moves_loop: // When in check, search starts here
 
       // Continuation history based pruning
       if (  !captureOrPromotion
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
-      {
-          int margin = depth < -6 ? -stat_bonus(8) : stat_bonus(-depth + 1);
-
-          if (ss->inCheck && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < margin)
-              continue;
-
-          if (!ss->inCheck && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < margin)
-              continue;
-      }
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
+          continue;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+
+      if (moveCount > 2 && PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+      {
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
+          lmrFail = value <= alpha;
+      }
+
+      if (!lmrFail)
+          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
