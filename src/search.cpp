@@ -1023,9 +1023,9 @@ moves_loop: // When in check, search starts here
 
               if (   depth <= 2 
                   && !ss->inCheck
-                  && (*contHist[1])[movedPiece][to_sq(move)] < -stat_bonus(depth)
-                  && (*contHist[3])[movedPiece][to_sq(move)] < -stat_bonus(depth)
-                  && (*contHist[5])[movedPiece][to_sq(move)] < -stat_bonus(depth))
+                  && (*contHist[1])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1)
+                  && (*contHist[3])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1)
+                  && (*contHist[5])[movedPiece][to_sq(move)] < -stat_bonus(depth + 1))
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
