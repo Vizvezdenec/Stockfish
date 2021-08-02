@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 2 + (bestValue < alpha - 100);
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
@@ -1474,7 +1474,6 @@ moves_loop: // When in check, search starts here
 
       givesCheck = pos.gives_check(move);
       captureOrPromotion = pos.capture_or_promotion(move);
-      bool lmrFail = false;
 
       moveCount++;
 
@@ -1526,14 +1525,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (moveCount > 3 && PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
-      {
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
-          lmrFail = value <= alpha;
-      }
-
-      if (!lmrFail)
-          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
