@@ -1064,9 +1064,15 @@ moves_loop: // When in check, search starts here
               extension = 1;
               singularQuietLMR = !ttCapture;
 
+              int history = captureOrPromotion ? 0 : (thisThread->mainHistory[us][from_to(move)]
+                    + 2 * (*contHist[0])[movedPiece][to_sq(move)]
+                    + (*contHist[1])[movedPiece][to_sq(move)]
+                    + (*contHist[3])[movedPiece][to_sq(move)]
+                    + (*contHist[5])[movedPiece][to_sq(move)]) / 16384;
+
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
+                  && value < singularBeta - 93 + history
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
