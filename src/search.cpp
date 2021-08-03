@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts here
                     + 2 * (*contHist[0])[movedPiece][to_sq(move)]
                     + (*contHist[1])[movedPiece][to_sq(move)]
                     + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)]) / 16384;
+                    + (*contHist[5])[movedPiece][to_sq(move)]) / 32768;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
