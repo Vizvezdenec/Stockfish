@@ -1009,6 +1009,10 @@ moves_loop: // When in check, search starts here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (depth == 1 && !givesCheck && ss->staticEval + PieceValue[EG][to_sq(move)] <= alpha
+                  && captureCount > 2)
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1064,15 +1068,9 @@ moves_loop: // When in check, search starts here
               extension = 1;
               singularQuietLMR = !ttCapture;
 
-              int history = captureOrPromotion ? 0 : (thisThread->mainHistory[us][from_to(move)]
-                    + 2 * (*contHist[0])[movedPiece][to_sq(move)]
-                    + (*contHist[1])[movedPiece][to_sq(move)]
-                    + (*contHist[3])[movedPiece][to_sq(move)]
-                    + (*contHist[5])[movedPiece][to_sq(move)]) / 32768;
-
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93 + history
+                  && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
