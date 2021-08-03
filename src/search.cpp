@@ -944,6 +944,8 @@ moves_loop: // When in check, search starts here
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
 
+    int captCount = 0;
+
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
@@ -986,6 +988,8 @@ moves_loop: // When in check, search starts here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      captCount += captureOrPromotion;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1007,6 +1011,10 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
+                  continue;
+
+              if (depth == 1 && !givesCheck && ss->staticEval + PieceValue[EG][type_of(pos.piece_on(to_sq(move)))] <= alpha
+                  && captCount > 2)
                   continue;
 
               // SEE based pruning
@@ -1521,13 +1529,6 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
-          continue;
-
-      if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !ss->inCheck
-          && givesCheck
-          && depth < -2
-          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -5000)
           continue;
 
       // Make and search the move
