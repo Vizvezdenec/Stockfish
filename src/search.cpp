@@ -1009,10 +1009,6 @@ moves_loop: // When in check, search starts here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
-              if (depth == 1 && !givesCheck && ss->staticEval + PieceValue[EG][to_sq(move)] <= alpha
-                  && captureCount > 2)
-                  continue;
-
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1525,6 +1521,12 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
+          continue;
+
+      if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && !ss->inCheck
+          && givesCheck
+          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
       // Make and search the move
