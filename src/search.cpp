@@ -72,9 +72,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn) {
+  Depth reduction(bool i, Depth d, int mn, int ply) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 534) / 1024 + (!i && r > 904);
+    return (r + 434 + 10 * ply) / 1024 + (!i && r > 904);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -998,7 +998,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, ss->ply), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts here
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(improving, depth, moveCount, ss->ply);
 
           if (PvNode)
               r--;
@@ -1148,7 +1148,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 8 + ss->ply)
+          if ((ss-1)->moveCount > 13)
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
