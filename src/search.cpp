@@ -1501,7 +1501,8 @@ moves_loop: // When in check, search starts here
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !ss->inCheck
           && !givesCheck
-          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -5000)
+          && depth < -2
+          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
       // Do not search moves with negative SEE values
