@@ -1503,7 +1503,7 @@ moves_loop: // When in check, search starts here
 
       // Do not search moves with negative SEE values
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !pos.see_ge(move))
+          && !pos.see_ge(move, KnightValueMg - BishopValueMg))
           continue;
 
       // Speculative prefetch as early as possible
