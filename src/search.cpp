@@ -1025,7 +1025,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 7
+                  && lmrDepth < 8
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
@@ -1200,14 +1200,6 @@ moves_loop: // When in check, search starts here
                                         : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-              if (value > alpha)
-              {
-                  if (!ss->killers[0])
-                      ss->killers[0] = move;
-                  else if (!ss->killers[1])
-                      ss->killers[1] = move;
-              }
           }
       }
 
