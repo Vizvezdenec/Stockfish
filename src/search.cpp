@@ -1203,8 +1203,10 @@ moves_loop: // When in check, search starts here
 
               if (value > alpha)
               {
-                  ss->killers[1] = ss->killers[0];
-                  ss->killers[0] = move;
+                  if (!ss->killers[0])
+                      ss->killers[0] = move;
+                  else if (!ss->killers[1])
+                      ss->killers[1] = move;
               }
           }
       }
