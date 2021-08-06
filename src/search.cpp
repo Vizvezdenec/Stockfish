@@ -602,7 +602,6 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    ss->pcSearch         = false;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -883,13 +882,9 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                ss->pcSearch = true;
-
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-
-                ss->pcSearch = false;
 
                 pos.undo_move(move);
 
@@ -918,8 +913,10 @@ moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
+    int ttStats = captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))];
+
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409;
+    probCutBeta = beta + 409 - ttStats / 128;
     if (   ss->inCheck
         && !PvNode
         && depth >= 4
@@ -1179,7 +1176,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !(ss-1)->pcSearch && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
