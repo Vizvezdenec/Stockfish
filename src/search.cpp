@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->bestPawnMove = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -782,7 +782,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
     if (   !PvNode
-        &&  depth < 10
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -934,12 +934,16 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move bpm = ss->bestPawnMove && ss->bestPawnMove != ss->killers[0] && ss->bestPawnMove != ss->killers[1] && ss->bestPawnMove != countermove ? 
+               ss->bestPawnMove : MOVE_NONE;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
                                       ss->killers,
+                                      bpm,
                                       ss->ply);
 
     value = bestValue;
@@ -1263,6 +1267,9 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (!captureOrPromotion && type_of(movedPiece) == PAWN)
+                  ss->bestPawnMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
