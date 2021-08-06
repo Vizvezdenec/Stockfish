@@ -916,7 +916,7 @@ moves_loop: // When in check, search starts here
     int ttStats = captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))];
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409 - ttStats / 128;
+    probCutBeta = beta + 409;
     if (   ss->inCheck
         && !PvNode
         && depth >= 4
@@ -1162,7 +1162,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
+              r += 1 + (ttStats > 8321);
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
