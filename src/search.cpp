@@ -602,6 +602,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->pcSearch         = false;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -882,9 +883,13 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                ss->pcSearch = true;
+
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+
+                ss->pcSearch = false;
 
                 pos.undo_move(move);
 
@@ -1170,6 +1175,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
+
+          if (!captureOrPromotion && (ss-1)->pcSearch && !givesCheck && !ss->inCheck)
+              r++;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
