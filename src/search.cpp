@@ -953,6 +953,12 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    likelyFailLow |=   !PvNode 
+                     && ttMove 
+                     && (tte->bound() & BOUND_UPPER)
+                     && tte->depth() >= depth / 2
+                     && ttValue <= alpha - (depth - tte->depth()) * 288;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1025,7 +1031,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 7 + 2 * likelyFailLow
+                  && lmrDepth < 7
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
