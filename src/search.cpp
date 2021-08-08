@@ -1023,6 +1023,9 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
+              if (lmrDepth < 1 && thisThread->mainHistory[us][from_to(move)] < -8921)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1123,8 +1126,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || (!PvNode && ttCapture))
+              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1160,7 +1162,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && (!captureOrPromotion || cutNode || !ss->ttPv))
+          if (ttCapture)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
