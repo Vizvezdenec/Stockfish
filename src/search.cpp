@@ -956,8 +956,8 @@ moves_loop: // When in check, search starts here
     likelyFailLow |=   !PvNode 
                      && ttMove 
                      && (tte->bound() & BOUND_UPPER)
-                     && tte->depth() >= depth / 2
-                     && ttValue <= alpha - (depth - tte->depth()) * 288;
+                     && tte->depth() >= depth - 3
+                     && ttValue <= alpha - (depth - tte->depth()) * 100;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
