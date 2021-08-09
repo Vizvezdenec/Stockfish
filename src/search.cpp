@@ -793,7 +793,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 159
+        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 159 - 64 * ((ss-2)->currentMove == MOVE_NULL)
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1029,9 +1029,8 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
-              int history = ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 8192;
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(21 + history) * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
