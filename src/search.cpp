@@ -1065,7 +1065,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
+                  && value < singularBeta - 113 + 40 * Value(thisThread->nodes % 2)
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
@@ -1091,8 +1091,6 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
                   return beta;
-              if (!PvNode && value < beta - 401)
-                  extension = 1;
           }
       }
       else if (   givesCheck
