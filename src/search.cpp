@@ -821,7 +821,7 @@ namespace {
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
             {
                 if ((ss-1)->moveCount == 1 && !(ss-1)->ttHit && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(std::max(depth - R, 1)));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
                 return nullValue;
             }
 
