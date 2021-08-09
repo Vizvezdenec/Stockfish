@@ -1029,7 +1029,7 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
-              int history = ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 16384;
+              int history = ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 8192;
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-(21 + history) * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
