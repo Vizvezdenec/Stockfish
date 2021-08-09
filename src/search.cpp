@@ -1029,8 +1029,9 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
+              int history = ((*contHist[0])[movedPiece][to_sq(move)] + (*contHist[1])[movedPiece][to_sq(move)]) / 16384;
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(21 + history) * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
@@ -1124,7 +1125,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(captureOrPromotion && ss->ply < thisThread->rootDepth / 2 && thisThread->id() % 8 == 7)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
