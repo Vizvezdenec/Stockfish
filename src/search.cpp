@@ -793,7 +793,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 159 - 128 * ((ss-2)->currentMove == MOVE_NULL)
+        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 159
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -819,7 +819,11 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
+            {
+                if ((ss-1)->moveCount == 1 && !(ss-1)->ttHit && !priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(std::max(depth - R, 1)));
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
