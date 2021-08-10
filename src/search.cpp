@@ -1164,7 +1164,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if ((ss-1)->dext)
+          if ((ss-1)->dext && !doubleExtension)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
