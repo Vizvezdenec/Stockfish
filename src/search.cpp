@@ -566,6 +566,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->dext = false;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -945,7 +946,6 @@ moves_loop: // When in check, search starts here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
-    bool checkFMext = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1071,6 +1071,7 @@ moves_loop: // When in check, search starts here
               {
                   extension = 2;
                   doubleExtension = true;
+                  ss->dext = true;
               }
           }
 
@@ -1098,9 +1099,6 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
-      
-      if (!rootNode && !ss->ttHit)
-          checkFMext = true;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1124,13 +1122,13 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode - checkFMext
+          &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth , moveCount + (moveCount == 1));
+          Depth r = reduction(improving, depth, moveCount);
 
           if (PvNode)
               r--;
@@ -1166,6 +1164,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if ((ss-1)->dext)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1179,9 +1180,6 @@ moves_loop: // When in check, search starts here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
-
-          if (moveCount == 1 && d <= newDepth)
-              d = newDepth;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
