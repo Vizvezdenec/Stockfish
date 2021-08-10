@@ -945,6 +945,7 @@ moves_loop: // When in check, search starts here
     value = bestValue;
     singularQuietLMR = moveCountPruning = false;
     bool doubleExtension = false;
+    bool checkFMext = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1097,20 +1098,9 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
-
-      if (extension == 0 && !ss->ttHit && moveCount == 1 && PvNode
-          && !captureOrPromotion && depth > 10 && (*contHist[0])[movedPiece][to_sq(move)] > 20000
-          && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
-      {
-          Value singularValue = alpha - 2 * depth;
-          Depth singularDepth = (depth) / 2;
-
-          ss->excludedMove = move;
-          value = search<NonPV>(pos, ss, singularValue - 1, singularValue, singularDepth, cutNode);
-          ss->excludedMove = MOVE_NONE;
-          if (value < singularValue)
-              extension = 1;
-      }
+      
+      if (!PvNode && depth >= 7 && !ss->ttHit)
+          checkFMext = true;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1134,13 +1124,13 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1 + 2 * rootNode - checkFMext
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(improving, depth , moveCount + (moveCount == 1));
 
           if (PvNode)
               r--;
@@ -1189,6 +1179,9 @@ moves_loop: // When in check, search starts here
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move, unless ttMove was extended by 2.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && moveCount <= 5 && !doubleExtension));
+
+          if (moveCount == 1 && d <= newDepth)
+              d = newDepth;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
