@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - 2 * depth;
-          Depth singularDepth = (depth - 1 + ss->ttPv) / 2;
+          Depth singularDepth = (depth - 1) / 2;
 
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1097,6 +1097,20 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
+
+      if (extension == 0 && !ss->ttHit && moveCount == 1 && PvNode
+          && !captureOrPromotion && depth > 10 && (*contHist[0])[movedPiece][to_sq(move)] > 20000
+          && (*contHist[1])[movedPiece][to_sq(move)] > 20000)
+      {
+          Value singularValue = alpha - 2 * depth;
+          Depth singularDepth = (depth) / 2;
+
+          ss->excludedMove = move;
+          value = search<NonPV>(pos, ss, singularValue - 1, singularValue, singularDepth, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value < singularValue)
+              extension = 1;
+      }
 
       // Add extension to new depth
       newDepth += extension;
