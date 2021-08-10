@@ -1099,7 +1099,7 @@ moves_loop: // When in check, search starts here
                && abs(ss->staticEval) > Value(100))
           extension = 1;
       
-      if (!rootNode && depth >= 7 && !ss->ttHit)
+      if (!rootNode && !ss->ttHit)
           checkFMext = true;
 
       // Add extension to new depth
