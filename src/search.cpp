@@ -951,7 +951,6 @@ moves_loop: // When in check, search starts here
     bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
-                         && !ss->inCheck
                          && tte->depth() >= depth;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
@@ -1662,6 +1661,9 @@ moves_loop: // When in check, search starts here
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+
+    else if ((ss-1)->moveCount == 1 && !pos.captured_piece())
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1 / 2);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
