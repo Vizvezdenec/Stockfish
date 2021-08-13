@@ -624,8 +624,6 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-
     // Update low ply history for previous move if we are near root and position is or has been in PV
     if (   ss->ttPv
         && depth > 12
@@ -652,7 +650,7 @@ namespace {
             if (ttValue >= beta)
             {
                 // Bonus for a quiet ttMove that fails high
-                if (!ttCapture)
+                if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -660,7 +658,7 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else if (!ttCapture)
+            else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
@@ -864,7 +862,7 @@ namespace {
         ss->ttPv = false;
 
         while (   (move = mp.next_move()) != MOVE_NONE
-               && probCutCount < 2 + 2 * cutNode - ttCapture)
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -913,6 +911,8 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
@@ -951,6 +951,7 @@ moves_loop: // When in check, search starts here
     bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
+                         && !ss->inCheck
                          && tte->depth() >= depth;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
