@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
-      if (  !rootNode\
+      if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
@@ -1095,6 +1095,7 @@ moves_loop: // When in check, search starts here
       }
       else if (   givesCheck
                && depth > 6
+               && !likelyFailLow
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
