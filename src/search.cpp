@@ -1094,7 +1094,7 @@ moves_loop: // When in check, search starts here
           }
       }
       else if (   givesCheck
-               && depth > 6 + 4 * likelyFailLow
+               && depth > 6 + 4 * !captureOrPromotion
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
