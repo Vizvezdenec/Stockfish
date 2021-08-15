@@ -911,7 +911,7 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove) && tte->depth() != DEPTH_NONE;
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
@@ -1094,7 +1094,7 @@ moves_loop: // When in check, search starts here
           }
       }
       else if (   givesCheck
-               && depth > 6
+               && depth > 6 + 4 * !captureOrPromotion
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
@@ -1518,8 +1518,8 @@ moves_loop: // When in check, search starts here
       // Continuation history based pruning
       if (  !captureOrPromotion
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < - (depth + 10) * 100
-          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < - (depth + 10) * 100)
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
 
       // Make and search the move
