@@ -72,8 +72,8 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn) {
-    int r = Reductions[d] * Reductions[mn];
+  Depth reduction(bool i, Depth d, int mn, bool lessRed) {
+    int r = Reductions[d] * Reductions[mn] / (1 + lessRed);
     return (r + 534) / 1024 + (!i && r > 904);
   }
 
@@ -991,6 +991,8 @@ moves_loop: // When in check, search starts here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      bool lessRed = thisThread->id() % 16 == 15;
+
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1000,7 +1002,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, lessRed), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1126,7 +1128,7 @@ moves_loop: // When in check, search starts here
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth, moveCount);
+          Depth r = reduction(improving, depth, moveCount, lessRed);
 
           if (PvNode)
               r--;
