@@ -1123,8 +1123,8 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || (!givesCheck && (ss->staticEval + PieceValue[EG][movedPiece] + 200 < alpha)))
+              || !ss->ttPv)
+          && !(givesCheck && PvNode && ss->ply < 2)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
