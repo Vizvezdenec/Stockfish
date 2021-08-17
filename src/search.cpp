@@ -957,7 +957,7 @@ moves_loop: // When in check, search starts here
                   && ttMove
                   && (tte->bound() & BOUND_UPPER)
                   && tte->depth() <= depth - 2
-                  && ttValue < alpha - 64;
+                  && ttValue < alpha - 256;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
