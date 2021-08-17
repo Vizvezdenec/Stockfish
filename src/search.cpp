@@ -647,7 +647,7 @@ namespace {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
         {
-            bool wayOff = std::abs(ttValue - beta) > 300;
+            bool wayOff = std::abs(ttValue - beta) > 500;
             if (ttValue >= beta)
             {
                 // Bonus for a quiet ttMove that fails high
