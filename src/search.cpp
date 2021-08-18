@@ -952,10 +952,6 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-                        
-    bool lflNonpv = !PvNode
-                    && ttMove
-                    && (tte->bound() & BOUND_UPPER);
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1025,6 +1021,13 @@ moves_loop: // When in check, search starts here
               if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
+                  continue;
+
+              if (   lmrDepth < 2
+                  && !ss->inCheck
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth
+                  && (*contHist[3])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth
+                  && (*contHist[5])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1127,8 +1130,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || lflNonpv)
+              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
