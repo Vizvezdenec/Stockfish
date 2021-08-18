@@ -956,6 +956,7 @@ moves_loop: // When in check, search starts here
     bool lflNpn = !PvNode 
                   && ttMove
                   && (tte->bound() & BOUND_UPPER)
+                  && tte->depth() >= depth / 2
                   && ttValue <= alpha;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
