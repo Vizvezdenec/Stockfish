@@ -1032,7 +1032,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(21 + 2 * ss->inCheck) * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(21 - 2 * ss->inCheck) * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
