@@ -1023,6 +1023,13 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
+              if (   lmrDepth < 3
+                  && !ss->inCheck
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth
+                  && (*contHist[3])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth
+                  && (*contHist[5])[movedPiece][to_sq(move)] < 1000 - 1000 * depth * depth)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1030,7 +1037,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-(21 - 2 * ss->inCheck) * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
