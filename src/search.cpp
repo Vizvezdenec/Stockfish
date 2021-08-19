@@ -1651,6 +1651,13 @@ moves_loop: // When in check, search starts here
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
+
+        if (bestValue > beta + PieceValue[EG][captured])
+            for (int i = 0; i < quietCount; ++i)
+            {
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            }
     }
     else
         // Increase stats for the best move in case it was a capture move
