@@ -1023,7 +1023,7 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
-              lmrDepth = std::max(0, lmrDepth - 2 * (!ss->ttPv && thisThread->bestMoveChanges <= 1));
+              lmrDepth = std::max(0, lmrDepth - (!PvNode && thisThread->bestMoveChanges <= 1 + !ss->ttPv));
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
