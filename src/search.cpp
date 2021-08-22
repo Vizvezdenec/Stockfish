@@ -1020,7 +1020,9 @@ moves_loop: // When in check, search starts here
               // Continuation history based pruning (~20 Elo)
               if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
-                  && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
+                  && ( (*contHist[3])[movedPiece][to_sq(move)] < 288 * depth * depth
+                    || (*contHist[5])[movedPiece][to_sq(move)] < 288 * depth * depth))
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1160,7 +1162,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + (tte->depth() >= depth && !captureOrPromotion);
+              r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
