@@ -1124,7 +1124,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(givesCheck && type_of(movedPiece) == BISHOP && (attacks_bb<KING>(to_sq(move)) & pos.square<KING>(~us)))
+          && !(givesCheck && captureOrPromotion && type_of(movedPiece) == BISHOP && (attacks_bb<KING>(to_sq(move)) & pos.square<KING>(~us)))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
