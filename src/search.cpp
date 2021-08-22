@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && !PvNode)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1174,7 +1174,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move in specific cases.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && ((moveCount <= 6 - 2 * !ss->ttPv) || (depth > 6 && PvNode)) && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
