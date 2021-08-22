@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && !PvNode)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1026,7 +1026,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
-                  && ss->staticEval + 174 + 157 * (lmrDepth - cutNode) <= alpha)
+                  && ss->staticEval + 174 + 157 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
