@@ -1152,7 +1152,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 1 + (move == ss->killers[0]);
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth + doubleExtension)
+              int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
