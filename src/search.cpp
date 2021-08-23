@@ -1023,6 +1023,8 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
+              lmrDepth = std::max(0, lmrDepth - (!PvNode && thisThread->bestMoveChanges <= 1));
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1124,7 +1126,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(givesCheck && captureOrPromotion && type_of(movedPiece) == BISHOP && (attacks_bb<KING>(to_sq(move)) & pos.square<KING>(~us)))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
