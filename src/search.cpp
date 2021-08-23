@@ -726,6 +726,8 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    bool highTempo = false;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -763,6 +765,9 @@ namespace {
         if(!excludedMove)
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
+
+    if ((ss-1)->currentMove == MOVE_NULL && std::abs(ss->staticEval + (ss-1)->staticEval) > 100)
+        highTempo = true;
 
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
@@ -1124,7 +1129,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && (!ss->inCheck || !PvNode)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1158,6 +1162,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
+
+          if (highTempo)
+              r--;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
