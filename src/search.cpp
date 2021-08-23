@@ -1018,7 +1018,7 @@ moves_loop: // When in check, search starts here
           else
           {
               // Continuation history based pruning (~20 Elo)
-                if   (thisThread->rootDepth  >= lmrDepth * 5
+              if (   lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
@@ -1124,6 +1124,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
+          && !(ss->ttPv && ss->inCheck)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
