@@ -914,9 +914,9 @@ moves_loop: // When in check, search starts here
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409;
+    probCutBeta = beta + 409 + 111 * PvNode;
     if (   ss->inCheck
-        && !PvNode
+        && !rootNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -1404,9 +1404,6 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
-        return ttValue;
-
-    if (PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE && ttValue >= beta && (tte->bound() & BOUND_LOWER))
         return ttValue;
 
     // Evaluate the position statically
