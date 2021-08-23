@@ -1018,7 +1018,7 @@ moves_loop: // When in check, search starts here
           else
           {
               // Continuation history based pruning (~20 Elo)
-              if (   lmrDepth < 5
+                if   (thisThread->rootDepth  >= lmrDepth * 5
                   && (*contHist[0])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
@@ -1170,9 +1170,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
-
-          if (r < -1 && (*contHist[0])[movedPiece][to_sq(move)] < 0)
-                  r++;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
