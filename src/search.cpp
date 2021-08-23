@@ -1023,14 +1023,6 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
-              if (   lmrDepth < 2
-                  && pos.rule50_count() > 20
-                  && !ss->inCheck
-                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
-                  && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1412,6 +1404,9 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
+        return ttValue;
+
+    if (PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE && ttValue >= beta && (tte->bound() & BOUND_LOWER))
         return ttValue;
 
     // Evaluate the position statically
