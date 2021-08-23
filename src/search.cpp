@@ -914,9 +914,9 @@ moves_loop: // When in check, search starts here
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409 + 111 * PvNode;
+    probCutBeta = beta + 409;
     if (   ss->inCheck
-        && !rootNode
+        && !PvNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -938,6 +938,7 @@ moves_loop: // When in check, search starts here
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
                                       contHist,
+                                      &thisThread->pieceSquareH,
                                       countermove,
                                       ss->killers,
                                       ss->ply);
@@ -1650,6 +1651,8 @@ moves_loop: // When in check, search starts here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
+            thisThread->pieceSquareH[pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
         }
     }
     else
@@ -1703,6 +1706,9 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+
+    thisThread->pieceSquareH[pos.moved_piece(move)][to_sq(move)] << bonus;
+    thisThread->pieceSquareH[pos.moved_piece(move)][from_sq(move)] << -bonus;
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)
