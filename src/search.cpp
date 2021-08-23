@@ -1023,6 +1023,14 @@ moves_loop: // When in check, search starts here
                   && (*contHist[1])[movedPiece][to_sq(move)] < 23 - 23 * depth * depth)
                   continue;
 
+              if (   lmrDepth < 2
+                  && pos.rule50_count() > 20
+                  && !ss->inCheck
+                  && (*contHist[1])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[3])[movedPiece][to_sq(move)] < CounterMovePruneThreshold
+                  && (*contHist[5])[movedPiece][to_sq(move)] < CounterMovePruneThreshold)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1123,10 +1131,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv
-              || (type_of(move) == PROMOTION 
-              && (   type_of(pos.piece_on(to_sq(move))) == BISHOP 
-                  || type_of(pos.piece_on(to_sq(move))) == ROOK)))
+              || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
