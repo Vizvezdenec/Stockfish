@@ -988,8 +988,6 @@ moves_loop: // When in check, search starts here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      bool refutedDext = doubleExtension && bestValue >= ttValue && bestMove != ttMove;
-
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1067,10 +1065,10 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+                  && value < singularBeta - 93)
               {
-                  extension = 2;
+                  if (ss->doubleExtensions < 3)
+                      extension = 2;
                   doubleExtension = true;
               }
           }
@@ -1163,9 +1161,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (refutedDext)
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
