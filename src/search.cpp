@@ -988,6 +988,8 @@ moves_loop: // When in check, search starts here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      bool refutedDext = doubleExtension && bestValue >= ttValue && bestMove != ttMove;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1043,6 +1045,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
+          &&  depth >= 7
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1057,7 +1060,7 @@ moves_loop: // When in check, search starts here
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
 
-          if (value < singularBeta && depth >= 7)
+          if (value < singularBeta)
           {
               extension = 1;
               singularQuietLMR = !ttCapture;
@@ -1077,12 +1080,12 @@ moves_loop: // When in check, search starts here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta && value >= singularBeta)
+          else if (singularBeta >= beta)
               return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
-          else if (ttValue >= beta && value >= singularBeta)
+          else if (ttValue >= beta)
           {
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
@@ -1160,6 +1163,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (refutedDext)
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
