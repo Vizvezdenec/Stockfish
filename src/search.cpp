@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts here
               {
                   extension = 2;
               }
-              doubleExtension = !PvNode && value < singularBeta - 63;
+              doubleExtension = !PvNode && value < singularBeta - 103;
           }
 
           // Multi-cut pruning
