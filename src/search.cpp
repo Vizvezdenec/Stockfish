@@ -1043,7 +1043,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 7 - (PvNode && tte->is_pv() && ttValue >= alpha)
+          &&  depth >= 7
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1069,8 +1069,8 @@ moves_loop: // When in check, search starts here
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
-                  doubleExtension = true;
               }
+              doubleExtension = !PvNode && value < singularBeta - 63;
           }
 
           // Multi-cut pruning
