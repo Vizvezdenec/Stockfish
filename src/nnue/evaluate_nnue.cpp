@@ -168,7 +168,7 @@ namespace Stockfish::Eval::NNUE {
     int positional  = output[0];
 
     int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-    int entertainment = (adjusted && delta_npm <= RookValueMg - KnightValueMg ? 7 : 0);
+    int entertainment = adjusted * (std::max(KnightValueMg - delta_npm, Value(0)) / 128);
 
     int A = 128 - entertainment;
     int B = 128 + entertainment;
