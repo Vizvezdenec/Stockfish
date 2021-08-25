@@ -171,7 +171,7 @@ namespace Stockfish::Eval::NNUE {
     int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
 
     if (adjusted && pos.count<QUEEN>(WHITE) != pos.count<QUEEN>(BLACK) && delta_npm < QueenValueMg - BishopValueMg)
-        entertainment += 4;
+        entertainment += 7;
 
     int A = 128 - entertainment;
     int B = 128 + entertainment;
