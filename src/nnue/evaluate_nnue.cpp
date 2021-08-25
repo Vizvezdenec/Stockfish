@@ -168,12 +168,15 @@ namespace Stockfish::Eval::NNUE {
     int positional  = output[0];
 
     int delta_npm = abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK));
-    int entertainment = adjusted * (std::max(RookValueMg - KnightValueMg - delta_npm, Value(0)) / 64);
+    int entertainment = (adjusted && delta_npm <= BishopValueMg - KnightValueMg ? 7 : 0);
 
     int A = 128 - entertainment;
     int B = 128 + entertainment;
 
     int sum = (A * materialist + B * positional) / 128;
+
+    if (abs(sum) < 100 && abs(positional) > 1000)
+        sum += positional / 16;
 
     return static_cast<Value>( sum / OutputScale );
   }
