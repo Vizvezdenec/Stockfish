@@ -1007,9 +1007,16 @@ moves_loop: // When in check, search starts here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1 + moveCountPruning
+                  && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
+
+              if (    !givesCheck
+                   && !ss->inCheck
+                   && !ss->ttPv
+                   && lmrDepth < 6
+                   && ss->staticEval + 292 + 200 * lmrDepth + PieceValue[MG][pos.piece_on(to_sq(move))] <= alpha)
+                   continue;
 
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
