@@ -1014,8 +1014,8 @@ moves_loop: // When in check, search starts here
               if (    !givesCheck
                    && !ss->inCheck
                    && !ss->ttPv
-                   && lmrDepth < 8
-                   && ss->staticEval + 592 + 410 * lmrDepth + PieceValue[MG][pos.piece_on(to_sq(move))] <= alpha)
+                   && lmrDepth < 4
+                   && ss->staticEval + 300 + 410 * lmrDepth + PieceValue[MG][pos.piece_on(to_sq(move))] <= alpha)
                    continue;
 
               // SEE based pruning
