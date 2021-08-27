@@ -1013,7 +1013,6 @@ moves_loop: // When in check, search starts here
 
               if (    !givesCheck
                    && !ss->inCheck
-                   && !ss->ttPv
                    && lmrDepth < 1
                    && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
                    continue;
