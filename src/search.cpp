@@ -1022,7 +1022,8 @@ moves_loop: // When in check, search starts here
                   && thisThread->mainHistory[us][from_to(move)]
                    + 2 * (*contHist[0])[movedPiece][to_sq(move)]
                    + (*contHist[1])[movedPiece][to_sq(move)]
-                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
+                   + (*contHist[3])[movedPiece][to_sq(move)] 
+                   + (*contHist[5])[movedPiece][to_sq(move)]< -3000 * depth + 3000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
