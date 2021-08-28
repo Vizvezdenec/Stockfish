@@ -1024,14 +1024,6 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
-              if (lmrDepth < 2
-                  && pos.rule50_count() > 20
-                  && !ss->inCheck
-                  && (*contHist[1])[movedPiece][to_sq(move)]
-                  + (*contHist[3])[movedPiece][to_sq(move)]
-                  + (*contHist[5])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
-                  continue;
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1088,7 +1080,7 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return singularBeta;
+              return std::min(ttValue, value);
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
