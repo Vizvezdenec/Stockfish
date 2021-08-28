@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return std::min(ttValue, value);
+              return singularBeta;
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so also produce a cutoff.
@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-                  return std::min(ttValue, value);
+                  return beta;
           }
       }
       else if (   givesCheck
@@ -1651,6 +1651,8 @@ moves_loop: // When in check, search starts here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            if (depth > 11)
+                thisThread->lowPlyHistory[ss->ply][from_to(quietsSearched[i])] << -stat_bonus(depth - 7);
         }
     }
     else
