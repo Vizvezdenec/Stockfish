@@ -1654,8 +1654,11 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus1 / 16);
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1669,6 +1672,7 @@ moves_loop: // When in check, search starts here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        update_continuation_histories(ss, pos.moved_piece(capturesSearched[i]), to_sq(capturesSearched[i]), bonus1 / 16);
     }
   }
 
