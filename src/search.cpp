@@ -600,7 +600,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+4)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1305,15 +1305,9 @@ moves_loop: // When in check, search starts here
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
 
     if (!moveCount)
-    {
         bestValue = excludedMove ? alpha :
                     ss->inCheck  ? mated_in(ss->ply)
                                  : VALUE_DRAW;
-        if (!excludedMove && !priorCapture && bestValue <= alpha && (depth >= 3 || PvNode))
-        {
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth));
-        }
-    }
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
