@@ -1640,7 +1640,7 @@ moves_loop: // When in check, search starts here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1                                 // larger bonus
                                             : std::min(bonus1, stat_bonus(depth));   // smaller bonus
-    int smolbonus = bonus1 / 32;
+    int smolbonus = bonus1 / 8;
 
     if (!pos.capture_or_promotion(bestMove))
     {
