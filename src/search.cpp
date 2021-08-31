@@ -1098,6 +1098,8 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
+      else if (   PvNode && captureOrPromotion && moveCount != 1 && !likelyFailLow && depth >= 7 && givesCheck)
+          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1125,7 +1127,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(PvNode && priorCapture && ss->inCheck)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
