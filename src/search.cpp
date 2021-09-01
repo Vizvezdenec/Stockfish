@@ -1098,8 +1098,7 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
-      else if (   PvNode && captureOrPromotion && moveCount != 1
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0)
+      else if (   PvNode && captureOrPromotion && moveCount != 1 && depth >= 7)
           extension = 1;
 
       // Add extension to new depth
