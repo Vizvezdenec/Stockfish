@@ -1094,7 +1094,7 @@ moves_loop: // When in check, search starts here
                   return beta;
           }
       }
-      else if (   PvNode && captureOrPromotion)
+      else if (   !PvNode && captureOrPromotion && moveCount != 1)
           extension = 1;
       else if (   givesCheck
                && depth > 6
