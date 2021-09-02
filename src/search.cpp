@@ -1094,8 +1094,6 @@ moves_loop: // When in check, search starts here
                   return beta;
           }
       }
-      else if (   PvNode && captureOrPromotion && moveCount != 1 && ss->ply < 5)
-          extension = 1;
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > Value(100))
@@ -1127,6 +1125,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
+          && !(PvNode && priorCapture && ss->inCheck && ss->ply < 5)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
