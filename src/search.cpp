@@ -601,7 +601,6 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    ss->lmrExtension = false;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1095,6 +1094,8 @@ moves_loop: // When in check, search starts here
                   return beta;
           }
       }
+      else if (   PvNode && captureOrPromotion && moveCount != 1 && ss->ply < 5)
+          extension = 1;
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > Value(100))
@@ -1164,9 +1165,6 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if ((ss-1)->lmrExtension)
-              r--;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1181,11 +1179,7 @@ moves_loop: // When in check, search starts here
           // to be searched deeper than the first move in specific cases.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
-          ss->lmrExtension = PvNode && d > newDepth;
-
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          ss->lmrExtension = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
