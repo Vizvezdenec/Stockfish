@@ -601,6 +601,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    ss->reduction = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
@@ -1163,6 +1164,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if ((ss-1)->reduction > 6)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1171,6 +1175,8 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
+
+          ss->reduction = r;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
@@ -1187,6 +1193,7 @@ moves_loop: // When in check, search starts here
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
+          ss->reduction = 0;
       }
 
       // Step 17. Full depth search when LMR is skipped or fails high
