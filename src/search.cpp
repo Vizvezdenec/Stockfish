@@ -1065,11 +1065,12 @@ moves_loop: // When in check, search starts here
               singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
-              if (value < singularBeta - 93)
+              if (   !PvNode
+                  && value < singularBeta - 93
+                  && ss->doubleExtensions < 3)
               {
-                  if (!PvNode && ss->doubleExtensions < 3)
-                    extension = 2;
-                  doubleExtension = !PvNode || value < singularBeta - 492;
+                  extension = 2;
+                  doubleExtension = true;
               }
           }
 
@@ -1128,7 +1129,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          if (PvNode)
+          if (PvNode && captureOrPromotion)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
