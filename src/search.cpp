@@ -1122,7 +1122,7 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(PvNode && priorCapture && ss->ply < 3 && ss->inCheck)
+          && !(PvNode && priorCapture && !ttCapture && ss->inCheck)
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
