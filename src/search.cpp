@@ -602,7 +602,6 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    (ss+2)->captCut = false;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -652,11 +651,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high
                 if (!pos.capture_or_promotion(ttMove))
-                {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
-                    ss->captCut = false;
-                }
-                else ss->captCut = true;
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -1070,12 +1065,11 @@ moves_loop: // When in check, search starts here
               singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
-              if (   !PvNode
-                  && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+              if (value < singularBeta - 93)
               {
-                  extension = 2;
-                  doubleExtension = true;
+                  if (!PvNode && ss->doubleExtensions < 3)
+                    extension = 2;
+                  doubleExtension = !PvNode || value < singularBeta - 492;
               }
           }
 
@@ -1176,9 +1170,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
-
-          if (!ttMove && ss->captCut && !captureOrPromotion)
-              r++;
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
@@ -1319,11 +1310,8 @@ moves_loop: // When in check, search starts here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
-    {
-        ss->captCut = pos.capture_or_promotion(bestMove);
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
