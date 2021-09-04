@@ -1096,7 +1096,8 @@ moves_loop: // When in check, search starts here
       }
       else if (   givesCheck
                && depth > 6
-               && PvNode)
+               && PvNode
+               && moveCount != 1)
           extension = 1;
 
       // Add extension to new depth
