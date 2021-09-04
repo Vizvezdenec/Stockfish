@@ -1092,19 +1092,11 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
                   return beta;
-              else 
-              {
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, (depth + 3) / 2, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-                  if (value < singularBeta)
-                      extension = 1;
-              }
           }
       }
       else if (   givesCheck
                && depth > 6
-               && abs(ss->staticEval) > Value(100))
+               && PvNode)
           extension = 1;
 
       // Add extension to new depth
