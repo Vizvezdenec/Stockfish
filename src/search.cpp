@@ -1092,7 +1092,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
                   return beta;
-              else if (value < beta - 2 * depth)
+              else if (value < singularBeta)
                   extension = 1;
           }
       }
