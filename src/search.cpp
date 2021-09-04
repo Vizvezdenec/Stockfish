@@ -1097,8 +1097,7 @@ moves_loop: // When in check, search starts here
       else if (  (givesCheck || captureOrPromotion)
                && depth > 6
                && PvNode
-               && moveCount != 1
-               && abs(ss->staticEval) > Value(100))
+               && moveCount != 1)
           extension = 1;
 
       // Add extension to new depth
