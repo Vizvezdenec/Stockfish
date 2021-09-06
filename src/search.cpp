@@ -952,6 +952,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+                        
+    int lmrExtCnt = 0;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1012,7 +1014,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-228) * (depth - cutNode))) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1175,7 +1177,9 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move in specific cases.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && lmrExtCnt < 6 && !doubleExtension));
+
+          lmrExtCnt += d > newDepth;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
