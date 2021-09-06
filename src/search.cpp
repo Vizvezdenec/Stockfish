@@ -953,8 +953,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool lmrExt = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1160,6 +1158,8 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
+          else if (!PvNode && !cutNode && moveCount > 21)
+              r++;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
@@ -1177,9 +1177,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move in specific cases.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || !lmrExt || (depth > 6 && PvNode)) && !doubleExtension));
-
-          lmrExt |= d > newDepth && (PvNode || cutNode);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
