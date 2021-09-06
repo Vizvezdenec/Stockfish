@@ -1179,7 +1179,7 @@ moves_loop: // When in check, search starts here
           // to be searched deeper than the first move in specific cases.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || !lmrExt || (depth > 6 && PvNode)) && !doubleExtension));
 
-          lmrExt |= d > newDepth && PvNode;
+          lmrExt |= d > newDepth && (PvNode || cutNode);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
