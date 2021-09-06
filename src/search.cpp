@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (movesFS >= 16)
+          if (movesFS >= 24)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
