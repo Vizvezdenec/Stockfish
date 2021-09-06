@@ -1158,12 +1158,13 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
-          else if (!PvNode && !cutNode && moveCount > 21)
-              r++;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (!PvNode && !cutNode && ss->staticEval < alpha - 800 && captureOrPromotion)
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
