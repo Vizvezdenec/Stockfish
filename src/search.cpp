@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (movesFS >= 4)
+          if (movesFS >= 8)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1183,6 +1183,8 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          movesFS += !PvNode && d >= newDepth;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
