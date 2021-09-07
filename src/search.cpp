@@ -1097,7 +1097,7 @@ moves_loop: // When in check, search starts here
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
-               && moveCount < 8 * depth
+               && moveCount < 4 * depth
                && captureOrPromotion 
                && moveCount != 1)
           extension = 1;
