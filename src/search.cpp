@@ -1024,6 +1024,11 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
+              if (   ss->inCheck && depth == 1 
+                  && (*contHist[0])[movedPiece][to_sq(move)] < 0
+                  && (*contHist[1])[movedPiece][to_sq(move)] < 0)
+                  continue;
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 7
@@ -1183,7 +1188,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
           // to be searched deeper than the first move in specific cases.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 + (moveCount == 2 && move == ss->killers[0]) && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
