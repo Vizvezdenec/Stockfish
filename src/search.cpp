@@ -1096,7 +1096,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (ss->ttPv || cutNode) 
+      else if (   (PvNode || cutNode) 
                && captureOrPromotion 
                && moveCount != 1)
           extension = 1;
@@ -1171,6 +1171,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (!captureOrPromotion)
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
