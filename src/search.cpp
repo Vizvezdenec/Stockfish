@@ -1171,8 +1171,6 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (!captureOrPromotion)
-          {
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1181,7 +1179,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
-          }
 
           // In general we want to cap the LMR depth search at newDepth. But if
           // reductions are really negative and movecount is low, we allow this move
@@ -1665,8 +1662,11 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        update_continuation_histories(ss, moved_piece, to_sq(bestMove), bonus1 / 32);
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1680,6 +1680,7 @@ moves_loop: // When in check, search starts here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        update_continuation_histories(ss, pos.moved_piece(capturesSearched[i]), to_sq(capturesSearched[i]), -bonus1 / 32);
     }
   }
 
