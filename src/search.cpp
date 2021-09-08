@@ -1066,7 +1066,6 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && (ttCapture || cutNode)
                   && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
               {
@@ -1096,17 +1095,17 @@ moves_loop: // When in check, search starts here
           }
       }
 
-      // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode) 
-               && captureOrPromotion 
-               && moveCount != 1)
-          extension = 1;
-
       // Check extensions
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
+
+          // Capture extensions for PvNodes and cutNodes
+      if (   (PvNode || cutNode) 
+               && captureOrPromotion 
+               && moveCount != 1)
+          extension++;
 
       // Add extension to new depth
       newDepth += extension;
