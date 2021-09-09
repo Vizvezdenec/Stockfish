@@ -603,6 +603,7 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    bool redPv = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -907,13 +908,7 @@ namespace {
     if (   PvNode
         && depth >= 6
         && !ttMove)
-        depth -= 2;
-
-    if (   cutNode
-        && depth >= 6
-        && !ttMove)
-        depth--;
-
+        depth -= 2, redPv = true;
 
 moves_loop: // When in check, search starts here
 
@@ -1105,7 +1100,7 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
                && moveCount != 1)
-          extension = 1;
+          extension = 1 + redPv;
 
       // Check extensions
       else if (   givesCheck
