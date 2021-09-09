@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
-               && (!excludedMove || captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 0)
+               && (!excludedMove || depth < 6)
                && moveCount != 1)
           extension = 1;
 
