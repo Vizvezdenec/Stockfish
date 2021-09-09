@@ -1101,7 +1101,6 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
-               && !ss->singularSearch
                && moveCount != 1)
           extension = 1;
 
@@ -1168,7 +1167,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0])
+          if (cutNode && move != ss->killers[0] && !ss->singularSearch)
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
