@@ -909,13 +909,6 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    
-    if (   cutNode
-        && depth >= 9
-        && thisThread->nodes % 2
-        && !ttMove)
-        depth--;
-
 moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
@@ -1105,6 +1098,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
+               && (!excludedMove || thisThread->nodes % 2)
                && moveCount != 1)
           extension = 1;
 
