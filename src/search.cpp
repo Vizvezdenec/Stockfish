@@ -910,7 +910,7 @@ namespace {
         depth -= 2;
 
     if (   cutNode
-        && depth >= 9
+        && depth >= 8
         && !ttMove)
         depth--;
 
@@ -953,7 +953,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =   (PvNode || (cutNode && depth > 5))
+    bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
