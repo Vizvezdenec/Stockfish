@@ -903,8 +903,6 @@ namespace {
          ss->ttPv = ttPv;
     }
 
-moves_loop: // When in check, search starts here
-
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
     if (   PvNode
         && depth >= 6
@@ -915,6 +913,8 @@ moves_loop: // When in check, search starts here
         && depth >= 9
         && !ttMove)
         depth--;
+
+moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
@@ -953,7 +953,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =    PvNode
+    bool likelyFailLow =   (PvNode || cutNode)
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
@@ -1151,9 +1151,8 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
-          if (   ss->ttPv
-              && !likelyFailLow)
-              r -= 2;
+          if (   ss->ttPv)
+              r -= 2 - likelyFailLow ? (PvNode ? 2 : 1) : 0;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
           if (   (rootNode || !PvNode)
