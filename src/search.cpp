@@ -636,11 +636,6 @@ namespace {
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
                                 + TtHitAverageResolution * ss->ttHit;
 
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
-
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -775,6 +770,11 @@ namespace {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
 
     // Set up improving flag that is used in various pruning heuristics
     // We define position as improving if static evaluation of position is better
