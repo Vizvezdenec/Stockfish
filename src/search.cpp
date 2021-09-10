@@ -764,6 +764,17 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+        // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
+    if (   PvNode
+        && depth >= 6
+        && !ttMove)
+        depth -= 2;
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
+
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
@@ -903,20 +914,9 @@ namespace {
          ss->ttPv = ttPv;
     }
 
-    // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
-    if (   PvNode
-        && depth >= 6
-        && !ttMove)
-        depth -= 2;
-
 moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
