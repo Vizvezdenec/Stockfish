@@ -910,7 +910,7 @@ namespace {
         depth -= 2;
 
     if (   cutNode
-        && depth >= 8
+        && depth >= 10
         && !ttMove)
         depth--;
 
