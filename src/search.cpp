@@ -550,7 +550,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth, initialDepth;
+    Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
@@ -566,7 +566,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    initialDepth = depth;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -765,6 +764,11 @@ namespace {
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
+
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
@@ -909,11 +913,6 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
-
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
 
 moves_loop: // When in check, search starts here
 
@@ -1105,7 +1104,7 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
                && moveCount != 1)
-          extension = 1 + (depth != initialDepth);
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
