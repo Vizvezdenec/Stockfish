@@ -914,6 +914,12 @@ namespace {
         && !ttMove)
         depth--;
 
+    if (   !cutNode
+        &&!PvNode
+        && depth >= 11
+        && !ttMove)
+        depth--;
+
 moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
