@@ -909,14 +909,8 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    if (   cutNode
+    if (   !PvNode
         && depth >= 9
-        && !ttMove)
-        depth--;
-
-    if (   !cutNode
-        &&!PvNode
-        && depth >= 11
         && !ttMove)
         depth--;
 
