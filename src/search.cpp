@@ -771,11 +771,6 @@ namespace {
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
-
     // Set up improving flag that is used in various pruning heuristics
     // We define position as improving if static evaluation of position is better
     // Than the previous static evaluation at our turn
@@ -917,6 +912,11 @@ namespace {
 moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
