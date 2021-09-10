@@ -909,10 +909,9 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    if (   !PvNode
-        && depth >= 9
+    if (   cutNode
         && !ttMove)
-        depth--;
+        depth -= depth / 8;
 
 moves_loop: // When in check, search starts here
 
