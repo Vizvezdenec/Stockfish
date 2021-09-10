@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
                && captureOrPromotion 
-               && (!excludedMove || thisThread->nodes % 2)
+               && (!excludedMove || ss->staticEval + PieceValue[MG][pos.piece_on(to_sq(move))] >= alpha)
                && moveCount != 1)
           extension = 1;
 
