@@ -932,6 +932,9 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
+    if (ttValue < alpha - 180 * depth && tte->depth() < 0)
+        ttMove = MOVE_NONE;
+
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1135,7 +1138,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && !(captureOrPromotion && !pos.non_pawn_material())
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
