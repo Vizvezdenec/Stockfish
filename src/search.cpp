@@ -932,9 +932,6 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
-    if (ttValue < alpha - 180 * depth && tte->depth() < 0)
-        ttMove = MOVE_NONE;
-
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1178,6 +1175,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (!pos.non_pawn_material())
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
