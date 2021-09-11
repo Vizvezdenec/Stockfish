@@ -1176,6 +1176,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (!pos.non_pawn_material() && type_of(movedPiece) == PAWN)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1190,7 +1193,7 @@ moves_loop: // When in check, search starts here
           // to be searched deeper than the first move in specific cases.
           Depth d = std::clamp(newDepth - r, 1, newDepth + (r < -1 && (moveCount <= 5 || (depth > 6 && PvNode)) && !doubleExtension));
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, r > -5);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
