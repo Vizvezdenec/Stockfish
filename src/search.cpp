@@ -953,7 +953,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =   (PvNode || (cutNode && depth <= 6))
+    bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93
+                  && value < singularBeta - 103 + 20 * cutNode
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
