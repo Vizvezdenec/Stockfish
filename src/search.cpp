@@ -1176,6 +1176,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (!pos.non_pawn_material() && type_of(movedPiece) == PAWN)
+              r -= 2;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
