@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (pos.non_pawn_material() <= RookValueMg && type_of(movedPiece) == PAWN)
+          if (pos.non_pawn_material() <= RookValueMg && type_of(movedPiece) != KING)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
