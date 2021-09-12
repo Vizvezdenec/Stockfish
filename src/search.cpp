@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int actualMoveCount = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1003,6 +1005,7 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning &= (!PvNode || actualMoveCount >= moveCount / 4);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
@@ -1040,6 +1043,8 @@ moves_loop: // When in check, search starts here
                   continue;
           }
       }
+
+      actualMoveCount++;
 
       // Step 14. Extensions (~75 Elo)
 
@@ -1097,8 +1102,6 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
                   return beta;
-              else if (!PvNode && value < beta - 122)
-                  extension = 1;
           }
       }
 
