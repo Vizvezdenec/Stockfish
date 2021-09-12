@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode) 
-               && captureOrPromotion 
+               && (captureOrPromotion || (!pos.non_pawn_material() && type_of(movedPiece) == PAWN))
                && moveCount != 1)
           extension = 1;
 
@@ -1175,9 +1175,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (!pos.non_pawn_material() && (captureOrPromotion || type_of(movedPiece) == PAWN))
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
