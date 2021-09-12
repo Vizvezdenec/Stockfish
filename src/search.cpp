@@ -1097,13 +1097,14 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
                   return beta;
+              else if (!PvNode && value < beta - 122)
+                  extension = 1;
           }
       }
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
-               && ss->moveCount - (ss-1)->moveCount < 30
                && moveCount != 1)
           extension = 1;
 
