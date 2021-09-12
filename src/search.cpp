@@ -1075,8 +1075,6 @@ moves_loop: // When in check, search starts here
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
-                  if (!captureOrPromotion)
-                      update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
                   doubleExtension = true;
               }
           }
@@ -1332,7 +1330,11 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
+    {
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+        if (excludedMove && !pos.capture_or_promotion(excludedMove))
+            update_quiet_stats(pos, ss, excludedMove, stat_bonus(depth), depth);
+    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
