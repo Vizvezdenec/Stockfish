@@ -1137,7 +1137,8 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
-              || !ss->ttPv)
+              || !ss->ttPv
+              || (ttCapture && !PvNode))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount);
@@ -1330,11 +1331,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-    {
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
-        if (excludedMove && !pos.capture_or_promotion(excludedMove))
-            update_quiet_stats(pos, ss, excludedMove, stat_bonus(depth), depth);
-    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
