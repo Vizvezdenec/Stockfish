@@ -1108,7 +1108,7 @@ moves_loop: // When in check, search starts here
 
       // Check extensions
       else if (   givesCheck
-               && depth > 6
+               && (depth > 6 || cutNode || PvNode)
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
@@ -1175,9 +1175,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (pos.non_pawn_material() <= RookValueMg && type_of(movedPiece) != KING)
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
