@@ -1109,6 +1109,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && moveCount != 1
+               && depth > 4
                && (PvNode || cutNode))
           extension = 1;
 
