@@ -1108,8 +1108,8 @@ moves_loop: // When in check, search starts here
 
       // Check extensions
       else if (   givesCheck
-               && (depth > 6 || cutNode || PvNode)
-               && abs(ss->staticEval) > Value(100))
+               && moveCount != 1
+               && (PvNode || cutNode))
           extension = 1;
 
       // Add extension to new depth
