@@ -325,7 +325,7 @@ void Thread::search() {
   {
       bvCache2 = bvCache1;
       bvCache1 = bestValue;
-      wideSwing = rootDepth >=6 && std::abs(bvCache1 - bvCache2) > 150;
+      wideSwing = rootDepth >=6 && std::abs(bvCache1 - bvCache2) > 60;
       // Age out PV variability metric
       if (mainThread)
           totBestMoveChanges /= 2;
