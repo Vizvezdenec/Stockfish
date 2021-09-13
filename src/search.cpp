@@ -997,7 +997,7 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-      moveCountPruning = !rootNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount >= futility_move_count(improving, depth);
+      moveCountPruning = !rootNode && pos.non_pawn_material() && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount >= futility_move_count(improving, depth);
 
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
