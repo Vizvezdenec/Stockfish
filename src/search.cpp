@@ -1497,7 +1497,7 @@ moves_loop: // When in check, search starts here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > 2 && pos.non_pawn_material())
+          if (moveCount > 2 && pos.non_pawn_material(pos.side_to_move()))
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
