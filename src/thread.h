@@ -63,6 +63,7 @@ public:
   uint64_t ttHitAverage;
   int selDepth, nmpMinPly;
   Color nmpColor;
+  bool wideSwing;
   std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
 
   Position rootPos;

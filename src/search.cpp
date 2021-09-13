@@ -315,12 +315,17 @@ void Thread::search() {
   trend = SCORE_ZERO;
 
   int searchAgainCounter = 0;
+  Value bvCache1 = Value(0);
+  Value bvCache2 = Value(0);
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
          && !(Limits.depth && mainThread && rootDepth > Limits.depth))
   {
+      bvCache2 = bvCache1;
+      bvCache1 = bestValue;
+      wideSwing = rootDepth >=6 && std::abs(bvCache1 - bvCache2) > 100;
       // Age out PV variability metric
       if (mainThread)
           totBestMoveChanges /= 2;
@@ -998,6 +1003,7 @@ moves_loop: // When in check, search starts here
 
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
+          && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
@@ -1174,6 +1180,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (rootNode && thisThread->wideSwing)
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
