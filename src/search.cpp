@@ -1143,7 +1143,7 @@ moves_loop: // When in check, search starts here
           Depth r = reduction(improving, depth, moveCount);
 
           if (PvNode)
-              r--;
+              r -= 1 + (ss->ply < 2);
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage > 537 * TtHitAverageResolution * TtHitAverageWindow / 1024)
