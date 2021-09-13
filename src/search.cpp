@@ -958,8 +958,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int actualMoveCount = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -998,15 +996,14 @@ moves_loop: // When in check, search starts here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
+      moveCountPruning = !rootNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && moveCount >= futility_move_count(improving, depth);
+
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
           && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
-          // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          moveCountPruning &= (!PvNode || actualMoveCount >= moveCount / 2);
-
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
@@ -1043,8 +1040,6 @@ moves_loop: // When in check, search starts here
                   continue;
           }
       }
-
-      actualMoveCount++;
 
       // Step 14. Extensions (~75 Elo)
 
