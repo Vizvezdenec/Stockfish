@@ -1017,7 +1017,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               if (   depth == 1 && !givesCheck && type_of(move) != PROMOTION
-                  && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move)) + 155 < alpha])
+                  && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move)) + 355 < alpha])
                   continue;
 
               // SEE based pruning
