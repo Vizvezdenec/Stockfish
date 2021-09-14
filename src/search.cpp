@@ -1129,6 +1129,9 @@ moves_loop: // When in check, search starts here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
+      if ((PvNode || cutNode) && givesCheck && !extension && more_than_one(pos.checkers()))
+          newDepth++;
+
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1142,7 +1145,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount);
 
-          if (PvNode && (ss->ply + depth) > thisThread->rootDepth / 2)
+          if (PvNode)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
