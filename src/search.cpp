@@ -1016,6 +1016,10 @@ moves_loop: // When in check, search starts here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   depth == 1 && !givesCheck && type_of(move) != PROMOTION
+                  && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move)) + 155 < alpha])
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1328,13 +1332,9 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 || PvNode))
-    {
-        if (!priorCapture)
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
-        else
-            captureHistory[pos.piece_on(prevSq)][prevSq][pos.captured_piece()] << stat_bonus(depth) * (1 + (PvNode || cutNode));
-    }
+    else if (   (depth >= 3 || PvNode)
+             && !priorCapture)
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
