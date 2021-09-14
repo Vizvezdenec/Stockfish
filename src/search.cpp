@@ -658,11 +658,16 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else if (!pos.capture_or_promotion(ttMove))
+            else 
+            {
+            if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+            }
+                if (!priorCapture)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth) * (depth + cutNode));
             }
         }
 
@@ -1128,9 +1133,6 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
-
-      if ((PvNode || cutNode) && givesCheck && !extension && moveCount != 1 && more_than_one(pos.checkers()))
-          newDepth++;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
