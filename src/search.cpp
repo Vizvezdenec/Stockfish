@@ -1129,7 +1129,7 @@ moves_loop: // When in check, search starts here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      if ((PvNode || cutNode) && givesCheck && !extension && more_than_one(pos.checkers()))
+      if ((PvNode || cutNode) && givesCheck && !extension && moveCount != 1 && more_than_one(pos.checkers()))
           newDepth++;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
