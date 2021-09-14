@@ -658,16 +658,11 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else 
-            {
-            if (!pos.capture_or_promotion(ttMove))
+            else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-            }
-                if (!priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth) * (depth + cutNode));
             }
         }
 
@@ -1333,9 +1328,13 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 || PvNode)
-             && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+    else if (   (depth >= 3 || PvNode))
+    {
+        if (!priorCapture)
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+        else
+            captureHistory[pos.piece_on(prevSq)][prevSq][pos.captured_piece()] << stat_bonus(depth) * (1 + (PvNode || cutNode));
+    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
