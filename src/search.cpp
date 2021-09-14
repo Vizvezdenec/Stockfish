@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool extFail = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1098,10 +1100,11 @@ moves_loop: // When in check, search starts here
               if (value >= beta)
                   return beta;
           }
+          extFail = !extension;
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode || !ss->ttPv)
+      else if (   (PvNode || cutNode || extFail)
                && captureOrPromotion
                && moveCount != 1)
           extension = 1;
