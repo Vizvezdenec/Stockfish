@@ -1100,7 +1100,7 @@ moves_loop: // When in check, search starts here
               if (value >= beta)
                   return beta;
           }
-          extFail = !extension;
+          extFail = extension;
       }
 
       // Capture extensions for PvNodes and cutNodes
