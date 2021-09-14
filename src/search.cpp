@@ -1103,6 +1103,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
+               && !doubleExtension
                && moveCount != 1)
           extension = 1;
 
@@ -1460,11 +1461,7 @@ moves_loop: // When in check, search starts here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        bool improving =  (ss-2)->staticEval == VALUE_NONE
-               ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
-               : ss->staticEval > (ss-2)->staticEval;
-
-        futilityBase = bestValue + 135 + 60 * improving;
+        futilityBase = bestValue + 155;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
