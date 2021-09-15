@@ -66,7 +66,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(214 * (d - improving));
+    return Value(200 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -782,7 +782,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
     if (   !PvNode
-        &&  depth < 11
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
