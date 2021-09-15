@@ -837,12 +837,12 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 189 - 44 * improving;
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (    cutNode
+    if (   (cutNode || (!PvNode && !ss->ttPv))
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -861,7 +861,7 @@ namespace {
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE)
+        while (   (move = mp.next_move()) != MOVE_NONE && (cutNode || probCutCount < 1))
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
