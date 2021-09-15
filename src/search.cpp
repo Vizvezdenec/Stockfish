@@ -1677,10 +1677,9 @@ moves_loop: // When in check, search starts here
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (bestq)
         {
-            if (ss->killers[0] != bestq)
+            if (ss->killers[1] != bestq)
             {
-                ss->killers[1] = ss->killers[0];
-                ss->killers[0] = bestq;
+                ss->killers[1] = bestq;
             }
         }
     }
