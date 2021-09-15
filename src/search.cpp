@@ -636,6 +636,8 @@ namespace {
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
                                 + TtHitAverageResolution * ss->ttHit;
 
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -800,8 +802,10 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        int margin = ttCapture ? ss->staticEval - beta : eval - beta;
+
         // Null move dynamic reduction based on depth and value
-        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
+        Depth R = std::min(margin / 205, 3) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -842,7 +846,7 @@ namespace {
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   (cutNode || (!PvNode && !ss->ttPv))
+    if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -861,7 +865,8 @@ namespace {
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
-        while (   (move = mp.next_move()) != MOVE_NONE && (cutNode || probCutCount < 1))
+        while (   (move = mp.next_move()) != MOVE_NONE
+               && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_or_promotion(move));
@@ -914,8 +919,6 @@ namespace {
         depth--;
 
 moves_loop: // When in check, search starts here
-
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
