@@ -368,7 +368,7 @@ void Thread::search() {
           // Start with a small aspiration window and, in the case of a fail
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
-          int failedHighCnt = 0;
+          failedHighCnt = 0;
           while (true)
           {
               Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - searchAgainCounter);
@@ -1174,6 +1174,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
+              r++;
+
+          if (thisThread->failedHighCnt > 2 && ss->ply < 2)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
