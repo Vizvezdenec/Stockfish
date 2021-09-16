@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (thisThread->failedHighCnt > 2 + ss->ply)
+          if (rootNode && moveCount * thisThread->failedHighCnt > 75)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
