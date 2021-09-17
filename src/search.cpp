@@ -602,6 +602,7 @@ namespace {
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->nonSingExt = (ss-1)->nonSingExt;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -992,6 +993,7 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      ss->nonSingExt = (ss-1)->nonSingExt;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1071,7 +1073,8 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 63 - 5 * ss->doubleExtensions * ss->doubleExtensions)
+                  && value < singularBeta - 93
+                  && ss->doubleExtensions < 3)
               {
                   extension = 2;
                   doubleExtension = true;
@@ -1101,15 +1104,17 @@ moves_loop: // When in check, search starts here
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
+               && ss->nonSingExt < thisThread->rootDepth / 2
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1;
+          extension = 1, ss->nonSingExt++;
 
       // Check extensions
       else if (   givesCheck
+               && ss->nonSingExt < thisThread->rootDepth / 2
                && depth > 6
                && abs(ss->staticEval) > Value(100))
-          extension = 1;
+          extension = 1, ss->nonSingExt++;
 
       // Add extension to new depth
       newDepth += extension;
