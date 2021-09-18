@@ -956,7 +956,7 @@ moves_loop: // When in check, search starts here
     bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
-                         && tte->depth() >= depth - 1;
+                         && tte->depth() >= depth;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1072,7 +1072,7 @@ moves_loop: // When in check, search starts here
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
                   && value < singularBeta - 93
-                  && ss->doubleExtensions < 3)
+                  && ss->doubleExtensions <= 5)
               {
                   extension = 2;
                   doubleExtension = true;
