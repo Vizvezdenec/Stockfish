@@ -812,7 +812,11 @@ namespace {
 
         pos.do_null_move(st);
 
+        ss->isNmp = true;
+
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+
+        ss->isNmp = (ss-1)->isNmp;
 
         pos.undo_null_move();
 
