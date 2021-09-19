@@ -906,12 +906,12 @@ namespace {
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
     if (   PvNode
         && depth >= 6
-        && !ttMove)
+        && !ss->ttHit)
         depth -= 2;
 
     else if (   PvNode
-        && depth > 4
-        && !ss->ttHit)
+        && depth >= 3
+        && !ttMove)
         depth--;
 
     if (   cutNode
