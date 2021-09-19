@@ -636,8 +636,6 @@ namespace {
     thisThread->ttHitAverage =   (TtHitAverageWindow - 1) * thisThread->ttHitAverage / TtHitAverageWindow
                                 + TtHitAverageResolution * ss->ttHit;
 
-    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
-
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -652,7 +650,7 @@ namespace {
             if (ttValue >= beta)
             {
                 // Bonus for a quiet ttMove that fails high
-                if (!ttCapture)
+                if (!pos.capture_or_promotion(ttMove))
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
@@ -660,7 +658,7 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low
-            else if (!ttCapture)
+            else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
@@ -780,9 +778,6 @@ namespace {
     improving =  (ss-2)->staticEval == VALUE_NONE
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
-
-    if (depth == 1 && ttCapture)
-        return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
@@ -911,8 +906,12 @@ namespace {
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
     if (   PvNode
         && depth >= 6
-        && !ttMove)
+        && !ss->ttHit)
         depth -= 2;
+    else if (   PvNode
+        && depth >= 2
+        && !ttMove)
+        depth--;
 
     if (   cutNode
         && depth >= 9
@@ -920,6 +919,8 @@ namespace {
         depth--;
 
 moves_loop: // When in check, search starts here
+
+    ttCapture = ttMove && pos.capture_or_promotion(ttMove);
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
