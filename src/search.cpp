@@ -781,7 +781,7 @@ namespace {
                ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
                : ss->staticEval > (ss-2)->staticEval;
 
-    if (depth == 1 && !PvNode && ttCapture && eval < alpha - 288)
+    if (depth == 1 && !PvNode && ttCapture)
         return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 7. Futility pruning: child node (~50 Elo).
