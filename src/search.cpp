@@ -910,7 +910,7 @@ namespace {
         depth -= 2;
 
     else if (   PvNode
-        && depth > 2
+        && depth > 4
         && !ss->ttHit)
         depth--;
 
