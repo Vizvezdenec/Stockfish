@@ -1067,7 +1067,7 @@ moves_loop: // When in check, search starts here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture;
+              singularQuietLMR = !ttCapture && ss->inCheck;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
@@ -1101,7 +1101,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode || ss->inCheck)
+      else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
           extension = 1;
@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 2;
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
