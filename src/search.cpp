@@ -1067,7 +1067,7 @@ moves_loop: // When in check, search starts here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture && !givesCheck;
+              singularQuietLMR = !ttCapture && !ss->inCheck;
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
