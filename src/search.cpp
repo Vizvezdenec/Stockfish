@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions to at most 3
               if (   !PvNode
-                  && value < singularBeta - 93 + 26 * ttCapture
+                  && value < singularBeta - 93
                   && ss->doubleExtensions < 3)
               {
                   extension = 2;
@@ -1101,7 +1101,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode)
+      else if (   (PvNode || cutNode || thisThread->id() % 8 == 7)
                && captureOrPromotion
                && moveCount != 1)
           extension = 1;
