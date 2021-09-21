@@ -1161,7 +1161,8 @@ moves_loop: // When in check, search starts here
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          r -= (ss-1)->moveCount / 16;
+          if ((ss-1)->moveCount > 13)
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
@@ -1411,7 +1412,7 @@ moves_loop: // When in check, search starts here
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
     pvHit = ss->ttHit && tte->is_pv();
 
-    if (  !PvNode
+    if (  (!PvNode || ttValue >= beta)
         && ss->ttHit
         && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
