@@ -1031,8 +1031,8 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8
-                  && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
+                  && lmrDepth < 7
+                  && ss->staticEval + 172 + 157 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts here
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
-          Value singularBeta = ttValue - 3 * depth;
+          Value singularBeta = ttValue - 2 * depth;
           Depth singularDepth = (depth - 1) / 2;
 
           ss->excludedMove = move;
@@ -1104,7 +1104,7 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1 + (givesCheck && ss->doubleExtensions < 3 && !PvNode);
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 13)
+          if ((ss-1)->moveCount > 13 && (cutNode || PvNode))
               r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
