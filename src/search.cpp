@@ -1101,8 +1101,8 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode || thisThread->id() % 8 == 7)
-               && captureOrPromotion
+      else if (   (PvNode || cutNode)
+               && (captureOrPromotion || (thisThread->id() % 8 == 7 && (givesCheck || ss->inCheck)))
                && moveCount != 1)
           extension = 1;
 
