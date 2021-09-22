@@ -1102,9 +1102,9 @@ moves_loop: // When in check, search starts here
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
-               && (captureOrPromotion || (ss->ply <= 1 && givesCheck))
+               && captureOrPromotion
                && moveCount != 1)
-          extension = 1 + (givesCheck && captureOrPromotion && ss->doubleExtensions < 3 && PvNode);
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
@@ -1173,7 +1173,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture)
+          if (ttCapture && (PvNode || cutNode || !captureOrPromotion || depth >= 9))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
