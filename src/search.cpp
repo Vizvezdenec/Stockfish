@@ -1111,6 +1111,11 @@ moves_loop: // When in check, search starts here
                && depth > 6
                && abs(ss->staticEval) > Value(100))
           extension = 1;
+      else if (   (PvNode || cutNode)
+               && move == ttMove 
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 25000)
+          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1211,7 +1216,7 @@ moves_loop: // When in check, search starts here
           if (didLMR && !captureOrPromotion)
           {
               int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth + (move == ss->killers[0]));
+                                        : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
