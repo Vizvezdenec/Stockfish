@@ -1148,13 +1148,6 @@ moves_loop: // When in check, search starts here
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
-      else if (   PvNode
-               && depth >= 6
-               && move == ttMove 
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 16000)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1212,7 +1205,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0])
+          if (cutNode && move != ss->killers[0] && !(move == ss->killers[1] && move == countermove))
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
