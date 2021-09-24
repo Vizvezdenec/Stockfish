@@ -1149,6 +1149,13 @@ moves_loop: // When in check, search starts here
                && abs(ss->staticEval) > Value(100))
           extension = 1;
 
+      else if (  (PvNode || cutNode)
+               && depth >= 7
+               && move == ttMove 
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 19000)
+          extension = 1;
+
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
