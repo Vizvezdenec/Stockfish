@@ -1153,7 +1153,8 @@ moves_loop: // When in check, search starts here
                && depth >= 7
                && move == ttMove 
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 19000)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
+               && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
       // Add extension to new depth
