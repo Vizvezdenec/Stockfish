@@ -1108,11 +1108,14 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 45 - ss->doubleExtensions * 12)
+                  && value < singularBeta - 75
+                  && ss->doubleExtensions <= 6)
               {
                   extension = 2;
                   noLMRExtension = true;
               }
+              else if (PvNode && ttCapture && value < singularBeta - 492)
+              extension = 2;
           }
 
           // Multi-cut pruning
