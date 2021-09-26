@@ -600,6 +600,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->mainPvLine = (ss-1)->mainPvLine;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1033,6 +1034,8 @@ moves_loop: // When in check, search starts here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
+      ss->mainPvLine &= moveCount == 1;
+
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1061,9 +1064,9 @@ moves_loop: // When in check, search starts here
           {
               // Continuation history based pruning (~20 Elo)
               if (lmrDepth < 5
-                  && (*contHist[0])[movedPiece][to_sq(move)] * (1 + ss->inCheck)
-                  + ((*contHist[1])[movedPiece][to_sq(move)]
-                  + (*contHist[3])[movedPiece][to_sq(move)]) * !ss->inCheck < -3000 * depth + 3000)
+                  && (*contHist[0])[movedPiece][to_sq(move)]
+                  + (*contHist[1])[movedPiece][to_sq(move)]
+                  + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1181,7 +1184,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
+              || (cutNode && !(ss-1)->mainPvLine)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
