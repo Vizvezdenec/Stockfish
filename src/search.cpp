@@ -987,6 +987,7 @@ moves_loop: // When in check, search starts here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = noLMRExtension = false;
+    bool kekeh = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1134,7 +1135,7 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-                  extension = -2;
+                  extension = -2, kekeh = true;
           }
       }
 
@@ -1147,7 +1148,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && abs(ss->staticEval) > 150 - 100 * (PvNode || cutNode))
+               && abs(ss->staticEval) > 100)
           extension = 1;
 
       // Quiet ttMove extensions
@@ -1220,6 +1221,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (kekeh)
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
