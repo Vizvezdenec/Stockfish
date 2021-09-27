@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && abs(ss->staticEval) > 100)
+               && (PvNode || abs(ss->staticEval) > 100))
           extension = 1;
 
       // Quiet ttMove extensions
@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1 && ss->ply > 1)
+              || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
