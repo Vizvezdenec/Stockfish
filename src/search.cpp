@@ -638,6 +638,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    ss->bestExtMove = MOVE_NONE;
 
     // Update the running average statistics for double extensions
     thisThread->doubleExtensionAverage[us].update(ss->depth > (ss-1)->depth);
@@ -987,7 +988,6 @@ moves_loop: // When in check, search starts here
 
     value = bestValue;
     singularQuietLMR = moveCountPruning = noLMRExtension = false;
-    bool kekeh = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1043,7 +1043,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2) + kekeh, 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1135,7 +1135,7 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-                  extension = -2, kekeh = true;
+                  extension = -2;
           }
       }
 
@@ -1227,6 +1227,9 @@ moves_loop: // When in check, search starts here
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4923;
+
+          if (move == ss->bestExtMove)
+              r--;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
@@ -1381,8 +1384,12 @@ moves_loop: // When in check, search starts here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
+    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        if (excludedMove)
+            ss->bestExtMove = bestMove;
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
