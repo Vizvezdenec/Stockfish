@@ -997,7 +997,7 @@ moves_loop: // When in check, search starts here
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning && !(PvNode && ss->statScore > 30000))) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning && !(PvNode && ss->statScore > 15000))) != MOVE_NONE)
     {
       assert(is_ok(move));
 
