@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && (PvNode || cutNode || abs(ss->staticEval) > 100))
+               && abs(ss->staticEval) > 150 - 100 * (PvNode || cutNode))
           extension = 1;
 
       // Quiet ttMove extensions
