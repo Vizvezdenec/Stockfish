@@ -876,8 +876,6 @@ namespace {
 
     probCutBeta = beta + 209 - 44 * improving;
 
-    probCutBeta += abs(ss->staticEval - eval) / 32;
-
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -1155,8 +1153,8 @@ moves_loop: // When in check, search starts here
       // Quiet ttMove extensions
       else if (   PvNode
                && move == ttMove
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
+               && (move == ss->killers[0] || move == ss->killers[1])
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000 + 5000 * (move != ss->killers[0]))
           extension = 1;
 
       // Add extension to new depth
