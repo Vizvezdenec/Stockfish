@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (  !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)
+              || (cutNode && (ss-1)->moveCount > 1 && ss->ply > 1)
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
@@ -1235,7 +1235,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions if
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
-                       : (noLMRExtension && ss->ply > 1)        ? 0
+                       : noLMRExtension        ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
