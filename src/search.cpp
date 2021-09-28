@@ -959,11 +959,11 @@ moves_loop: // When in check, search starts here
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
-        && !PvNode
-        && depth >= 4 - cutNode
+        && cutNode
+        && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3 + cutNode
+        && tte->depth() >= depth - 3
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
