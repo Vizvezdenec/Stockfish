@@ -1187,7 +1187,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
-          if (PvNode && !rootNode)
+          if (PvNode)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
@@ -1201,7 +1201,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !PvNode)
+          if (   (rootNode || !PvNode || !ss->ttPv)
               && thisThread->bestMoveChanges <= 2)
               r++;
 
