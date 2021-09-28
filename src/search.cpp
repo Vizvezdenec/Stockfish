@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts here
                          && tte->depth() >= depth;
 
     bool stable = !PvNode
-              && thisThread->bestMoveChanges <= 1;
+              && thisThread->bestMoveChanges <= 3;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
