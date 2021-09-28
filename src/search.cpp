@@ -919,9 +919,11 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                bool notTtCut = cutNode && (!ttMove || move != ttMove);
+
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4 + notTtCut, !cutNode);
 
                 pos.undo_move(move);
 
@@ -929,11 +931,11 @@ namespace {
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
                     if ( !(ss->ttHit
-                       && tte->depth() >= depth - 3
+                       && tte->depth() >= depth - 3 + notTtCut
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
-                            depth - 3, move, ss->staticEval);
+                            depth - 3 + notTtCut, move, ss->staticEval);
                     return value;
                 }
             }
@@ -959,7 +961,7 @@ moves_loop: // When in check, search starts here
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
-        && cutNode
+        && !PvNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
