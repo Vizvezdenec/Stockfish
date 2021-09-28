@@ -995,8 +995,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool stable = (rootNode || !PvNode)
-              && thisThread->bestMoveChanges <= 2;
+    bool stable = !PvNode
+              && thisThread->bestMoveChanges <= 1;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1071,11 +1071,10 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8
+                  && lmrDepth < 8 + stable
                   && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
                   continue;
 
-              lmrDepth = std::max(0, lmrDepth - stable);
               // Prune moves with negative SEE (~20 Elo)
               if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
@@ -1205,7 +1204,8 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   stable)
+          if (   (rootNode || !PvNode)
+              && thisThread->bestMoveChanges <= 2)
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
