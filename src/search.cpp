@@ -995,6 +995,9 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool stable = (rootNode || !PvNode)
+              && thisThread->bestMoveChanges <= 2;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1049,7 +1052,7 @@ moves_loop: // When in check, search starts here
           {
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
-                  && lmrDepth < 1
+                  && lmrDepth < 1 + stable
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
@@ -1201,8 +1204,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !PvNode || !ss->ttPv)
-              && thisThread->bestMoveChanges <= 2)
+          if (   stable)
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
