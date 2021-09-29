@@ -959,7 +959,7 @@ moves_loop: // When in check, search starts here
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
-        && !(PvNode || cutNode)
+        && !PvNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -994,6 +994,11 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    bool npvFailLow = !PvNode
+                    && ttMove
+                    && (tte->bound() & BOUND_UPPER)
+                    && tte->depth() >= depth / 2 + 1;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1229,6 +1234,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
+
+          if (npvFailLow)
+              r++;
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
