@@ -972,7 +972,7 @@ moves_loop: // When in check, search starts here
 
     if (   ss->inCheck
         && !PvNode
-        && depth <= 3
+        && depth <= 2
         && (tte->bound() & BOUND_LOWER)
         && ttValue >= beta + 482 * depth
         && abs(ttValue) <= VALUE_KNOWN_WIN
