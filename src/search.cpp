@@ -968,16 +968,6 @@ moves_loop: // When in check, search starts here
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-        return probCutBeta;
-
-    if (   ss->inCheck
-        && !PvNode
-        && depth <= 2
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue >= beta + 482 * depth
-        && abs(ttValue) <= VALUE_KNOWN_WIN
-        && abs(beta) <= VALUE_KNOWN_WIN
-       )
         return ttValue;
 
 
