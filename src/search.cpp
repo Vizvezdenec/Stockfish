@@ -1236,6 +1236,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
+                       : rangeReduction > 3    ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
@@ -1374,7 +1375,7 @@ moves_loop: // When in check, search starts here
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
 
     if (!moveCount)
-        bestValue = excludedMove ? alpha - 100:
+        bestValue = excludedMove ? alpha :
                     ss->inCheck  ? mated_in(ss->ply)
                                  : VALUE_DRAW;
 
