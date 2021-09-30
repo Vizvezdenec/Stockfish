@@ -1183,7 +1183,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv
-              || !thisThread->ttHitAverage.is_greater(373, 1024))
+              || !thisThread->ttHitAverage.is_greater(383, 1024))
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
