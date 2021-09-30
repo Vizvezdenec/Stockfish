@@ -1111,7 +1111,7 @@ moves_loop: // When in check, search starts here
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
               {
-                  extension = 2 + (value < singularBeta - 1300);
+                  extension = 2;
                   noLMRExtension = true;
               }
           }
@@ -1159,7 +1159,7 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension >= 2);
+      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
@@ -1374,7 +1374,7 @@ moves_loop: // When in check, search starts here
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
 
     if (!moveCount)
-        bestValue = excludedMove ? alpha :
+        bestValue = excludedMove ? alpha - 100:
                     ss->inCheck  ? mated_in(ss->ply)
                                  : VALUE_DRAW;
 
