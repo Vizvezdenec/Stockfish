@@ -1111,7 +1111,7 @@ moves_loop: // When in check, search starts here
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
               {
-                  extension = 2 + (value < singularBeta - 900);
+                  extension = 2 + (value < singularBeta - 500);
                   noLMRExtension = true;
               }
           }
