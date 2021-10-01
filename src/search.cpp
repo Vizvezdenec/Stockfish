@@ -1042,7 +1042,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), Depth(move == ss->killers[0]));
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1 + (ss->ply < 4 && !PvNode);
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
