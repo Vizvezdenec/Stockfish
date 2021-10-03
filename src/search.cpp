@@ -1159,7 +1159,7 @@ moves_loop: // When in check, search starts here
       else if (  PvNode 
               && move == ttMove
               && move == countermove
-              && (*contHist[1])[movedPiece][to_sq(move)] >= 5000)
+              && (*contHist[1])[movedPiece][to_sq(move)] >= 15000)
           extension = 1;
 
       // Add extension to new depth
