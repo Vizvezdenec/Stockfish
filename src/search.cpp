@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts here
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           if (th.marked())
-              r++;
+              r += 2;
 
           if (PvNode)
               r--;
