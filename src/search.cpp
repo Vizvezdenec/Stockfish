@@ -1138,6 +1138,9 @@ moves_loop: // When in check, search starts here
           }
       }
 
+      else if (pos.rule50_count() > 34 && (type_of(movedPiece) == PAWN || captureOrPromotion))
+          extension = 2;
+
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
@@ -1156,8 +1159,6 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-      else if (pos.rule50_count() > 20 && (type_of(movedPiece) == PAWN || captureOrPromotion))
-          extension = 2;
 
       // Add extension to new depth
       newDepth += extension;
