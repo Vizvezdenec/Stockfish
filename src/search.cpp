@@ -1157,15 +1157,6 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
-      else if (   PvNode 
-               && ttCapture
-               && ttValue != VALUE_NONE
-               && move == ttMove 
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 10000
-               && (tte->bound() & BOUND_LOWER)
-               && prevSq == to_sq(move))
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1275,8 +1266,9 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              int bonus = 500 + stat_bonus(depth) / 2;
+              bonus = value > alpha ?  bonus
+                                    : -bonus;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
