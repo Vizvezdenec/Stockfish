@@ -1161,7 +1161,8 @@ moves_loop: // When in check, search starts here
                && ttCapture
                && ttValue != VALUE_NONE
                && move == ttMove 
-               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000
+               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 10000
+               && ttValue >= beta
                && prevSq == to_sq(move))
           extension = 1;
 
