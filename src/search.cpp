@@ -132,7 +132,7 @@ namespace {
   Value value_to_tt(Value v, int ply);
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, Move* childPv);
-  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
+  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool isRefKiller);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
@@ -692,14 +692,14 @@ namespace {
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1), (ss-1)->currentMove == (ss-1)->killers[0]);
             }
             // Penalty for a quiet ttMove that fails low
             else if (!pos.capture_or_promotion(ttMove))
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty, ttMove == ss->killers[0]);
             }
         }
 
@@ -1266,11 +1266,10 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = 600 + stat_bonus(depth) / 2;
-              bonus = value > alpha ?  bonus
-                                    : -bonus;
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus, bonus < 0 && move == ss->killers[0]);
           }
       }
 
@@ -1387,7 +1386,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)), false);
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
@@ -1713,15 +1712,15 @@ moves_loop: // When in check, search starts here
 
     if (!pos.capture_or_promotion(bestMove))
     {
-        // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2, depth);
-
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2, quietsSearched[i] == ss->killers[0]);
         }
+
+        // Increase stats for the best move in case it was a quiet move
+        update_quiet_stats(pos, ss, bestMove, bonus2, depth);
     }
     else
         // Increase stats for the best move in case it was a capture move
@@ -1731,7 +1730,7 @@ moves_loop: // When in check, search starts here
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1, (ss-1)->currentMove == (ss-1)->killers[0]);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
@@ -1746,7 +1745,7 @@ moves_loop: // When in check, search starts here
   // update_continuation_histories() updates histories of the move pairs formed
   // by moves at ply -1, -2, -4, and -6 with current move.
 
-  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
+  void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool isRefKiller) {
 
     for (int i : {1, 2, 4, 6})
     {
@@ -1754,7 +1753,7 @@ moves_loop: // When in check, search starts here
         if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << bonus;
+            (*(ss-i)->continuationHistory)[pc][to] << bonus * (1 + (isRefKiller && i == 1));
     }
   }
 
@@ -1773,7 +1772,7 @@ moves_loop: // When in check, search starts here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
-    update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus, false);
 
     // Penalty for reversed move in case of moved piece not being a pawn
     if (type_of(pos.moved_piece(move)) != PAWN)
