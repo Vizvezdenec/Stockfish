@@ -1141,6 +1141,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
+               && !noLMRExtension
                && moveCount != 1)
           extension = 1;
 
@@ -1266,9 +1267,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = 800 + stat_bonus(depth) / 2;
-              bonus = value > alpha ?  bonus
-                                    : -bonus;
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
