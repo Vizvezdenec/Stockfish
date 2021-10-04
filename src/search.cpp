@@ -1157,6 +1157,14 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
+      else if (   PvNode 
+               && ttCapture
+               && ttValue != VALUE_NONE
+               && move == ttMove 
+               && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000
+               && prevSq == to_sq(move))
+          extension = 1;
+
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
