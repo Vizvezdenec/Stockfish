@@ -1147,8 +1147,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && !noLMRExtension
-               && abs(ss->staticEval) > 100)
+               && (abs(ss->staticEval) > 100 || ss->ply < 2))
           extension = 1;
 
       // Quiet ttMove extensions
