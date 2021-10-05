@@ -806,8 +806,12 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        if (ss->ply < MAX_LPH + 1)
-            thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << bonus;
+        if (depth > 8)
+        {
+            bonus = std::clamp(-(depth - 8) * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
+            if (ss->ply < MAX_LPH + 1)
+                thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << bonus;
+        }
     }
 
     // Set up improving flag that is used in various pruning heuristics
