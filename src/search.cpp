@@ -134,7 +134,7 @@ namespace {
   // A free node will be marked upon entering the moves loop, and unmarked upon leaving that loop, by the ctor/dtor of this struct.
   struct ThreadHolding {
     explicit ThreadHolding(Thread* thisThread, Key posKey, int ply, bool PvNode) {
-       location = ply < 8 && PvNode ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
+       location = ply < 8 && !PvNode ? &breadcrumbs[posKey & (breadcrumbs.size() - 1)] : nullptr;
        otherThread = false;
        owning = false;
        if (location)
@@ -1232,7 +1232,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
-          if (th.marked() && PvNode)
+          if (th.marked() && !PvNode)
               r++;
               
           if (PvNode)
