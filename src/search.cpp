@@ -806,12 +806,6 @@ namespace {
     {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        if (depth > 8)
-        {
-            bonus = std::clamp(-(depth - 8) * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
-            if (ss->ply < MAX_LPH + 1)
-                thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << bonus;
-        }
     }
 
     // Set up improving flag that is used in various pruning heuristics
@@ -1092,13 +1086,13 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 7
+          &&  depth >= 6 + 2 * PvNode
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3)
+          &&  tte->depth() >= depth - 4 + 2 * PvNode)
       {
           Value singularBeta = ttValue - 3 * depth;
           Depth singularDepth = (depth - 1) / 2;
