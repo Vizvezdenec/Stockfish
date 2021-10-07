@@ -804,7 +804,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
+        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - Value(56)), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1154,8 +1154,7 @@ moves_loop: // When in check, search starts here
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
-               && thisThread->id() % 8 != 7)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
       // Add extension to new depth
