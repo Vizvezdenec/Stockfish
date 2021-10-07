@@ -1141,13 +1141,13 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
-               && thisThread->id() % 8 != 7
                && moveCount != 1)
           extension = 1;
 
       // Check extensions
       else if (   givesCheck
                && depth > 6
+               && thisThread->id() % 8 != 7
                && abs(ss->staticEval) > 100)
           extension = 1;
 
