@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 6 + 2 * PvNode
+          &&  depth >= 7
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - 3 * depth;
-          Depth singularDepth = (depth - 2 + 2 * PvNode) / 2;
+          Depth singularDepth = (depth - 1) / 2;
 
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1141,6 +1141,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
+               && thisThread->id() % 8 != 7
                && moveCount != 1)
           extension = 1;
 
