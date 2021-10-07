@@ -1232,7 +1232,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
-          if (th.marked() && !PvNode)
+          if (th.marked() && !PvNode && ss->ply >= 8)
               r++;
 
           if (PvNode)
