@@ -794,7 +794,9 @@ namespace {
         if ((ss-1)->currentMove != MOVE_NULL)
             ss->staticEval = eval = evaluate(pos);
         else
-            ss->staticEval = eval = -(ss-1)->staticEval;
+        {
+            ss->staticEval = eval = -(ss-1)->staticEval + 100;
+        }
 
         // Save static evaluation into transposition table
         if(!excludedMove)
@@ -804,7 +806,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval - Value(56)), -1000, 1000);
+        int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
