@@ -994,6 +994,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int bestMoveCount = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1103,6 +1105,7 @@ moves_loop: // When in check, search starts here
           if (value < singularBeta)
           {
               extension = 1;
+              singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
@@ -1154,9 +1157,6 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-
-      if (move == ttMove && extension && !ttCapture && !captureOrPromotion)
-          singularQuietLMR = true;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1221,6 +1221,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
+              r++;
+
+          if (bestMoveCount > 3)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1337,6 +1340,8 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              bestMoveCount++;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
