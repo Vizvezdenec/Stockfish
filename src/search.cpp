@@ -1147,7 +1147,6 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && thisThread->id() % 8 != 7
                && abs(ss->staticEval) > 100)
           extension = 1;
 
@@ -1155,7 +1154,8 @@ moves_loop: // When in check, search starts here
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
+               && thisThread->id() % 8 != 7)
           extension = 1;
 
       // Add extension to new depth
