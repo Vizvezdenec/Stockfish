@@ -1505,7 +1505,7 @@ moves_loop: // When in check, search starts here
             if ((ss-1)->currentMove != MOVE_NULL)
                 ss->staticEval = bestValue = evaluate(pos);
             else
-                ss->staticEval = bestValue = -(ss-1)->staticEval + 107;
+                ss->staticEval = bestValue = -(ss-1)->staticEval + 75;
         }
 
         // Stand pat. Return immediately if static value is at least beta
