@@ -790,6 +790,7 @@ namespace {
     else
     {
         // In case of null move search use previous static eval with a different sign
+        // and addition of two tempos
         if ((ss-1)->currentMove != MOVE_NULL)
             ss->staticEval = eval = evaluate(pos);
         else
@@ -1085,7 +1086,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 7
+          &&  depth >= 6 + 2 * PvNode
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1094,7 +1095,7 @@ moves_loop: // When in check, search starts here
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - 3 * depth;
-          Depth singularDepth = (depth - 1) / 2;
+          Depth singularDepth = (depth - 1 + 4 * PvNode) / 2;
 
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1122,19 +1123,6 @@ moves_loop: // When in check, search starts here
           // a soft bound.
           else if (singularBeta >= beta)
               return singularBeta;
-
-          // If the eval of ttMove is greater than beta we try also if there is another
-          // move that pushes it over beta, if so the position also has probably multiple
-          // moves giving fail highs. We will then reduce the ttMove (negative extension).
-          else if (ttValue >= beta)
-          {
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-
-              if (value >= beta)
-                  extension = -2;
-          }
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1186,7 +1174,6 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
-          // Decrease reduction if on the PV (~1 Elo)
           if (PvNode)
               r--;
 
@@ -1499,6 +1486,7 @@ moves_loop: // When in check, search starts here
         }
         else
             // In case of null move search use previous static eval with a different sign
+            // and addition of two tempos
             ss->staticEval = bestValue =
             (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                              : -(ss-1)->staticEval;
