@@ -1004,7 +1004,7 @@ moves_loop: // When in check, search starts here
 
       if (fhResearch && move == ss->killers[0])
       {
-          alpha = bestValue;
+          alpha = beta + 128;
           beta = alpha + 1;
       }
       else if (fhResearch)
