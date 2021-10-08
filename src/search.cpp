@@ -994,11 +994,21 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int fhResearch = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
+
+      if (fhResearch && move == ss->killers[0])
+      {
+          alpha = bestValue;
+          beta = alpha + 1;
+      }
+      else if (fhResearch)
+        break;
 
       if (move == excludedMove)
           continue;
@@ -1344,7 +1354,10 @@ moves_loop: // When in check, search starts here
               else
               {
                   assert(value >= beta); // Fail high
-                  break;
+                  if (fhResearch >= 1 || PvNode || value > beta + 128)
+                    break;
+                  else 
+                    fhResearch++;
               }
           }
       }
