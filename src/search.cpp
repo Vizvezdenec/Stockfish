@@ -1237,7 +1237,6 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
-                       : (move == ss->killers[0] || move == ss->killers[1])  ? 1
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
@@ -1247,7 +1246,7 @@ moves_loop: // When in check, search starts here
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           // Range reductions (~3 Elo)
-          if (ss->staticEval - value < 30 && depth > 7)
+          if (ss->staticEval - value < 30 && depth > 5)
               rangeReduction++;
 
           // If the son is reduced and fails high it will be re-searched at full depth
