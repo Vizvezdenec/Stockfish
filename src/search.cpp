@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
-          if (!cutNode && !PvNode && !ss->ttHit && depth > 7)
+          if (!cutNode && !PvNode && !ss->ttHit && depth > 4)
               r++;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
