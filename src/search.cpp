@@ -1121,7 +1121,12 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return singularBeta;
+          {
+              if (!PvNode)
+                  return singularBeta;
+              else
+                  extension = -1;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so the position also has probably multiple
@@ -1133,12 +1138,7 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = MOVE_NONE;
 
               if (value >= beta)
-              { 
-                  if (PvNode)
-                      extension = -2;
-                  else
-                      return beta;
-              }
+                  extension = -2;
           }
       }
 
