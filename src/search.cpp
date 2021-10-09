@@ -1125,7 +1125,7 @@ moves_loop: // When in check, search starts here
               if (!PvNode)
                   return singularBeta;
               else
-                  extension = -3;
+                  extension = -4;
           }
 
           // If the eval of ttMove is greater than beta we try also if there is another
