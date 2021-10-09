@@ -954,7 +954,6 @@ moves_loop: // When in check, search starts here
 
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
     int rangeReduction = 0;
-    int rangeReductionD = 0;
 
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
@@ -1042,7 +1041,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2 || rangeReductionD > 5), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1122,7 +1121,12 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return singularBeta;
+          {
+              if (PvNode)
+                  extension = -2;
+              else
+                  return singularBeta;
+          }
 
           // If the eval of ttMove is greater than beta we try also if there is another
           // move that pushes it over beta, if so the position also has probably multiple
@@ -1185,7 +1189,7 @@ moves_loop: // When in check, search starts here
               || !ss->ttPv)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
-          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2 || rangeReductionD > 5);
+          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
@@ -1249,9 +1253,6 @@ moves_loop: // When in check, search starts here
           // Range reductions (~3 Elo)
           if (ss->staticEval - value < 30 && depth > 7)
               rangeReduction++;
-
-          if (ss->staticEval - value < 60 && depth > 7)
-              rangeReductionD++;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
