@@ -1237,7 +1237,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
-                       : !ss->ttHit && !PvNode && !cutNode ? 0
+                       : move == countermove   ? 1
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
