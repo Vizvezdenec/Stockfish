@@ -638,6 +638,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    ss->lmrExtended = false;
 
     // Update the running average statistics for double extensions
     thisThread->doubleExtensionAverage[us].update(ss->depth > (ss-1)->depth);
@@ -994,21 +995,11 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int fhResearch = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
-
-      if (fhResearch && move == ss->killers[0])
-      {
-          alpha = beta + 128;
-          beta = alpha + 1;
-      }
-      else if (fhResearch)
-        break;
 
       if (move == excludedMove)
           continue;
@@ -1225,7 +1216,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 2 + (!captureOrPromotion && !(ss-1)->lmrExtended);
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
@@ -1250,7 +1241,12 @@ moves_loop: // When in check, search starts here
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
 
+          if (deeper)
+              ss->lmrExtended = true;
+
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
+
+              ss->lmrExtended = false;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1354,10 +1350,7 @@ moves_loop: // When in check, search starts here
               else
               {
                   assert(value >= beta); // Fail high
-                  if (fhResearch >= 1 || PvNode || value > beta + 128)
-                    break;
-                  else 
-                    fhResearch++;
+                  break;
               }
           }
       }
