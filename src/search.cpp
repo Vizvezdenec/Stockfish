@@ -1189,8 +1189,6 @@ moves_loop: // When in check, search starts here
           // Decrease reduction if on the PV (~1 Elo)
           if (PvNode)
               r--;
-          else if (!cutNode && !ss->ttHit)
-              r++;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage.is_greater(537, 1024))
@@ -1218,6 +1216,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
+
+          if (!PvNode && !cutNode && moveCount == 2)
+              r--;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
