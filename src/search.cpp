@@ -1191,9 +1191,6 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
-          if (!cutNode && !PvNode && !ss->ttHit && moveCount > 4)
-              r++;
-
           // Decrease reduction if the ttHit running average is large (~0 Elo)
           if (thisThread->ttHitAverage.is_greater(537, 1024))
               r--;
@@ -1240,6 +1237,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
+                       : !ss->ttHit && !PvNode && !cutNode ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
