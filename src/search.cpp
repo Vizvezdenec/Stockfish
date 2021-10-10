@@ -1182,7 +1182,6 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
-          && !(captureOrPromotion && type_of(movedPiece) == KING)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
@@ -1243,6 +1242,9 @@ moves_loop: // When in check, search starts here
                        :                         0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
+
+          if (captureOrPromotion && type_of(movedPiece) == KING)
+              d = std::max(d, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
