@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return std::min((6 * d + 229) * d - 215 , 2000);
+    return std::min((6 * d + 219) * d - 215 , 2000);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -1242,9 +1242,6 @@ moves_loop: // When in check, search starts here
                        :                         0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
-
-          if (captureOrPromotion && type_of(movedPiece) == KING)
-              d = std::max(d, newDepth);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
