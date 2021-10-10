@@ -1239,7 +1239,7 @@ moves_loop: // When in check, search starts here
                        : noLMRExtension        ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
-                       : (ss-1)->moveCount > 20 ? 1
+                       : (ss-1)->moveCount > 15 ? 1
                        :                         0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
