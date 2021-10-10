@@ -829,7 +829,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 197
+        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 177
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1067,7 +1067,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8
+                  && lmrDepth < 9
                   && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
                   continue;
 
