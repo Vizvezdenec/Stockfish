@@ -1138,7 +1138,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode || (ss->inCheck && type_of(movedPiece) == KING))
+      else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
           extension = 1;
@@ -1182,6 +1182,7 @@ moves_loop: // When in check, search starts here
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
+          && !(captureOrPromotion && type_of(movedPiece) == KING)
           && (!PvNode || ss->ply > 1 || thisThread->id() % 4 != 3))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
