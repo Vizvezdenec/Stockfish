@@ -1178,7 +1178,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  (moveCount > 1 + 2 * rootNode || extension < 0)
           && (  !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)
               || !ss->ttPv)
@@ -1241,7 +1241,7 @@ moves_loop: // When in check, search starts here
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
 
-          Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
+          Depth d = std::clamp(newDepth - r, extension >= 0 ? 1 : newDepth, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
