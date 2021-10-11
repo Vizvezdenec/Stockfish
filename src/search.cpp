@@ -1431,7 +1431,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1441,7 +1441,9 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount;
+    int moveCount, captureCount, quietCount;
+
+    Square prevSq        = to_sq((ss-1)->currentMove);
 
     if (PvNode)
     {
@@ -1453,7 +1455,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = 0;
+    moveCount = captureCount = quietCount= 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1622,10 +1624,16 @@ moves_loop: // When in check, search starts here
                   break; // Fail high
           }
        }
-    }
 
-    if (bestMove && !pos.capture_or_promotion(bestMove))
-        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), 5);
+      if (move != bestMove)
+      {
+          if (captureOrPromotion && captureCount < 32)
+              capturesSearched[captureCount++] = move;
+
+          else if (!captureOrPromotion && quietCount < 64)
+              quietsSearched[quietCount++] = move;
+      }
+    }
 
     // All legal moves have been searched. A special case: if we're in check
     // and no legal moves were found, it is checkmate.
@@ -1643,6 +1651,10 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+
+    if (bestMove)
+        update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     return bestValue;
   }
@@ -1717,6 +1729,9 @@ moves_loop: // When in check, search starts here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
+
+    if (depth <= 0)
+        bonus1 = bonus2 = 5;
 
     if (!pos.capture_or_promotion(bestMove))
     {
