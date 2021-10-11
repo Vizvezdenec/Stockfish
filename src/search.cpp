@@ -1521,7 +1521,7 @@ moves_loop: // When in check, search starts here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = bestValue + 155 + 54 * PvNode;
+        futilityBase = bestValue + 155;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1612,6 +1612,12 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (!captureOrPromotion && move != ss->killers[0])
+              {
+                  ss->killers[1] = ss->killers[0];
+                  ss->killers[0] = move;
+              }
 
               if (PvNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
