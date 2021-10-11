@@ -1613,12 +1613,6 @@ moves_loop: // When in check, search starts here
           {
               bestMove = move;
 
-              if (!captureOrPromotion && move != ss->killers[0])
-              {
-                  ss->killers[1] = ss->killers[0];
-                  ss->killers[0] = move;
-              }
-
               if (PvNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1629,6 +1623,9 @@ moves_loop: // When in check, search starts here
           }
        }
     }
+
+    if (bestMove && !pos.capture_or_promotion(bestMove))
+        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), 5);
 
     // All legal moves have been searched. A special case: if we're in check
     // and no legal moves were found, it is checkmate.
