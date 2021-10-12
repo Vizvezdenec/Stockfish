@@ -994,6 +994,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool bestMoveQ = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1188,7 +1190,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && (bestMoveCount <= 2 || ttMove))
+              && bestMoveCount <= 3)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
@@ -1219,7 +1221,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture)
+          if (ttCapture && !bestMoveQ)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1336,6 +1338,8 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              bestMoveQ |= !captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
