@@ -1731,7 +1731,7 @@ moves_loop: // When in check, search starts here
                                             : stat_bonus(depth);   // smaller bonus
 
     if (depth <= 0)
-        bonus1 = bonus2 = 8;
+        bonus1 = bonus2 = 7;
 
     if (!pos.capture_or_promotion(bestMove))
     {
@@ -1786,7 +1786,7 @@ moves_loop: // When in check, search starts here
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth) {
 
     // Update killers
-    if (ss->killers[0] != move)
+    if (ss->killers[0] != move && depth > 0)
     {
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
@@ -1802,7 +1802,7 @@ moves_loop: // When in check, search starts here
         thisThread->mainHistory[us][from_to(reverse_move(move))] << -bonus;
 
     // Update countermove history
-    if (is_ok((ss-1)->currentMove))
+    if (is_ok((ss-1)->currentMove) && depth > 0)
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
