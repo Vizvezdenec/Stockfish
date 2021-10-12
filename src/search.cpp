@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && (bestMoveCount <= 3 || ttMove))
+              && (bestMoveCount <= 2 || ttMove))
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
