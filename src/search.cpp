@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return std::min((6 * d + 229) * d - 215 , 2000);
+    return std::min((6 * d + 239) * d - 215 , 2000);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3)
+              && bestMoveCount <= 2)
               r--;
 
           // Decrease reduction if the ttHit running average is large (~0 Elo)
