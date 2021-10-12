@@ -994,7 +994,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool bestMoveQ = false;
+    bool bestCapture = false;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && !bestMoveQ)
+          if (ttCapture || bestCapture)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1339,7 +1339,7 @@ moves_loop: // When in check, search starts here
           {
               bestMove = move;
 
-              bestMoveQ |= !captureOrPromotion;
+              bestCapture = captureOrPromotion;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
