@@ -1731,7 +1731,7 @@ moves_loop: // When in check, search starts here
                                             : stat_bonus(depth);   // smaller bonus
 
     if (depth <= 0)
-        bonus1 = bonus2 = 7;
+        bonus1 = bonus2 = 6;
 
     if (!pos.capture_or_promotion(bestMove))
     {
