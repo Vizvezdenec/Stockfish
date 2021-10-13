@@ -1124,7 +1124,10 @@ moves_loop: // When in check, search starts here
               return singularBeta;
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
-          else extension = -1;
+          else if (ttValue >= beta)
+              extension = -2;
+          else if (ttValue >= alpha)
+              extension = -1;
       }
 
       // Capture extensions for PvNodes and cutNodes
