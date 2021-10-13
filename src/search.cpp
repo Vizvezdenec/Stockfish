@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 80 + 10 * improving
+                  && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
               {
                   extension = 2;
@@ -1238,7 +1238,7 @@ moves_loop: // When in check, search starts here
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
                        : moveCount <= 5        ? 1
-                       : (depth > 6 && PvNode) ? 1
+                       : (depth > 6 - (r + 2) && PvNode) ? 1
                        :                         0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
