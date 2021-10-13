@@ -1223,8 +1223,7 @@ moves_loop: // When in check, search starts here
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4923;
 
-          if (extensionCount > 12)
-              r++;
+          r += extensionCount / 16;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
