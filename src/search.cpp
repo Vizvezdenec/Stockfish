@@ -994,8 +994,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool bestCapture = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1224,9 +1222,6 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (!captureOrPromotion && bestCapture)
-              r++;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1342,8 +1337,6 @@ moves_loop: // When in check, search starts here
           {
               bestMove = move;
 
-              bestCapture = captureOrPromotion;
-
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1438,7 +1431,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1448,7 +1441,8 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount;
+    int moveCount, captureCount, quietCount;
+    Square prevSq        = to_sq((ss-1)->currentMove);
 
     if (PvNode)
     {
@@ -1460,7 +1454,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = 0;
+    moveCount = captureCount = quietCount= 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1629,6 +1623,15 @@ moves_loop: // When in check, search starts here
                   break; // Fail high
           }
        }
+
+             if (move != bestMove)
+      {
+          if (captureOrPromotion && captureCount < 32)
+              capturesSearched[captureCount++] = move;
+
+          else if (!captureOrPromotion && quietCount < 64)
+              quietsSearched[quietCount++] = move;
+      }
     }
 
     // All legal moves have been searched. A special case: if we're in check
@@ -1647,6 +1650,10 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+
+    if (bestMove)
+        update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     return bestValue;
   }
@@ -1721,6 +1728,12 @@ moves_loop: // When in check, search starts here
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
+
+    if (depth <= 0)
+    {
+        bonus1 = stat_bonus(1);
+        bonus2 = bestValue > beta + PawnValueMg ? bonus1 : stat_bonus(1) / 2;
+    }
 
     if (!pos.capture_or_promotion(bestMove))
     {
