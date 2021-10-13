@@ -1241,9 +1241,6 @@ moves_loop: // When in check, search starts here
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
 
-          if (deeper && moveCount == 2 && PvNode && r < -4 && depth > 9)
-              deeper++;
-
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
@@ -1739,6 +1736,8 @@ moves_loop: // When in check, search starts here
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+    else if ((ss-1)->moveCount == 2 && !pos.captured_piece())
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus2 / 2);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
