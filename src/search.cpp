@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
+                  && value < singularBeta - 85 + 20 * improving
                   && ss->doubleExtensions <= 6)
               {
                   extension = 2;
@@ -1431,7 +1431,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    Move pv[MAX_PLY+1];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1441,8 +1441,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount, captureCount, quietCount;
-    Square prevSq        = to_sq((ss-1)->currentMove);
+    int moveCount;
 
     if (PvNode)
     {
@@ -1454,7 +1453,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = captureCount = quietCount= 0;
+    moveCount = 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1623,15 +1622,6 @@ moves_loop: // When in check, search starts here
                   break; // Fail high
           }
        }
-
-             if (move != bestMove)
-      {
-          if (captureOrPromotion && captureCount < 32)
-              capturesSearched[captureCount++] = move;
-
-          else if (!captureOrPromotion && quietCount < 64)
-              quietsSearched[quietCount++] = move;
-      }
     }
 
     // All legal moves have been searched. A special case: if we're in check
@@ -1650,10 +1640,6 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
-
-    if (bestMove)
-        update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     return bestValue;
   }
@@ -1729,10 +1715,7 @@ moves_loop: // When in check, search starts here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
-    if (depth <= 0)
-        bonus1 = stat_bonus(1);
-
-    if (!pos.capture_or_promotion(bestMove) && depth > 0)
+    if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
@@ -1744,14 +1727,14 @@ moves_loop: // When in check, search starts here
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
-    else if (pos.capture_or_promotion(bestMove))
+    else
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
-        && !pos.captured_piece() && depth > 0)
+        && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
     // Decrease stats for all non-best capture moves
