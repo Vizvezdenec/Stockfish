@@ -1730,12 +1730,9 @@ moves_loop: // When in check, search starts here
                                             : stat_bonus(depth);   // smaller bonus
 
     if (depth <= 0)
-    {
         bonus1 = stat_bonus(1);
-        bonus2 = bestValue > beta + PawnValueMg ? bonus1 : stat_bonus(1) / 2;
-    }
 
-    if (!pos.capture_or_promotion(bestMove))
+    if (!pos.capture_or_promotion(bestMove) && depth > 0)
     {
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2, depth);
@@ -1747,14 +1744,14 @@ moves_loop: // When in check, search starts here
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
-    else
+    else if (pos.capture_or_promotion(bestMove))
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
-        && !pos.captured_piece())
+        && !pos.captured_piece() && depth > 0)
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
     // Decrease stats for all non-best capture moves
