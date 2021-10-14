@@ -1224,7 +1224,7 @@ moves_loop: // When in check, search starts here
                          - 4923;
 
           if (!bestMoveCount)
-              r += extensionCount / 16;
+              r += extensionCount / 8;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
