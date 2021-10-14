@@ -1211,8 +1211,8 @@ moves_loop: // When in check, search starts here
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4923;
 
-          if (ss->statScore > 10000 && (ss-1)->statScore < -10000)
-              r--;
+          if (ss->statScore < -10000 && (ss-1)->statScore > 10000)
+              r++;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
