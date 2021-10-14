@@ -994,7 +994,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int extensionCount = 0;
+    bool negExt = false;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2;
+              extension = -2, negExt = true;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1148,8 +1148,6 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-
-      extensionCount += extension;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1217,14 +1215,14 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (negExt)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4923;
-
-          if (!bestMoveCount)
-              r += extensionCount / 8;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
@@ -1238,8 +1236,6 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
-
-          extensionCount += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
