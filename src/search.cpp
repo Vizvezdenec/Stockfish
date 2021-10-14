@@ -635,6 +635,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    ss->bestSmove        = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -995,6 +996,7 @@ moves_loop: // When in check, search starts here
                          && tte->depth() >= depth;
 
     bool negExt = false;
+    Move bestSingMove = MOVE_NONE;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1101,6 +1103,8 @@ moves_loop: // When in check, search starts here
           ss->excludedMove = move;
           value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
           ss->excludedMove = MOVE_NONE;
+          bestSingMove = ss->bestSmove;
+          ss->bestSmove = MOVE_NONE;
 
           if (value < singularBeta)
           {
@@ -1148,7 +1152,7 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-      else if (negExt && moveCount == 2)
+      else if (negExt && move == bestSingMove)
           extension = 1;
 
       // Add extension to new depth
@@ -1331,6 +1335,9 @@ moves_loop: // When in check, search starts here
           if (value > alpha)
           {
               bestMove = move;
+
+              if (excludedMove)
+                  ss->bestSmove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
