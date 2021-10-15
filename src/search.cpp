@@ -873,8 +873,8 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 182 - std::clamp(improvement / 8, -80, 80);
-    
+    probCutBeta = beta + 193 - std::clamp(improvement / 8, -80, 80);
+
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
