@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, int impr) {
-    return Value(214 * d - impr);
+  Value futility_margin(Depth d, bool improving) {
+    return Value(214 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -819,7 +819,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, std::clamp(improvement, 0, 214 * depth)) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
@@ -873,7 +873,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 209 - 44 * improving;
+    probCutBeta = beta + 175 - std::clamp(improvement / 8, -170, 80);
 
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
