@@ -873,7 +873,9 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 175 - std::clamp(improvement / 8, -170, 80);
+    probCutBeta = beta + 178 - std::clamp(improvement / 8, -80, 25);
+
+    //dbg_mean_of(probCutBeta - beta);
 
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
