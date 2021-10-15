@@ -819,7 +819,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !PvNode
         &&  depth < 9
-        &&  eval - futility_margin(depth, std::clamp(improvement * 39 / 64, 0, 214 * depth)) >= beta
+        &&  eval - futility_margin(depth, std::clamp(improvement, 0, 214 * depth)) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
 
