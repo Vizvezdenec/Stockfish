@@ -829,7 +829,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 168 * ss->ttPv + 177
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 168 * ss->ttPv + 165
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -873,7 +873,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 193 - std::clamp(improvement / 8, -80, 80);
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
