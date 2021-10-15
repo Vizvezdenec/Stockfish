@@ -1121,7 +1121,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2;
+              extension = -2 + ttCapture;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1140,7 +1140,7 @@ moves_loop: // When in check, search starts here
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 14000 - 8000 * improving)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
       // Add extension to new depth
@@ -1210,9 +1210,6 @@ moves_loop: // When in check, search starts here
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4923;
-
-          if (ss->statScore < -10000 && (ss-1)->statScore > 10000)
-              r++;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
