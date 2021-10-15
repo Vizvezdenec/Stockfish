@@ -1061,10 +1061,12 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
+              int lmrDepth1 = std::max(lmrDepth - ttCapture, 0);
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8 + ttCapture
-                  && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
+                  && lmrDepth1 < 8
+                  && ss->staticEval + 172 + 145 * lmrDepth1 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
