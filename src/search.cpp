@@ -873,7 +873,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 178 - std::clamp(improvement / 8, -80, 25);
+    probCutBeta = beta + 176 - std::clamp(improvement / 8, -140, 44);
 
     //dbg_mean_of(probCutBeta - beta);
 
