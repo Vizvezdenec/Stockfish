@@ -590,7 +590,7 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR, noLMRExtension;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement;
+    int moveCount, captureCount, quietCount, bestMoveCount;
 
     // Step 1. Initialize node
     ss->inCheck        = pos.checkers();
@@ -766,7 +766,6 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
-        improvement = 0;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -809,11 +808,9 @@ namespace {
     // static evaluation and the previous static evaluation at our turn (if we were
     // in check at our previous move we look at the move prior to it). The improvement
     // margin and the improving flag are used in various pruning heuristics.
-    improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
-                  : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
-                  :                                    200;
-
-    improving = improvement > 0;
+    improving =  (ss-2)->staticEval == VALUE_NONE
+               ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
+               : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
@@ -829,7 +826,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 168 * ss->ttPv + 177
+        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 168 * ss->ttPv + 164
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1417,7 +1414,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1], quietsSearched[64];
+    Move pv[MAX_PLY+1];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1427,7 +1424,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount, quietCount;
+    int moveCount;
 
     if (PvNode)
     {
@@ -1439,7 +1436,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = quietCount = 0;
+    moveCount = 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1608,8 +1605,6 @@ moves_loop: // When in check, search starts here
                   break; // Fail high
           }
        }
-       if (move != bestMove && !captureOrPromotion && quietCount < 64)
-              quietsSearched[quietCount++] = move;
     }
 
     // All legal moves have been searched. A special case: if we're in check
@@ -1619,19 +1614,6 @@ moves_loop: // When in check, search starts here
         assert(!MoveList<LEGAL>(pos).size());
 
         return mated_in(ss->ply); // Plies to mate from the root
-    }
-
-    if (!pos.capture_or_promotion(bestMove))
-    {
-        // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, stat_bonus(1), depth);
-
-        // Decrease stats for all non-best quiet moves
-        for (int i = 0; i < quietCount; ++i)
-        {
-            thisThread->mainHistory[pos.side_to_move()][from_to(quietsSearched[i])] << -stat_bonus(1);
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -stat_bonus(1));
-        }
     }
 
     // Save gathered info in transposition table
