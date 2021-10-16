@@ -873,9 +873,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 176 - std::clamp(improvement / 8, -140, 44);
-
-    //dbg_mean_of(probCutBeta - beta);
+    probCutBeta = beta + 209 - 44 * improving;
 
     // Step 9. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -994,6 +992,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    int failDeeper = 0;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1225,6 +1225,7 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
+                       : failDeeper > 2        ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
@@ -1232,6 +1233,11 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (deeper)
+          {
+              failDeeper = value > alpha ? 0 : failDeeper + 1;
+          }
 
           // Range reductions (~3 Elo)
           if (ss->staticEval - value < 30 && depth > 7)
