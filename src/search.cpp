@@ -1064,9 +1064,11 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
+              lmrDepth = std::max(0, lmrDepth - (improvement < -500));
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8 + (improvement < -1000)
+                  && lmrDepth < 8
                   && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
                   continue;
 
