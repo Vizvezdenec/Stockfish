@@ -1064,8 +1064,6 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
-              lmrDepth = std::max(0, lmrDepth - (improvement < -500));
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
@@ -1419,7 +1417,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1];
+    Move pv[MAX_PLY+1], quietsSearched[64];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1429,7 +1427,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase, oldAlpha;
     bool pvHit, givesCheck, captureOrPromotion;
-    int moveCount;
+    int moveCount, quietCount;
 
     if (PvNode)
     {
@@ -1441,7 +1439,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = 0;
+    moveCount = quietCount = 0;
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1610,6 +1608,8 @@ moves_loop: // When in check, search starts here
                   break; // Fail high
           }
        }
+       if (move != bestMove && !captureOrPromotion && quietCount < 64)
+              quietsSearched[quietCount++] = move;
     }
 
     // All legal moves have been searched. A special case: if we're in check
@@ -1619,6 +1619,19 @@ moves_loop: // When in check, search starts here
         assert(!MoveList<LEGAL>(pos).size());
 
         return mated_in(ss->ply); // Plies to mate from the root
+    }
+
+    if (!pos.capture_or_promotion(bestMove))
+    {
+        // Increase stats for the best move in case it was a quiet move
+        update_quiet_stats(pos, ss, bestMove, stat_bonus(1), depth);
+
+        // Decrease stats for all non-best quiet moves
+        for (int i = 0; i < quietCount; ++i)
+        {
+            thisThread->mainHistory[pos.side_to_move()][from_to(quietsSearched[i])] << -stat_bonus(1);
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -stat_bonus(1));
+        }
     }
 
     // Save gathered info in transposition table
