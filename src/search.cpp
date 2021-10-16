@@ -993,8 +993,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int failDeeper = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1068,7 +1066,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8
+                  && lmrDepth < 8 + (improvement < -300)
                   && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
                   continue;
 
@@ -1225,7 +1223,6 @@ moves_loop: // When in check, search starts here
           // newDepth got its own extension before).
           int deeper =   r >= -1               ? 0
                        : noLMRExtension        ? 0
-                       : failDeeper > 6        ? 0
                        : moveCount <= 5        ? 1
                        : (depth > 6 && PvNode) ? 1
                        :                         0;
@@ -1233,11 +1230,6 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          if (deeper)
-          {
-              failDeeper = value > alpha ? 0 : failDeeper + 1;
-          }
 
           // Range reductions (~3 Elo)
           if (ss->staticEval - value < 30 && depth > 7)
