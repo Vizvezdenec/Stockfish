@@ -1223,6 +1223,7 @@ moves_loop: // When in check, search starts here
           int deeper =   r >= -1                   ? 0
                        : noLMRExtension            ? 0
                        : moveCount <= 3 && r <= -3 ? 2
+                       : moveCount <= 5 && r <= -4 && PvNode ? 2
                        : moveCount <= 5            ? 1
                        : PvNode && depth > 6       ? 1
                        :                             0;
@@ -1253,9 +1254,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              bool bigDiff = std::abs(value - alpha) > PawnValueMg;
-              int bonus = value > alpha ?  stat_bonus(newDepth + bigDiff)
-                                        : -stat_bonus(newDepth + bigDiff);
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
