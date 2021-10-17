@@ -818,7 +818,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
     if (   !PvNode
-        &&  depth < 9
+        &&  depth < 9 + (improvement > 1100)
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1222,7 +1222,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : noLMRExtension            ? 0
-                       : (moveCount <= 3 || (PvNode && depth > 10)) && r <= -3 ? 2
+                       : moveCount <= 3 && r <= -3 ? 2
                        : moveCount <= 5            ? 1
                        : PvNode && depth > 6       ? 1
                        :                             0;
