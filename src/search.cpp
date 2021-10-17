@@ -1208,8 +1208,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (thisThread->counterMoves[movedPiece][to_sq(move)] == (ss+1)->killers[0])
-              r++;
+          bool noLMRExtension1 = thisThread->counterMoves[movedPiece][to_sq(move)] == (ss+1)->killers[0];
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1225,6 +1224,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : noLMRExtension            ? 0
+                       : noLMRExtension1           ? 0
                        : moveCount <= 3 && r <= -3 ? 2
                        : moveCount <= 5            ? 1
                        : PvNode && depth > 6       ? 1
