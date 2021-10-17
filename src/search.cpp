@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts here
           int deeper =   r >= -1                   ? 0
                        : noLMRExtension            ? 0
                        : moveCount <= 3 && r <= -3 ? 2
-                       : moveCount <= 6 && r <= -4 && PvNode ? 2
+                       : moveCount <= 4 && r <= -4 && PvNode ? 2
                        : moveCount <= 5            ? 1
                        : PvNode && depth > 6       ? 1
                        :                             0;
