@@ -818,7 +818,7 @@ namespace {
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
     if (   !PvNode
-        &&  depth < 9 + (improvement > 1100)
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < VALUE_KNOWN_WIN) // Do not return unproven wins
         return eval;
@@ -1253,8 +1253,9 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              bool bigDiff = std::abs(value - alpha) > PawnValueMg;
+              int bonus = value > alpha ?  stat_bonus(newDepth + bigDiff)
+                                        : -stat_bonus(newDepth + bigDiff);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
