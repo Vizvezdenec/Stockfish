@@ -599,6 +599,7 @@ namespace {
     moveCount          = bestMoveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->pene           = PvNode;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1140,14 +1141,6 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
-      else if (    PvNode
-               && moveCount == 1
-               && !ttMove
-               && move == ss->killers[0]
-               && move == countermove
-               && (*contHist[1])[movedPiece][to_sq(move)] > 10000)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1179,7 +1172,7 @@ moves_loop: // When in check, search starts here
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           // Decrease reduction if on the PV (~2 Elo)
-          if (   PvNode
+          if (  (PvNode || (!cutNode && (ss-2)->pene))
               && bestMoveCount <= 3)
               r--;
 
