@@ -975,6 +975,9 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    if (!countermove)
+        countermove = (ss-2)->killers[0];
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
@@ -1206,9 +1209,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
-
-          if (thisThread->counterMoves[movedPiece][to_sq(move)] == (ss+1)->killers[0] && (ss+1)->killers[0])
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
