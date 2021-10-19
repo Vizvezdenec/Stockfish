@@ -671,13 +671,12 @@ namespace {
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !rootNode
+    if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth + PvNode
+        && tte->depth() > depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
-        && (ttValue >= beta  ? (tte->bound() & BOUND_LOWER) :
-            ttValue <= alpha ? (tte->bound() & BOUND_UPPER)
-                             :  false))
+        && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
+                            : (tte->bound() & BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
@@ -1452,7 +1451,7 @@ moves_loop: // When in check, search starts here
 
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() >= ttDepth
+        && tte->depth() > ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
