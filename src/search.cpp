@@ -671,12 +671,13 @@ namespace {
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !PvNode
+    if (  !rootNode
         && ss->ttHit
-        && tte->depth() > depth
+        && tte->depth() > depth + PvNode
         && ttValue != VALUE_NONE // Possible in case of TT access race
-        && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
-                            : (tte->bound() & BOUND_UPPER)))
+        && (ttValue >= beta  ? (tte->bound() & BOUND_LOWER) :
+            ttValue <= alpha ? (tte->bound() & BOUND_UPPER)
+                             :  false))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttMove)
@@ -705,10 +706,6 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
-    else if (PvNode && !rootNode && ss->ttHit && tte->depth() > depth + 3 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER)
-             && ttValue >= beta && pos.rule50_count() < 90)
-             return ttValue;
-
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
