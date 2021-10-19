@@ -1094,6 +1094,8 @@ moves_loop: // When in check, search starts here
 
           if (value < singularBeta)
           {
+              if (tte->depth() == depth && ttValue >= beta && pos.rule50_count() < 90)
+                  return ttValue;
               extension = 1;
               singularQuietLMR = !ttCapture;
 
@@ -1451,7 +1453,7 @@ moves_loop: // When in check, search starts here
 
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > ttDepth
+        && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
