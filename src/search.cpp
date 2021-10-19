@@ -705,6 +705,10 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
+    else if (PvNode && !rootNode && ss->ttHit && tte->depth() > depth + 3 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER)
+             && ttValue >= beta && pos.rule50_count() < 90)
+             return ttValue;
+
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
