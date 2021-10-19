@@ -599,7 +599,6 @@ namespace {
     moveCount          = bestMoveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    ss->pene           = PvNode;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -973,6 +972,9 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    if (!ss->killers[0])
+        ss->killers[0] = (ss-2)->killers[0];
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->lowPlyHistory,
                                       &captureHistory,
@@ -1172,7 +1174,7 @@ moves_loop: // When in check, search starts here
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           // Decrease reduction if on the PV (~2 Elo)
-          if (  (PvNode || (!cutNode && (ss-2)->pene))
+          if (   PvNode
               && bestMoveCount <= 3)
               r--;
 
