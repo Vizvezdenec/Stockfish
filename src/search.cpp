@@ -332,6 +332,7 @@ void Thread::search() {
 
   multiPV = std::min(multiPV, rootMoves.size());
 
+  ttHitAverage.set(50, 100);   
   doubleExtensionAverage[WHITE].set(0, 100);  // initialize the running average at 0%
   doubleExtensionAverage[BLACK].set(0, 100);  // initialize the running average at 0%
 
@@ -669,6 +670,8 @@ namespace {
         && !priorCapture
         && is_ok((ss-1)->currentMove))
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
+
+    thisThread->ttHitAverage.update(ss->ttHit);
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -1114,14 +1117,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-{
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, beta - 1, beta, (depth + 3) / 2, cutNode);
-              ss->excludedMove = MOVE_NONE;
-
-              if (value >= beta)
-                  extension = -2;
-          }
+              extension = -2;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1173,6 +1169,9 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
+          if (thisThread->ttHitAverage.is_greater(537, 1024))
+              r--;
+              
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
               && bestMoveCount <= 3)
