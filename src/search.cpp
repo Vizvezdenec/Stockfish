@@ -588,9 +588,9 @@ namespace {
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
-         ttCapture, singularQuietLMR;
+         ttCapture, singularQuietLMR, noLMRExtension;;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount;
+    int moveCount, captureCount, quietCount, bestMoveCount, improvement;
 
     // Step 1. Initialize node
     ss->inCheck        = pos.checkers();
@@ -766,6 +766,7 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
+        improvement = 0;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -804,9 +805,11 @@ namespace {
     // static evaluation and the previous static evaluation at our turn (if we were
     // in check at our previous move we look at the move prior to it). The improvement
     // margin and the improving flag are used in various pruning heuristics.
-    improving =  (ss-2)->staticEval == VALUE_NONE
-               ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
-               : ss->staticEval > (ss-2)->staticEval;
+    improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
+                  : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
+                  :                                    200;
+
+    improving = improvement > 0;
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
@@ -822,7 +825,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - 22 * improving + 177
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 177
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -974,7 +977,7 @@ moves_loop: // When in check, search starts here
                                       ss->ply);
 
     value = bestValue;
-    singularQuietLMR = moveCountPruning = false;
+    singularQuietLMR = moveCountPruning = noLMRExtension = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1098,7 +1101,7 @@ moves_loop: // When in check, search starts here
               if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
-                  extension = 2;
+                  extension = 2, noLMRExtension = true;
           }
 
           // Multi-cut pruning
@@ -1208,6 +1211,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1             ? 0
+                       : noLMRExtension      ? 0
                        : moveCount <= 3      ? 2
                        : moveCount <= 5      ? 1
                        : PvNode && depth > 6 ? 1
