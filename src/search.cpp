@@ -1133,7 +1133,7 @@ moves_loop: // When in check, search starts here
           extension = 1;
 
     if (   PvNode
-        && depth >= 6
+        && depth >= 3
         && !ttMove
         && moveCount == 1)
         extension -= 2;
