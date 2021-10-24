@@ -673,7 +673,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - (thisThread->id() % 2 == 1)
+        && tte->depth() > depth
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -825,7 +825,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 177
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -934,14 +934,9 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
     if (   PvNode
-        && depth >= 8
+        && depth >= 6
         && !ttMove)
         depth -= 2;
-
-    if (   cutNode
-        && depth >= 8
-        && !ttMove)
-        depth--;
 
 moves_loop: // When in check, search starts here
 
@@ -1136,6 +1131,13 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
+
+      if (   cutNode
+        && depth >= 9
+        && !ttMove
+        && moveCount == 1)
+        extension--;
+
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1168,7 +1170,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 2)
+              && bestMoveCount <= 3)
               r--;
 
           // Decrease reduction if position is or has been on the PV
