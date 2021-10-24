@@ -1132,7 +1132,7 @@ moves_loop: // When in check, search starts here
           extension = 1;
 
     if (   cutNode
-        && depth >= 9
+        && depth >= 6
         && !ttMove
         && moveCount == 1)
         extension--;
