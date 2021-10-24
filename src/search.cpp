@@ -938,11 +938,6 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
-
 moves_loop: // When in check, search starts here
 
     int rangeReduction = 0;
@@ -1135,6 +1130,12 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove
+        && moveCount == 1)
+        extension--;
 
       // Add extension to new depth
       newDepth += extension;
