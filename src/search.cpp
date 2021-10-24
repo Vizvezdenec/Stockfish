@@ -933,10 +933,11 @@ namespace {
     }
 
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type
-    if (   PvNode
-        && depth >= 6
+
+    if (   cutNode
+        && depth >= 9
         && !ttMove)
-        depth -= 2;
+        depth--;
 
 moves_loop: // When in check, search starts here
 
@@ -1131,11 +1132,11 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
-    if (   cutNode
+    if (   PvNode
         && depth >= 6
         && !ttMove
         && moveCount == 1)
-        extension--;
+        extension -= 2;
 
       // Add extension to new depth
       newDepth += extension;
