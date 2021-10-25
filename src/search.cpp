@@ -1133,7 +1133,6 @@ moves_loop: // When in check, search starts here
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
-               && !(tte->bound() & BOUND_LOWER)
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
@@ -1153,6 +1152,8 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
+
+      int deeper = 0;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1210,7 +1211,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
-          int deeper =   r >= -1             ? 0
+          deeper     =   r >= -1             ? 0
                        : moveCount <= 5      ? 2
                        : PvNode && depth > 6 ? 1
                        :                       0;
@@ -1246,6 +1247,13 @@ moves_loop: // When in check, search starts here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+      }
+      else if (deeper == 2 && !captureOrPromotion)
+      {
+              int bonus = value > alpha ?  stat_bonus(newDepth + 1)
+                                        : -stat_bonus(newDepth + 1);
+
+              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
