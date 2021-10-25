@@ -590,13 +590,13 @@ namespace {
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning,
          ttCapture, singularQuietLMR;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement;
+    int moveCount, captureCount, quietCount;
 
     // Step 1. Initialize node
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
-    moveCount          = bestMoveCount = captureCount = quietCount = ss->moveCount = 0;
+    moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
@@ -766,7 +766,6 @@ namespace {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
-        improvement = 0;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -800,16 +799,14 @@ namespace {
         int bonus = std::clamp(-depth * 4 * int((ss-1)->staticEval + ss->staticEval), -1000, 1000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
-
-    // Set up the improvement variable, which is the difference between the current
-    // static evaluation and the previous static evaluation at our turn (if we were
-    // in check at our previous move we look at the move prior to it). The improvement
-    // margin and the improving flag are used in various pruning heuristics.
-    improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
-                  : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
-                  :                                    200;
-
-    improving = improvement > 0;
+    
+    // Set up the improving flag, which looks if static evaluation
+    // is greater than the previous static evaluation at our turn (if we were
+    // in check at our previous move we look at the move prior to it). 
+    // The improving flag are used in various pruning heuristics.
+    improving =  (ss-2)->staticEval == VALUE_NONE
+               ? ss->staticEval > (ss-4)->staticEval || (ss-4)->staticEval == VALUE_NONE
+               : ss->staticEval > (ss-2)->staticEval;
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
@@ -825,7 +822,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204
+        &&  ss->staticEval >= beta - 20 * depth - improving * 22 + 204
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1166,8 +1163,7 @@ moves_loop: // When in check, search starts here
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           // Decrease reduction if on the PV (~2 Elo)
-          if (   PvNode
-              && bestMoveCount <= 3)
+          if (PvNode)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1314,10 +1310,7 @@ moves_loop: // When in check, search starts here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
-              {
                   alpha = value;
-                  bestMoveCount++;
-              }
               else
               {
                   assert(value >= beta); // Fail high
