@@ -1115,8 +1115,6 @@ moves_loop: // When in check, search starts here
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
               extension = -2;
-          else if (ttValue > alpha)
-              extension = -1;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1135,6 +1133,7 @@ moves_loop: // When in check, search starts here
       else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
+               && !(tte->bound() & BOUND_LOWER)
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
