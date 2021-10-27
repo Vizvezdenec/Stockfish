@@ -986,8 +986,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool relaxLmrExt = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1103,7 +1101,7 @@ moves_loop: // When in check, search starts here
               if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
-                  extension = 2, relaxLmrExt = true;
+                  extension = 2;
           }
 
           // Multi-cut pruning
@@ -1169,7 +1167,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3)
+              && bestMoveCount <= 2)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1212,7 +1210,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1             ? 0
-                       : moveCount <= 5 - 2 * relaxLmrExt      ? 2
+                       : moveCount <= 5      ? 2
                        : PvNode && depth > 6 ? 1
                        :                       0;
 
