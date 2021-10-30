@@ -1118,7 +1118,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode || ss->inCheck)
+      else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
           extension = 1;
@@ -1228,7 +1228,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 2;
           didLMR = false;
       }
 
