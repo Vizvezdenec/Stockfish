@@ -1118,10 +1118,10 @@ moves_loop: // When in check, search starts here
       }
 
       // Capture extensions for PvNodes and cutNodes
-      else if (   (PvNode || cutNode)
+      else if (   (PvNode || cutNode || ss->inCheck)
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1 + (cutNode && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000);
+          extension = 1;
 
       // Check extensions
       else if (   givesCheck
