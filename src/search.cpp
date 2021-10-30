@@ -1069,12 +1069,6 @@ moves_loop: // When in check, search starts here
           }
       }
 
-      if (   PvNode
-               && move == ttMove
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
-          extension = 1;
-
       // Step 14. Extensions (~75 Elo)
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
@@ -1084,7 +1078,6 @@ moves_loop: // When in check, search starts here
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
           &&  depth >= 7
-          && !extension
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1128,12 +1121,19 @@ moves_loop: // When in check, search starts here
       else if (   (PvNode || cutNode)
                && captureOrPromotion
                && moveCount != 1)
-          extension = 1;
+          extension = 1 + (cutNode && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000);
 
       // Check extensions
       else if (   givesCheck
                && depth > 6
                && abs(ss->staticEval) > 100)
+          extension = 1;
+
+      // Quiet ttMove extensions
+      else if (   PvNode
+               && move == ttMove
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
       // Add extension to new depth
