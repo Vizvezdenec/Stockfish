@@ -1095,6 +1095,7 @@ moves_loop: // When in check, search starts here
           if (value < singularBeta)
           {
               extension = 1;
+              singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
@@ -1112,7 +1113,7 @@ moves_loop: // When in check, search starts here
               return singularBeta;
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
-          else if (ttValue >= beta)
+          else if (ttValue >= beta || value >= beta)
               extension = -2;
       }
 
@@ -1134,9 +1135,6 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-
-      if (move == ttMove && !ttCapture && extension)
-          singularQuietLMR = true;
 
       // Add extension to new depth
       newDepth += extension;
