@@ -1210,6 +1210,7 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
+                       : (PvNode || cutNode) && move == ss->killers[0] ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
