@@ -1113,7 +1113,7 @@ moves_loop: // When in check, search starts here
               return singularBeta;
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
-          else if (value >= beta)
+          else if (ttValue >= beta)
               extension = -2;
       }
 
@@ -1169,6 +1169,9 @@ moves_loop: // When in check, search starts here
           if (   PvNode
               && bestMoveCount <= 3)
               r--;
+
+          if (PvNode && beta - alpha <= 5)
+              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
