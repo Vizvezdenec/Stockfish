@@ -1168,7 +1168,7 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
-          if (PvNode && beta - alpha < thisThread->deltaa / 4)
+          if (PvNode && beta - alpha < thisThread->deltaa / 16)
               r++;
 
           // Decrease reduction if position is or has been on the PV
