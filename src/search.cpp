@@ -1190,9 +1190,6 @@ moves_loop: // When in check, search starts here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
-          if (move == ss->killers[0] && move == countermove)
-              r--;
-
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
@@ -1213,6 +1210,7 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
+                       : (move == ss->killers[0] && (*contHist[0])[movedPiece][to_sq(move)] > 0) ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
