@@ -625,7 +625,6 @@ namespace {
         if (alpha >= beta)
             return alpha;
     }
-    else thisThread->deltaa = beta - alpha;
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1168,9 +1167,6 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
-          if (PvNode && beta - alpha < thisThread->deltaa / 16)
-              r++;
-
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
@@ -1192,7 +1188,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 2 - (move == ss->killers[1] && move == countermove);
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
