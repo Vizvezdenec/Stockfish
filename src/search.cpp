@@ -1051,7 +1051,8 @@ moves_loop: // When in check, search starts here
               if (lmrDepth < 5
                   && (*contHist[0])[movedPiece][to_sq(move)]
                   + (*contHist[1])[movedPiece][to_sq(move)]
-                  + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
+                  + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000
+                  && (move != ss->killers[0] || (*contHist[0])[movedPiece][to_sq(move)] < 0))
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1210,7 +1211,6 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
-                       : (move == ss->killers[0] && (*contHist[0])[movedPiece][to_sq(move)] > 0) ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
