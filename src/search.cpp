@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts here
       if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 0000)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 15000)
           extension = 1;
 
       // Singular extension search (~70 Elo). If all moves but one fail low on a
