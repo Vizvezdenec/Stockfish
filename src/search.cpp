@@ -1186,9 +1186,6 @@ moves_loop: // When in check, search starts here
           if (singularQuietLMR)
               r--;
 
-          if (move == ss->killers[0] && move == countermove)
-              r -= 2;
-
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
@@ -1381,11 +1378,14 @@ moves_loop: // When in check, search starts here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     // Write gathered information in transposition table
-    if (!excludedMove && !(rootNode && thisThread->pvIdx))
+    {
+        if (ss->ttHit && ttMove && !bestMove && ((tte->bound() & BOUND_LOWER) || (tte->bound() & BOUND_EXACT)))
+            bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
+    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
