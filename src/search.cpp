@@ -1106,8 +1106,8 @@ moves_loop: // When in check, search starts here
           // search without the ttMove. So we assume this expected Cut-node is not singular,
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
-          else if (singularBeta >= beta)
-              return singularBeta;
+          else if (value >= beta && ttValue >= beta)
+              return std::min(value, ttValue);
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
@@ -1378,14 +1378,11 @@ moves_loop: // When in check, search starts here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     // Write gathered information in transposition table
-    {
-        if (ss->ttHit && ttMove && !bestMove && ((tte->bound() & BOUND_LOWER) || (tte->bound() & BOUND_EXACT)))
-            bestMove = ttMove;
+    if (!excludedMove && !(rootNode && thisThread->pvIdx))
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
