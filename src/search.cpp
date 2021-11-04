@@ -1111,7 +1111,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2 - 2 * (value >= beta);
+              extension = -2;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1184,6 +1184,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if ((move == ss->killers[0] || move == ss->killers[1]) && move == countermove)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
