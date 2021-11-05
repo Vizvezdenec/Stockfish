@@ -1096,7 +1096,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
+                  && value < singularBeta - 55 + ss->doubleExtensions * 8
                   && ss->doubleExtensions <= 6)
                   extension = 2;
           }
@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts here
           // that multiple moves fail high, and we can prune the whole subtree by returning
           // a soft bound.
           else if (singularBeta >= beta)
-              return std::min(value, ttValue);
+              return singularBeta;
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
