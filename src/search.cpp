@@ -1127,7 +1127,7 @@ moves_loop: // When in check, search starts here
           extension = 1;
 
       // Quiet ttMove extensions
-      else if (   PvNode
+      else if (  (PvNode || cutNode)
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
@@ -1378,14 +1378,11 @@ moves_loop: // When in check, search starts here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     // Write gathered information in transposition table
-    {
-        if (ss->ttHit && ttMove && !ttCapture && !bestMove && (tte->bound() & BOUND_LOWER))
-            bestMove = ttMove;
+    if (!excludedMove && !(rootNode && thisThread->pvIdx))
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
