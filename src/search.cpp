@@ -1379,7 +1379,7 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     {
-        if (ss->ttHit && ttMove && ttCapture && !bestMove && (tte->bound() & BOUND_LOWER))
+        if (ss->ttHit && ttMove && !ttCapture && !bestMove && (tte->bound() & BOUND_LOWER))
             bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
