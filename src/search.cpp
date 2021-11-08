@@ -1130,6 +1130,7 @@ moves_loop: // When in check, search starts here
 
       // Quiet ttMove extensions
       else if (   PvNode
+               && !likelyFailLow
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
@@ -1171,7 +1172,7 @@ moves_loop: // When in check, search starts here
 
           // Increases reduction for PvNodes that have small window
           if (PvNode && beta - alpha < thisThread->rootDelta / 4)
-              r += 1 + (ss->ply < 2);
+              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
