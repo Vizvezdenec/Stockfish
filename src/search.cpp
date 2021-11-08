@@ -1170,8 +1170,8 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increases reduction for PvNodes that have small window
-          if (PvNode && beta - alpha < 3 * thisThread->rootDelta / 8)
-              r++;
+          if (PvNode && beta - alpha < thisThread->rootDelta / 4)
+              r += 1 + (ss->ply < 2);
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
