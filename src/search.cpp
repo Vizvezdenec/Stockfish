@@ -384,8 +384,8 @@ void Thread::search() {
               // Adjust trend based on root move's previousScore (dynamic contempt)
               int tr = 113 * prev / (abs(prev) + 147);
 
-              trend = (us == WHITE ?  make_score(tr, tr / 2)
-                                   : -make_score(tr, tr / 2));
+              trend = (us == WHITE ?  make_score(tr, 0)
+                                   : -make_score(tr, 0));
           }
 
           // Start with a small aspiration window and, in the case of a fail

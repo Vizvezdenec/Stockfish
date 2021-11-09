@@ -1086,9 +1086,7 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval: for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
 
-  bool classical = !pos.count<PAWN>() && pos.non_pawn_material() == BishopValueMg + KnightValueMg;
   if (  !useNNUE
-      || classical
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
       v = Evaluation<NO_TRACE>(pos).value();          // classical
   else
