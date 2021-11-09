@@ -384,8 +384,8 @@ void Thread::search() {
               // Adjust trend based on root move's previousScore (dynamic contempt)
               int tr = 113 * prev / (abs(prev) + 147);
 
-              trend = (us == WHITE ?  make_score(tr, 0)
-                                   : -make_score(tr, 0));
+              trend = (us == WHITE ?  make_score(tr, tr / 2)
+                                   : -make_score(tr, tr / 2));
           }
 
           // Start with a small aspiration window and, in the case of a fail
@@ -1160,7 +1160,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1)))
+              || (cutNode && (ss-1)->moveCount > 1 - !(ss-1)->ttHit)))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
