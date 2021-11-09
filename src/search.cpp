@@ -1160,7 +1160,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
-              || (cutNode && (ss-1)->moveCount > 1 - (ss-1)->ttHit)))
+              || cutNode))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
