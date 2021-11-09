@@ -1086,14 +1086,16 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval: for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
 
+  bool classical = !pos.count<PAWN>() && pos.non_pawn_material() == BishopValueMg + KnightValueMg;
   if (  !useNNUE
+      || classical
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
       v = Evaluation<NO_TRACE>(pos).value();          // classical
   else
   {
-      int scale =   898
-                  + 24 * pos.count<PAWN>()
-                  + 33 * pos.non_pawn_material() / 1024;
+      int scale =   883
+                  + 32 * pos.count<PAWN>()
+                  + 32 * pos.non_pawn_material() / 1024;
 
        v = NNUE::evaluate(pos, true) * scale / 1024;  // NNUE
 
@@ -1102,7 +1104,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (207 - pos.rule50_count()) / 207;
+  v = v * (100 - pos.rule50_count()) / 100;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
