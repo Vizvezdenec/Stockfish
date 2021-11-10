@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts here
               extension = -2;
       }
 
-      else if (move == ttMove && !ttCapture && ttValue < alpha && (tte->bound() & BOUND_UPPER) && tte->depth() >= depth - 3)
+      else if (move == ttMove && ttValue < alpha - 150 * depth && (tte->bound() & BOUND_UPPER) && depth > 2)
               extension = -1;
 
       // Capture extensions for PvNodes and cutNodes
