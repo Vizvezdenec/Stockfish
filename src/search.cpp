@@ -705,6 +705,9 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && !rootNode && ss->ttHit && tte->depth() > 8 && depth <= 4 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && ttValue >= beta && pos.rule50_count() < 90)
+        return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1115,9 +1118,6 @@ moves_loop: // When in check, search starts here
           else if (ttValue >= beta)
               extension = -2;
       }
-
-      else if (move == ttMove && ttValue < alpha - 150 * depth && (tte->bound() & BOUND_UPPER) && depth > 2)
-              extension = -1;
 
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
