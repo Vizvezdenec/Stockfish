@@ -764,7 +764,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        improving = !(ss-1)->impr;
+        ss->impr = improving;
         improvement = 0;
         goto moves_loop;
     }
@@ -809,6 +810,7 @@ namespace {
                   :                                    200;
 
     improving = improvement > 0;
+    ss->impr = improving;
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
