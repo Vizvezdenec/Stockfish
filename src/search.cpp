@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts here
           // Increases reduction for PvNodes that have small window
           if (PvNode && beta - alpha < thisThread->rootDelta / 4)
               r++;
-          else if (!PvNode && ss->lastDelta < thisThread->rootDelta / 4)
+          else if (!PvNode && ss->lastDelta < thisThread->rootDelta / 2)
               r++;
 
           // Decrease reduction if position is or has been on the PV
