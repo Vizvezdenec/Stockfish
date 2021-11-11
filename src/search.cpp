@@ -1166,12 +1166,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3)
+              && bestMoveCount <= 3
+              && beta - alpha >= thisThread->rootDelta / 4)
               r--;
-
-          // Increases reduction for PvNodes that have small window
-          if (PvNode && beta - alpha < thisThread->rootDelta / 4)
-              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
@@ -1689,7 +1686,7 @@ moves_loop: // When in check, search starts here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + thisThread->rootDelta ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
