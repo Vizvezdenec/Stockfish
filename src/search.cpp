@@ -658,6 +658,12 @@ namespace {
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
     ttCapture = ttMove && pos.capture_or_promotion(ttMove);
+
+    if (PvNode)
+        ss->lastDelta = beta - alpha;
+    else
+        ss->lastDelta = (ss-1)->lastDelta;
+
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
@@ -1019,6 +1025,8 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      if (PvNode)
+          ss->lastDelta = beta - alpha;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1166,9 +1174,14 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3
-              && beta - alpha >= thisThread->rootDelta / 4)
+              && bestMoveCount <= 3)
               r--;
+
+          // Increases reduction for PvNodes that have small window
+          if (PvNode && beta - alpha < thisThread->rootDelta / 4)
+              r++;
+          else if (!PvNode && ss->lastDelta < thisThread->rootDelta / 4)
+              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
