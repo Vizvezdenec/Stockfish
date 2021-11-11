@@ -764,8 +764,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
-        ss->impr = false;
+        improving = !(ss-1)->impr;
+        ss->impr = improving;
         improvement = 0;
         goto moves_loop;
     }
@@ -949,7 +949,7 @@ moves_loop: // When in check, search starts here
     int rangeReduction = 0;
 
     // Step 11. A small Probcut idea, when we are in check
-    probCutBeta = beta + 409 - 58 * !(ss-1)->impr;
+    probCutBeta = beta + 409;
     if (   ss->inCheck
         && !PvNode
         && depth >= 4
