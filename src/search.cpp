@@ -1133,12 +1133,7 @@ moves_loop: // When in check, search starts here
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
-          extension = 1;
-
-    if (extension < 0 && depth + extension == 5 &&
-        (*contHist[0])[movedPiece][to_sq(move)] < 0
-        && (*contHist[1])[movedPiece][to_sq(move)] < 0)
-        continue;
+          extension = 1 + (move == countermove);
 
       // Add extension to new depth
       newDepth += extension;
@@ -1694,7 +1689,7 @@ moves_loop: // When in check, search starts here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + thisThread->rootDelta * 7 / 8 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
