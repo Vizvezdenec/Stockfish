@@ -69,9 +69,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, bool rangeReduction) {
+  Depth reduction(bool i, Depth d, int mn) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 534) / 1024 + (!i && r > 904) + rangeReduction;
+    return (r + 534) / 1024 + (!i && r > 904);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1032,7 +1032,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1054,13 +1054,6 @@ moves_loop: // When in check, search starts here
                   && (*contHist[0])[movedPiece][to_sq(move)]
                   + (*contHist[1])[movedPiece][to_sq(move)]
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
-                  continue;
-
-              if (   pos.rule50_count() > 30
-                  && lmrDepth < 2
-                  && (*contHist[1])[movedPiece][to_sq(move)] +
-                     (*contHist[3])[movedPiece][to_sq(move)] + 
-                     (*contHist[5])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
@@ -1169,7 +1162,7 @@ moves_loop: // When in check, search starts here
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
+          Depth r = reduction(improving, depth, moveCount);
 
           // Decrease reduction if on the PV (~2 Elo)
           if (   PvNode
@@ -1178,6 +1171,9 @@ moves_loop: // When in check, search starts here
 
           // Increases reduction for PvNodes that have small window
           if (PvNode && beta - alpha < thisThread->rootDelta / 4)
+              r++;
+
+          if (rangeReduction > 2)
               r++;
 
           // Decrease reduction if position is or has been on the PV
