@@ -1214,7 +1214,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && depth > 6       ? 1 + (moveCount <= 7)
+                       : PvNode && depth > 6       ? 1 + (moveCount <= 9)
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
