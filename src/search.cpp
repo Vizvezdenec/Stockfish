@@ -1057,10 +1057,10 @@ moves_loop: // When in check, search starts here
                   continue;
 
               if (   pos.rule50_count() > 20
-                  && lmrDepth < 2
-                  && (*contHist[1])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[3])[movedPiece][to_sq(move)] < 0
-                  && (*contHist[5])[movedPiece][to_sq(move)] < 0)
+                  && lmrDepth < 4
+                  && (*contHist[1])[movedPiece][to_sq(move)] +
+                     (*contHist[3])[movedPiece][to_sq(move)] + 
+                     (*contHist[5])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
