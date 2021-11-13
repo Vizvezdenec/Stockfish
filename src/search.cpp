@@ -1056,8 +1056,8 @@ moves_loop: // When in check, search starts here
                   + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
-              if (   pos.rule50_count() > 20
-                  && lmrDepth < 4
+              if (   pos.rule50_count() > 30
+                  && lmrDepth < 2
                   && (*contHist[1])[movedPiece][to_sq(move)] +
                      (*contHist[3])[movedPiece][to_sq(move)] + 
                      (*contHist[5])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
