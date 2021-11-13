@@ -955,8 +955,8 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 3
         && ttValue >= probCutBeta
-        && abs(ttValue) <= 15000
-        && abs(beta) <= 15000
+        && abs(ttValue) <= VALUE_KNOWN_WIN
+        && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
 
@@ -1214,7 +1214,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && depth > 6       ? 1
+                       : PvNode && depth > 6       ? 2
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
