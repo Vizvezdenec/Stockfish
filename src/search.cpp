@@ -1101,6 +1101,9 @@ moves_loop: // When in check, search starts here
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
+                  
+              if (cutNode && value < singularBeta - 500 && ttValue >= beta)
+                  extension = 3;
           }
 
           // Multi-cut pruning
@@ -1214,7 +1217,6 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && moveCount <= 9 && depth > 11  ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
