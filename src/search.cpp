@@ -1136,7 +1136,8 @@ moves_loop: // When in check, search starts here
           extension = 1;
       else if (   PvNode
                && !pos.non_pawn_material()
-               && type_of(movedPiece) == PAWN)
+               && type_of(movedPiece) == PAWN
+               && (captureOrPromotion || (*contHist[0])[movedPiece][to_sq(move)] >= 0))
           extension = 1;
 
       // Add extension to new depth
