@@ -672,7 +672,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - (thisThread->id() % 2 == 1)
+        && tte->depth() > depth - (thisThread->id() % 2 == 1 || ((tte->bound() & BOUND_EXACT) && ttValue <= alpha))
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -1101,9 +1101,6 @@ moves_loop: // When in check, search starts here
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
-
-              if ((tte->depth() >= depth - 1) && extension == 2 && ttValue >= beta && pos.rule50_count() < 90)
-                  return ttValue;
           }
 
           // Multi-cut pruning
