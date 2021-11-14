@@ -1101,9 +1101,9 @@ moves_loop: // When in check, search starts here
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
-                  
-              if (cutNode && value < singularBeta - 500 && ttValue >= beta)
-                  extension = 3;
+
+              if ((tte->depth() >= depth - 1) && extension == 2 && ttValue >= beta && pos.rule50_count() < 90)
+                  return ttValue;
           }
 
           // Multi-cut pruning
