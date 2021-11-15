@@ -1184,7 +1184,7 @@ moves_loop: // When in check, search starts here
               && thisThread->bestMoveChanges <= 2)
               r++;
 
-          if (PvNode && ss->ply == 1 && thisThread->bestMoveChanges2 <= 2)
+          if (PvNode && ss->ply == 1 && (ss-1)->moveCount == 1 && thisThread->bestMoveChanges2 <= 2)
               r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
