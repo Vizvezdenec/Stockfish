@@ -143,7 +143,7 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, int depth);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Move fcm);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -489,7 +489,7 @@ void Thread::search() {
           for (Thread* th : Threads)
           {
               totBestMoveChanges += th->bestMoveChanges;
-              th->bestMoveChanges = th->bestMoveChanges2 = 0;
+              th->bestMoveChanges = 0;
           }
           double bestMoveInstability = 1.073 + std::max(1.0, 2.25 - 9.9 / rootDepth)
                                               * totBestMoveChanges / Threads.size();
@@ -580,7 +580,7 @@ namespace {
 
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove;
+    Move ttMove, move, excludedMove, bestMove, fcm;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, didLMR, priorCapture;
@@ -985,6 +985,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    fcm = MOVE_NONE;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1184,9 +1186,6 @@ moves_loop: // When in check, search starts here
               && thisThread->bestMoveChanges <= 2)
               r++;
 
-          if (PvNode && ss->ply == 1 && (ss-1)->moveCount == 1 && thisThread->bestMoveChanges2 <= 2)
-              r++;
-
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
@@ -1278,8 +1277,6 @@ moves_loop: // When in check, search starts here
       if (Threads.stop.load(std::memory_order_relaxed))
           return VALUE_ZERO;
 
-      if (PvNode && ss->ply == 1 && moveCount > 1 && (ss-1)->moveCount == 1 && value > alpha)
-          thisThread->bestMoveChanges2++;
       if (rootNode)
       {
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),
@@ -1341,7 +1338,11 @@ moves_loop: // When in check, search starts here
       if (move != bestMove)
       {
           if (captureOrPromotion && captureCount < 32)
+          {
+              if (moveCount == 1 && captureOrPromotion)
+                  fcm = move;
               capturesSearched[captureCount++] = move;
+          }
 
           else if (!captureOrPromotion && quietCount < 64)
               quietsSearched[quietCount++] = move;
@@ -1371,7 +1372,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, fcm);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
@@ -1684,7 +1685,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Move fcm) {
 
     int bonus1, bonus2;
     Color us = pos.side_to_move();
@@ -1724,7 +1725,7 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1 * (capturesSearched[i] == fcm);
     }
   }
 
