@@ -489,7 +489,7 @@ void Thread::search() {
           for (Thread* th : Threads)
           {
               totBestMoveChanges += th->bestMoveChanges;
-              th->bestMoveChanges = 0;
+              th->bestMoveChanges = th->bestMoveChanges2 = 0;
           }
           double bestMoveInstability = 1.073 + std::max(1.0, 2.25 - 9.9 / rootDepth)
                                               * totBestMoveChanges / Threads.size();
@@ -985,8 +985,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool lfh = cutNode && ss->ttHit && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1186,6 +1184,9 @@ moves_loop: // When in check, search starts here
               && thisThread->bestMoveChanges <= 2)
               r++;
 
+          if (PvNode && ss->ply == 1 && thisThread->bestMoveChanges2 <= 2)
+              r++;
+
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
@@ -1195,7 +1196,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0] && !lfh)
+          if (cutNode && move != ss->killers[0])
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
@@ -1277,6 +1278,8 @@ moves_loop: // When in check, search starts here
       if (Threads.stop.load(std::memory_order_relaxed))
           return VALUE_ZERO;
 
+      if (PvNode && ss->ply == 1 && moveCount > 1 && (ss-1)->moveCount == 1 && value > alpha)
+          thisThread->bestMoveChanges2++;
       if (rootNode)
       {
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),

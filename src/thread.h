@@ -63,7 +63,7 @@ public:
   RunningAverage doubleExtensionAverage[COLOR_NB];
   uint64_t nodesLastExplosive;
   uint64_t nodesLastNormal;
-  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
+  std::atomic<uint64_t> nodes, tbHits, bestMoveChanges, bestMoveChanges2;
   Value bestValue;
   int selDepth, nmpMinPly;
   Color nmpColor;
