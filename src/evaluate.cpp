@@ -1101,11 +1101,8 @@ Value Eval::evaluate(const Position& pos) {
            v += fix_FRC(pos);
   }
 
-  int scale50 = 207 - std::max(0, int(2 * QueenValueMg - pos.non_pawn_material())) / 32;
-  scale50 = std::max(100, scale50);
-
   // Damp down the evaluation linearly when shuffling
-  v = v * (scale50 - pos.rule50_count()) / scale50;
+  v = v * (207 - pos.rule50_count()) / 207;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
