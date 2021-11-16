@@ -1092,7 +1092,7 @@ Value Eval::evaluate(const Position& pos) {
   else
   {
       int scale =   898
-                  - 61 * (pos.non_pawn_material() == RookValueMg + BishopValueMg)
+                  - 241 * (pos.non_pawn_material() == RookValueMg + BishopValueMg)
                   + 24 * pos.count<PAWN>()
                   + 33 * pos.non_pawn_material() / 1024;
 
