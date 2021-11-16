@@ -1236,7 +1236,7 @@ moves_loop: // When in check, search starts here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + (didLMR && moveCount > 10), !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1729,10 +1729,10 @@ moves_loop: // When in check, search starts here
     for (int i : {1, 2, 4, 6})
     {
         // Only update first 2 continuation histories if we are in check
-        if (ss->inCheck && i > 1)
+        if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << bonus * (1 + ss->inCheck);
+            (*(ss-i)->continuationHistory)[pc][to] << bonus;
     }
   }
 
