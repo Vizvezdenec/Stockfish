@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool onlySing = ss->nonSingExtensions > 5;
+    bool onlySing = ss->nonSingExtensions > 10;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
