@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts here
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-          &&  abs(ttValue) < VALUE_KNOWN_WIN
+          &&  abs(ttValue) < 15000
           && (tte->bound() & BOUND_LOWER)
           &&  tte->depth() >= depth - 3)
       {
@@ -1196,11 +1196,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (    PvNode
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 0)
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
