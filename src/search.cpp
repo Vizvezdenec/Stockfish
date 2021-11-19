@@ -1199,7 +1199,7 @@ moves_loop: // When in check, search starts here
 
           if (    PvNode
                && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 5000)
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 15000)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
