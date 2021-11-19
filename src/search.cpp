@@ -1197,6 +1197,11 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (    PvNode
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1574,15 +1579,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      bool doZeroWinSearch = moveCount > 1 || !PvNode;
-      if (doZeroWinSearch)
-      {
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
-      }
-      if (PvNode && (moveCount == 1 || value > alpha))
-      {
-          value = -qsearch<PV>(pos, ss+1, -beta, -alpha, depth - 1);
-      }
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
