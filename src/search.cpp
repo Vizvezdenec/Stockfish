@@ -1579,7 +1579,7 @@ moves_loop: // When in check, search starts here
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
       }
-      if (PvNode && (moveCount == 1 || (value > alpha && value < beta)))
+      if (PvNode && (moveCount == 1 || value > alpha))
       {
           value = -qsearch<PV>(pos, ss+1, -beta, -alpha, depth - 1);
       }
