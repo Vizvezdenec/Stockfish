@@ -1113,7 +1113,11 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
+          {
+              if (tte->depth() >= depth - 1)
+                  return beta;
               extension = -2;
+          }
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1229,7 +1233,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1 || (!rootNode && likelyFailLow && ttValue <= alpha);
+          doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
 
