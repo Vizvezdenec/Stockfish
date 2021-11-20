@@ -1114,7 +1114,7 @@ moves_loop: // When in check, search starts here
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
           {
-              if (tte->depth() >= depth - 1)
+              if (tte->depth() >= depth - 0)
                   return beta;
               extension = -2;
           }
