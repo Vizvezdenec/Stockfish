@@ -1229,7 +1229,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1 || (!rootNode && likelyFailLow);
+          doFullDepthSearch = !PvNode || moveCount > 1 || (!rootNode && likelyFailLow && ttValue <= alpha);
           didLMR = false;
       }
 
