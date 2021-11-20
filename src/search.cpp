@@ -815,7 +815,7 @@ namespace {
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
+        &&  eval < 13000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
@@ -1113,11 +1113,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-          {
-              if (tte->depth() >= depth + 1)
-                  return beta;
               extension = -2;
-          }
       }
 
       // Capture extensions for PvNodes and cutNodes
