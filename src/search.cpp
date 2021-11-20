@@ -815,7 +815,7 @@ namespace {
     if (   !PvNode
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
-        &&  eval < VALUE_KNOWN_WIN) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
+        &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
@@ -1229,7 +1229,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 1 || (!rootNode && likelyFailLow);
           didLMR = false;
       }
 
