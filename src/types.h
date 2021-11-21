@@ -181,7 +181,7 @@ enum ExplosionState {
 enum Value : int {
   VALUE_ZERO      = 0,
   VALUE_DRAW      = 0,
-  VALUE_KNOWN_WIN = 12000,
+  VALUE_KNOWN_WIN = 13000,
   VALUE_MATE      = 32000,
   VALUE_INFINITE  = 32001,
   VALUE_NONE      = 32002,
