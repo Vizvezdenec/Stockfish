@@ -675,7 +675,7 @@ namespace {
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !PvNode
+    if (  !ss->ttPv
         && ss->ttHit
         && tte->depth() > depth - (thisThread->id() % 2 == 1)
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -1054,19 +1054,17 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              int history = (*contHist[0])[movedPiece][to_sq(move)]
-                          + (*contHist[1])[movedPiece][to_sq(move)]
-                          + (*contHist[3])[movedPiece][to_sq(move)];
-                          
               // Continuation history based pruning (~20 Elo)
               if (lmrDepth < 5
-                  && history < -3000 * depth + 3000)
+                  && (*contHist[0])[movedPiece][to_sq(move)]
+                  + (*contHist[1])[movedPiece][to_sq(move)]
+                  + (*contHist[3])[movedPiece][to_sq(move)] < -3000 * depth + 3000)
                   continue;
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 172 + (145 + history / 1024) * lmrDepth <= alpha)
+                  && ss->staticEval + 172 + 145 * lmrDepth <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
