@@ -675,7 +675,7 @@ namespace {
         thisThread->lowPlyHistory[ss->ply - 1][from_to((ss-1)->currentMove)] << stat_bonus(depth - 5);
 
     // At non-PV nodes we check for an early TT cutoff
-    if (  !ss->ttPv
+    if (  !PvNode
         && ss->ttHit
         && tte->depth() > depth - (thisThread->id() % 2 == 1)
         && ttValue != VALUE_NONE // Possible in case of TT access race
@@ -824,7 +824,7 @@ namespace {
         return eval;
 
     // Step 8. Null move search with verification search (~40 Elo)
-    if (   !PvNode
+    if (   !ss->ttPv
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23767
         &&  eval >= beta
