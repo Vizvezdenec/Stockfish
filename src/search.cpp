@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
               singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions
-              if (   !ss->ttPv
+              if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
@@ -1182,7 +1182,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !PvNode)
+          if (   (rootNode || !ss->ttPv)
               && thisThread->bestMoveChanges <= 2)
               r++;
 
