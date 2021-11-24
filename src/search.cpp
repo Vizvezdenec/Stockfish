@@ -1182,7 +1182,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Increase reduction at root and non-PV nodes when the best move does not change frequently
-          if (   (rootNode || !ss->ttPv)
+          if (   (rootNode || !PvNode)
               && thisThread->bestMoveChanges <= 2)
               r++;
 
@@ -1454,7 +1454,7 @@ moves_loop: // When in check, search starts here
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
     pvHit = ss->ttHit && tte->is_pv();
 
-    if (  !PvNode
+    if (  !pvHit
         && ss->ttHit
         && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
