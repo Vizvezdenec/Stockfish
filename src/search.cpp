@@ -954,7 +954,7 @@ moves_loop: // When in check, search starts here
     // Step 11. A small Probcut idea, when we are in check
     probCutBeta = beta + 409;
     if (   ss->inCheck
-        && !ss->ttPv
+        && !PvNode
         && depth >= 4
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
               singularQuietLMR = !ttCapture;
 
               // Avoid search explosion by limiting the number of double extensions
-              if (   !PvNode
+              if (   !ss->ttPv
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
