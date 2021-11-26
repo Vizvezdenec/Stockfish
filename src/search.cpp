@@ -1054,25 +1054,23 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              int history =   (*contHist[0])[movedPiece][to_sq(move)]
-                            + (*contHist[1])[movedPiece][to_sq(move)]
-                            + (*contHist[3])[movedPiece][to_sq(move)];
+              int history = (*contHist[0])[movedPiece][to_sq(move)]
+                          + (*contHist[1])[movedPiece][to_sq(move)]
+                          + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~20 Elo)
-              if (   lmrDepth < 5
+              if (lmrDepth < 5
                   && history < -3000 * depth + 3000)
                   continue;
-
-              history += thisThread->mainHistory[us][from_to(move)] + (*contHist[5])[movedPiece][to_sq(move)] / 2;
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 172 + 145 * lmrDepth + history / 128 <= alpha)
+                  && ss->staticEval + 172 + 145 * lmrDepth + history / 256 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
-              if (!pos.see_ge(move, Value(-21 * lmrDepth * lmrDepth - 21 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-(21 + history / 16384) * lmrDepth * lmrDepth - 21 * lmrDepth)))
                   continue;
           }
       }
@@ -1219,6 +1217,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
+                       : PvNode && moveCount == 2 && ss->statScore > 50000 ? 3
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
