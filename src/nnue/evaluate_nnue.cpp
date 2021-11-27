@@ -167,8 +167,11 @@ namespace Stockfish::Eval::NNUE {
 
     // Give more value to positional evaluation when material is balanced
     if (   adjusted
-        && abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= KnightValueMg)
-      return  static_cast<Value>(((128 - delta) * psqt + (128 + delta) * positional) / 128 / OutputScale);
+        && abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) <= RookValueMg - BishopValueMg)
+        { if (pos.non_pawn_material(WHITE) == pos.non_pawn_material(BLACK) && pos.count<PAWN>(WHITE) == pos.count<PAWN>(BLACK))
+              delta += 3;
+          return  static_cast<Value>(((128 - delta) * psqt + (128 + delta) * positional) / 128 / OutputScale);
+        }
     else
       return static_cast<Value>((psqt + positional) / OutputScale);
   }
