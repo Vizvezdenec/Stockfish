@@ -1717,8 +1717,9 @@ moves_loop: // When in check, search starts here
         if (PieceValue[MG][captured] == PawnValueMg && bestValue > beta + PawnValueMg)
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            int bonus = bonus1 / 2;
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
         }
     }
 
