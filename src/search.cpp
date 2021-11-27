@@ -828,7 +828,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23767
         &&  eval >= beta
-        &&  eval >= ss->staticEval
+        &&  !(ss->ttHit && (tte->bound() & BOUND_UPPER))
         &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204
         && !excludedMove
         &&  pos.non_pawn_material(us)
@@ -1711,17 +1711,8 @@ moves_loop: // When in check, search starts here
         }
     }
     else
-    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (bestValue > beta + PieceValue[MG][captured])
-        for (int i = 0; i < quietCount; ++i)
-        {
-            int bonus = bonus1 / 2;
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus);
-        }
-    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
