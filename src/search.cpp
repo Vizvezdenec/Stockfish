@@ -990,7 +990,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool wasExtended = false;
+    int wasExtended = 0;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1222,10 +1222,10 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
-                       : !wasExtended              ? 1
+                       : wasExtended < 2           ? 1
                        :                             0;
 
-          wasExtended |= deeper;
+          wasExtended += deeper;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
