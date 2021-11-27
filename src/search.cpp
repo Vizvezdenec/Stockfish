@@ -828,7 +828,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23767
         &&  eval >= beta
-        &&  !(ss->ttHit && (tte->bound() == BOUND_UPPER))
+        &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204
         && !excludedMove
         &&  pos.non_pawn_material(us)
@@ -1220,7 +1220,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && depth > 6       ? 1
+                       : ss->ttPv && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
