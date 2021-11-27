@@ -1220,7 +1220,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : ss->ttPv && depth > 6       ? 1
+                       : ss->ttPv       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
