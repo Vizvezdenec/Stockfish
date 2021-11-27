@@ -1063,12 +1063,10 @@ moves_loop: // When in check, search starts here
                   && history < -3000 * depth + 3000)
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];
-
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 172 + 145 * lmrDepth + history / 128 <= alpha)
+                  && ss->staticEval + 172 + 145 * lmrDepth + history / 256 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1090,7 +1088,7 @@ moves_loop: // When in check, search starts here
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
-          && (tte->bound() & BOUND_LOWER)
+          && (tte->bound() == BOUND_LOWER || (PvNode && tte->bound() == BOUND_EXACT))
           &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - 3 * depth;
