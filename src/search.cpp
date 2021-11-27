@@ -828,7 +828,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 23767
         &&  eval >= beta
-        &&  !(ss->ttHit && (tte->bound() & BOUND_UPPER))
+        &&  !(ss->ttHit && (tte->bound() == BOUND_UPPER))
         &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204
         && !excludedMove
         &&  pos.non_pawn_material(us)
