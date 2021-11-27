@@ -1714,7 +1714,7 @@ moves_loop: // When in check, search starts here
     {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (PieceValue[MG][captured] == PawnValueMg && bestValue > beta + PawnValueMg)
+        if (bestValue > beta + PieceValue[MG][captured])
         for (int i = 0; i < quietCount; ++i)
         {
             int bonus = bonus1 / 2;
