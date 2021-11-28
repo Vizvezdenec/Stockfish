@@ -1134,7 +1134,7 @@ moves_loop: // When in check, search starts here
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && abs(ss->staticEval) > 80)
+               && abs(ss->staticEval) > 120)
           extension = 1;
 
       // Quiet ttMove extensions
