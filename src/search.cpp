@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3)
+          &&  tte->depth() >= depth - 3 - (ttValue > beta + 128))
       {
           Value singularBeta = ttValue - 3 * depth;
           Depth singularDepth = (depth - 1) / 2;
@@ -1225,9 +1225,6 @@ moves_loop: // When in check, search starts here
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
-
-          if (move == ss->killers[0])
-              d = std::max(d, newDepth - 2);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
