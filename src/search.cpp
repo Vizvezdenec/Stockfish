@@ -1227,7 +1227,7 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           if (move == ss->killers[0])
-              d = std::max(d, newDepth);
+              d = std::max(d, newDepth - 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
