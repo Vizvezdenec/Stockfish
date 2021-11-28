@@ -1128,13 +1128,13 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
-               && (cutNode || moveCount != 1))
+               && moveCount != 1)
           extension = 1;
 
       // Check extensions
       else if (   givesCheck
                && depth > 6
-               && abs(ss->staticEval) > 100)
+               && abs(ss->staticEval) > 80)
           extension = 1;
 
       // Quiet ttMove extensions
