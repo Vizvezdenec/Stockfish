@@ -1183,7 +1183,7 @@ moves_loop: // When in check, search starts here
               && beta - alpha >= thisThread->rootDelta / 4)
               r--;
 
-          if (beta * (2 * (thisThread->rootColor == us) - 1) > thisThread->rootBeta)
+          if (beta * (2 * (thisThread->rootColor == us) - 1) > thisThread->rootBeta + 200)
               r++;
 
           // Decrease reduction if position is or has been on the PV
