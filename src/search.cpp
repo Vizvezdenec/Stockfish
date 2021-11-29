@@ -990,6 +990,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool dext = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1091,7 +1093,7 @@ moves_loop: // When in check, search starts here
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
           &&  abs(ttValue) < VALUE_KNOWN_WIN
           && (tte->bound() & BOUND_LOWER)
-          &&  tte->depth() >= depth - 3 - (ttValue > beta + 32))
+          &&  tte->depth() >= depth - 3)
       {
           Value singularBeta = ttValue - 3 * depth;
           Depth singularDepth = (depth - 1) / 2;
@@ -1109,7 +1111,7 @@ moves_loop: // When in check, search starts here
               if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
-                  extension = 2;
+                  extension = 2, dext = true;
           }
 
           // Multi-cut pruning
@@ -1219,7 +1221,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : moveCount <= 5            ? 2
+                       : moveCount <= 5            ? 2 - dext
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
