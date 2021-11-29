@@ -631,7 +631,11 @@ namespace {
             return alpha;
     }
     else
+    {
         thisThread->rootDelta = beta - alpha;
+        thisThread->rootBeta = beta;
+        thisThread->rootColor = us;
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1068,7 +1072,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 142 + 139 * lmrDepth + history / 32 <= alpha)
+                  && ss->staticEval + 142 + 139 * lmrDepth + history / 64 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~20 Elo)
@@ -1178,6 +1182,9 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3
               && beta - alpha >= thisThread->rootDelta / 4)
               r--;
+
+          if (beta * (2 * (thisThread->rootColor == us) - 1) > thisThread->rootBeta)
+              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
