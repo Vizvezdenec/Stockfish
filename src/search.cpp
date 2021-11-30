@@ -1063,7 +1063,9 @@ moves_loop: // When in check, search starts here
                   && history < -3000 * depth + 3000)
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];                  
+              history += thisThread->mainHistory[us][from_to(move)];   
+
+              lmrDepth = std::max(0, lmrDepth - (beta - alpha < thisThread->rootDelta / 4));             
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
@@ -1220,7 +1222,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && beta - alpha >= thisThread->rootDelta / 4 && depth > 6       ? 1
+                       : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
