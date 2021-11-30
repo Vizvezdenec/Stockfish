@@ -631,11 +631,7 @@ namespace {
             return alpha;
     }
     else
-    {
         thisThread->rootDelta = beta - alpha;
-        thisThread->rootBeta = beta;
-        thisThread->rootColor = us;
-    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -645,6 +641,10 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    if (PvNode)
+        ss->isProbcut = false;
+    else
+        ss->isProbcut = (ss-1)->isProbcut;
 
     // Update the running average statistics for double extensions
     thisThread->doubleExtensionAverage[us].update(ss->depth > (ss-1)->depth);
@@ -919,9 +919,11 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                ss->isProbcut = true;
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                ss->isProbcut = (ss-1)->isProbcut;
 
                 pos.undo_move(move);
 
@@ -1183,10 +1185,6 @@ moves_loop: // When in check, search starts here
               && beta - alpha >= thisThread->rootDelta / 4)
               r--;
 
-          Value adjBeta = beta * (2 * (thisThread->rootColor == us) - 1);
-          if (adjBeta > thisThread->rootBeta)
-              r += (adjBeta - thisThread->rootBeta) / 128;
-
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
@@ -1212,6 +1210,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
+              r++;
+
+          if (ss->isProbcut)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
