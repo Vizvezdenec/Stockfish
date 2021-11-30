@@ -1063,9 +1063,7 @@ moves_loop: // When in check, search starts here
                   && history < -3000 * depth + 3000)
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];   
-
-              lmrDepth = std::max(0, lmrDepth - (bestMoveCount >= 3));             
+              history += thisThread->mainHistory[us][from_to(move)];                  
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
@@ -1179,6 +1177,9 @@ moves_loop: // When in check, search starts here
           if (   PvNode
               && bestMoveCount <= 3
               && beta - alpha >= thisThread->rootDelta / 4)
+              r--;
+
+          if (abs(eval - ss->staticEval) > 40 * depth)
               r--;
 
           // Decrease reduction if position is or has been on the PV
