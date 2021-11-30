@@ -1179,7 +1179,7 @@ moves_loop: // When in check, search starts here
               && beta - alpha >= thisThread->rootDelta / 4)
               r--;
 
-          if (abs(eval - ss->staticEval) > 80 * depth)
+          if (bestMove && ss->staticEval + 30 * depth < alpha)
               r--;
 
           // Decrease reduction if position is or has been on the PV
