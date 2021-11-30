@@ -641,10 +641,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
-    if (PvNode)
-        ss->isProbcut = false;
-    else
-        ss->isProbcut = (ss-1)->isProbcut;
 
     // Update the running average statistics for double extensions
     thisThread->doubleExtensionAverage[us].update(ss->depth > (ss-1)->depth);
@@ -919,11 +915,9 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                ss->isProbcut = true;
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-                ss->isProbcut = (ss-1)->isProbcut;
 
                 pos.undo_move(move);
 
@@ -1175,7 +1169,6 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
-              || ss->isProbcut
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
@@ -1227,7 +1220,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 5            ? 2
-                       : PvNode && depth > 6       ? 1
+                       : PvNode && beta - alpha >= thisThread->rootDelta / 4 && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
 
