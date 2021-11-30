@@ -1213,7 +1213,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           if (ss->isProbcut)
-              r++;
+              r += 2;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
