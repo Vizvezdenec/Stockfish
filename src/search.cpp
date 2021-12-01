@@ -1065,6 +1065,8 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
+              lmrDepth = std::max(0, lmrDepth - !PvNode);
+
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
@@ -1107,9 +1109,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && (value < singularBeta - 75 
-                      || (   move == ss->killers[0]
-                          && (*contHist[0])[movedPiece][to_sq(move)] >= 10000))
+                  && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
                   extension = 2;
           }
