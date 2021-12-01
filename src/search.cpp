@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
+                  && value < singularBeta - 75 + 25 * (move == ss->killers[0])
                   && ss->doubleExtensions <= 6)
                   extension = 2;
           }
@@ -1201,9 +1201,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
-
-          if (!PvNode && !cutNode && move == ss->killers[0])
-              r -= 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
