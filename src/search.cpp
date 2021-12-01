@@ -1065,7 +1065,7 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth = std::max(0, lmrDepth - !PvNode);
+              lmrDepth = std::max(0, lmrDepth - 2 * !PvNode);
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
