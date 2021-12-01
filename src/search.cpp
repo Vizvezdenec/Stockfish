@@ -1202,6 +1202,9 @@ moves_loop: // When in check, search starts here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
+          if (!PvNode && !cutNode && move == ss->killers[0])
+              r--;
+
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
@@ -1320,8 +1323,6 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              if (bestMove && !pos.capture_or_promotion(bestMove) && quietCount < 64)
-                  quietsSearched[quietCount++] = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
