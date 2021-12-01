@@ -1203,7 +1203,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           if (!PvNode && !cutNode && move == ss->killers[0])
-              r--;
+              r -= 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
