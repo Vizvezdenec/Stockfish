@@ -1107,7 +1107,7 @@ moves_loop: // When in check, search starts here
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
-                  && value < singularBeta - 75
+                  && value < singularBeta - 75 + 25 * (move == ss->killers[0])
                   && ss->doubleExtensions <= 6)
                   extension = 2;
           }
@@ -1320,10 +1320,6 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              if (bestMove && pos.capture_or_promotion(bestMove) && captureCount < 32)
-                  capturesSearched[captureCount++] = bestMove;
-              else if (bestMove && !pos.capture_or_promotion(bestMove) && quietCount < 64)
-                  quietsSearched[quietCount++] = bestMove;
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
