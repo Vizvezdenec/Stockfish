@@ -837,7 +837,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4 + priorCapture;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -990,8 +990,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool goodTtMove = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1026,10 +1024,6 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      goodTtMove |= move == ttMove && !captureOrPromotion 
-                 && (*contHist[0])[movedPiece][to_sq(move)] > 20000
-                 && (*contHist[1])[movedPiece][to_sq(move)] > 20000;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1209,7 +1203,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture || (goodTtMove && !captureOrPromotion))
+          if (ttCapture)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
