@@ -990,6 +990,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool goodTtMove = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1025,6 +1027,10 @@ moves_loop: // When in check, search starts here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
+      goodTtMove |= move == ttMove && !captureOrPromotion 
+                 && (*contHist[0])[movedPiece][to_sq(move)] > 10000
+                 && (*contHist[1])[movedPiece][to_sq(move)] > 10000;
+
       // Calculate new depth for this move
       newDepth = depth - 1;
 
@@ -1049,7 +1055,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-218 - captureOrPromotion * captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 512) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1203,7 +1209,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture)
+          if (ttCapture || (goodTtMove && !captureOrPromotion))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
