@@ -1048,6 +1048,13 @@ moves_loop: // When in check, search starts here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (  !givesCheck
+                  && depth == 1
+                  && captureCount > 2
+                  && ss->staticEval > -VALUE_KNOWN_WIN
+                  && type_of(move) != PROMOTION)
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
