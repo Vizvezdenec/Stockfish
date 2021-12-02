@@ -1028,8 +1028,8 @@ moves_loop: // When in check, search starts here
       givesCheck = pos.gives_check(move);
 
       goodTtMove |= move == ttMove && !captureOrPromotion 
-                 && (*contHist[0])[movedPiece][to_sq(move)] > 10000
-                 && (*contHist[1])[movedPiece][to_sq(move)] > 10000;
+                 && (*contHist[0])[movedPiece][to_sq(move)] > 20000
+                 && (*contHist[1])[movedPiece][to_sq(move)] > 20000;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
