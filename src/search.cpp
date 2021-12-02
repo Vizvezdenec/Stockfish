@@ -1050,7 +1050,7 @@ moves_loop: // When in check, search starts here
 
               if (  !givesCheck
                   && depth == 1
-                  && captureCount > 2
+                  && captureCount > 1
                   && ss->staticEval > -VALUE_KNOWN_WIN
                   && type_of(move) != PROMOTION)
                   continue;
