@@ -1146,13 +1146,6 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
-      else if (   PvNode
-               && move == countermove
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 20000
-               && (*contHist[1])[movedPiece][to_sq(move)] >= 20000)
-          extension = 1;
-
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1386,7 +1379,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode || bestValue < alpha - 48 * depth)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
