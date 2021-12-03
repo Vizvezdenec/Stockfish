@@ -1065,7 +1065,7 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth -= (beta - alpha < thisThread->rootDelta / 4);
+              lmrDepth = std::max(0, lmrDepth - (beta - alpha < thisThread->rootDelta / 4));
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
@@ -1379,7 +1379,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
              && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode)));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + (PvNode || cutNode || bestValue < alpha - 174 * depth)));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
