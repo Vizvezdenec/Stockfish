@@ -60,14 +60,14 @@ void Thread::clear() {
   counterMoves.fill(MOVE_NONE);
   mainHistory.fill(0);
   lowPlyHistory.fill(0);
-  captureHistory.fill(0);
+  captureHistory.fill(-1);
 
   for (bool inCheck : { false, true })
       for (StatsType c : { NoCaptures, Captures })
       {
           for (auto& to : continuationHistory[inCheck][c])
                 for (auto& h : to)
-                      h->fill(-1);
+                      h->fill(0);
           continuationHistory[inCheck][c][NO_PIECE][0]->fill(Search::CounterMovePruneThreshold - 1);
       }
 }
