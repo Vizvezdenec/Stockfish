@@ -1105,13 +1105,13 @@ moves_loop: // When in check, search starts here
           if (value < singularBeta)
           {
               extension = 1;
-              singularQuietLMR = !ttCapture;
+              singularQuietLMR = !ttCapture && value >= singularBeta - 20 * depth;
 
               // Avoid search explosion by limiting the number of double extensions
               if (   !PvNode
                   && value < singularBeta - 75
                   && ss->doubleExtensions <= 6)
-                  extension = 2, singularQuietLMR = false;
+                  extension = 2;
           }
 
           // Multi-cut pruning
