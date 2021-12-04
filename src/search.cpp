@@ -1145,14 +1145,6 @@ moves_loop: // When in check, search starts here
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
-          
-      else if (   PvNode
-               && moveCount == 1
-               && move == countermove
-               && move == ss->killers[0]
-               && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
-               && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
-          extension = 1;
 
       // Add extension to new depth
       newDepth += extension;
@@ -1176,7 +1168,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
-          &&  moveCount > 1 + 2 * rootNode
+          &&  moveCount > 1
           && (   !ss->ttPv
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
@@ -1228,7 +1220,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
-          int deeper =   r >= -1                   ? 0
+          int deeper =   r >= -1 || rootNode       ? 0
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
