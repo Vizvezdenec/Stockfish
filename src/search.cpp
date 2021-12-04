@@ -786,7 +786,6 @@ namespace {
 
         // Can ttValue be used as a better position evaluation?
         if (    ttValue != VALUE_NONE
-            && (tte->bound() != BOUND_UPPER || tte->depth() > -5)
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -1147,6 +1146,14 @@ moves_loop: // When in check, search starts here
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
           extension = 1;
 
+      else if (   PvNode
+               && moveCount != 1
+               && move == countermove
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][to_sq(move)] >= 15000
+               && (*contHist[1])[movedPiece][to_sq(move)] >= 15000)
+          extension = 1;
+    
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
