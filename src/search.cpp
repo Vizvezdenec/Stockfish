@@ -631,7 +631,10 @@ namespace {
             return alpha;
     }
     else
+    {
         thisThread->rootDelta = beta - alpha;
+        thisThread->rootCnt = pos.count<ALL_PIECES>();
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1207,6 +1210,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if ((thisThread->rootCnt - pos.count<ALL_PIECES>()) * 100 > 65 * ss->ply && abs(ss->staticEval) < 200)
+            r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]

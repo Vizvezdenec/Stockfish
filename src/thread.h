@@ -65,7 +65,7 @@ public:
   uint64_t nodesLastNormal;
   std::atomic<uint64_t> nodes, tbHits, bestMoveChanges;
   Value bestValue;
-  int selDepth, nmpMinPly;
+  int selDepth, nmpMinPly, rootCnt;
   Color nmpColor;
   ExplosionState state;
   Value optimism[COLOR_NB];
