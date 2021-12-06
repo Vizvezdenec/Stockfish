@@ -1164,7 +1164,6 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
-
       bool doDeeperSearch = false;
 
       // Step 16. Late moves reduction / extension (LMR, ~200 Elo)
@@ -1239,7 +1238,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = !PvNode && value > alpha + 44;
+          doDeeperSearch = value > alpha + 22 * r;
           didLMR = true;
       }
       else
@@ -1256,8 +1255,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth + doDeeperSearch)
-                                        : -stat_bonus(newDepth + doDeeperSearch);
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
