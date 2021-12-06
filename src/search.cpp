@@ -1044,16 +1044,14 @@ moves_loop: // When in check, search starts here
           if (   captureOrPromotion
               || givesCheck)
           {
-              int captHist = captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))];
-
               // Capture history based pruning when the move doesn't give check
               if (   !givesCheck
                   && lmrDepth < 1
-                  && captHist < 0)
+                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
               // SEE based pruning
-              if (!pos.see_ge(move, Value(-216 - captHist / 1024) * depth)) // (~25 Elo)
+              if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
           }
           else
@@ -1398,10 +1396,14 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
+    {
+        if (!bestMove && ss->ttHit && ttMove && tte->bound() == BOUND_LOWER && ttValue < alpha)
+            bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
+    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
