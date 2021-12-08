@@ -1067,7 +1067,7 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth = std::max(0, lmrDepth - (beta - alpha < thisThread->rootDelta / 4));
+              lmrDepth = std::max(0, lmrDepth - (beta - alpha < thisThread->rootDelta / 4) - (!PvNode && move != ss->killers[0]));
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
@@ -1191,6 +1191,10 @@ moves_loop: // When in check, search starts here
               && !likelyFailLow)
               r -= 2;
 
+          // Increase reduction at non-PV nodes
+          if (!PvNode)
+              r++;
+
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
@@ -1200,8 +1204,8 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (!PvNode && move != ss->killers[0])
-              r += 1 + 2 * cutNode;
+          if (cutNode && move != ss->killers[0])
+              r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
