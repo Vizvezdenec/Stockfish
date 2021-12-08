@@ -1089,7 +1089,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 7
+          &&  depth >= 6 + tte->is_pv()
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1239,7 +1239,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > alpha + 90 - 22 * (r == 1);
+          doDeeperSearch = value > alpha + 88;
           didLMR = true;
       }
       else
