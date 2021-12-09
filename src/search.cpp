@@ -1174,6 +1174,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
+              || bestMoveCount > 2
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
@@ -1239,7 +1240,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > alpha + 88 || (PvNode && value > beta + 44);
+          doDeeperSearch = value > alpha + 88;
           didLMR = true;
       }
       else
