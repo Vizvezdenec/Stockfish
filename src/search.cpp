@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
           extension = 1;
 
       // Quiet ttMove extensions
-      else if (   ss->ttPv
+      else if (   PvNode
                && move == ttMove
                && move == ss->killers[0]
                && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
@@ -1173,7 +1173,7 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 3
           &&  moveCount > 1 + 2 * rootNode
-          && (   !ss->ttPv
+          && (   !tte->is_pv()
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
