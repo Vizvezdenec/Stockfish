@@ -1159,8 +1159,8 @@ moves_loop: // When in check, search starts here
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [captureOrPromotion]
+                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1586,8 +1586,8 @@ moves_loop: // When in check, search starts here
 
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [captureOrPromotion]
+                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
