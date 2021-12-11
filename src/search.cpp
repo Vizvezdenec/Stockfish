@@ -906,8 +906,11 @@ namespace {
                 captureOrPromotion = true;
 
                 ss->currentMove = move;
+
+                PieceType pt = type_of(move) == PROMOTION ? PAWN : type_of(pos.piece_on(to_sq(move)));
+
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                          [captureOrPromotion]
+                                                                          [pt]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1156,8 +1159,9 @@ moves_loop: // When in check, search starts here
 
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
+      PieceType pt = type_of(move) == PROMOTION ? PAWN : type_of(pos.piece_on(to_sq(move)));
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [captureOrPromotion]
+                                                                [pt]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1582,8 +1586,9 @@ moves_loop: // When in check, search starts here
       prefetch(TT.first_entry(pos.key_after(move)));
 
       ss->currentMove = move;
+      PieceType pt = type_of(move) == PROMOTION ? PAWN : type_of(pos.piece_on(to_sq(move)));
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [captureOrPromotion]
+                                                                [pt]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
