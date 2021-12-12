@@ -991,8 +991,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int plmrExt = 0;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1240,8 +1238,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > alpha + 68 + 20 * plmrExt;
-          plmrExt += doDeeperSearch;
+          doDeeperSearch = value > alpha + 88;
           didLMR = true;
       }
       else
@@ -1253,6 +1250,7 @@ moves_loop: // When in check, search starts here
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
+          Value prevValue = value;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
           // If the move passed LMR update its stats
@@ -1263,6 +1261,8 @@ moves_loop: // When in check, search starts here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
+          if (doDeeperSearch && value > prevValue && value <= beta)
+              newDepth++;
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
