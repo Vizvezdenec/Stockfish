@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving, bool ttpv) {
-    return Value(214  * (d - improving) + 200 * d * ttpv);
+  Value futility_margin(Depth d, bool improving) {
+    return Value(214 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -818,9 +818,9 @@ namespace {
 
     // Step 7. Futility pruning: child node (~50 Elo).
     // The depth condition is important for mate finding.
-    if (   !PvNode
+    if (   !ss->ttPv
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving, ss->ttPv) >= beta
+        &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
@@ -1730,7 +1730,7 @@ moves_loop: // When in check, search starts here
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
-        && !pos.captured_piece())
+        && !pos.captured_piece() && bestValue >= beta)
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
     // Decrease stats for all non-best capture moves
