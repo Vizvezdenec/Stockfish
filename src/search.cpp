@@ -678,7 +678,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - (thisThread->id() % 2 == 1)
+        && tte->depth() > depth - ((thisThread->id() % 2 == 1) || ttCapture)
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -887,15 +887,11 @@ namespace {
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
-             && tte->depth() >= depth - 2
-             && (tte->bound() & BOUND_UPPER)
+             && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
-
-        if (ttCapture && tte->depth() >= depth - 2 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && ttValue >= probCutBeta)
-            return ttValue;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         bool ttPv = ss->ttPv;
