@@ -908,7 +908,8 @@ namespace {
                 ss->currentMove = move;
                 int typee = pos.empty(to_sq(move)) ? 0 
                           : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : 2;
+                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
+                          : 3;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
                                                                           [typee]
@@ -1162,7 +1163,8 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
                 int typee = pos.empty(to_sq(move)) ? 0 
                           : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : 2;
+                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
+                          : 3;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [captureOrPromotion]
                                                                 [typee]
@@ -1592,7 +1594,8 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
                 int typee = pos.empty(to_sq(move)) ? 0 
                           : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : 2;
+                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
+                          : 3;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [captureOrPromotion]
                                                                 [typee]
