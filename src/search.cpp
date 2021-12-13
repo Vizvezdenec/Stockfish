@@ -1733,7 +1733,7 @@ moves_loop: // When in check, search starts here
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (bqm)
-            update_quiet_stats(pos, ss, bqm, stat_bonus(depth), depth);
+            update_quiet_stats(pos, ss, bqm, stat_bonus(depth) / 2, depth);
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
