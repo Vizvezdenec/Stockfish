@@ -297,7 +297,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -841,7 +841,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -906,13 +906,11 @@ namespace {
                 captureOrPromotion = true;
 
                 ss->currentMove = move;
-                int typee = pos.empty(to_sq(move)) ? 0 
-                          : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
-                          : 3;
+                int moveType = !captureOrPromotion     ? 0
+                             : pos.empty(to_sq(move))  ? 1
+                             :                           2;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                          [captureOrPromotion]
-                                                                          [typee]
+                                                                          [moveType]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1161,13 +1159,11 @@ moves_loop: // When in check, search starts here
 
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
-                int typee = pos.empty(to_sq(move)) ? 0 
-                          : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
-                          : 3;
+      int moveType = !captureOrPromotion     ? 0
+                   : pos.empty(to_sq(move))  ? 1
+                   :                           2;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [captureOrPromotion]
-                                                                [typee]
+                                                                [moveType]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1592,13 +1588,11 @@ moves_loop: // When in check, search starts here
       prefetch(TT.first_entry(pos.key_after(move)));
 
       ss->currentMove = move;
-                int typee = pos.empty(to_sq(move)) ? 0 
-                          : type_of(pos.piece_on(to_sq(move))) == PAWN ? 1
-                          : PieceValue[MG][pos.piece_on(to_sq(move))] < RookValueMg ? 2
-                          : 3;
+      int moveType = !captureOrPromotion     ? 0
+                   : pos.empty(to_sq(move))  ? 1
+                   :                           2;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [captureOrPromotion]
-                                                                [typee]
+                                                                [moveType]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
