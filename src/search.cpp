@@ -690,7 +690,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth + 1), depth);
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), depth);
 
                 // Extra penalty for early quiet moves of the previous ply
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -699,7 +699,7 @@ namespace {
             // Penalty for a quiet ttMove that fails low
             else if (!ttCapture)
             {
-                int penalty = -stat_bonus(depth + 1);
+                int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1061,7 +1061,8 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~20 Elo)
               if (   lmrDepth < 5
-                  && history < -3000 * depth + 3000)
+                  && history < -3000 * depth + 3000
+                  && !(ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] > 10000))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
