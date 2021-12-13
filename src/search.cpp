@@ -893,7 +893,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        if (ttCapture && tte->depth() >= depth - 2 && ttValue != VALUE_NONE && ttValue >= probCutBeta)
+        if (ttCapture && tte->depth() >= depth - 2 && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER) && ttValue >= probCutBeta)
             return ttValue;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
