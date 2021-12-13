@@ -802,7 +802,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
+        int bonus = std::clamp(-32 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1061,8 +1061,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~20 Elo)
               if (   lmrDepth < 5
-                  && history < -3000 * depth + 3000
-                  && !(ss->inCheck && (*contHist[0])[movedPiece][to_sq(move)] > 0))
+                  && history < -3000 * depth + 3000)
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
