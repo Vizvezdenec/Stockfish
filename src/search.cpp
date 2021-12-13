@@ -887,7 +887,7 @@ namespace {
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
-             && tte->depth() >= depth - 3
+             && tte->depth() >= depth - 2
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
