@@ -888,6 +888,7 @@ namespace {
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
              && tte->depth() >= depth - 2
+             && (tte->bound() & BOUND_UPPER)
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
