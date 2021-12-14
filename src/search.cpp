@@ -802,7 +802,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-5 * int((ss-1)->staticEval + ss->staticEval), -4000, 4000);
+        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =    PvNode
+    bool likelyFailLow =   (PvNode || ttValue <= alpha)
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
