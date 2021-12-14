@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =   (PvNode || (!cutNode && ttValue <= alpha - 62 * (depth - 3)))
+    bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
@@ -1247,10 +1247,14 @@ moves_loop: // When in check, search starts here
           didLMR = false;
       }
 
+      bool needPvExt = false;
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
+
+          if (value > (alpha + beta) / 2 && !bestMoveCount)
+              needPvExt = true;
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1271,7 +1275,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
+                              std::min(maxNextDepth, newDepth + needPvExt), false);
       }
 
       // Step 18. Undo move
