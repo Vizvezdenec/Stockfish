@@ -711,7 +711,7 @@ namespace {
         {
             if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && !ss->inCheck && tte->eval() != VALUE_NONE)
             {
-                int bonus = std::clamp(-16 * int((ss-1)->staticEval + tte->eval()), -2000, 2000);
+                int bonus = std::clamp(-8 * int((ss-1)->staticEval + tte->eval()), -2000, 2000);
                 thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
             }
             return ttValue;
