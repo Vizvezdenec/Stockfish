@@ -1105,7 +1105,7 @@ moves_loop: // When in check, search starts here
 
           if (value < singularBeta)
           {
-              Value raisedBeta = beta + 2 * depth;
+              Value raisedBeta = beta + 6 * depth;
               if (value >= raisedBeta)
               {
                   ss->excludedMove = move;
