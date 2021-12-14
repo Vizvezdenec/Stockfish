@@ -1243,18 +1243,14 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 1 + rootNode;
           didLMR = false;
       }
 
-      bool needPvExt = false;
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
-
-          if (value > alpha + 13 && !bestMoveCount)
-              needPvExt = true;
 
           // If the move passed LMR update its stats
           if (didLMR && !captureOrPromotion)
@@ -1275,7 +1271,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + needPvExt), false);
+                              std::min(maxNextDepth, newDepth), false);
       }
 
       // Step 18. Undo move
