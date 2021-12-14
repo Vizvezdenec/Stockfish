@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           if (negativeExt)
-              r++;
+              r += 2;
 
           // Increase reduction at non-PV nodes
           if (!PvNode)
