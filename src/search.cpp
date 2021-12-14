@@ -986,7 +986,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-    bool likelyFailLow =   (PvNode || (!cutNode && ttValue <= alpha))
+    bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
@@ -1105,6 +1105,14 @@ moves_loop: // When in check, search starts here
 
           if (value < singularBeta)
           {
+              if (singularBeta >= beta + 3 * depth && value >= beta)
+              {
+                  ss->excludedMove = move;
+                  value = search<NonPV>(pos, ss, beta - 1, beta, singularDepth, cutNode);
+                  ss->excludedMove = MOVE_NONE;
+                  if (value >= beta)
+                      return beta;
+              }
               extension = 1;
               singularQuietLMR = !ttCapture;
 
