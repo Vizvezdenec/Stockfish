@@ -708,7 +708,14 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && !ss->inCheck && tte->eval() != VALUE_NONE)
+            {
+                int bonus = std::clamp(-16 * int((ss-1)->staticEval + tte->eval()), -2000, 2000);
+                thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+            }
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -991,8 +998,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool negativeExt = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1127,7 +1132,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2, negativeExt = true;
+              extension = -2;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1191,9 +1196,6 @@ moves_loop: // When in check, search starts here
           if (   ss->ttPv
               && !likelyFailLow)
               r -= 2;
-
-          if (negativeExt)
-              r += 2;
 
           // Increase reduction at non-PV nodes
           if (!PvNode)
