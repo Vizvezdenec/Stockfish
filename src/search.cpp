@@ -926,7 +926,7 @@ namespace {
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
                     if ( !(ss->ttHit
-                       && tte->depth() >= depth - 3
+                       && (tte->depth() >= depth - 3 || (tte->bound() == BOUND_UPPER && tte->depth() <= depth))
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
