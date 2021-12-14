@@ -1253,7 +1253,7 @@ moves_loop: // When in check, search starts here
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
-          if (value > alpha + 26)
+          if (2 * value > alpha + beta)
               needPvExt = true;
 
           // If the move passed LMR update its stats
