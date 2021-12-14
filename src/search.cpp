@@ -926,7 +926,7 @@ namespace {
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
                     if ( !(ss->ttHit
-                       && (tte->depth() >= depth - 3 || (tte->bound() == BOUND_UPPER && tte->depth() <= depth))
+                       && tte->depth() >= depth - 3
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
@@ -990,6 +990,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    bool negativeExt = false;
 
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1125,7 +1127,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2;
+              extension = -2, negativeExt = true;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1189,6 +1191,9 @@ moves_loop: // When in check, search starts here
           if (   ss->ttPv
               && !likelyFailLow)
               r -= 2;
+
+          if (negativeExt)
+              r++;
 
           // Increase reduction at non-PV nodes
           if (!PvNode)
