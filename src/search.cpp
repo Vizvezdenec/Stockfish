@@ -1212,8 +1212,8 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (negativeExt)
-              r += 3;
+          if (negativeExt && move != ss->killers[0])
+              r += 2;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
