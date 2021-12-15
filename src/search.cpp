@@ -69,9 +69,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, bool rangeReduction) {
+  Depth reduction(bool i, Depth d, int mn, bool rangeReduction, bool lowDelta) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 534) / 1024 + (!i && r > 904) + rangeReduction;
+    return (r + 534) / 1024 + (!i && r > 904) + rangeReduction + lowDelta;
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -991,8 +991,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool negativeExt = false;
-
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1027,6 +1025,7 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      bool lowDelta = beta - alpha < thisThread->rootDelta / 4;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
@@ -1040,7 +1039,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2, lowDelta), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1067,8 +1066,6 @@ moves_loop: // When in check, search starts here
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
-
-              lmrDepth = std::max(0, lmrDepth - (beta - alpha < thisThread->rootDelta / 4));
 
               // Futility pruning: parent node (~5 Elo)
               if (   !ss->inCheck
@@ -1127,7 +1124,7 @@ moves_loop: // When in check, search starts here
 
           // If the eval of ttMove is greater than beta, we reduce it (negative extension)
           else if (ttValue >= beta)
-              extension = -2, negativeExt = true;
+              extension = -2;
       }
 
       // Capture extensions for PvNodes and cutNodes
@@ -1178,12 +1175,11 @@ moves_loop: // When in check, search starts here
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
+          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2, lowDelta);
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3
-              && beta - alpha >= thisThread->rootDelta / 4)
+              && bestMoveCount <= 3)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1191,10 +1187,6 @@ moves_loop: // When in check, search starts here
           if (   ss->ttPv
               && !likelyFailLow)
               r -= 2;
-
-          // Increase reduction at non-PV nodes
-          if (!PvNode)
-              r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1211,9 +1203,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (negativeExt && move != ss->killers[0])
-              r += 2;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
