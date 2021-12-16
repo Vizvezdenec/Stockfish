@@ -1548,7 +1548,7 @@ moves_loop: // When in check, search starts here
 
       moveCount++;
 
-      if (moveCount > 12 && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+      if (moveCount > 10 && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
           break;
 
       // Futility pruning and moveCount pruning
