@@ -1131,6 +1131,7 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
+               && (to_sq(move) == prevSq || to_sq(move) == to_sq((ss-3)->currentMove))
                && moveCount != 1)
           extension = 1;
 
@@ -1547,9 +1548,6 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
-
-      if (moveCount > 10 && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
-          break;
 
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
