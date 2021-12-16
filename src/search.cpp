@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
               && !likelyFailLow)
-              r -= 2 + 2 * (PvNode && tte->is_pv());
+              r -= 1 + 2 * (PvNode && tte->is_pv());
 
           // Increase reduction at non-PV nodes
           if (!PvNode)
