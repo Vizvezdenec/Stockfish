@@ -1529,6 +1529,9 @@ moves_loop: // When in check, search starts here
 
       moveCount++;
 
+      if (moveCount > std::max(14 + 2 * depth, 6) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+          break;
+
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
