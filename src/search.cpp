@@ -820,7 +820,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 9
-        &&  eval - futility_margin(depth, improving) >= beta
+        &&  eval - futility_margin(depth, improving) - 10 >= beta
         &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
@@ -1131,7 +1131,6 @@ moves_loop: // When in check, search starts here
       // Capture extensions for PvNodes and cutNodes
       else if (   (PvNode || cutNode)
                && captureOrPromotion
-               && (to_sq(move) == prevSq || to_sq(move) == to_sq((ss-3)->currentMove) || givesCheck)
                && moveCount != 1)
           extension = 1;
 
