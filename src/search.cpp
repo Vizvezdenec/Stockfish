@@ -69,9 +69,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, bool rangeReduction, Value delta, Value rootDelta) {
+  Depth reduction(bool i, Depth d, int mn, bool rangeReduction) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 534 + 809 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 904) + rangeReduction;
+    return (r + 534) / 1024 + (!i && r > 904) + rangeReduction;
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1029,8 +1029,6 @@ moves_loop: // When in check, search starts here
       // Calculate new depth for this move
       newDepth = depth - 1;
 
-      Value delta = beta - alpha;
-
       // Step 13. Pruning at shallow depth (~200 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1040,7 +1038,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, rangeReduction > 2), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1178,11 +1176,12 @@ moves_loop: // When in check, search starts here
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2, delta, thisThread->rootDelta);
+          Depth r = reduction(improving, depth, moveCount, rangeReduction > 2);
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3)
+              && bestMoveCount <= 3
+              && beta - alpha >= thisThread->rootDelta / 4)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1190,6 +1189,10 @@ moves_loop: // When in check, search starts here
           if (   ss->ttPv
               && !likelyFailLow)
               r -= 2;
+
+          // Increase reduction at non-PV nodes
+          if (!PvNode)
+              r++;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
@@ -1544,6 +1547,9 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
+
+      if (moveCount > std::max(16 + 2 * depth, 5) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+          break;
 
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
