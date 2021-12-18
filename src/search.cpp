@@ -1035,6 +1035,13 @@ moves_loop: // When in check, search starts here
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
                   continue;
 
+              if (   !pos.empty(to_sq(move))
+                  && !PvNode
+                  && lmrDepth < 6
+                  && !ss->inCheck
+                  && ss->staticEval + 342 + 238 * lmrDepth + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 16 < alpha)
+                  continue;
+
               // SEE based pruning
               if (!pos.see_ge(move, Value(-218) * depth)) // (~25 Elo)
                   continue;
@@ -1528,9 +1535,6 @@ moves_loop: // When in check, search starts here
       captureOrPromotion = pos.capture_or_promotion(move);
 
       moveCount++;
-
-      if (moveCount > std::max(14 + 2 * depth, 6) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
-          break;
 
       // Futility pruning and moveCount pruning
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
