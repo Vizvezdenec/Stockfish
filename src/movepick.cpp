@@ -59,10 +59,12 @@ namespace {
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
+                                                             const PiecePlyHistory* pl,
                                                              Move cm,
-                                                             const Move* killers)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+                                                             const Move* killers,
+                                                             int py)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), piecePlyHistory(pl),
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d), ply(py)
 {
   assert(d > 0);
 
@@ -115,7 +117,9 @@ void MovePicker::score() {
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
-                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)];
+                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*piecePlyHistory)[ply][pos.moved_piece(m)][to_sq(m)]
+                   -     (*piecePlyHistory)[ply][pos.moved_piece(m)][from_sq(m)];
 
       else // Type == EVASIONS
       {

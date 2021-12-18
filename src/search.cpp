@@ -964,8 +964,10 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
+                                      &thisThread->piecePlyHistory,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      ss->ply);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1035,15 +1037,6 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
-
-              if (   !pos.empty(to_sq(move))
-                  && !givesCheck
-                  && !PvNode
-                  && lmrDepth < 3
-                  && !ss->inCheck
-                  && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] 
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 4 < alpha)
                   continue;
 
               // SEE based pruning
@@ -1706,6 +1699,8 @@ moves_loop: // When in check, search starts here
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            thisThread->piecePlyHistory[ss->ply][pos.moved_piece(quietsSearched[i])][to_sq(quietsSearched[i])] << -bonus2;
+            thisThread->piecePlyHistory[ss->ply][pos.moved_piece(quietsSearched[i])][from_sq(quietsSearched[i])] << bonus2;
         }
     }
     else
@@ -1759,6 +1754,8 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    thisThread->piecePlyHistory[ss->ply][pos.moved_piece(move)][to_sq(move)] << bonus;
+    thisThread->piecePlyHistory[ss->ply][pos.moved_piece(move)][from_sq(move)] << -bonus;
 
     // Update countermove history
     if (is_ok((ss-1)->currentMove))
