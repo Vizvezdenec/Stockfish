@@ -826,7 +826,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4 + (type_of((ss-1)->currentMove) == PROMOTION);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1033,14 +1033,6 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
-                  continue;
-
-              if (   !pos.empty(to_sq(move))
-                  && !PvNode
-                  && lmrDepth < 6
-                  && !ss->inCheck
-                  && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] 
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 4 < alpha)
                   continue;
 
               // SEE based pruning
