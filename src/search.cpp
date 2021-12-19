@@ -1184,7 +1184,10 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + (ss->inCheck && !captureOrPromotion && (*contHist[0])[movedPiece][to_sq(move)] < 0);
+              r++;
+
+          if (type_of(bestMove) == PROMOTION && type_of(move) == PROMOTION && !givesCheck)
+              r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
