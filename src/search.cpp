@@ -1186,9 +1186,6 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (type_of(bestMove) == PROMOTION && type_of(move) == PROMOTION && !givesCheck)
-              r += 2;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1248,6 +1245,9 @@ moves_loop: // When in check, search starts here
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
+
+          if (rootNode && value >= beta && doDeeperSearch)
+              newDepth++;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
