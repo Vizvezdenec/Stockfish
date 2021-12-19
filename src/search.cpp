@@ -1040,11 +1040,11 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
-                  && type_of(move) != PROMOTION
                   && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] 
+                   + (type_of(move) == PROMOTION) * PieceValue[EG][promotion_type(move)]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 8 < alpha)
                   continue;
 
