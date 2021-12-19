@@ -1040,6 +1040,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
+                  && type_of(move) != PROMOTION
                   && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
@@ -1255,9 +1256,6 @@ moves_loop: // When in check, search starts here
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
-
-          if (rootNode && value > (alpha + beta) / 2 && doDeeperSearch)
-              newDepth++;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
