@@ -1694,9 +1694,12 @@ moves_loop: // When in check, search starts here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + 120 + (beta - alpha) / 8 ? bonus1               // larger bonus
+    bonus2 = bestValue > beta + PawnValueMg + (beta - alpha) / 8 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
+    //dbg_mean_of(bestValue > beta + PawnValueMg + (beta - alpha) / 8);
+    //dbg_mean_of(bestValue > beta + PawnValueMg);
+    
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
