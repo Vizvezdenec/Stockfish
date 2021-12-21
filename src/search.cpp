@@ -585,7 +585,7 @@ namespace {
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, nullDiff;
     bool givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
@@ -760,6 +760,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
+        nullDiff = Value(0);
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -803,6 +804,11 @@ namespace {
                   :                                    200;
 
     improving = improvement > 0;
+
+    if ((ss-1)->currentMove == MOVE_NULL)
+        nullDiff = (ss-1)->staticEval + ss->staticEval;
+    else
+        nullDiff = Value(0);
 
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
@@ -1183,6 +1189,8 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          r -= int(nullDiff) / 128;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
