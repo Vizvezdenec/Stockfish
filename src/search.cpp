@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          r -= abs(int(nullDiff)) / 64;
+          r += abs(int(nullDiff)) / 128;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
