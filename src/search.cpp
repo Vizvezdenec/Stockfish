@@ -685,16 +685,11 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
-            else
+            else if (!ttCapture)
             {
-                if (!ttCapture)
-                {
-                    int penalty = -stat_bonus(depth);
-                    thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                    update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                }
-                if (!priorCapture && (cutNode || ttValue <= alpha - 188 * depth))
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, 2 * stat_bonus(depth));
+                int penalty = -stat_bonus(depth);
+                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
 
@@ -1223,6 +1218,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doDeeperSearch = captureOrPromotion && moveCount != 1;
           didLMR = false;
       }
 
