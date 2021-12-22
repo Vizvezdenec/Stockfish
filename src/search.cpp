@@ -693,7 +693,7 @@ namespace {
                     thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                     update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
                 }
-                if (!priorCapture && (cutNode || ttValue <= alpha - 188 * depth))
+                if (!priorCapture && depth >= 3 && (cutNode || ttValue <= alpha - 94 * depth))
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, 2 * stat_bonus(depth));
             }
         }
