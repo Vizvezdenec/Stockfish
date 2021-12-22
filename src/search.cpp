@@ -760,7 +760,8 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
-        thisThread->rootValue = VALUE_NONE;
+        if (rootNode)
+            thisThread->rootValue = VALUE_NONE;
         goto moves_loop;
     }
     else if (ss->ttHit)
