@@ -685,16 +685,11 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
-            else 
+            else if (!ttCapture)
             {
-                if (!ttCapture)
-                {
-                    int penalty = -stat_bonus(depth);
-                    thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                    update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                }
-                if (!priorCapture && depth >= 3 && (cutNode || ttValue <= alpha - 94 * depth))
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, 2 * stat_bonus(depth));
+                int penalty = -stat_bonus(depth);
+                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
 
@@ -765,6 +760,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
+        thisThread->rootValue = VALUE_NONE;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -798,6 +794,9 @@ namespace {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
+
+    if (rootNode)
+        thisThread->rootValue = ss->staticEval * (2 * (us == WHITE) - 1);
 
     // Set up the improvement variable, which is the difference between the current
     // static evaluation and the previous static evaluation at our turn (if we were
@@ -1188,6 +1187,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (!ss->inCheck && thisThread->rootValue != VALUE_NONE)
+              r += abs(ss->staticEval * (2 * (us == WHITE) - 1) - thisThread->rootValue) / 512;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
