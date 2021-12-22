@@ -829,6 +829,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
+        ss->isCapture = false;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
@@ -894,6 +895,7 @@ namespace {
                 captureOrPromotion = true;
 
                 ss->currentMove = move;
+                ss->isCapture = !pos.empty(to_sq(move));
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
                                                                           [pos.moved_piece(move)]
@@ -1117,6 +1119,12 @@ moves_loop: // When in check, search starts here
               extension = -2;
       }
 
+      else if (   (PvNode || cutNode)
+               && ((to_sq(move) == prevSq && (ss-1)->isCapture) || (to_sq(move) == to_sq((ss-3)->currentMove) && (ss-3)->isCapture))
+               && captureOrPromotion
+               && moveCount != 1)
+          extension = 1;
+
       // Check extensions (~1 Elo)
       else if (   givesCheck
                && depth > 6
@@ -1146,6 +1154,7 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
+      ss->isCapture = pos.captured_piece();
 
       bool doDeeperSearch = false;
 
