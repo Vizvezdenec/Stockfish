@@ -32,12 +32,12 @@ namespace {
   #define S(mg, eg) make_score(mg, eg)
 
   // Pawn penalties
-  constexpr Score Backward      = S( 9, 22);
-  constexpr Score Doubled       = S(13, 51);
-  constexpr Score DoubledEarly  = S(20,  7);
-  constexpr Score Isolated      = S( 3, 15);
-  constexpr Score WeakLever     = S( 4, 58);
-  constexpr Score WeakUnopposed = S(13, 24);
+  constexpr Score Backward      = S( 0, 90);
+  constexpr Score Doubled       = S( 0, 90);
+  constexpr Score DoubledEarly  = S( 0, 70);
+  constexpr Score Isolated      = S( 0, 70);
+  constexpr Score WeakLever     = S( 0, 90);
+  constexpr Score WeakUnopposed = S( 0, 90);
 
   // Bonus for blocked pawns at 5th or 6th rank
   constexpr Score BlockedPawn[2] = { S(-17, -6), S(-9, 2) };

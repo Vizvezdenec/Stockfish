@@ -210,76 +210,67 @@ namespace {
   // MobilityBonus[PieceType-2][attacked] contains bonuses for middle and end game,
   // indexed by piece type and number of attacked squares in the mobility area.
   constexpr Score MobilityBonus[][32] = {
-    { S(-62,-79), S(-53,-57), S(-12,-31), S( -3,-17), S(  3,  7), S( 12, 13), // Knight
-      S( 21, 16), S( 28, 21), S( 37, 26) },
-    { S(-47,-59), S(-20,-25), S( 14, -8), S( 29, 12), S( 39, 21), S( 53, 40), // Bishop
-      S( 53, 56), S( 60, 58), S( 62, 65), S( 69, 72), S( 78, 78), S( 83, 87),
-      S( 91, 88), S( 96, 98) },
-    { S(-60,-82), S(-24,-15), S(  0, 17) ,S(  3, 43), S(  4, 72), S( 14,100), // Rook
-      S( 20,102), S( 30,122), S( 41,133), S(41 ,139), S( 41,153), S( 45,160),
-      S( 57,165), S( 58,170), S( 67,175) },
-    { S(-29,-49), S(-16,-29), S( -8, -8), S( -8, 17), S( 18, 39), S( 25, 54), // Queen
-      S( 23, 59), S( 37, 73), S( 41, 76), S( 54, 95), S( 65, 95) ,S( 68,101),
-      S( 69,124), S( 70,128), S( 70,132), S( 70,133) ,S( 71,136), S( 72,140),
-      S( 74,147), S( 76,149), S( 90,153), S(104,169), S(105,171), S(106,171),
-      S(112,178), S(114,185), S(114,187), S(119,221) }
+    { S(0,-45), S(0, 37), S(0,144) },//K
+    { S(0,-15), S(0, 60), S(0,240) },//B
+    { S(0,-15), S(0,105), S(0,420) },//R
+    { S(0,-45), S(0,120), S(0,480) } //Q
   };
 
   // BishopPawns[distance from edge] contains a file-dependent penalty for pawns on
   // squares of the same color as our bishop.
   constexpr Score BishopPawns[int(FILE_NB) / 2] = {
-    S(3, 8), S(3, 9), S(2, 8), S(3, 8)
+    S(0,13), S(0, 14), S(0, 13), S(0, 15)
   };
 
   // KingProtector[knight/bishop] contains penalty for each distance unit to own king
-  constexpr Score KingProtector[] = { S(8, 9), S(6, 9) };
+  constexpr Score KingProtector[] = { S(0, 30), S(0, 90) };
 
   // Outpost[knight/bishop] contains bonuses for each knight or bishop occupying a
   // pawn protected square on rank 4 to 6 which is also safe from a pawn attack.
-  constexpr Score Outpost[] = { S(57, 38), S(31, 24) };
+  constexpr Score Outpost[] = { S(0, 75), S(0, 88) };
 
   // PassedRank[Rank] contains a bonus according to the rank of a passed pawn
   constexpr Score PassedRank[RANK_NB] = {
-    S(0, 0), S(7, 27), S(16, 32), S(17, 40), S(64, 71), S(170, 174), S(278, 262)
+    S(0, 0), S(0, 90), S(0,240), S(0, 480)
   };
 
-  constexpr Score RookOnClosedFile = S(10, 5);
-  constexpr Score RookOnOpenFile[] = { S(19, 6), S(47, 26) };
+  constexpr Score RookOnClosedFile = S(0, 32);
+  constexpr Score RookOnOpenFile[] = {S(0, 45), S(0, 90) };
 
   // ThreatByMinor/ByRook[attacked PieceType] contains bonuses according to
   // which piece type attacks which one. Attacks on lesser pieces which are
   // pawn-defended are not considered.
   constexpr Score ThreatByMinor[PIECE_TYPE_NB] = {
-    S(0, 0), S(5, 32), S(55, 41), S(77, 56), S(89, 119), S(79, 162)
+    S(0, 0), S(0, 75), S(0, 165), S(0, 330)
   };
 
   constexpr Score ThreatByRook[PIECE_TYPE_NB] = {
-    S(0, 0), S(3, 44), S(37, 68), S(42, 60), S(0, 39), S(58, 43)
+    S(0, 0), S(0, 56), S(0, 144), S(0, 288)
   };
 
   constexpr Value CorneredBishop = Value(50);
 
   // Assorted bonuses and penalties
-  constexpr Score UncontestedOutpost  = S(  1, 10);
-  constexpr Score BishopOnKingRing    = S( 24,  0);
-  constexpr Score BishopXRayPawns     = S(  4,  5);
-  constexpr Score FlankAttacks        = S(  8,  0);
-  constexpr Score Hanging             = S( 69, 36);
-  constexpr Score KnightOnQueen       = S( 16, 11);
-  constexpr Score LongDiagonalBishop  = S( 45,  0);
-  constexpr Score MinorBehindPawn     = S( 18,  3);
-  constexpr Score PassedFile          = S( 11,  8);
-  constexpr Score PawnlessFlank       = S( 17, 95);
-  constexpr Score ReachableOutpost    = S( 31, 22);
-  constexpr Score RestrictedPiece     = S(  7,  7);
-  constexpr Score RookOnKingRing      = S( 16,  0);
-  constexpr Score SliderOnQueen       = S( 60, 18);
-  constexpr Score ThreatByKing        = S( 24, 89);
-  constexpr Score ThreatByPawnPush    = S( 48, 39);
-  constexpr Score ThreatBySafePawn    = S(173, 94);
-  constexpr Score TrappedRook         = S( 55, 13);
-  constexpr Score WeakQueenProtection = S( 14,  0);
-  constexpr Score WeakQueen           = S( 56, 15);
+  constexpr Score UncontestedOutpost  = S(  0, 22);
+  constexpr Score BishopOnKingRing    = S(  0, 41);
+  constexpr Score BishopXRayPawns     = S(  0, 22);
+  constexpr Score FlankAttacks        = S(  0, 33);
+  constexpr Score Hanging             = S(  0,160);
+  constexpr Score KnightOnQueen       = S(  0, 60);
+  constexpr Score LongDiagonalBishop  = S(  0, 49);
+  constexpr Score MinorBehindPawn     = S(  0, 47);
+  constexpr Score PassedFile          = S(  0, 45);
+  constexpr Score PawnlessFlank       = S(  0,193);
+  constexpr Score ReachableOutpost    = S(  0, 60);
+  constexpr Score RestrictedPiece     = S(  0, 44);
+  constexpr Score RookOnKingRing      = S(  0, 44);
+  constexpr Score SliderOnQueen       = S(  0,103);
+  constexpr Score ThreatByKing        = S(  0,217);
+  constexpr Score ThreatByPawnPush    = S(  0,117);
+  constexpr Score ThreatBySafePawn    = S( 32,297);
+  constexpr Score TrappedRook         = S(  0, 89);
+  constexpr Score WeakQueenProtection = S(  0, 49);
+  constexpr Score WeakQueen           = S(  0, 94);
 
 
 #undef S
@@ -597,17 +588,17 @@ namespace {
     int kingFlankDefense = popcount(b3);
 
     kingDanger +=        kingAttackersCount[Them] * kingAttackersWeight[Them] // (~10 Elo)
-                 + 183 * popcount(kingRing[Us] & weak)                        // (~15 Elo)
-                 + 148 * popcount(unsafeChecks)                               // (~4 Elo)
-                 +  98 * popcount(pos.blockers_for_king(Us))                  // (~2 Elo)
-                 +  69 * kingAttacksCount[Them]                               // (~0.5 Elo)
-                 +   3 * kingFlankAttack * kingFlankAttack / 8                // (~0.5 Elo)
+                 + 21 * popcount(kingRing[Us] & weak)                        // (~15 Elo)
+                 + 17 * popcount(unsafeChecks)                               // (~4 Elo)
+                 + 29 * popcount(pos.blockers_for_king(Us))                  // (~2 Elo)
+                 + 39 * kingAttacksCount[Them]                               // (~0.5 Elo)
+                 +  3 * kingFlankAttack * kingFlankAttack / 10                // (~0.5 Elo)
                  +       mg_value(mobility[Them] - mobility[Us])              // (~0.5 Elo)
-                 - 873 * !pos.count<QUEEN>(Them)                              // (~24 Elo)
-                 - 100 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])  // (~5 Elo)
-                 -   6 * mg_value(score) / 8                                  // (~8 Elo)
-                 -   4 * kingFlankDefense                                     // (~5 Elo)
-                 +  37;                                                       // (~0.5 Elo)
+                 -  25 * !pos.count<QUEEN>(Them)                              // (~24 Elo)
+                 -  21 * bool(attackedBy[Us][KNIGHT] & attackedBy[Us][KING])  // (~5 Elo)
+                 -   3 * mg_value(score) / 10                                  // (~8 Elo)
+                 -   7 * kingFlankDefense                                     // (~5 Elo)
+                 +  8;                                                       // (~0.5 Elo)
 
     // Transform the kingDanger units into a Score, and subtract it from the evaluation
     if (kingDanger > 100)
@@ -771,12 +762,12 @@ namespace {
 
         if (r > RANK_3)
         {
-            int w = 5 * r - 13;
+            int w = (r - 2) * (r - 2) + 2;
             Square blockSq = s + Up;
 
             // Adjust bonus based on the king's proximity
-            bonus += make_score(0, (  king_proximity(Them, blockSq) * 19 / 4
-                                    - king_proximity(Us,   blockSq) *  2) * w);
+            bonus += make_score(0, (  king_proximity(Them, blockSq) * (19 / 4)
+                                    - king_proximity(Us,   blockSq) * 2) * w);
 
             // If blockSq is not the queening square then consider also a second push
             if (r != RANK_7)
@@ -882,14 +873,14 @@ namespace {
                        || rank_of(pos.square<KING>(BLACK)) < RANK_5;
 
     // Compute the initiative bonus for the attacking side
-    int complexity =   9 * pe->passed_count()
-                    + 12 * pos.count<PAWN>()
-                    +  9 * outflanking
-                    + 21 * pawnsOnBothFlanks
-                    + 24 * infiltration
-                    + 51 * !pos.non_pawn_material()
-                    - 43 * almostUnwinnable
-                    -110 ;
+    int complexity =  17 * pe->passed_count()
+                    + 14 * pos.count<PAWN>()
+                    + 14 * outflanking
+                    + 30 * pawnsOnBothFlanks
+                    + 18 * infiltration
+                    + 14 * !pos.non_pawn_material()
+                    - 18 * almostUnwinnable
+                    - 12 ;
 
     Value mg = mg_value(score);
     Value eg = eg_value(score);
@@ -916,11 +907,11 @@ namespace {
             // based on the number of passed pawns of the strong side.
             if (   pos.non_pawn_material(WHITE) == BishopValueMg
                 && pos.non_pawn_material(BLACK) == BishopValueMg)
-                sf = 18 + 4 * popcount(pe->passed_pawns(strongSide));
+                sf = 9 + 6 * popcount(pe->passed_pawns(strongSide));
             // For every other opposite colored bishops endgames use scale factor
             // based on the number of all pieces of the strong side.
             else
-                sf = 22 + 3 * pos.count<ALL_PIECES>(strongSide);
+                sf = 9 + 6 * pos.count<ALL_PIECES>(strongSide);
         }
         // For rook endgames with strong side not having overwhelming pawn number advantage
         // and its pawns being on one flank and weak side protecting its pieces with a king
@@ -934,12 +925,12 @@ namespace {
         // For queen vs no queen endgames use scale factor
         // based on number of minors of side that doesn't have queen.
         else if (pos.count<QUEEN>() == 1)
-            sf = 37 + 3 * (pos.count<QUEEN>(WHITE) == 1 ? pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK)
+            sf = 24 + 7 * (pos.count<QUEEN>(WHITE) == 1 ? pos.count<BISHOP>(BLACK) + pos.count<KNIGHT>(BLACK)
                                                         : pos.count<BISHOP>(WHITE) + pos.count<KNIGHT>(WHITE));
         // In every other case use scale factor based on
         // the number of pawns of the strong side reduced if pawns are on a single flank.
         else
-            sf = std::min(sf, 36 + 7 * pos.count<PAWN>(strongSide)) - 4 * !pawnsOnBothFlanks;
+            sf = std::min(sf, 24 + 7 * pos.count<PAWN>(strongSide)) - 4 * !pawnsOnBothFlanks;
 
         // Reduce scale factor in case of pawns being on a single flank
         sf -= 4 * !pawnsOnBothFlanks;
@@ -1076,6 +1067,41 @@ make_v:
 } // namespace Eval
 
 
+Value eval_cr(const Position& pos)
+{
+    if (   pos.non_pawn_material() < 10000
+        || !(pos.pieces(KING) & (1ULL << SQ_E1 | 1ULL << SQ_E8)))
+        return VALUE_ZERO;
+
+    Value v = VALUE_ZERO;
+
+    if (pos.piece_on(SQ_E1) == W_KING)
+    {
+        if (   pos.piece_on(SQ_H1) == W_ROOK
+            && !(pos.pieces() & (1ULL << SQ_F1 | 1ULL << SQ_G1)))
+            v += pos.can_castle(WHITE_OO) ? 5 : -25;
+
+        if (   pos.piece_on(SQ_A1) == W_ROOK
+            && !(pos.pieces() & (1ULL << SQ_B1 | 1ULL << SQ_C1 | 1ULL << SQ_D1)))
+            v += pos.can_castle(WHITE_OOO) ? 2 : -10;
+    }
+
+    if (pos.piece_on(SQ_E8) == B_KING)
+    {
+        if (   pos.piece_on(SQ_H8) == B_ROOK
+            && !(pos.pieces() & (1ULL << SQ_F8 | 1ULL << SQ_G8)))
+            v -= pos.can_castle(BLACK_OO) ? 5 : -25;
+
+        if (   pos.piece_on(SQ_A8) == B_ROOK
+            && !(pos.pieces() & (1ULL << SQ_B8 | 1ULL << SQ_C8 | 1ULL << SQ_D8)))
+            v -= pos.can_castle(BLACK_OOO) ? 2 : -10;
+    }
+
+    v = v * int(pos.non_pawn_material() - 9975) / 8192;
+
+    return pos.side_to_move() == WHITE ? v : -v;
+}
+
 /// evaluate() is the evaluator for the outer world. It returns a static
 /// evaluation of the position from the point of view of the side to move.
 
@@ -1083,7 +1109,7 @@ Value Eval::evaluate(const Position& pos) {
 
   Value v;
 
-  // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
+  // Deciding between classical and NNUE eval: for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
 
   if (  !useNNUE
@@ -1091,7 +1117,7 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
   else
   {
-       int scale = 1136
+       int scale = 1132
                    + 20 * pos.non_pawn_material() / 1024;
 
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
@@ -1099,6 +1125,8 @@ Value Eval::evaluate(const Position& pos) {
        Value optimism = pos.this_thread()->optimism[stm];
 
        v = (nnue + optimism) * scale / 1024 - optimism;
+
+       v += eval_cr(pos); 
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
