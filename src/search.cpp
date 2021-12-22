@@ -760,6 +760,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
+        thisThread->rootValue = VALUE_NONE;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -803,6 +804,9 @@ namespace {
                   :                                    200;
 
     improving = improvement > 0;
+
+    if (rootNode)
+        thisThread->rootValue = ss->staticEval * (2 * (us == WHITE) - 1);
 
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
@@ -1183,6 +1187,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (!ss->inCheck && thisThread->rootValue != VALUE_NONE)
+              r += abs(ss->staticEval * (2 * (us == WHITE) - 1) - thisThread->rootValue) / 1024;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
