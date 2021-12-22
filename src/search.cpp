@@ -685,11 +685,16 @@ namespace {
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
-            else if (!ttCapture)
+            else 
             {
-                int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                if (!ttCapture)
+                {
+                    int penalty = -stat_bonus(depth);
+                    thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                    update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                }
+                if (!priorCapture && cutNode && ttValue <= alpha - 94 * depth)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, 2 * stat_bonus(depth));
             }
         }
 
