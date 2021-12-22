@@ -1119,9 +1119,10 @@ moves_loop: // When in check, search starts here
               extension = -2;
       }
 
-      else if (   (PvNode || cutNode)
+      else if (   (PvNode )
                && ((to_sq(move) == prevSq && (ss-1)->isCapture) || (to_sq(move) == to_sq((ss-3)->currentMove) && (ss-3)->isCapture))
-               && captureOrPromotion)
+               && captureOrPromotion
+               && moveCount != 1)
           extension = 1;
 
       // Check extensions (~1 Elo)
