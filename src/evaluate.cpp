@@ -1087,19 +1087,20 @@ Value Eval::evaluate(const Position& pos) {
   // but we switch to NNUE during long shuffling or with high material on the board.
 
   bool classical = false;
-  int scale = 1136
-              + 20 * pos.non_pawn_material() / 1024;
 
   if (  !useNNUE
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
-      classical = abs(v) >= (scale + 1075) / 8;
+      classical = abs(v) >= 300;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
   if (!classical && useNNUE)
   {
+       int scale = 1136
+                   + 20 * pos.non_pawn_material() / 1024;
+
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
