@@ -69,7 +69,7 @@ public:
   Color nmpColor;
   ExplosionState state;
   Value optimism[COLOR_NB];
-  Value rootValue;
+
   Position rootPos;
   StateInfo rootState;
   Search::RootMoves rootMoves;
