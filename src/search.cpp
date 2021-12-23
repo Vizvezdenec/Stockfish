@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           if (   !ss->inCheck && thisThread->rootValue != VALUE_NONE 
-              && abs(ss->staticEval * (2 * (us == WHITE) - 1) - thisThread->rootValue) > 256 * ss->ply)
+              && abs(ss->staticEval * (2 * (us == WHITE) - 1) - thisThread->rootValue) > 128 * ss->ply)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
