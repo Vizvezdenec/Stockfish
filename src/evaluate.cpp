@@ -1088,17 +1088,19 @@ Value Eval::evaluate(const Position& pos) {
 
   bool classical = false;
 
+
+
   if (  !useNNUE
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
       classical = abs(v) >= 300;
   }
-
+  
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
   if (!classical && useNNUE)
   {
-       int scale = 1048
+       int scale = 1064
                    + 8  * std::clamp(pos.count<PAWN>(), 4, 12)
                    + 20 * pos.non_pawn_material() / 1024;
 
