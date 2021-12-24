@@ -1218,7 +1218,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doDeeperSearch = captureOrPromotion && moveCount != 1 && PvNode && givesCheck;
+          doDeeperSearch = (captureOrPromotion || givesCheck) && moveCount != 1 && PvNode;
           didLMR = false;
       }
 
