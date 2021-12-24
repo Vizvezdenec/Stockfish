@@ -1094,12 +1094,11 @@ Value Eval::evaluate(const Position& pos) {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
       classical = abs(v) >= 300;
   }
-  
+
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
   if (!classical && useNNUE)
   {
-       int scale = 1072
-                   + 8  * std::min(pos.count<PAWN>(), 11)
+       int scale = 1136
                    + 20 * pos.non_pawn_material() / 1024;
 
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE

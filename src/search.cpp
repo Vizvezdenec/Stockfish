@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts here
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
 
-      bool doDeeperSearch = false;
+      int doDeeperSearch = 0;
 
       // Step 16. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1218,6 +1218,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doDeeperSearch = 2 * (captureOrPromotion && moveCount != 1 && PvNode);
           didLMR = false;
       }
 
