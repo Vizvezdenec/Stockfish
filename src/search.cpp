@@ -1144,7 +1144,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          if (!PvNode && captureOrPromotion && r < 4 && value >= probCutBeta && depth >= 5)
+          if (!PvNode && captureOrPromotion && captureCount < 2 + 2 * cutNode && r < 4 && value >= probCutBeta && depth >= 5)
           {
               pos.undo_move(move);
               if ( !(ss->ttHit
