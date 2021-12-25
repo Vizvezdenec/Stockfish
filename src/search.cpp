@@ -954,6 +954,7 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
+    probCutBeta = beta + 209 - 44 * improving;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1205,6 +1206,18 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!PvNode && captureOrPromotion && r < 4 && value >= probCutBeta && depth >= 5)
+          {
+              pos.undo_move(move);
+              if ( !(ss->ttHit
+                  && tte->depth() >= depth - 3
+                  && ttValue != VALUE_NONE))
+                        tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv,
+                            BOUND_LOWER,
+                            depth - 3, move, ss->staticEval);
+                    return value;
+          }
 
           // Range reductions (~3 Elo)
           if (ss->staticEval - value < 30 && depth > 7)
