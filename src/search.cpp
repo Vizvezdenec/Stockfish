@@ -1221,7 +1221,7 @@ moves_loop: // When in check, search starts here
           didLMR = false;
       }
 
-      if (PvNode && captureOrPromotion && doFullDepthSearch && depth >= 6)
+      if (PvNode && captureOrPromotion && doFullDepthSearch && depth >= 9)
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
           if (value > alpha)
