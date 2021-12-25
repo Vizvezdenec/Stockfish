@@ -1223,7 +1223,7 @@ moves_loop: // When in check, search starts here
 
       if (PvNode && captureOrPromotion && doFullDepthSearch)
       {
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha+16), -(alpha + 15));
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha+72), -(alpha + 71));
           if (value > alpha)
               doDeeperSearch = true;
       }
