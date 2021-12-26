@@ -1176,6 +1176,9 @@ moves_loop: // When in check, search starts here
           if ((ss-1)->moveCount > 13)
               r--;
 
+          if ((ss-1)->excludedMove)
+              r--;
+
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
@@ -1361,7 +1364,7 @@ moves_loop: // When in check, search starts here
         //or fail low was really bad
         bool extraBonus =    PvNode
                           || cutNode
-                          || bestValue < alpha - (111 - (ss-1)->moveCount) * depth;
+                          || bestValue < alpha - 94 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
