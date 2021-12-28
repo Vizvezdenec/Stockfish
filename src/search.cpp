@@ -1222,10 +1222,7 @@ moves_loop: // When in check, search starts here
       }
 
       if (depth < 3 && PvNode && !captureOrPromotion)
-          doDeeperSearch = thisThread->mainHistory[us][from_to(move)]
-                         + (*contHist[0])[movedPiece][to_sq(move)]
-                         + (*contHist[1])[movedPiece][to_sq(move)]
-                         + (*contHist[3])[movedPiece][to_sq(move)] > 50000;
+          doDeeperSearch = move == ss->killers[0] && (*contHist[0])[movedPiece][to_sq(move)] > 0;
 
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
