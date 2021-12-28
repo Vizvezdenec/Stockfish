@@ -1221,9 +1221,6 @@ moves_loop: // When in check, search starts here
           didLMR = false;
       }
 
-      if (depth < 3 && PvNode && !captureOrPromotion)
-          doDeeperSearch = move == ss->killers[0] && (*contHist[0])[movedPiece][to_sq(move)] > 0;
-
       // Step 17. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
@@ -1529,7 +1526,6 @@ moves_loop: // When in check, search starts here
       // Futility pruning and moveCount pruning (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !givesCheck
-          &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
@@ -1539,13 +1535,13 @@ moves_loop: // When in check, search starts here
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
-          if (futilityValue <= alpha)
+          if (futilityValue <= alpha && to_sq(move) != prevSq)
           {
               bestValue = std::max(bestValue, futilityValue);
               continue;
           }
 
-          if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
+          if (futilityBase <= alpha && to_sq(move) != prevSq && !pos.see_ge(move, VALUE_ZERO + 1))
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
