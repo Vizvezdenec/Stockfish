@@ -1109,8 +1109,8 @@ Value Eval::evaluate(const Position& pos) {
 
        Value u = v;
        v = (nnue + optimism) * scale / 1024 - optimism;
-       if (wasClassical && abs(u) > abs(v) / 2)
-           v = v * 3 / 4;
+       if (wasClassical && int(u) * int(v) < 0)
+           v = v * 3 / 2;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
