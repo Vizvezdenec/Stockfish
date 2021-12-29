@@ -1087,12 +1087,14 @@ Value Eval::evaluate(const Position& pos) {
   // but we switch to NNUE during long shuffling or with high material on the board.
 
   bool classical = false;
+  bool wasClassical = false;
 
   if (  !useNNUE
-      || abs(eg_value(pos.psq_score())) * 5 > (801 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
+      || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
-      classical = abs(v) >= 498;
+      classical = abs(v) >= 300;
+      wasClassical = true;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
@@ -1105,7 +1107,10 @@ Value Eval::evaluate(const Position& pos) {
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
 
+       Value u = v;
        v = (nnue + optimism) * scale / 1024 - optimism;
+       if (wasClassical && abs(u) > abs(v) / 2)
+           v = v * 3 / 4;
 
        if (pos.is_chess960())
            v += fix_FRC(pos);
