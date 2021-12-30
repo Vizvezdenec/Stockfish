@@ -634,7 +634,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+4)->killer = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -961,9 +961,6 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    if (!ss->killers[0])
-        ss->killers[0] = ss->killer;
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
@@ -1176,7 +1173,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 13)
+          if ((ss-1)->moveCount > 13 - 5 * (ss->moveCount == 2))
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
@@ -1748,7 +1745,6 @@ moves_loop: // When in check, search starts here
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
-    ss->killer = move;
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
