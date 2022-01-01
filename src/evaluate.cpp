@@ -1090,7 +1090,7 @@ Value Eval::evaluate(const Position& pos) {
       || abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
-      useClassical = abs(v) >= 300 + abs(eg_value(pos.psq_score()) - v) / 16;
+      useClassical = abs(v) >= 300 + abs(eg_value(pos.psq_score()) - v) / 8;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
