@@ -1687,7 +1687,7 @@ moves_loop: // When in check, search starts here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
-    bonus2 = std::max(0, bonus2 - ss->ply);
+    bonus2 += quietCount;
 
     if (!pos.capture_or_promotion(bestMove))
     {
