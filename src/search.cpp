@@ -1369,7 +1369,7 @@ moves_loop: // When in check, search starts here
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
 
-        if (wasCountermove && bestValue < alpha - 40 * depth)
+        if (wasCountermove && bestValue < alpha - 100 * depth)
             thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
     }
 
