@@ -969,6 +969,7 @@ moves_loop: // When in check, search starts here
 
     value = bestValue;
     moveCountPruning = false;
+    bool wasCountermove = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1146,6 +1147,8 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
+
+      wasCountermove = move == countermove;
 
       bool doDeeperSearch = false;
 
@@ -1364,6 +1367,9 @@ moves_loop: // When in check, search starts here
                           || bestValue < alpha - 94 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
+
+        if (wasCountermove)
+            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
     }
 
     if (PvNode)
