@@ -807,7 +807,7 @@ namespace {
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
-        &&  (depth < 9 || thisThread->id() % 2 == 1)
+        &&  depth < 9
         &&  eval - futility_margin(depth, improving) >= beta
         &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
@@ -1060,7 +1060,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 8
+                  && (lmrDepth < 8 || thisThread->id() % 2 == 1)
                   && ss->staticEval + 142 + 139 * lmrDepth + history / 64 <= alpha)
                   continue;
 
