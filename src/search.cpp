@@ -1173,7 +1173,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 13)
+          if ((ss-1)->moveCount > 13 || (ss-1)->statScore < -50000)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
@@ -1548,10 +1548,6 @@ moves_loop: // When in check, search starts here
               continue;
           }
       }
-
-      if (   captureOrPromotion && !givesCheck && !PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && depth < -1
-          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -5000)
-          continue;
 
       // Do not search moves with negative SEE values (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
