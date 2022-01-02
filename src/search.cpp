@@ -975,6 +975,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool wasCountermove = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1146,6 +1148,8 @@ moves_loop: // When in check, search starts here
       pos.do_move(move, st, givesCheck);
 
       bool doDeeperSearch = false;
+
+      wasCountermove = move == countermove;
 
       // Step 16. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1358,6 +1362,9 @@ moves_loop: // When in check, search starts here
                           || bestValue < alpha - 94 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
+
+        if (wasCountermove)
+            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = MOVE_NONE;
     }
 
     if (PvNode)
