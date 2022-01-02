@@ -1173,7 +1173,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 13 || (ss-1)->statScore < -75000)
+          if ((ss-1)->moveCount > 13)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
@@ -1200,6 +1200,7 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
+                       : (ss-1)->statScore < -30000 ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
