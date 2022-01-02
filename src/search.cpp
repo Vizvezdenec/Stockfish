@@ -1549,8 +1549,8 @@ moves_loop: // When in check, search starts here
           }
       }
 
-      if (   captureOrPromotion && !givesCheck && !PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -5000)
+      if (   captureOrPromotion && !givesCheck && !PvNode && bestValue > VALUE_TB_LOSS_IN_MAX_PLY && depth < 0
+          && thisThread->captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0)
           continue;
 
       // Do not search moves with negative SEE values (~5 Elo)
