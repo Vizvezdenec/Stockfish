@@ -1344,8 +1344,18 @@ moves_loop: // When in check, search starts here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
+    {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        if (bestValue >= beta && !pos.captured_piece() && (ss-1)->currentMove != (ss-1)->killers[0] && (ss-1)->moveCount != 1 + (ss-1)->ttHit)
+        {
+          ss->excludedMove = bestMove;
+          value = search<NonPV>(pos, ss, beta - 1, beta, depth / 2, cutNode);
+          ss->excludedMove = MOVE_NONE;
+          if (value >= beta)
+              update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+        }
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 3 || PvNode)
