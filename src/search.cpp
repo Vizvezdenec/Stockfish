@@ -78,7 +78,7 @@ namespace {
     return (3 + depth * depth) / (2 - improving);
   }
 
-  constexpr int maxSb = 1900;
+  constexpr int maxSb = 1800;
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
