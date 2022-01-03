@@ -78,9 +78,11 @@ namespace {
     return (3 + depth * depth) / (2 - improving);
   }
 
+  constexpr int maxSb = 1900;
+
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return std::min((6 * d + 229) * d - 215 , 2000);
+    return std::min((6 * d + 229) * d - 215 , maxSb);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -790,7 +792,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
+        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -maxSb, maxSb);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -934,12 +936,6 @@ namespace {
     if (   cutNode
         && depth >= 9
         && !ttMove)
-        depth--;
-
-    if (   !PvNode && !cutNode
-        && depth >= 11
-        && !ttMove
-        && ss->staticEval < alpha - 44 * depth)
         depth--;
 
 moves_loop: // When in check, search starts here
