@@ -941,7 +941,7 @@ namespace {
         && !ttMove
         && ss->ttHit
         && (tte->bound() & BOUND_UPPER)
-        && ttValue < alpha - 11 * depth)
+        && ttValue < alpha - 66 * depth)
         depth--;
 
 moves_loop: // When in check, search starts here
