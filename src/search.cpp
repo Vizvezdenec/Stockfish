@@ -1347,7 +1347,7 @@ moves_loop: // When in check, search starts here
     {
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-        if (bestValue >= beta && !pos.captured_piece() && (ss-1)->currentMove != (ss-1)->killers[0] && (ss-1)->moveCount != 1 + (ss-1)->ttHit)
+        if (bestValue >= beta && !pos.captured_piece())
         {
           ss->excludedMove = bestMove;
           value = search<NonPV>(pos, ss, beta - 1, beta, depth / 2, cutNode);
