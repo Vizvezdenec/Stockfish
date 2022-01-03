@@ -936,6 +936,14 @@ namespace {
         && !ttMove)
         depth--;
 
+    if (   !PvNode && !cutNode
+        && depth >= 11
+        && !ttMove
+        && ss->ttHit
+        && (tte->bound() & BOUND_UPPER)
+        && ttValue < alpha - 33 * depth)
+        depth--;
+
 moves_loop: // When in check, search starts here
 
     // Step 11. A small Probcut idea, when we are in check (~0 Elo)
@@ -1699,7 +1707,7 @@ moves_loop: // When in check, search starts here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->moveCount <= (bestValue - beta) / 2048) || ((ss-1)->currentMove == (ss-1)->killers[0]))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
