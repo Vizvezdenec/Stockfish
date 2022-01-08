@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-216) * depth))
+              if (!pos.see_ge(move, Value(-217) * depth))
                   continue;
           }
           else
@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -4750 * (depth - 1))
+                  && history < -3875 * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
@@ -1059,7 +1059,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 135 + 135 * lmrDepth + history / 64 <= alpha)
+                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1076,7 +1076,7 @@ moves_loop: // When in check, search starts here
       // a reduced search on all the other moves but the ttMove and if the
       // result is lower than ttValue minus a margin, then we will extend the ttMove.
       if (   !rootNode
-          &&  depth >= 6 + 3 * (PvNode && tte->is_pv())
+          &&  depth >= 6 + 2 * (PvNode && tte->is_pv())
           &&  move == ttMove
           && !excludedMove // Avoid recursive singular search
        /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
