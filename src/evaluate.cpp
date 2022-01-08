@@ -1089,7 +1089,7 @@ Value Eval::evaluate(const Position& pos) {
   if (  !useNNUE
       || (   abs(eg_value(pos.psq_score())) * 5 > (850 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count())
           &&     abs((pos.count<PAWN>(WHITE) - pos.count<PAWN>(BLACK)) * PawnValueMg 
-                    + pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) >= KnightValueMg ))
+                    + pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) >= KnightValueMg - PawnValueMg))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
       useClassical = abs(v) >= 300;
