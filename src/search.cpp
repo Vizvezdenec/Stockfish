@@ -804,14 +804,6 @@ namespace {
 
     improving = improvement > 0;
 
-    if (!rootNode && depth <= 3 && eval < alpha - 1800 * depth)
-    {
-        value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
-        if (value <= alpha)
-            return value;
-    }
-
-
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -1574,7 +1566,10 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      if (PvNode)
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
+      if (!PvNode || value > alpha)
+          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
