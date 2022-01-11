@@ -570,18 +570,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-    {
-        if (PvNode)
-        {
-            Value value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
-            if (value <= alpha)
-                return value;
-            else
-                return qsearch<PV>(pos, ss, alpha, beta);
-        }
-        else
-            return qsearch<NonPV>(pos, ss, alpha, beta);
-    }
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -814,6 +803,14 @@ namespace {
                   :                                    200;
 
     improving = improvement > 0;
+
+    if (depth <= 4 && eval < alpha - 500 * depth)
+    {
+        value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+        if (value <= alpha)
+            return value;
+    }
+
 
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
