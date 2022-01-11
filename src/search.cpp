@@ -1736,10 +1736,13 @@ moves_loop: // When in check, search starts here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
-        if (is_ok((ss-1)->currentMove))
-            (*(ss-1)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])] << -bonus1;
-        if (is_ok((ss-2)->currentMove))
-            (*(ss-2)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])] << -bonus1;
+        if (pos.capture_or_promotion(bestMove))
+        {
+            if (is_ok((ss-1)->currentMove))
+                (*(ss-1)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])] << -bonus1;
+            if (is_ok((ss-2)->currentMove))
+                (*(ss-2)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])] << -bonus1;
+        }
     }
   }
 
