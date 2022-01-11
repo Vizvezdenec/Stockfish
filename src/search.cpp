@@ -299,7 +299,7 @@ void Thread::search() {
   for (int i = 7; i > 0; i--)
       (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
-  for (int i = 2; i > 0; i--)
+  for (int i = 3; i > 0; i--)
       (ss-i)->continuationHistory1 = &this->continuationHistory1[NO_PIECE][0][NO_PIECE_TYPE]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
@@ -885,7 +885,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+        const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1, (ss-2)->continuationHistory1  };
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, contHist1);
         bool ttPv = ss->ttPv;
@@ -967,7 +967,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1, (ss-2)->continuationHistory1  };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
@@ -1510,7 +1510,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1, (ss-2)->continuationHistory1 };
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
@@ -1723,6 +1723,8 @@ moves_loop: // When in check, search starts here
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (is_ok((ss-1)->currentMove))
             (*(ss-1)->continuationHistory1)[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (is_ok((ss-2)->currentMove))
+            (*(ss-2)->continuationHistory1)[moved_piece][to_sq(bestMove)][captured] << bonus1;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
@@ -1739,6 +1741,8 @@ moves_loop: // When in check, search starts here
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
         if (is_ok((ss-1)->currentMove))
             (*(ss-1)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        if (is_ok((ss-2)->currentMove))
+            (*(ss-2)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
