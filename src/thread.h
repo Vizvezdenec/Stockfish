@@ -79,6 +79,7 @@ public:
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
+  ContinuationHistory1 continuationHistory1;
   Score trend;
 };
 

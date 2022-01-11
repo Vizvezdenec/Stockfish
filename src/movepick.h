@@ -97,11 +97,14 @@ typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceTo
 
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
+typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> PieceToHistory1;
 
 /// ContinuationHistory is the combined history of a given pair of moves, usually
 /// the current one given a previous one. The nested history table is based on
 /// PieceToHistory instead of ButterflyBoards.
 typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory;
+
+typedef Stats<PieceToHistory1, NOT_USED, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> ContinuationHistory1;
 
 
 /// MovePicker class is used to pick one pseudo-legal move at a time from the
@@ -120,13 +123,15 @@ public:
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           const PieceToHistory1**,
                                            Move,
                                            const Move*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           const PieceToHistory1**,
                                            Square);
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, const PieceToHistory1**);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -139,6 +144,7 @@ private:
   const ButterflyHistory* mainHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
+  const PieceToHistory1** continuationHistory1;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;

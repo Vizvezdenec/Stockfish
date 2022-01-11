@@ -299,6 +299,9 @@ void Thread::search() {
   for (int i = 7; i > 0; i--)
       (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
+  for (int i = 2; i > 0; i--)
+      (ss-i)->continuationHistory1 = &this->continuationHistory1[NO_PIECE][0][NO_PIECE_TYPE]; // Use as a sentinel
+
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
 
@@ -830,6 +833,7 @@ namespace {
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory1 = &thisThread->continuationHistory1[NO_PIECE][0][NO_PIECE_TYPE];
 
         pos.do_null_move(st);
 
@@ -881,7 +885,9 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, contHist1);
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
@@ -898,6 +904,10 @@ namespace {
                                                                           [captureOrPromotion]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
+
+                ss->continuationHistory1 = &thisThread->continuationHistory1[pos.moved_piece(move)]
+                                                                            [to_sq(move)]
+                                                                            [type_of(pos.piece_on(to_sq(move)))];
 
                 pos.do_move(move, st);
 
@@ -957,11 +967,14 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
+                                      contHist1,
                                       countermove,
                                       ss->killers);
 
@@ -1040,7 +1053,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-217) * depth))
+              if (!pos.see_ge(move, Value(-218) * depth))
                   continue;
           }
           else
@@ -1051,7 +1064,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -3875 * (depth - 1))
+                  && history < -3000 * depth + 3000)
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
@@ -1059,7 +1072,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
+                  && ss->staticEval + 142 + 139 * lmrDepth + history / 64 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1141,6 +1154,10 @@ moves_loop: // When in check, search starts here
                                                                 [captureOrPromotion]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
+
+      ss->continuationHistory1 = &thisThread->continuationHistory1[movedPiece]
+                                                                  [to_sq(move)]
+                                                                  [type_of(pos.piece_on(to_sq(move)))];
 
       // Step 15. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1493,6 +1510,8 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    const PieceToHistory1* contHist1[] = { (ss-1)->continuationHistory1 };
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1501,6 +1520,7 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      contHist1,
                                       prevSq);
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
@@ -1556,6 +1576,10 @@ moves_loop: // When in check, search starts here
                                                                 [captureOrPromotion]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
+
+      ss->continuationHistory1 = &thisThread->continuationHistory1[pos.moved_piece(move)]
+                                                                  [to_sq(move)]
+                                                                  [type_of(pos.piece_on(to_sq(move)))];
 
       // Continuation history based pruning (~2 Elo)
       if (  !captureOrPromotion
@@ -1694,8 +1718,12 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (is_ok((ss-1)->currentMove))
+            (*(ss-1)->continuationHistory1)[moved_piece][to_sq(bestMove)][captured] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1709,6 +1737,8 @@ moves_loop: // When in check, search starts here
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
         captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        if (is_ok((ss-1)->currentMove))
+            (*(ss-1)->continuationHistory1)[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
