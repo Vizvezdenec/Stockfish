@@ -574,7 +574,7 @@ namespace {
         if (PvNode)
         {
             Value value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
-            if (value <= alpha || value >= beta)
+            if (value <= alpha)
                 return value;
             else
                 return qsearch<PV>(pos, ss, alpha, beta);
