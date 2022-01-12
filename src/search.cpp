@@ -804,7 +804,7 @@ namespace {
 
     improving = improvement > 0;
 
-    if (!rootNode && depth == 1 && eval < alpha - 300)
+    if (!rootNode && depth == 1 && eval < alpha - 400)
         return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     // Step 7. Futility pruning: child node (~25 Elo).
