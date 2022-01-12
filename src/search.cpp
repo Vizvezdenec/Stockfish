@@ -804,6 +804,13 @@ namespace {
 
     improving = improvement > 0;
 
+    if (!PvNode && depth <= 2 && eval < alpha - 500 * depth)
+    {
+        value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+        if (value <= alpha)
+            return value;
+    }
+
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
