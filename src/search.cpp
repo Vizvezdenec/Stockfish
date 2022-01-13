@@ -936,13 +936,6 @@ namespace {
         && !ttMove)
         depth--;
 
-    if (   !PvNode
-        && !cutNode
-        && depth >= 11
-        && !ttMove
-        && eval < alpha - 122 * depth)
-        depth--;
-
 moves_loop: // When in check, search starts here
 
     // Step 11. A small Probcut idea, when we are in check (~0 Elo)
@@ -1189,6 +1182,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (!captureOrPromotion)
+
+          {
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1197,6 +1193,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 14721;
+          }
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
