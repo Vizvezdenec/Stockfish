@@ -938,7 +938,7 @@ namespace {
 
     if (   !PvNode
         && !cutNode
-        && depth >= 11
+        && depth >= 10
         && !ttMove
         && eval < alpha - 94 * depth)
         depth--;
