@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
+                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 + complexity / 512 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1183,8 +1183,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          r -= complexity / 2048;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
