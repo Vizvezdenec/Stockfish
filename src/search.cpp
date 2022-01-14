@@ -1200,7 +1200,6 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
-                       : complexity > 1000         ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
@@ -1209,7 +1208,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 62 + 20 * (newDepth - d));
+          doDeeperSearch = value > (alpha + 62 + 20 * (newDepth - d) - complexity / 1024);
           didLMR = true;
       }
       else
