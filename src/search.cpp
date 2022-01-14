@@ -806,7 +806,7 @@ namespace {
     improving = improvement > 0;
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
-    if (!PvNode && depth <= 3 && eval + 200 * depth <= alpha)
+    if (!ss->ttPv && depth <= 3 && eval + 200 * depth <= alpha)
     {
       value = qsearch<NonPV>(pos, ss, alpha, beta);
       if (value <= alpha)
