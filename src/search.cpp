@@ -806,6 +806,12 @@ namespace {
     improving = improvement > 0;
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
+    if (!PvNode && depth <= 3 && eval + 200 * depth <= alpha)
+    {
+      value = qsearch<NonPV>(pos, ss, alpha, beta);
+      if (value <= alpha)
+        return value;
+    }
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -1179,9 +1185,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
-
-          if (!ss->inCheck && complexity <= 12)
-              r++;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
