@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 + complexity / 256 <= alpha)
+                  && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1200,6 +1200,7 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
+                       : complexity > 500          ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
