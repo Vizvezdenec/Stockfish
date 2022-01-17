@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return std::min((6 * d + 229) * d - 215 , 1700 + 50 * std::min(d, 100));
+    return std::min((6 * d + 229) * d - 215 , 2000);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -1488,7 +1488,7 @@ moves_loop: // When in check, search starts here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = bestValue + 155;
+        futilityBase = bestValue + 135 + 40 * pvHit;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
