@@ -1214,6 +1214,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch &= !rootNode || !captureOrPromotion;
           didLMR = false;
       }
 
@@ -1232,6 +1233,9 @@ moves_loop: // When in check, search starts here
           }
       }
 
+      if (rootNode && captureOrPromotion)
+          value = alpha + 1;
+
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
@@ -1241,7 +1245,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + (rootNode && moveCount > 1 && value >= beta + 88)), false);
+                              std::min(maxNextDepth, newDepth), false);
       }
 
       // Step 18. Undo move
