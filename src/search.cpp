@@ -935,12 +935,12 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
-        && complexity < 1000
         && depth >= 6
         && !ttMove)
         depth -= 2;
 
     if (   cutNode
+        && complexity < 1000
         && depth >= 9
         && !ttMove)
         depth--;
