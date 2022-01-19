@@ -940,7 +940,7 @@ namespace {
         depth -= 2;
 
     if (   cutNode
-        && complexity < 1000
+        && complexity < 500
         && depth >= 9
         && !ttMove)
         depth--;
