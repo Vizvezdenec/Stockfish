@@ -935,6 +935,7 @@ namespace {
 
     // Step 10. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
+        && complexity < 500
         && depth >= 6
         && !ttMove)
         depth -= 2;
@@ -1247,7 +1248,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + (moveCount > 1 && value >= alpha + 12 * depth)), false);
+                              std::min(maxNextDepth, newDepth), false);
       }
 
       // Step 18. Undo move
