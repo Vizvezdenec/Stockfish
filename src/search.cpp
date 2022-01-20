@@ -1698,8 +1698,8 @@ moves_loop: // When in check, search starts here
 
     if (secondBestValue > - VALUE_INFINITE)
     {
-        bonus1 += (bestValue - secondBestValue) / 16;
-        bonus2 += (bestValue - secondBestValue) / 16;
+        bonus1 += std::min(500, int(bestValue - secondBestValue) * depth / 32);
+        bonus2 += std::min(500, int(bestValue - secondBestValue) * depth / 32);
     }
 
     if (!pos.capture_or_promotion(bestMove))
