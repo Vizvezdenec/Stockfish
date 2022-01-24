@@ -602,7 +602,12 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    if (rootNode)
+        (ss+4)->killers[0]   = (ss+4)->killers[1] = MOVE_NONE;
+    else if (ss->ply == 1)
+        (ss+3)->killers[0]   = (ss+3)->killers[1] = MOVE_NONE;
+    else
+        (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -1671,7 +1676,7 @@ moves_loop: // When in check, search starts here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   (((ss-1)->moveCount == 1 + (ss-1)->ttHit) || ((ss-1)->currentMove == (ss-1)->killers[0]) || (bestValue > beta + 400 * (ss-1)->moveCount))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
