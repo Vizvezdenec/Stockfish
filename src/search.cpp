@@ -602,8 +602,8 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    if (ss->ply <= 2)
-        (ss+3)->killers[0]   = (ss+3)->killers[1] = MOVE_NONE;
+    if (ss->ply <= 1)
+        (ss+3)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     else
         (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
