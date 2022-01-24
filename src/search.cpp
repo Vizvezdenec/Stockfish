@@ -602,9 +602,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    if (rootNode)
-        (ss+4)->killers[0]   = (ss+4)->killers[1] = MOVE_NONE;
-    else if (ss->ply == 1)
+    if (ss->ply <= 1)
         (ss+3)->killers[0]   = (ss+3)->killers[1] = MOVE_NONE;
     else
         (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
