@@ -1724,6 +1724,8 @@ moves_loop: // When in check, search starts here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][ss->ply < 7] = move;
+        if (!thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][ss->ply >= 7])
+            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][ss->ply >= 7] = move;
     }
   }
 
