@@ -926,9 +926,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][0];
-    if (!pos.legal(countermove))
-        countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][1];
+    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
@@ -1169,7 +1167,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : moveCount <= 5            ? 2
+                       : moveCount <= 5 || (PvNode && r < -3)            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
@@ -1723,11 +1721,7 @@ moves_loop: // When in check, search starts here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        if (move != thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][0])
-        {
-            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][1] = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][0];
-            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq][0] = move;
-        }
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
   }
 
