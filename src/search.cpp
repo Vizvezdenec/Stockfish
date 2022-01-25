@@ -944,6 +944,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int deeper = 0;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1166,8 +1168,8 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
-          int deeper =   r >= -1                   ? 0
-                       : moveCount <= 5 || (PvNode && r < -3 && depth > 6)            ? 2
+          deeper =   r >= -1                   ? 0
+                       : moveCount <= 5            ? 2
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
@@ -1277,6 +1279,7 @@ moves_loop: // When in check, search starts here
               }
               else
               {
+                  depth += deeper == 2 && didLMR;
                   assert(value >= beta); // Fail high
                   break;
               }
