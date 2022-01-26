@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
 
           else if (   PvNode 
                    && captureOrPromotion
-                   && givesCheck
+                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000
                    && moveCount != 1)
               extension = 1;
       }
