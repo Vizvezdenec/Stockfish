@@ -1099,6 +1099,12 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
               extension = 1;
+
+          else if (   PvNode 
+                   && captureOrPromotion
+                   && priorCapture
+                   && to_sq(move) == prevSq)
+              extension = 1;
       }
 
       // Add extension to new depth
@@ -1154,9 +1160,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > 400 && abs(ss->staticEval) < 50)
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
