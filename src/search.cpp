@@ -1155,6 +1155,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > 200 && abs(ss->staticEval) < 100)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1179,7 +1182,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 62 + 20 * (newDepth - d)) || value > ss->staticEval + 15 * depth;
+          doDeeperSearch = value > (alpha + 62 + 20 * (newDepth - d)) || value > ss->staticEval + 60 * depth;
           didLMR = true;
       }
       else
