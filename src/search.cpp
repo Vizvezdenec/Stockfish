@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > 200 && abs(ss->staticEval) < 50)
+          if (abs(pos.non_pawn_material(WHITE) - pos.non_pawn_material(BLACK)) > 400 && abs(ss->staticEval) < 50)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
