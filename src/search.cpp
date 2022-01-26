@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
 
           else if (   PvNode 
                    && captureOrPromotion
-                   && to_sq(move) == prevSq
+                   && givesCheck
                    && moveCount != 1)
               extension = 1;
       }
