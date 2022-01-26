@@ -407,7 +407,7 @@ void Thread::search() {
               }
               else if (bestValue >= beta)
               {
-                  if (rootDepth < 7)
+                  if (rootDepth < (bestValue - beta) / 256)
                       break;
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
