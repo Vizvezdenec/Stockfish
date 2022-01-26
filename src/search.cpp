@@ -273,7 +273,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -799,7 +799,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -866,6 +866,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
+                                                                          [type_of(pos.piece_on(to_sq(move)))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1099,12 +1100,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 10000)
               extension = 1;
-
-          else if (   PvNode 
-                   && captureOrPromotion
-                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 5000
-                   && moveCount != 1)
-              extension = 1;
       }
 
       // Add extension to new depth
@@ -1118,6 +1113,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [captureOrPromotion]
+                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1533,6 +1529,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [captureOrPromotion]
+                                                                [type_of(pos.piece_on(to_sq(move)))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
