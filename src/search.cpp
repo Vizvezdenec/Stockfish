@@ -775,7 +775,7 @@ namespace {
 
     if (   depth <= 3
         && !ss->ttPv
-        && eval < alpha - 400 * depth)
+        && eval < alpha - 200 * depth)
         {
             value = qsearch<NonPV>(pos, ss, ((eval + alpha) / 2 - 1), (eval + alpha) / 2);
             if (value < (eval + alpha) / 2)
