@@ -773,11 +773,6 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-        if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
-
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -786,6 +781,11 @@ namespace {
         &&  eval >= beta
         &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
 
     // Step 8. Null move search with verification search (~22 Elo)
     if (   !PvNode
