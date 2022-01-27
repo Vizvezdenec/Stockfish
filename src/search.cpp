@@ -856,7 +856,7 @@ namespace {
              && ttValue != VALUE_NONE
              && (tte->bound() & BOUND_LOWER)
              && ttValue >= probCutBeta)
-             return ttValue;
+             return probCutBeta;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         bool ttPv = ss->ttPv;
