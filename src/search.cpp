@@ -1040,7 +1040,7 @@ moves_loop: // When in check, search starts here
 
       // Step 14. Extensions (~66 Elo)
       // We take care to not overdo to avoid search getting stuck.
-      if (ss->ply < thisThread->rootDepth * 5 / 2)
+      if (ss->ply < thisThread->rootDepth * 2)
       {
           // Singular extension search (~58 Elo). If all moves but one fail low on a
           // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
@@ -1321,7 +1321,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 3 || PvNode)
+    else if (   (depth >= 3 || PvNode || cutNode)
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
