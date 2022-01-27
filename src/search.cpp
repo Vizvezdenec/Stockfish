@@ -613,7 +613,7 @@ namespace {
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
     if (!rootNode)
-        (ss+2)->statScore = 0;
+        (ss+1)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -850,13 +850,6 @@ namespace {
              && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
-
-        if (ss->ttHit
-             && tte->depth() >= depth - 3
-             && ttValue != VALUE_NONE
-             && (tte->bound() & BOUND_LOWER)
-             && ttValue >= probCutBeta)
-             return probCutBeta;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
         bool ttPv = ss->ttPv;
