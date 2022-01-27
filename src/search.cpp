@@ -773,14 +773,10 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    if (   depth <= 3
-        && !ss->ttPv
-        && eval < alpha - 600 * depth)
-        {
-            value = qsearch<NonPV>(pos, ss, ((eval + alpha) / 2 - 1), (eval + alpha) / 2);
-            if (value < (eval + alpha) / 2)
-                return value;
-        }
+        if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
 
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
@@ -909,11 +905,6 @@ namespace {
         && depth >= 6
         && !ttMove)
         depth -= 2;
-
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
 
 moves_loop: // When in check, search starts here
 
