@@ -782,11 +782,6 @@ namespace {
         &&  eval < 15000) // 50% larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    if (   cutNode
-        && depth >= 9
-        && !ttMove)
-        depth--;
-
     // Step 8. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -836,6 +831,11 @@ namespace {
                 return nullValue;
         }
     }
+
+    if (   cutNode
+        && depth >= 9
+        && !ttMove)
+        depth--;
 
     probCutBeta = beta + 209 - 44 * improving;
 
