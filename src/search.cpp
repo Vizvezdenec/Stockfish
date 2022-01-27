@@ -612,7 +612,8 @@ namespace {
     // starts with statScore = 0. Later grandchildren start with the last calculated
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
-    ss->statScore = 0;
+    if (!rootNode)
+        (ss+2)->statScore = 0;
 
     // Step 4. Transposition table lookup. We don't want the score of a partial
     // search to overwrite a previous full search TT value, so we use a different
@@ -771,6 +772,15 @@ namespace {
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
     thisThread->complexityAverage.update(complexity);
+
+    if (   depth <= 3
+        && !ss->ttPv
+        && eval < alpha - 400 * depth)
+        {
+            value = qsearch<NonPV>(pos, ss, ((eval + alpha) / 2 - 1), (eval + alpha) / 2);
+            if (value < (eval + alpha) / 2)
+                return value;
+        }
 
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
