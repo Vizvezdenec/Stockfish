@@ -1200,7 +1200,7 @@ moves_loop: // When in check, search starts here
                                         : -stat_bonus(newDepth);
 
               if (captureOrPromotion)
-                  bonus = bonus * 5 / 16;
+                  bonus = bonus * 3 / 16;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
