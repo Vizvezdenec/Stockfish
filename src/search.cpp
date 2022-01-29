@@ -773,8 +773,8 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    ss->staticEval += ss->staticEval > 0 ? complexity / 32 
-                    : ss->staticEval < 0 ? - complexity / 32 
+    ss->staticEval += ss->staticEval > 0 ? complexity / 64
+                    : ss->staticEval < 0 ? - complexity / 64
                     : 0;
 
     // Step 7. Futility pruning: child node (~25 Elo).
