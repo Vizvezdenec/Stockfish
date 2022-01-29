@@ -773,6 +773,10 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
+    ss->staticEval += ss->staticEval > 0 ? complexity / 32 
+                    : ss->staticEval < 0 ? - complexity / 32 
+                    : 0;
+
     // Step 7. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -1153,9 +1157,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
-
-          if (!ss->inCheck && !PvNode && complexity < 50 && std::abs(ss->staticEval - alpha) > 2000)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
