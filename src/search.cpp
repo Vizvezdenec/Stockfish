@@ -773,10 +773,10 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    maxDiff = ss->staticEval / 4;
+    maxDiff = ss->staticEval / 8;
 
-    ss->staticEval += ss->staticEval > 0 ? std::min(complexity / 16, maxDiff)
-                    : ss->staticEval < 0 ? std::max(-complexity / 16, maxDiff)
+    ss->staticEval += ss->staticEval > 0 ? std::min(complexity / 32, maxDiff)
+                    : ss->staticEval < 0 ? std::max(-complexity / 32, maxDiff)
                     : 0;
 
     // Step 7. Futility pruning: child node (~25 Elo).
