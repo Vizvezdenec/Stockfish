@@ -1155,7 +1155,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (!ss->inCheck && !PvNode && complexity < 50 && std::abs(ss->staticEval - alpha) > 1000)
+          if (!ss->inCheck && !PvNode && complexity < 50 && std::abs(ss->staticEval - alpha) > 2000)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
