@@ -556,7 +556,7 @@ namespace {
     bool givesCheck, improving, didLMR, priorCapture;
     bool captureOrPromotion, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
+    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity, maxDiff;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -773,8 +773,10 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    ss->staticEval += ss->staticEval > 0 ? complexity / 128
-                    : ss->staticEval < 0 ? - complexity / 128
+    maxDiff = ss->staticEval / 4;
+
+    ss->staticEval += ss->staticEval > 0 ? std::min(complexity / 16, maxDiff)
+                    : ss->staticEval < 0 ? std::max(-complexity / 16, maxDiff)
                     : 0;
 
     // Step 7. Futility pruning: child node (~25 Elo).
