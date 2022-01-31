@@ -725,7 +725,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
-        complexity = 375;
+        complexity = 343;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -1019,9 +1019,10 @@ moves_loop: // When in check, search starts here
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
 
+              dbg_mean_of(complexity);
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -(3500 + complexity) * (depth - 1))
+                  && history < -(3532 + complexity) * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
