@@ -1673,11 +1673,11 @@ moves_loop: // When in check, search starts here
     {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        update_continuation_histories(ss, moved_piece, to_sq(bestMove), bonus1 / 2);
+        update_continuation_histories(ss, moved_piece, to_sq(bestMove), bonus1 / 8);
         for (int i = 0; i < captureCount; ++i)
         {
             moved_piece = pos.moved_piece(capturesSearched[i]);
-            update_continuation_histories(ss, moved_piece, to_sq(capturesSearched[i]), - bonus1 / 2);
+            update_continuation_histories(ss, moved_piece, to_sq(capturesSearched[i]), - bonus1 / 8);
         }
     }
 
