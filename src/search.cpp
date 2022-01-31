@@ -658,7 +658,7 @@ namespace {
         {
             if (ttValue >= beta)
             {
-                if ((ss-1)->moveCount <= 2)
+                if ((ss-1)->moveCount <= 3)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             else update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1));
