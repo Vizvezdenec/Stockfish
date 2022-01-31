@@ -631,7 +631,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - (thisThread->id() % 2 == 1)
+        && ((tte->depth() > depth - (thisThread->id() % 2 == 1)) || abs(ttValue) >= VALUE_MATE_IN_MAX_PLY)
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
@@ -1670,16 +1670,8 @@ moves_loop: // When in check, search starts here
         }
     }
     else
-    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        update_continuation_histories(ss, moved_piece, to_sq(bestMove), bonus1 / 16);
-        for (int i = 0; i < captureCount; ++i)
-        {
-            moved_piece = pos.moved_piece(capturesSearched[i]);
-            update_continuation_histories(ss, moved_piece, to_sq(capturesSearched[i]), - bonus1 / 16);
-        }
-    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
