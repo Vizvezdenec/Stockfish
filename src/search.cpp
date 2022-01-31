@@ -644,10 +644,6 @@ namespace {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-
-                // Extra penalty for early quiet moves of the previous ply (~0 Elo)
-                if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
             else if (!ttCapture)
@@ -657,6 +653,10 @@ namespace {
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
+
+        // Extra penalty for early quiet moves of the previous ply (~0 Elo)
+        if ((ss-1)->moveCount <= 2 && !priorCapture && ttValue >= beta)
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
 
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
