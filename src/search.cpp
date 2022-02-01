@@ -1029,7 +1029,6 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
-                  && pos.non_pawn_material(~us) > VALUE_ZERO
                   && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
                   continue;
 
@@ -1391,6 +1390,9 @@ moves_loop: // When in check, search starts here
         (ss+1)->pv = pv;
         ss->pv[0] = MOVE_NONE;
     }
+
+    if ((ss-1)->inCheck && depth < 0)
+        depth++;
 
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
