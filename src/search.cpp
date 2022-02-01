@@ -1331,8 +1331,7 @@ moves_loop: // When in check, search starts here
         //or fail low was really bad
         bool extraBonus =    PvNode
                           || cutNode
-                          || bestValue < alpha - 94 * depth
-                          || quietCount + captureCount > 44;
+                          || bestValue < alpha - 94 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
@@ -1418,7 +1417,7 @@ moves_loop: // When in check, search starts here
 
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() >= ttDepth
+        && tte->depth() >= ttDepth + pvHit
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
