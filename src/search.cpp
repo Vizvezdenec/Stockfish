@@ -929,21 +929,11 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Move killers[2] = {ss->killers[0], ss->killers[1]};
-
-    if (    ss->killers[0] && ss->killers[1]
-        && (*contHist[0])[pos.moved_piece(ss->killers[0])][to_sq(ss->killers[0])] < 
-           (*contHist[0])[pos.moved_piece(ss->killers[1])][to_sq(ss->killers[1])])
-           {
-               killers[0] = ss->killers[1];
-               killers[1] = ss->killers[0];
-           }
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      killers);
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1015,7 +1005,7 @@ moves_loop: // When in check, search starts here
                   && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                  && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] + complexity / 8
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 8 < alpha)
                   continue;
 
