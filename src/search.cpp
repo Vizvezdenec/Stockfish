@@ -945,6 +945,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool isDext = false;
+
     // Step 12. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1071,7 +1073,7 @@ moves_loop: // When in check, search starts here
                   if (  !PvNode
                       && value < singularBeta - 75
                       && ss->doubleExtensions <= 6)
-                      extension = 2;
+                      extension = 2, isDext = true;
               }
 
               // Multi-cut pruning
@@ -1172,6 +1174,8 @@ moves_loop: // When in check, search starts here
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
+
+          deeper = std::max(0, deeper - isDext);
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
@@ -1449,7 +1453,7 @@ moves_loop: // When in check, search starts here
                                              : -(ss-1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta && 2 * bestValue >= alpha + ss->staticEval)
+        if (bestValue >= beta)
         {
             // Save gathered info in transposition table
             if (!ss->ttHit)
@@ -1459,7 +1463,7 @@ moves_loop: // When in check, search starts here
             return bestValue;
         }
 
-        if (PvNode && bestValue > alpha && bestValue < beta)
+        if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
         futilityBase = bestValue + 155;
