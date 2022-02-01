@@ -1004,7 +1004,7 @@ moves_loop: // When in check, search starts here
                   && !givesCheck
                   && !PvNode
                   && lmrDepth < 6
-                  && complexity < 1000
+                  && complexity < 2000
                   && !ss->inCheck
                   && ss->staticEval + 342 + 238 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 8 < alpha)
