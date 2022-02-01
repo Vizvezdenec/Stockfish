@@ -1130,6 +1130,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
+              || isDext
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
@@ -1174,8 +1175,6 @@ moves_loop: // When in check, search starts here
                        : PvNode && depth > 6       ? 1
                        : cutNode && moveCount <= 7 ? 1
                        :                             0;
-
-          deeper = std::max(0, deeper - isDext);
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
