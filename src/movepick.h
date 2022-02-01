@@ -126,7 +126,7 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Square);
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, const PieceToHistory**);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
 
 private:
