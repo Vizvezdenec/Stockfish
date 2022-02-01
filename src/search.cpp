@@ -1029,6 +1029,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 8
+                  && pos.non_pawn_material(~us) > VALUE_ZERO
                   && ss->staticEval + 138 + 137 * lmrDepth + history / 64 <= alpha)
                   continue;
 
@@ -1417,7 +1418,7 @@ moves_loop: // When in check, search starts here
 
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() >= ttDepth + pvHit
+        && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
