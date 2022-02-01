@@ -933,7 +933,7 @@ moves_loop: // When in check, search starts here
 
     if (    ss->killers[0] && ss->killers[1]
         && (*contHist[0])[pos.moved_piece(ss->killers[0])][to_sq(ss->killers[0])] < 
-           (*contHist[0])[pos.moved_piece(ss->killers[1])][to_sq(ss->killers[1])] - 40000)
+           (*contHist[0])[pos.moved_piece(ss->killers[1])][to_sq(ss->killers[1])] - 50000)
            {
                killers[0] = ss->killers[1];
                killers[1] = ss->killers[0];
