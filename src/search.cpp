@@ -929,11 +929,21 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move killers[2] = {ss->killers[0], ss->killers[1]};
+
+    if (    ss->killers[0] && ss->killers[1]
+        && (*contHist[0])[pos.moved_piece(ss->killers[0])][to_sq(ss->killers[0])] < 
+           (*contHist[0])[pos.moved_piece(ss->killers[1])][to_sq(ss->killers[1])])
+           {
+               killers[0] = ss->killers[1];
+               killers[1] = ss->killers[0];
+           }
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      killers);
 
     value = bestValue;
     moveCountPruning = false;
