@@ -1391,9 +1391,6 @@ moves_loop: // When in check, search starts here
         ss->pv[0] = MOVE_NONE;
     }
 
-    if ((ss-1)->inCheck && depth < -1)
-        depth++;
-
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
@@ -1452,7 +1449,7 @@ moves_loop: // When in check, search starts here
                                              : -(ss-1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta)
+        if (bestValue >= beta && bestValue >= ss->staticEval)
         {
             // Save gathered info in transposition table
             if (!ss->ttHit)
@@ -1462,7 +1459,7 @@ moves_loop: // When in check, search starts here
             return bestValue;
         }
 
-        if (PvNode && bestValue > alpha)
+        if (PvNode && bestValue > alpha && bestValue < beta)
             alpha = bestValue;
 
         futilityBase = bestValue + 155;
