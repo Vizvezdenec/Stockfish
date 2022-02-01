@@ -1391,7 +1391,7 @@ moves_loop: // When in check, search starts here
         ss->pv[0] = MOVE_NONE;
     }
 
-    if ((ss-1)->inCheck && depth < 0)
+    if ((ss-1)->inCheck && depth < -1)
         depth++;
 
     Thread* thisThread = pos.this_thread();
