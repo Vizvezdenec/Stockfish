@@ -928,7 +928,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves1[pos.piece_on(prevSq)][from_to((ss-1)->currentMove)];
-    if (!countermove)
+    if (!countermove || !(pos.pseudo_legal(countermove) && pos.legal(countermove)))
         countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
