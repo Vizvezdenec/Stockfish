@@ -788,7 +788,7 @@ namespace {
         && (ss-1)->statScore < 23767
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 182 + complexity / 8
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 15 + 204 + complexity / 25
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -964,6 +964,9 @@ moves_loop: // When in check, search starts here
 
       // Check for legality
       if (!rootNode && !pos.legal(move))
+          continue;
+
+      if (rootNode && move == ttMove && thisThread->id() % 8 == 7)
           continue;
 
       ss->moveCount = ++moveCount;
@@ -1349,7 +1352,7 @@ moves_loop: // When in check, search starts here
         ss->ttPv = ss->ttPv && (ss+1)->ttPv;
 
     // Write gathered information in transposition table
-    if (!excludedMove && !(rootNode && thisThread->pvIdx))
+    if (!excludedMove && !(rootNode && thisThread->pvIdx) && !(rootNode && thisThread->id() % 8 == 7))
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
