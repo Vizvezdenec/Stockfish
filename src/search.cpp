@@ -928,11 +928,13 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move countermove1 = thisThread->counterMoves1[pos.piece_on(prevSq)][from_to((ss-1)->currentMove)];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
+                                      countermove1,
                                       ss->killers);
 
     value = bestValue;
@@ -1726,6 +1728,7 @@ moves_loop: // When in check, search starts here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves1[pos.piece_on(prevSq)][from_to((ss-1)->currentMove)] = move;
     }
   }
 
