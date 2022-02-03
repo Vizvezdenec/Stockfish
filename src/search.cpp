@@ -773,7 +773,7 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    if (!PvNode && depth <= 4 && eval < alpha - 100 - 400 * depth * depth)
+    if (!PvNode && depth <= 3 && eval < alpha - 300 - 300 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
