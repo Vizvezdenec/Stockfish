@@ -1479,6 +1479,8 @@ moves_loop: // When in check, search starts here
                                       contHist,
                                       prevSq);
 
+    int qck = 0;
+
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
     {
@@ -1539,6 +1541,11 @@ moves_loop: // When in check, search starts here
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
+
+      if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && qck > 1 && !captureOrPromotion && givesCheck)
+          continue;
+
+      qck += !captureOrPromotion && givesCheck;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
