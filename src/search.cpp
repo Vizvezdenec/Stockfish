@@ -1542,10 +1542,10 @@ moves_loop: // When in check, search starts here
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < CounterMovePruneThreshold)
           continue;
 
-      if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && qck > 3 && !captureOrPromotion && givesCheck)
+      if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && qck > 3 && !captureOrPromotion && ss->inCheck)
           continue;
 
-      qck += !captureOrPromotion && givesCheck;
+      qck += !captureOrPromotion && ss->inCheck;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
