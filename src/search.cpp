@@ -62,7 +62,7 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Razoring parameters as a function of depth
-  const int RazorBound[6] = {959, 1496, 2334, 3641, 5680, 8861};
+  const int RazorBound[6] = {793, 1236, 1929, 3009, 4695, 7324};
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
