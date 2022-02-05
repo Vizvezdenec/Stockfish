@@ -778,8 +778,8 @@ namespace {
     // return a fail low.
     if (!PvNode && depth <= 6 && eval < alpha - 400 - 300 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha, beta);
-        if (value <= alpha)
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
             return value;
     }
 
@@ -1392,7 +1392,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, captureOrPromotion;
+    bool pvHit, givesCheck, captureOrPromotion, priorCapture;
     int moveCount;
 
     if (PvNode)
@@ -1405,6 +1405,7 @@ moves_loop: // When in check, search starts here
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
+    priorCapture = pos.captured_piece();
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1601,6 +1602,9 @@ moves_loop: // When in check, search starts here
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
+
+    if (bestMove && depth == 0 && (ss-1)->moveCount == 1 && !priorCapture)
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -20);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
