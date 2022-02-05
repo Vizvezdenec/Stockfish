@@ -61,9 +61,6 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
-  // Razoring parameters as a function of depth
-  const int RazorBound[6] = {793, 1236, 1929, 3009, 4695, 7324};
-
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(214 * (d - improving));
@@ -779,9 +776,7 @@ namespace {
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
-    if (   !PvNode
-        && depth <= 6
-        && eval < alpha - RazorBound[depth - 1])
+    if (!PvNode && depth <= 6 && eval < alpha - 400 - 300 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -811,7 +806,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and value
-        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 205, 3) + depth / 3 + 4 - (complexity > 500);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
