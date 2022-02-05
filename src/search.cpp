@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 75
+                      && value < singularBeta - 75 + 10 * (move == ss->killers[0])
                       && ss->doubleExtensions <= 6)
                       extension = 2;
               }
@@ -1392,7 +1392,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, captureOrPromotion, priorCapture;
+    bool pvHit, givesCheck, captureOrPromotion;
     int moveCount;
 
     if (PvNode)
@@ -1405,7 +1405,6 @@ moves_loop: // When in check, search starts here
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
-    priorCapture = pos.captured_piece();
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1597,9 +1596,6 @@ moves_loop: // When in check, search starts here
 
         return mated_in(ss->ply); // Plies to mate from the root
     }
-
-    if (bestMove && depth == 0 && (ss-1)->moveCount == 1 && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, - stat_bonus(1));
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
