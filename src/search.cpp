@@ -1062,7 +1062,7 @@ moves_loop: // When in check, search starts here
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-              &&  abs(ttValue) < 3333
+              &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
@@ -1392,7 +1392,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, captureOrPromotion;
+    bool pvHit, givesCheck, captureOrPromotion, priorCapture;
     int moveCount;
 
     if (PvNode)
@@ -1405,6 +1405,7 @@ moves_loop: // When in check, search starts here
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
     moveCount = 0;
+    priorCapture = pos.captured_piece();
 
     // Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1596,6 +1597,9 @@ moves_loop: // When in check, search starts here
 
         return mated_in(ss->ply); // Plies to mate from the root
     }
+
+    if (bestMove && depth == 0 && (ss-1)->moveCount == 1 && !priorCapture)
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, - stat_bonus(1));
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
