@@ -1604,7 +1604,7 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     if (bestMove && depth == 0 && (ss-1)->moveCount == 1 && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -20);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -40);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
