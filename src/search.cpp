@@ -1134,8 +1134,8 @@ moves_loop: // When in check, search starts here
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
-      if (    depth >= 2
-          &&  moveCount > 1 + rootNode
+      if (    depth >= 3
+          &&  moveCount > 1 + 2 * rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
@@ -1490,6 +1490,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    int quietPromosCount = 0;
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1559,7 +1560,15 @@ moves_loop: // When in check, search starts here
           && ss->inCheck)
           continue;
 
+      // movecount pruning for quiet promotions
+      if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && quietPromosCount > 0
+          && type_of(move) == PROMOTION 
+          && pos.empty(to_sq(move)))
+          continue;
+
       quietCheckEvasions += !captureOrPromotion && ss->inCheck;
+      quietPromosCount += type_of(move) == PROMOTION && pos.empty(to_sq(move));
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
