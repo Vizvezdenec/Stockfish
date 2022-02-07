@@ -1224,7 +1224,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, value >= beta ? -(beta + value) / 2 : -beta, -alpha,
+          value = -search<PV>(pos, ss+1, -std::max(beta,value), -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
