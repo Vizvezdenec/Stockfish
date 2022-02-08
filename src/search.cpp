@@ -1226,7 +1226,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -beta, -alpha,
+          value = -search<PV>(pos, ss+1, -std::max(beta, (3 * value + beta) / 4), -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
@@ -1492,7 +1492,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    int quietPromosCount = 0;
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1562,15 +1561,7 @@ moves_loop: // When in check, search starts here
           && ss->inCheck)
           continue;
 
-      // movecount pruning for quiet promotions
-      if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && quietPromosCount > 0
-          && type_of(move) == PROMOTION 
-          && pos.empty(to_sq(move)))
-          continue;
-
       quietCheckEvasions += !captureOrPromotion && ss->inCheck;
-      quietPromosCount += type_of(move) == PROMOTION && pos.empty(to_sq(move));
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
