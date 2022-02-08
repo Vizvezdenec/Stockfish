@@ -826,7 +826,13 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
+            {
+                if (!ss->ttHit)
+                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
+                  BOUND_LOWER,
+                  depth, MOVE_NONE, ss->staticEval);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -1226,7 +1232,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -std::max(beta, (3 * value + beta) / 4), -alpha,
+          value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
