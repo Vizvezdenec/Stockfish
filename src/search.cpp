@@ -830,7 +830,7 @@ namespace {
                 if (!ss->ttHit && depth - R > 0)
                 tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
                   BOUND_LOWER,
-                  depth, MOVE_NONE, ss->staticEval);
+                  depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
             }
 
