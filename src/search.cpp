@@ -69,9 +69,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
+  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, Value cmpl) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1358 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 904);
+    return (r + 1700 - int(delta) * 1024 / int(rootDelta) - int(cmpl)) / 1024 + (!i && r > 904);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta, ss->searchCmplx), 0);
 
           if (   captureOrPromotion
               || givesCheck)
@@ -1143,14 +1143,11 @@ moves_loop: // When in check, search starts here
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, ss->searchCmplx);
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
               && bestMoveCount <= 3)
-              r--;
-
-          if (ss->searchCmplx > 1000)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1353,7 +1350,10 @@ moves_loop: // When in check, search starts here
     }
 
     if (ss->staticEval != VALUE_NONE && abs(bestValue) < VALUE_KNOWN_WIN)
+    {
         ss->searchCmplx = Value(abs(bestValue - ss->staticEval));
+        dbg_mean_of(ss->searchCmplx);
+    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
