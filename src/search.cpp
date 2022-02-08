@@ -603,6 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->searchCmplx  = VALUE_ZERO;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -826,13 +827,7 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
-            {
-                if (!ss->ttHit && depth - R > 0 && complexity > 500)
-                tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
-                  BOUND_LOWER,
-                  depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
-            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
@@ -1155,6 +1150,9 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
+          if (ss->searchCmplx > 1000)
+              r--;
+
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
@@ -1353,6 +1351,9 @@ moves_loop: // When in check, search starts here
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
+
+    if (ss->staticEval != VALUE_NONE && abs(bestValue) < VALUE_KNOWN_WIN)
+        ss->searchCmplx = Value(abs(bestValue - ss->staticEval));
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
