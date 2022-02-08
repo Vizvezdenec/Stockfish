@@ -71,7 +71,7 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, Value cmpl) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1530 - int(delta) * 1024 / int(rootDelta) - int(cmpl) / 2) / 1024 + (!i && r > 904);
+    return (r + 1850 - int(delta) * 1024 / int(rootDelta) - int(cmpl) * 2) / 1024 + (!i && r > 904);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1352,7 +1352,6 @@ moves_loop: // When in check, search starts here
     if (ss->staticEval != VALUE_NONE && abs(bestValue) < VALUE_KNOWN_WIN)
     {
         ss->searchCmplx = Value(abs(bestValue - ss->staticEval));
-        dbg_mean_of(ss->searchCmplx);
     }
 
     if (PvNode)
