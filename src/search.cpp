@@ -1156,7 +1156,7 @@ moves_loop: // When in check, search starts here
               && !likelyFailLow)
               r -= 2;
 
-          if (ss->searchCmplx > 500)
+          if (ss->searchCmplx > 700)
               r--;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
