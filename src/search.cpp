@@ -603,7 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+1)->searchCmplx  = 0;
+    (ss+2)->searchCmplx  = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -1156,7 +1156,7 @@ moves_loop: // When in check, search starts here
               && !likelyFailLow)
               r -= 2;
 
-          if (ss->searchCmplx > 900)
+          if (ss->searchCmplx > 1500)
               r--;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
