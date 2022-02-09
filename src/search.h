@@ -50,6 +50,7 @@ struct Stack {
   Depth depth;
   int statScore;
   int moveCount;
+  int searchCmplx;
   bool inCheck;
   bool ttPv;
   bool ttHit;

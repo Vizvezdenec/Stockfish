@@ -61,9 +61,6 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
-  // Razoring parameters as a function of depth
-  const int RazorBound[6] = {750, 1500, 4500, 7500, 7500, 7500};
-
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(214 * (d - improving));
@@ -606,6 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+1)->searchCmplx  = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -781,7 +779,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 6
-        && eval < alpha - RazorBound[depth - 1])
+        && eval < alpha - 400 - 300 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1158,6 +1156,9 @@ moves_loop: // When in check, search starts here
               && !likelyFailLow)
               r -= 2;
 
+          if (ss->searchCmplx > 500)
+              r--;
+
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 13)
               r--;
@@ -1353,6 +1354,9 @@ moves_loop: // When in check, search starts here
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
+
+    if (ss->staticEval != VALUE_NONE && abs(bestValue) < VALUE_KNOWN_WIN)
+        ss->searchCmplx = abs(bestValue - ss->staticEval);
 
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree.
