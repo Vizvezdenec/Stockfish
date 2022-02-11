@@ -917,6 +917,15 @@ namespace {
         && !ttMove)
         depth--;
 
+    if (     !PvNode
+          && !cutNode
+          && !ttMove
+          && depth >= 9
+          && ss->ttHit
+          && (tte->bound() & BOUND_UPPER)
+          && ttValue < alpha - 90 * depth)
+        depth--;
+
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
