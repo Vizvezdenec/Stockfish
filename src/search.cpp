@@ -1013,7 +1013,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures (~0 Elo)
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
-                  && !ss->ttPv
+                  && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 392 + 207 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
@@ -1109,6 +1109,10 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 8932)
+              extension = 1;
+          else if (   priorCapture 
+                   && to_sq(move) == prevSq
+                   && moveCount != 1)
               extension = 1;
       }
 
