@@ -917,15 +917,6 @@ namespace {
         && !ttMove)
         depth--;
 
-    if (     !PvNode
-          && !cutNode
-          && !ttMove
-          && depth >= 10
-          && ss->ttHit
-          && (tte->bound() & BOUND_UPPER)
-          && ttValue < alpha - 45 * depth)
-        depth--;
-
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
@@ -1022,7 +1013,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures (~0 Elo)
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
-                  && !PvNode
+                  && !ss->ttPv
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 392 + 207 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
