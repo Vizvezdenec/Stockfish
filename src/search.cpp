@@ -920,10 +920,10 @@ namespace {
     if (     !PvNode
           && !cutNode
           && !ttMove
-          && depth >= 11
+          && depth >= 10
           && ss->ttHit
           && (tte->bound() & BOUND_UPPER)
-          && ttValue < alpha - 90 * depth)
+          && ttValue < alpha - 45 * depth)
         depth--;
 
 moves_loop: // When in check, search starts here
