@@ -60,12 +60,6 @@ namespace Stockfish {
 
 namespace Eval {
 
-  int EVT1 = 5, EVT2 = 849, EVT3 = 64, EVT4 = 298, EVT5 = 1136, EVT6 = 20, EVT7 = 1, EVT8 = 35, EVT9 = 44, EVT10 = 32;
-
-  auto f1 = [](int m){if (m<30) return Range(m-20,m+20); else return Range(m / 2, m * 3 / 2);};
-
-  TUNE(SetRange(f1), EVT1, EVT2, EVT3, EVT4, EVT5, EVT6, EVT7, EVT8, EVT9, EVT10);
-
   bool useNNUE;
   string currentEvalFileName = "None";
 
@@ -1093,23 +1087,23 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
   if (  !useNNUE
-      || abs(eg_value(pos.psq_score())) * EVT1 > (EVT2 + pos.non_pawn_material() / EVT3) * (EVT1 + pos.rule50_count()))
+      || abs(eg_value(pos.psq_score())) * 5 > (849 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
-      useClassical = abs(v) >= EVT4;
+      useClassical = abs(v) >= 298;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      = EVT5 + EVT6 * pos.non_pawn_material() / 1024 + (EVT7 - 1) * pos.count<PAWN>();
+       int scale      = 1136 + 20 * pos.non_pawn_material() / 1024;
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
-       int complexity = EVT8 * abs(nnue - psq) / 256;
+       int complexity = 35 * abs(nnue - psq) / 256;
 
-       optimism = optimism * (EVT9 + complexity) / EVT10;
+       optimism = optimism * (44 + complexity) / 32;
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
