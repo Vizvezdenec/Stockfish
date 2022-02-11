@@ -756,8 +756,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = -16 * int((ss-1)->staticEval + ss->staticEval);
-        bonus = std::clamp(bonus, -2000 - abs(bonus) / 64, 2000 + abs(bonus) / 64);
+        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1136,7 +1135,7 @@ moves_loop: // When in check, search starts here
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
-      if (    depth >= 2
+      if (    depth >= 2 + PvNode
           &&  moveCount > 1 + rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
