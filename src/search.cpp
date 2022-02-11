@@ -920,7 +920,7 @@ namespace {
     if (     !PvNode
           && !cutNode
           && !ttMove
-          && depth >= 7
+          && depth >= 11
           && ss->ttHit
           && (tte->bound() & BOUND_UPPER)
           && ttValue < alpha - 90 * depth)
