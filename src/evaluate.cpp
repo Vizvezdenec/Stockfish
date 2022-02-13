@@ -1087,7 +1087,7 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
   if (  !useNNUE
-      || abs(eg_value(pos.psq_score())) * 3 > (906 + pos.non_pawn_material() / 61) * (3 + pos.rule50_count()))
+      || abs(eg_value(pos.psq_score())) * 3 > (906 + pos.non_pawn_material() / 64) * (3 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
       useClassical = abs(v) >= 292;
@@ -1103,7 +1103,7 @@ Value Eval::evaluate(const Position& pos) {
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
        int complexity = 37 * abs(nnue - psq) / 256;
 
-       optimism = optimism * (44 + complexity) / 34;
+       optimism = optimism * (44 + complexity) / 32;
        v = (nnue + optimism) * scale / 1024 - optimism;
 
        if (pos.is_chess960())
