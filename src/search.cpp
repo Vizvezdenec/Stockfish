@@ -1108,8 +1108,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
-                   && (*contHist[0])[movedPiece][to_sq(move)] >= 7546
-                   && !likelyFailLow)
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 7546)
               extension = 1;
       }
 
