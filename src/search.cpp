@@ -1145,7 +1145,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 3)
+              && bestMoveCount <= 4)
               r--;
 
           // Decrease reduction if position is or has been on the PV
