@@ -1087,21 +1087,21 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
   if (  !useNNUE
-      || abs(eg_value(pos.psq_score())) * 3 > (906 + pos.non_pawn_material() / 64) * (3 + pos.rule50_count()))
+      || abs(eg_value(pos.psq_score())) * 4 > (878 + pos.non_pawn_material() / 64) * (4 + pos.rule50_count()))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
-      useClassical = abs(v) >= 292;
+      useClassical = abs(v) >= 298;
   }
 
   // If result of a classical evaluation is much lower than threshold fall back to NNUE
   if (useNNUE && !useClassical)
   {
        Value nnue     = NNUE::evaluate(pos, true);     // NNUE
-       int scale      = 1041 + 19 * pos.non_pawn_material() / 1024;
+       int scale      = 1088 + 19 * pos.non_pawn_material() / 1024;
        Color stm      = pos.side_to_move();
        Value optimism = pos.this_thread()->optimism[stm];
        Value psq      = (stm == WHITE ? 1 : -1) * eg_value(pos.psq_score());
-       int complexity = 37 * abs(nnue - psq) / 256;
+       int complexity = 36 * abs(nnue - psq) / 256;
 
        optimism = optimism * (44 + complexity) / 32;
        v = (nnue + optimism) * scale / 1024 - optimism;
@@ -1111,7 +1111,7 @@ Value Eval::evaluate(const Position& pos) {
   }
 
   // Damp down the evaluation linearly when shuffling
-  v = v * (211 - pos.rule50_count()) / 211;
+  v = v * (210 - pos.rule50_count()) / 210;
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
