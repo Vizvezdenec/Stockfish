@@ -923,6 +923,7 @@ moves_loop: // When in check, search starts here
     probCutBeta = beta + 401;
     if (   ss->inCheck
         && !PvNode
+        && depth >= 2
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 3
@@ -1107,7 +1108,8 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
-                   && (*contHist[0])[movedPiece][to_sq(move)] >= 7546)
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 7546
+                   && !likelyFailLow)
               extension = 1;
       }
 
