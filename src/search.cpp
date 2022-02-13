@@ -908,6 +908,7 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
+        && depth >= 3
         && !ttMove)
         depth -= 2;
 
@@ -916,15 +917,12 @@ namespace {
         && !ttMove)
         depth--;
 
-    depth = std::max(depth, 1);
-
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
     probCutBeta = beta + 401;
     if (   ss->inCheck
         && !PvNode
-        && depth >= 2
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 3
