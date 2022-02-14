@@ -1137,7 +1137,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + rootNode
-          && (   !givesCheck || !ss->ttPv)
           && (   !ss->ttPv
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
@@ -1188,6 +1187,12 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!ss->ttPv && captureOrPromotion && value >= beta + 400 && r <=3)
+          {
+              pos.undo_move(move);
+              return value;
+          }
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
