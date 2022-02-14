@@ -1139,13 +1139,14 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + rootNode
           && (   !ss->ttPv
               || !captureOrPromotion
+              || (ss-1)->currentMove == MOVE_NULL
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
-              && bestMoveCount <= 4)
+              && bestMoveCount <= 3)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1288,7 +1289,7 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
                   alpha = value;
-                  bestMoveCount += 1 + captureOrPromotion;
+                  bestMoveCount++;
               }
               else
               {
