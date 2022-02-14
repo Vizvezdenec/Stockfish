@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          if (!ss->ttPv && captureOrPromotion && !ss->inCheck && value >= beta + 250 && r <=3 && moveCount <= 5)
+          if (!ss->ttPv && captureOrPromotion && value >= beta + 250 && r <=3)
           {
               pos.undo_move(move);
               return value;
