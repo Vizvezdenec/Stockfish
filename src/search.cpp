@@ -850,7 +850,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 3
+        &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -908,7 +908,7 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
-        && depth >= 4
+        && depth >= 3
         && !ttMove)
         depth -= 2;
 
@@ -1065,7 +1065,7 @@ moves_loop: // When in check, search starts here
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3)
+              &&  tte->depth() >= depth - 4)
           {
               Value singularBeta = ttValue - 4 * depth;
               Depth singularDepth = (depth - 1) / 2;
