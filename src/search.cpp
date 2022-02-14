@@ -1191,6 +1191,8 @@ moves_loop: // When in check, search starts here
           if (!ss->ttPv && captureOrPromotion && value >= beta + 583 && r <=3)
           {
               pos.undo_move(move);
+              update_all_stats(pos, ss, move, value, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
               return value;
           }
 
