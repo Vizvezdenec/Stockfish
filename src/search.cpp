@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          bfc += (value < alpha - 50);
+          bfc += (value < alpha - 100);
           if (value > alpha)
               bfc = 0;
 
