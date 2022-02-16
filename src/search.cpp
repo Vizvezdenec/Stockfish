@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int bfc = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1168,9 +1166,6 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (captureOrPromotion && bfc > 4)
-              r++;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1192,10 +1187,6 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          bfc += (value < alpha - 25);
-          if (value > alpha)
-              bfc = 0;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1441,7 +1432,17 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
+    {
+        if (ttValue >= beta)
+            update_all_stats(pos, ss, ttMove, ttValue, beta, to_sq(ttMove), NULL, 0, NULL, 0, tte->depth());
+        else if (ttValue < beta)
+        {
+            int penalty = tte->depth() > 0 ? -stat_bonus(tte->depth()) : - stat_bonus(1) / 2;
+            thisThread->mainHistory[pos.side_to_move()][from_to(ttMove)] << penalty;
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+        }
         return ttValue;
+    }
 
     // Evaluate the position statically
     if (ss->inCheck)
@@ -1684,6 +1685,8 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
+    if (depth <= 0)
+        bonus1 = bonus2 = stat_bonus(1) / 2;
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
