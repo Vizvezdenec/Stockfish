@@ -1435,7 +1435,7 @@ moves_loop: // When in check, search starts here
     {
         if (ttValue >= beta)
             update_all_stats(pos, ss, ttMove, ttValue, beta, to_sq(ttMove), NULL, 0, NULL, 0, tte->depth());
-        else if (ttValue < beta)
+        else
         {
             int penalty = tte->depth() > 0 ? -stat_bonus(tte->depth()) : - stat_bonus(1) / 2;
             thisThread->mainHistory[pos.side_to_move()][from_to(ttMove)] << penalty;
@@ -1685,12 +1685,13 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
-    if (depth <= 0)
-        bonus1 = bonus2 = stat_bonus(1) / 2;
     bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
+    if (depth <= 0)
+        bonus1 = bonus2 = stat_bonus(1) / 2;
+        
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
