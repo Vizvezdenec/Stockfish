@@ -778,7 +778,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 6
-        && eval < alpha - 450 - 314 * depth * depth + (ss-1)->statScore / 128)
+        && eval < alpha - 486 - 314 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -955,6 +955,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    int bfc = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1166,6 +1168,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (captureOrPromotion && bfc > 2)
+              r++;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1187,6 +1192,10 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          bfc += (value < alpha - 50);
+          if (value > alpha)
+              bfc = 0;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
