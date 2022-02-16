@@ -1437,7 +1437,7 @@ moves_loop: // When in check, search starts here
         {
         if (ttValue >= beta)
             update_all_stats(pos, ss, ttMove, ttValue, beta, to_sq(ttMove), NULL, 0, NULL, 0, tte->depth());
-        else
+        else if (!pos.capture_or_promotion(ttMove))
         {
             int penalty = -stat_bonus(tte->depth());
             thisThread->mainHistory[pos.side_to_move()][from_to(ttMove)] << penalty;
