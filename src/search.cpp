@@ -1432,7 +1432,20 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
+    {
+        if (tte->depth() >= 0)
+        {
+        if (ttValue >= beta)
+            update_all_stats(pos, ss, ttMove, ttValue, beta, to_sq(ttMove), NULL, 0, NULL, 0, tte->depth() + 1);
+        else if (!pos.capture_or_promotion(ttMove))
+        {
+            int penalty = -stat_bonus(tte->depth() + 1);
+            thisThread->mainHistory[pos.side_to_move()][from_to(ttMove)] << penalty;
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+        }
+        }
         return ttValue;
+    }
 
     // Evaluate the position statically
     if (ss->inCheck)
