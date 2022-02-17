@@ -643,16 +643,16 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(tte->depth()));
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(tte->depth() + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
             else if (!ttCapture)
             {
-                int penalty = -stat_bonus(depth);
+                int penalty = -stat_bonus(tte->depth());
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1432,20 +1432,7 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
-    {
-        if (tte->depth() >= 0)
-        {
-        if (ttValue >= beta)
-            update_all_stats(pos, ss, ttMove, ttValue, beta, to_sq(ttMove), NULL, 0, NULL, 0, tte->depth() + 1);
-        else if (!pos.capture_or_promotion(ttMove))
-        {
-            int penalty = -stat_bonus(tte->depth() + 1);
-            thisThread->mainHistory[pos.side_to_move()][from_to(ttMove)] << penalty;
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-        }
-        }
         return ttValue;
-    }
 
     // Evaluate the position statically
     if (ss->inCheck)
