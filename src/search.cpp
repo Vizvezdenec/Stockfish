@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return std::max(50, std::min((9 * d + 270) * d - 311 , 2145));
+    return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -643,14 +643,14 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, depth > 1 ? stat_bonus(depth) : 0);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
                     update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
-            else if (!ttCapture)
+            else if (!ttCapture && depth > 1)
             {
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
@@ -1207,7 +1207,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
+              int bonus = newDepth == 1 ? 0
+                        : value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               if (captureOrPromotion)
@@ -1336,7 +1337,7 @@ moves_loop: // When in check, search starts here
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 4 || PvNode)
-             && !priorCapture)
+             && !priorCapture && depth > 1)
     {
         //Assign extra bonus if current node is PvNode or cutNode
         //or fail low was really bad
@@ -1676,7 +1677,8 @@ moves_loop: // When in check, search starts here
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
     bonus1 = stat_bonus(depth + 1);
-    bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
+    bonus2 = depth == 1                     ? 0
+           : bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture_or_promotion(bestMove))
