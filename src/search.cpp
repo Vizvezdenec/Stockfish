@@ -1193,6 +1193,8 @@ moves_loop: // When in check, search starts here
 
           if (d >= newDepth && value <= alpha)
               fullSearchFailCount++;
+          else if (d >= newDepth)
+              fullSearchFailCount = 0;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1212,6 +1214,7 @@ moves_loop: // When in check, search starts here
 
           if (value <= alpha)
               fullSearchFailCount++;
+          else fullSearchFailCount = 0;
 
           // If the move passed LMR update its stats
           if (didLMR)
