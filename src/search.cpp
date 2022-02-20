@@ -1166,6 +1166,9 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
+          if (more_than_one(pos.checkers()))
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1182,7 +1185,6 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 4            ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
-                       : (ss-1)->moveCount - moveCount > 10 ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
