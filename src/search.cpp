@@ -783,8 +783,8 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
         {
-            if (!pos.captured_piece())
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2));
+            if (!pos.captured_piece() && depth >= 4)
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth - 2));
             return value;
         }
     }
