@@ -782,7 +782,11 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+            if (!pos.captured_piece())
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2));
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1164,9 +1168,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
-
-          if (more_than_one(pos.checkers()))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
