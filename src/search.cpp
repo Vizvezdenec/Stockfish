@@ -1167,7 +1167,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           if (more_than_one(pos.checkers()))
-              r--;
+              r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
