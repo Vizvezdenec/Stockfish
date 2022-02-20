@@ -71,8 +71,8 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, int fullSearchFailCount) {
     int r = Reductions[d] * Reductions[mn];
-    int fsfcs = std::max(0, fullSearchFailCount - 3);
-    fsfcs = fsfcs * fsfcs * 16;
+    int fsfcs = std::max(0, fullSearchFailCount - 2);
+    fsfcs = fsfcs * fsfcs * 8;
     return (r + 1463 - int(delta) * 1024 / int(rootDelta) + fsfcs) / 1024 + (!i && r > 1010);
   }
 
