@@ -1491,7 +1491,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    int bestMoveCount = 0;
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1582,15 +1581,7 @@ moves_loop: // When in check, search starts here
               if (PvNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
-              if (PvNode && value < beta) // Update alpha here!
-              {
-                  alpha = value;
-                  bestMoveCount++;
-                  if (bestMoveCount > 1)
-                      break;
-              }
-              else
-                  break; // Fail high
+              break; // Fail high
           }
        }
     }
