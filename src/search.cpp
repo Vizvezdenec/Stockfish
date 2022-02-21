@@ -1564,7 +1564,8 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-
+      if (moveCount > 2)
+      {
           value = -qsearch<nodeType>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
           if (PvNode)
           {
@@ -1582,6 +1583,9 @@ moves_loop: // When in check, search starts here
               else 
                   value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
           }
+      }
+      else
+          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
