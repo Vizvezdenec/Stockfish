@@ -1179,6 +1179,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
+                       : ss->ply >= thisThread->rootDepth * 2 ? 0
                        : moveCount <= 4            ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
@@ -1564,28 +1565,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (moveCount > 2)
-      {
-          value = -qsearch<nodeType>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
-          if (PvNode)
-          {
-              if (value >= beta)
-              {
-                  update_pv(ss->pv, move, (ss+1)->pv);
-                  pos.undo_move(move);
-                  return value;
-              }
-              else if (value <= alpha)
-              {
-                  pos.undo_move(move);
-                  continue;
-              }
-              else 
-                  value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
-          }
-      }
-      else
-          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
