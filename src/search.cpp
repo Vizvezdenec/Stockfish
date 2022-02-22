@@ -1114,6 +1114,7 @@ moves_loop: // When in check, search starts here
                    && moveCount == 1
                    && !ss->ttHit
                    && !captureOrPromotion
+                   && depth >= 5
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
                    && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
                     {
