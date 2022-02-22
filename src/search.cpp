@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool wasDoubleExt = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1084,7 +1082,7 @@ moves_loop: // When in check, search starts here
                   if (  !PvNode
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
-                      extension = 2, wasDoubleExt = true;
+                      extension = 2;
               }
 
               // Multi-cut pruning
@@ -1112,6 +1110,23 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
+          else if (   PvNode 
+                   && moveCount == 1
+                   && !ss->ttHit
+                   && !captureOrPromotion
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 15000
+                   && (*contHist[1])[movedPiece][to_sq(move)] >= 15000)
+                    {
+                      Value singularBeta = alpha - 3 * depth;
+                      Depth singularDepth = (depth - 1) / 2;
+
+                      ss->excludedMove = move;
+                      value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                      ss->excludedMove = MOVE_NONE;
+
+                      if (value < singularBeta)
+                        extension = 1;
+                    }
       }
 
       // Add extension to new depth
@@ -1192,7 +1207,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 78 - 75 * wasDoubleExt + 11 * (newDepth - d));
+          doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
           didLMR = true;
       }
       else
