@@ -1114,8 +1114,8 @@ moves_loop: // When in check, search starts here
                    && moveCount == 1
                    && !ss->ttHit
                    && !captureOrPromotion
-                   && (*contHist[0])[movedPiece][to_sq(move)] >= 20000
-                   && (*contHist[1])[movedPiece][to_sq(move)] >= 20000)
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 10000
+                   && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
                     {
                       Value singularBeta = alpha - 3 * depth;
                       Depth singularDepth = (depth - 1) / 2;
