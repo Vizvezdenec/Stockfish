@@ -1739,6 +1739,7 @@ moves_loop: // When in check, search starts here
         {
             ss->killers[1] = ss->killers[0];
             ss->killers[0] = move;
+            ss->killerDepth[0] = depth;
         }
         else ss->killers[1] = move;
     }
