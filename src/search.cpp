@@ -1020,12 +1020,6 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
-              if (   lmrDepth < 2
-                  && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
-                  && !PvNode
-                  && !pos.see_ge(move))
-                  continue;
-
               // SEE based pruning (~9 Elo)
               if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
@@ -1188,6 +1182,7 @@ moves_loop: // When in check, search starts here
                        : moveCount <= 4            ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
+                       : captureOrPromotion        ? 1
                        :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
