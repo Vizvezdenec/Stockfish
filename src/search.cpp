@@ -1735,7 +1735,7 @@ moves_loop: // When in check, search starts here
     // Update killers
     if (ss->killers[0] != move)
     {
-        if (depth >= ss->killerDepth[0] - 2)
+        if (depth >= ss->killerDepth[0] / 2)
         {
             ss->killers[1] = ss->killers[0];
             ss->killers[0] = move;
