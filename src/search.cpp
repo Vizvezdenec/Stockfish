@@ -1741,7 +1741,11 @@ moves_loop: // When in check, search starts here
             ss->killers[0] = move;
             ss->killerDepth[0] = depth;
         }
-        else ss->killers[1] = move;
+        else if (depth >= ss->killerDepth[1])
+        {
+            ss->killers[1] = move;
+            ss->killerDepth[1] = depth;
+        }
     }
     else ss->killerDepth[0] = std::max(depth, ss->killerDepth[0]);
 
