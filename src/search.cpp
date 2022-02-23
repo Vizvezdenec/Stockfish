@@ -1022,6 +1022,7 @@ moves_loop: // When in check, search starts here
 
               if (   lmrDepth < 1
                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0
+                  && !PvNode
                   && !pos.see_ge(move))
                   continue;
 
