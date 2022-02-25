@@ -65,9 +65,9 @@ namespace {
   int search_stage(Thread* thisThread) {
       uint64_t nodes = thisThread->nodes;
 
-      return nodes <  300000 ? 6 :
+      return nodes <  300000 ? 5 :
              nodes < 2400000 ? 4 :
-                               2 ;
+                               3 ;
   }
 
   // Futility margin
