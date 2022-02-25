@@ -67,7 +67,7 @@ namespace {
 
       return nodes <  300000 ? 6 :
              nodes < 2400000 ? 4 :
-                               3 ;
+                               2 ;
   }
 
   // Futility margin
