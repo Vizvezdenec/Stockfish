@@ -61,15 +61,6 @@ namespace {
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
-  // Search stage (useful for parameters which are sensitive to "time scaling")
-  int search_stage(Thread* thisThread) {
-      uint64_t nodes = thisThread->nodes;
-
-      return nodes <  300000 ? 5 :
-             nodes < 2400000 ? 4 :
-                               3 ;
-  }
-
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
     return Value(168 * (d - improving));
@@ -965,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int stage          = search_stage(thisThread);
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1070,7 +1059,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= stage + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 4 + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1218,8 +1207,10 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth)
-                                        : -stat_bonus(newDepth);
+              int bonus = value > alpha + 200 ?  stat_bonus(newDepth + 1)
+                        : value > alpha       ?  stat_bonus(newDepth)
+                        : value < alpha - 200 ? -stat_bonus(newDepth + 1)
+                                              : -stat_bonus(newDepth);
 
               if (captureOrPromotion)
                   bonus /= 6;
