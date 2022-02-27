@@ -948,6 +948,7 @@ moves_loop: // When in check, search starts here
 
     value = bestValue;
     moveCountPruning = false;
+    int quietCheckEv = 0;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -1108,7 +1109,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
-                   && ((*contHist[0])[movedPiece][to_sq(move)] >= 5491 || ss->inCheck))
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
       }
 
@@ -1128,6 +1129,8 @@ moves_loop: // When in check, search starts here
 
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
+
+      quietCheckEv += ss->inCheck && !captureOrPromotion;
 
       bool doDeeperSearch = false;
 
@@ -1164,6 +1167,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
+              r++;
+
+          if (!captureOrPromotion && quietCheckEv > 1)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
