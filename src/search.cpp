@@ -1158,9 +1158,6 @@ moves_loop: // When in check, search starts here
           if ((ss-1)->moveCount > 7)
               r--;
 
-          if ((ss-1)->moveCount > 48)
-              r--;
-
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
@@ -1193,7 +1190,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
+          doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d) - 28 * (move == ss->killers[0]));
           didLMR = true;
       }
       else
