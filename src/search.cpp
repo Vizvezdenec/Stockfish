@@ -1110,8 +1110,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-          else if (  ss->inCheck && !captureOrPromotion && moveCount == 1)
-              extension = 1;
       }
 
       // Add extension to new depth
@@ -1160,6 +1158,9 @@ moves_loop: // When in check, search starts here
           if ((ss-1)->moveCount > 7)
               r--;
 
+          if ((ss-1)->moveCount > 38)
+              r--;
+              
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
               r += 2;
