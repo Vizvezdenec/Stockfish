@@ -1158,7 +1158,7 @@ moves_loop: // When in check, search starts here
           if ((ss-1)->moveCount > 7)
               r--;
 
-          if ((ss-1)->moveCount > 28)
+          if ((ss-1)->moveCount > 48)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
