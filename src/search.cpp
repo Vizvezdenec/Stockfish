@@ -1195,7 +1195,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1 || ss->ply > thisThread->rootDepth;
+          doFullDepthSearch = !PvNode || moveCount > 1 || ss->ply > thisThread->rootDepth * 3 / 2;
           didLMR = false;
       }
 
