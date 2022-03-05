@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
               && move != ss->killers[0] && move != ss->killers[1] 
               && from_sq(move) == from_sq(ss->killers[0])
               && from_sq(move) == from_sq(ss->killers[1]))
-              r++;
+              r += 2;
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
