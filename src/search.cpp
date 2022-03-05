@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int searchedKillerCount = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1131,8 +1129,6 @@ moves_loop: // When in check, search starts here
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
-      searchedKillerCount += move == ss->killers[0] || move == ss->killers[1];
-
       bool doDeeperSearch = false;
 
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
@@ -1161,12 +1157,6 @@ moves_loop: // When in check, search starts here
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
               r--;
-
-          if (  !captureOrPromotion && searchedKillerCount == 2 
-              && move != ss->killers[0] && move != ss->killers[1] 
-              && from_sq(move) == from_sq(ss->killers[0])
-              && from_sq(move) == from_sq(ss->killers[1]))
-              r += 2;
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
@@ -1206,6 +1196,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doDeeperSearch = (PvNode || cutNode) && captureOrPromotion && moveCount <= 5 && moveCount > 1;
           didLMR = false;
       }
 
