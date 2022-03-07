@@ -922,7 +922,7 @@ moves_loop: // When in check, search starts here
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
     probCutBeta = beta + 481;
     if (   ss->inCheck
-        && !ss->ttPv
+        && !PvNode
         && depth >= 2
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -1196,6 +1196,8 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doDeeperSearch = (PvNode || cutNode) && captureOrPromotion && moveCount <= 5 && moveCount > 1 
+                        && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0;
           didLMR = false;
       }
 
