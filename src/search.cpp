@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (PvNode && abs(bestValue) < 2 && abs(ss->staticEval) > 250)
+          if (PvNode && abs(bestValue) < 2 && abs(ss->staticEval) > 150)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
