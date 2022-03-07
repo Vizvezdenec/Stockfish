@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doDeeperSearch = (PvNode || cutNode) && captureOrPromotion && moveCount <= 5 && moveCount > 1 
+          doDeeperSearch = (PvNode || cutNode) && captureOrPromotion && moveCount > 1 
                         && captureHistory[movedPiece][to_sq(move)][type_of(pos.captured_piece())] > 0;
           didLMR = false;
       }
