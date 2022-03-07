@@ -808,7 +808,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth, eval and complexity of position
-        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
+        Depth R = std::min(int(eval - beta) / 147, 5 + ((ss-1)->statScore < -20000)) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1361,14 +1361,10 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
-    {
-        if (ss->ttHit && bestMove && (tte->bound() == BOUND_LOWER) && tte->depth() > depth + 2)
-            bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
