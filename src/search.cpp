@@ -1037,9 +1037,6 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
-              bool comp = PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 450;
-              lmrDepth += comp;
-
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
@@ -1198,7 +1195,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
+          doDeeperSearch = value > (alpha + 78 - 32 * PvNode + 11 * (newDepth - d));
           didLMR = true;
       }
       else
