@@ -71,7 +71,7 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1463 - int(delta) * 1024 / int(rootDelta) + 566 * !i) / 1024;
+    return (r + 1463 - int(delta) * 1024 / int(rootDelta) + 528 * !i) / 1024;
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1165,11 +1165,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
-
-          // Decrease reduction at PvNodes if bestvalue
-          // is vastly different from static evaluation
-          if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
-              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
