@@ -71,7 +71,7 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1463 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 1010);
+    return (r + 1463 - int(delta) * 1024 / int(rootDelta) + 307 * !i) / 1024;
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1147,9 +1147,6 @@ moves_loop: // When in check, search starts here
           if (   PvNode
               && bestMoveCount <= 3)
               r--;
-
-          if (bestValue > VALUE_KNOWN_WIN)
-              r += 2;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
