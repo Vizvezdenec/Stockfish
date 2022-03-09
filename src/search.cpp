@@ -594,9 +594,13 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
+        ss->mainline = PvNode && (ss-1)->mainline && (ss-1)->moveCount == 1;
     }
     else
+    {
         thisThread->rootDelta = beta - alpha;
+        ss->mainline = true;
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1058,7 +1062,7 @@ moves_loop: // When in check, search starts here
           // then that move is singular and should be extended. To verify this we do
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
-          if (   !(PvNode && ss->ply <= 1)
+          if (   !rootNode
               &&  depth >= 4 + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
@@ -1136,7 +1140,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
-          &&  moveCount > 1 + (PvNode && ss->ply <= 1)
+          &&  moveCount > 1 + ss->mainline
           && (   !ss->ttPv
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
