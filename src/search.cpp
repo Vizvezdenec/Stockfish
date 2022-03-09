@@ -594,7 +594,7 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
-        ss->mainline = ss->ply == 1 || (PvNode && (ss-1)->mainline && (ss-1)->moveCount == 1 && ss->ply <= thisThread->rootDepth * 3 / 4);
+        ss->mainline = ss->ply == 1 || (PvNode && (ss-1)->mainline && (ss-1)->moveCount == 1 && ss->ply < thisThread->rootDepth);
     }
     else
     {
