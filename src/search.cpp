@@ -594,13 +594,9 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
-        ss->mainline = ss->ply == 1 || (PvNode && (ss-1)->mainline && (ss-1)->moveCount == 1 && ss->ply < thisThread->rootDepth);
     }
     else
-    {
         thisThread->rootDelta = beta - alpha;
-        ss->mainline = true;
-    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -801,7 +797,7 @@ namespace {
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 14695
+        && ((ss-1)->statScore < 14695 || eval > ss->staticEval + 58 * depth)
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
@@ -1140,7 +1136,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
-          &&  moveCount > 1 + ss->mainline
+          &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !captureOrPromotion
               || (cutNode && (ss-1)->moveCount > 1)))
