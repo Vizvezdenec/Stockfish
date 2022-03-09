@@ -797,7 +797,7 @@ namespace {
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && ((ss-1)->statScore < 14695 || eval > ss->staticEval + 236)
+        && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -2;
+                  extension = -2 - (ttValue >= alpha);
           }
 
           // Check extensions (~1 Elo)
