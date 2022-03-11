@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = std::min(0, std::max(-4, -(newDepth - 5)));
+                  extension = -4;
           }
 
           // Check extensions (~1 Elo)
@@ -1114,6 +1114,8 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
+      if (newDepth <= 0 && extension == -4)
+          newDepth = 0;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
