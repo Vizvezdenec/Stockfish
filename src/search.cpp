@@ -1014,7 +1014,7 @@ moves_loop: // When in check, search starts here
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
                   && !PvNode
-                  && lmrDepth < 6
+                  && lmrDepth < 5 + 2 * cutNode
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
@@ -1200,14 +1200,12 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = true;
+          doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
 
-      bool earlyMove = (moveCount == 1 && PvNode) || (rootNode && moveCount == 2);
-
       // Step 18. Full depth search when LMR is skipped or fails high
-      if (doFullDepthSearch && !earlyMove)
+      if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
@@ -1227,7 +1225,7 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (earlyMove || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
