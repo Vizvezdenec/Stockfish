@@ -1095,7 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -2, depth -= !PvNode;
+                  extension = -2;
           }
 
           // Check extensions (~1 Elo)
@@ -1200,7 +1200,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1;
+          doFullDepthSearch = !PvNode || moveCount > 1 + (PvNode && ss->ply <= 1);
           didLMR = false;
       }
 
