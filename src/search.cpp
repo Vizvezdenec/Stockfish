@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool negExt = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1097,7 +1095,11 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -2, negExt = true;
+              {
+                  extension = -2;
+                  if (!PvNode)
+                      cutNode = true;
+              }
           }
 
           // Check extensions (~1 Elo)
@@ -1172,9 +1174,6 @@ moves_loop: // When in check, search starts here
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
-
-          if (negExt && !PvNode)
-              r += 2;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
