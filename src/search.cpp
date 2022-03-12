@@ -1204,7 +1204,7 @@ moves_loop: // When in check, search starts here
           didLMR = false;
       }
 
-      bool earlyMove = (moveCount == 1 && PvNode) || (PvNode && ss->ply <= 1 && moveCount == 2);
+      bool earlyMove = (moveCount == 1 && PvNode) || (rootNode && moveCount == 2);
 
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch && !earlyMove)
