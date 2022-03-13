@@ -1013,7 +1013,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures (~0 Elo)
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
-                  && (cutNode || !ss->ttPv)
+                  && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 26
+                      && value < singularBeta * 2 - ttValue
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
