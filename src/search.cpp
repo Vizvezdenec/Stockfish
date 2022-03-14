@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Depth fhDepth = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1070,7 +1068,7 @@ moves_loop: // When in check, search starts here
               &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - 3 * depth;
-              Depth singularDepth = (depth - 1) / 2;
+              Depth singularDepth = (depth - 1 + (!ss->inCheck && eval - ss->staticEval > 250)) / 2;
 
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1193,8 +1191,6 @@ moves_loop: // When in check, search starts here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
-          fhDepth = d + 1;
-
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
           // If the son is reduced and fails high it will be re-searched at full depth
@@ -1212,8 +1208,6 @@ moves_loop: // When in check, search starts here
       if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
-
-          fhDepth = newDepth + doDeeperSearch + 1;
 
           // If the move passed LMR update its stats
           if (didLMR)
@@ -1235,7 +1229,6 @@ moves_loop: // When in check, search starts here
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
-          fhDepth = newDepth + 1;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
@@ -1376,7 +1369,7 @@ moves_loop: // When in check, search starts here
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  bestValue >= beta ? fhDepth : depth, bestMove, ss->staticEval);
+                  depth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
