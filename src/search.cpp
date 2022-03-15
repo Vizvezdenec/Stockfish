@@ -1569,7 +1569,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + captureOrPromotion);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, std::min(0, depth - 1 + 2 * captureOrPromotion));
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
