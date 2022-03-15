@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
-          lmrDepth = std::max(0, lmrDepth + 1 - 2 * (cutNode 
+          lmrDepth = std::max(0, lmrDepth - (cutNode 
                       && move != ss->killers[0]));
 
           if (   captureOrPromotion
