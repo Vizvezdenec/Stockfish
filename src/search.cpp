@@ -1080,9 +1080,16 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 26 + 13 * (ss->doubleExtensions == 0)
+                      && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
-                      extension = 2;
+                      {
+                          singularBeta = singularBeta - 26;
+                          ss->excludedMove = move;
+                          value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                          ss->excludedMove = MOVE_NONE;
+                          if (value < singularBeta)
+                              extension = 2;
+                      }
               }
 
               // Multi-cut pruning
