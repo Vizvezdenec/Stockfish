@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts here
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
 
-          if (!ss->ttHit && ss->tthitCount > 5)
+          if (!ss->ttHit && ss->tthitCount > 20)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
