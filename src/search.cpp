@@ -628,6 +628,9 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
+    if (ss->ttHit)
+        (ss-1)->tthitCount++;
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -956,6 +959,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    ss->tthitCount = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1169,6 +1174,9 @@ moves_loop: // When in check, search starts here
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
+              r--;
+
+          if (!ss->ttHit && ss->tthitCount > 10)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
