@@ -537,7 +537,15 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
+    {
+        if (PvNode)
+        {
+            Value value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+            if (value <= alpha)
+                return value;
+        }
         return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+    }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -1156,9 +1164,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
-              r--;
-
-          if (PvNode && pos.rule50_count() > 0 && type_of(movedPiece) == PAWN)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
