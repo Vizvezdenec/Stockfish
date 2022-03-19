@@ -1158,7 +1158,7 @@ moves_loop: // When in check, search starts here
           if ((ss-1)->moveCount > 7)
               r--;
 
-          if (PvNode && pos.rule50_count() > 20 && type_of(movedPiece) == PAWN)
+          if (PvNode && pos.rule50_count() > 0 && type_of(movedPiece) == PAWN)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
