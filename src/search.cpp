@@ -1230,15 +1230,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          if (rootNode && value >= beta)
-          {
-              value = -search<NonPV>(pos, ss+1, -beta, -beta + 1, std::min(maxNextDepth, newDepth), false);
-              if (value < beta)
-                  value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
-          }
-          else
-              value = -search<PV>(pos, ss+1, -beta, -alpha,
+          value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
@@ -1709,6 +1701,9 @@ moves_loop: // When in check, search starts here
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+
+    else if (is_ok((ss-1)->currentMove) && (ss-1)->moveCount == 1 && pos.captured_piece())
+        captureHistory[pos.piece_on(prevSq)][prevSq][pos.captured_piece()] << -bonus1;
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
