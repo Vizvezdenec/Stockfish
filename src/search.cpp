@@ -1201,7 +1201,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doFullDepthSearch |= PvNode && moveCount == 1 && !ss->ttHit && ss->staticEval < alpha - 322 * depth;
+          doFullDepthSearch |= PvNode && moveCount == 1 && !ss->ttHit && depth >= 3 && ss->staticEval < alpha - 300 - 100 * depth;
           didLMR = false;
       }
 
