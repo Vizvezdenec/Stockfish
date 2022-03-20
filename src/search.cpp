@@ -1201,7 +1201,6 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doFullDepthSearch |= PvNode && moveCount == 1 && !ss->ttHit && depth >= 3 && ss->staticEval < alpha - 300 - 100 * depth;
           didLMR = false;
       }
 
@@ -1231,7 +1230,15 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -beta, -alpha,
+          if (rootNode && value >= beta)
+          {
+              value = -search<NonPV>(pos, ss+1, -beta, -beta + 1, std::min(maxNextDepth, newDepth), false);
+              if (value < beta)
+                  value = -search<PV>(pos, ss+1, -beta, -alpha,
+                              std::min(maxNextDepth, newDepth), false);
+          }
+          else
+              value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
