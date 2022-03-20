@@ -1225,12 +1225,20 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (ss->ply <= 1 || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -beta, -alpha,
+          if (value >= beta)
+          {
+              value = -search<NonPV>(pos, ss+1, -beta, -beta + 1, std::min(maxNextDepth, newDepth), false);
+              if (value < beta)
+                  value = -search<PV>(pos, ss+1, -beta, -alpha,
+                              std::min(maxNextDepth, newDepth), false);
+          }
+          else
+              value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
       }
 
@@ -1701,9 +1709,6 @@ moves_loop: // When in check, search starts here
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
-
-    else if (is_ok((ss-1)->currentMove) && (ss-1)->moveCount == 1 && !(ss-1)->ttHit && pos.captured_piece())
-        captureHistory[pos.piece_on(prevSq)][prevSq][pos.captured_piece()] << -bonus1;
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
