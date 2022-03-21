@@ -1172,6 +1172,9 @@ moves_loop: // When in check, search starts here
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
 
+          if (move == ss->bestUnexcl)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1189,9 +1192,6 @@ moves_loop: // When in check, search starts here
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
-
-          if (!deeper && move == ss->bestUnexcl)
-              r = -2, deeper = 1;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
