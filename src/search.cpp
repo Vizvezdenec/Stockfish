@@ -1172,9 +1172,6 @@ moves_loop: // When in check, search starts here
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
 
-          if (move == ss->bestUnexcl)
-              r -= 2;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1188,6 +1185,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
+                       : move == ss->bestUnexcl    ? 3
                        : moveCount <= 4            ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
