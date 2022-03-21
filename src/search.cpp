@@ -80,7 +80,7 @@ namespace {
 
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
-    return d == 1 ? 64 : std::min((9 * d + 270) * d - 311 , 2145);
+    return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -1192,6 +1192,14 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (cutNode && d >= depth - 3 && captureOrPromotion && value >= beta + 250 && !ss->inCheck)
+          {
+              pos.undo_move(move);
+              bestMove = move;
+              bestValue = value;
+              break;
+          }
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
