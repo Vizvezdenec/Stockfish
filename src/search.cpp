@@ -813,15 +813,7 @@ namespace {
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
-    {
-        Bitboard threats = 0;
-        if (us == WHITE)
-            threats = threatsClr<BLACK>(pos);
-        else
-            threats = threatsClr<WHITE>(pos);
-        if (!threats || eval - futility_margin(depth, false) - (ss-1)->statScore / 256 >= beta)
             return eval;
-    }
 
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
@@ -888,7 +880,8 @@ namespace {
         && !(   ss->ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probCutBeta))
+             && ttValue < probCutBeta)
+        && ((us == WHITE && threatsClr<WHITE>(pos)) || (us == BLACK && threatsClr<BLACK>(pos))))
     {
         assert(probCutBeta < VALUE_INFINITE);
 
