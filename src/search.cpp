@@ -880,8 +880,7 @@ namespace {
         && !(   ss->ttHit
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
-             && ttValue < probCutBeta)
-        && ((us == WHITE && threatsClr<WHITE>(pos)) || (us == BLACK && threatsClr<BLACK>(pos))))
+             && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
 
