@@ -21,6 +21,7 @@
 
 #include <vector>
 
+#include "bitboard.h"
 #include "misc.h"
 #include "movepick.h"
 #include "types.h"
@@ -48,6 +49,7 @@ struct Stack {
   Move killers[2];
   Value staticEval;
   Depth depth;
+  Bitboard thrtm;
   int statScore;
   int moveCount;
   bool inCheck;

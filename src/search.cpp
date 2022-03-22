@@ -650,6 +650,7 @@ namespace {
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     Bitboard threatMaskTheir = us == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
+    ss->thrtm = threatMaskTheir;
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -780,7 +781,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
-        thisThread->mainHistory[~us][false][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][bool((ss-1)->thrtm & from_sq((ss-1)->currentMove))][from_to((ss-1)->currentMove)] << bonus;
     }
 
     // Set up the improvement variable, which is the difference between the current
