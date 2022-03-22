@@ -23,6 +23,7 @@
 #include <limits>
 #include <type_traits>
 
+#include "bitboard.h"
 #include "movegen.h"
 #include "position.h"
 #include "types.h"
@@ -86,7 +87,7 @@ enum StatsType { NoCaptures, Captures };
 /// unsuccessful during the current search, and is used for reduction and move
 /// ordering decisions. It uses 2 tables (one for each color) indexed by
 /// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
-typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
+typedef Stats<int16_t, 14365, COLOR_NB, 2, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
 
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
@@ -120,11 +121,13 @@ public:
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           Bitboard,
                                            Move,
                                            const Move*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           Bitboard,
                                            Square);
   MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
@@ -139,6 +142,7 @@ private:
   const ButterflyHistory* mainHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
+  Bitboard threatMask;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;

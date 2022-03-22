@@ -90,7 +90,7 @@ namespace {
   }
 
   template <Color Us>
-  Bitboard threatsClr (Position& pos)
+  Bitboard threats (Position& pos)
   {
       Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
       Bitboard threats = 0;
@@ -138,9 +138,9 @@ namespace {
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard threatMaskTheir);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard threatMaskTheir);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -649,6 +649,8 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
+    Bitboard threatMaskTheir = us == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -664,7 +666,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), threatMaskTheir);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -674,7 +676,7 @@ namespace {
             else if (!ttCapture)
             {
                 int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                thisThread->mainHistory[us][bool(threatMaskTheir & from_sq(ttMove))][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -778,7 +780,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][false][from_to((ss-1)->currentMove)] << bonus;
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -813,14 +815,7 @@ namespace {
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
-        {
-            Bitboard threats = 0;
-            if (us == WHITE)
-                threats = threatsClr<BLACK>(pos);
-            else
-                threats = threatsClr<WHITE>(pos);
-            return eval;
-        }
+        return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
@@ -971,6 +966,7 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
+                                      threatMaskTheir,
                                       countermove,
                                       ss->killers);
 
@@ -1063,7 +1059,7 @@ moves_loop: // When in check, search starts here
                   && history < -3875 * (depth - 1))
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];
+              history += thisThread->mainHistory[us][bool(threatMaskTheir & from_sq(move))][from_to(move)];
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
@@ -1199,7 +1195,7 @@ moves_loop: // When in check, search starts here
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
 
-          ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+          ss->statScore =  thisThread->mainHistory[us][bool(threatMaskTheir & from_sq(move))][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1365,7 +1361,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, threatMaskTheir);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 4 || PvNode)
@@ -1509,6 +1505,8 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    Bitboard threatMaskTheir = pos.side_to_move() == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1517,6 +1515,7 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      threatMaskTheir,
                                       prevSq);
 
     int quietCheckEvasions = 0;
@@ -1695,7 +1694,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard threatMaskTheir) {
 
     int bonus1, bonus2;
     Color us = pos.side_to_move();
@@ -1711,12 +1710,12 @@ moves_loop: // When in check, search starts here
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus2, threatMaskTheir);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            thisThread->mainHistory[us][bool(threatMaskTheir & from_sq(quietsSearched[i]))][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
@@ -1758,7 +1757,7 @@ moves_loop: // When in check, search starts here
 
   // update_quiet_stats() updates move sorting heuristics
 
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard threatMaskTheir) {
 
     // Update killers
     if (ss->killers[0] != move)
@@ -1769,7 +1768,7 @@ moves_loop: // When in check, search starts here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->mainHistory[us][bool(threatMaskTheir & from_sq(move))][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Update countermove history
