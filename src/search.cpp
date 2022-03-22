@@ -790,15 +790,6 @@ namespace {
                   :                                    175;
 
     improving = improvement > 0;
-    if (improving)
-    {
-        int thrcnt = 0;
-        if (us == WHITE)
-            thrcnt = popcount(threatsClr<BLACK>(pos));
-        else
-            thrcnt = popcount(threatsClr<WHITE>(pos));
-        improving = thrcnt < 2;
-    }
 
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
@@ -823,7 +814,15 @@ namespace {
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
-        return eval;
+    {
+        int thrcnt = 0;
+        if (us == WHITE)
+            thrcnt = popcount(threatsClr<BLACK>(pos));
+        else
+            thrcnt = popcount(threatsClr<WHITE>(pos));
+        if (thrcnt < 2)
+            return eval;
+    }
 
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
