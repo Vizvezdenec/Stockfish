@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -81,6 +82,26 @@ namespace {
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
     return std::min((9 * d + 270) * d - 311 , 2145);
+  }
+
+  template <Color Us>
+  Bitboard threatsClr (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
+      Bitboard threats = 0;
+      while (our)
+      {
+        Square s = pop_lsb(our);
+        if (type_of(pos.piece_on(s)) == KNIGHT)
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN));
+        else if (type_of(pos.piece_on(s)) == BISHOP)
+            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN));
+        else
+            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
+      }
+      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
+      threats |= pawnAttacks & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN) | pos.pieces(~Us, KNIGHT) | pos.pieces(~Us, BISHOP));
+      return threats;
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -769,6 +790,16 @@ namespace {
                   :                                    175;
 
     improving = improvement > 0;
+    if (improving)
+    {
+        int thrcnt = 0;
+        if (us == WHITE)
+            thrcnt = popcount(threatsClr<BLACK>(pos));
+        else
+            thrcnt = popcount(threatsClr<WHITE>(pos));
+        improving = thrcnt < 2;
+    }
+
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
     thisThread->complexityAverage.update(complexity);
@@ -1192,14 +1223,6 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          if (!PvNode && d >= depth - 3 && captureOrPromotion && value >= beta + 300 + 200 * !cutNode && !ss->inCheck)
-          {
-              pos.undo_move(move);
-              bestMove = move;
-              bestValue = value;
-              break;
-          }
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
