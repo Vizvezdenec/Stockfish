@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -86,6 +87,26 @@ namespace {
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
+  }
+
+  template <Color Us>
+  Bitboard threatsClr (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
+      Bitboard threats = 0;
+      while (our)
+      {
+        Square s = pop_lsb(our);
+        if (type_of(pos.piece_on(s)) == KNIGHT)
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else if (type_of(pos.piece_on(s)) == BISHOP)
+            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else
+            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
+      }
+      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
+      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
+      return threats;
   }
 
   // Skill structure is used to implement strength limit. If we have an uci_elo then
@@ -807,6 +828,21 @@ namespace {
     {
         assert(eval - beta >= 0);
 
+        bool doNmp = true;
+
+        if (depth <= 3)
+        {
+        Bitboard threats = 0;
+        if (us == WHITE)
+            threats = threatsClr<BLACK>(pos);
+        else
+            threats = threatsClr<WHITE>(pos);
+        if (threats)
+            doNmp = false;
+        }
+
+        if (doNmp)
+        {
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
@@ -841,6 +877,7 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
+        }
         }
     }
 
