@@ -84,6 +84,11 @@ namespace {
     return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
+  // Add a small random component to draw evaluations to avoid 3-fold blindness
+  Value value_draw(Thread* thisThread) {
+    return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
+  }
+
   template <Color Us>
   Bitboard threatsClr (Position& pos)
   {
@@ -93,20 +98,15 @@ namespace {
       {
         Square s = pop_lsb(our);
         if (type_of(pos.piece_on(s)) == KNIGHT)
-            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN));
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
         else if (type_of(pos.piece_on(s)) == BISHOP)
-            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN));
+            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
         else
             threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
       }
       Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
-      threats |= pawnAttacks & (pos.pieces(~Us, ROOK) | pos.pieces(~Us, QUEEN) | pos.pieces(~Us, KNIGHT) | pos.pieces(~Us, BISHOP));
+      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
       return threats;
-  }
-
-  // Add a small random component to draw evaluations to avoid 3-fold blindness
-  Value value_draw(Thread* thisThread) {
-    return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
   // Skill structure is used to implement strength limit. If we have an uci_elo then
@@ -790,7 +790,6 @@ namespace {
                   :                                    175;
 
     improving = improvement > 0;
-
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
 
     thisThread->complexityAverage.update(complexity);
@@ -815,12 +814,12 @@ namespace {
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
     {
-        int thrcnt = 0;
+        Bitboard threats = 0;
         if (us == WHITE)
-            thrcnt = popcount(threatsClr<BLACK>(pos));
+            threats = threatsClr<BLACK>(pos);
         else
-            thrcnt = popcount(threatsClr<WHITE>(pos));
-        if (thrcnt < 2)
+            threats = threatsClr<WHITE>(pos);
+        if (!threats || eval - futility_margin(depth, false) - (ss-1)->statScore / 256 >= beta)
             return eval;
     }
 
