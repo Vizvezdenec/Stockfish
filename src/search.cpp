@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          if (cutNode && d >= depth - 3 && captureOrPromotion && value >= beta + 250 && !ss->inCheck)
+          if (!PvNode && d >= depth - 3 && captureOrPromotion && value >= beta + 300 + 200 * !cutNode && !ss->inCheck)
           {
               pos.undo_move(move);
               bestMove = move;
