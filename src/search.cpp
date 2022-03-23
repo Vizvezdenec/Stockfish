@@ -88,7 +88,7 @@ namespace {
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
-
+  
   template <Color Us>
   Bitboard threatsClr (Position& pos)
   {
@@ -827,10 +827,10 @@ namespace {
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
-
+        
         bool doNmp = true;
 
-        if (depth <= 3)
+        if (depth <= 2)
         {
         Bitboard threats = 0;
         if (us == WHITE)
@@ -843,6 +843,7 @@ namespace {
 
         if (doNmp)
         {
+
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
