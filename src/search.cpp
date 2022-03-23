@@ -830,6 +830,11 @@ namespace {
 
         bool doNmp = true;
 
+        // Null move dynamic reduction based on depth, eval and complexity of position
+        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
+
+        if (R <= 4)
+        {
         Bitboard threatss = 0;
         if (us == WHITE)
             threatss = threats<BLACK>(pos);
@@ -837,11 +842,10 @@ namespace {
             threatss = threats<WHITE>(pos);
         if (threatss)
             doNmp = false;
+        }
 
         if (doNmp)
         {
-        // Null move dynamic reduction based on depth, eval and complexity of position
-        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
