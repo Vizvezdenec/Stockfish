@@ -830,7 +830,7 @@ namespace {
         
         bool doNmp = true;
 
-        if (depth <= 4)
+        if (depth <= 5)
         {
         Bitboard threats = 0;
         if (us == WHITE)
