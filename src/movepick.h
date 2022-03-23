@@ -23,6 +23,7 @@
 #include <limits>
 #include <type_traits>
 
+#include "bitboard.h"
 #include "movegen.h"
 #include "position.h"
 #include "types.h"
@@ -118,13 +119,17 @@ public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
+                                           const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           Bitboard,
                                            Move,
                                            const Move*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
+                                           const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
+                                           Bitboard,
                                            Square);
   MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
@@ -137,9 +142,11 @@ private:
 
   const Position& pos;
   const ButterflyHistory* mainHistory;
+  const ButterflyHistory* threatHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;
+  Bitboard threatMask;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
