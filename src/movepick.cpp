@@ -60,12 +60,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
-                                                             Bitboard thbp,
-                                                             Bitboard thbm,
-                                                             Bitboard thbr,
+                                                             Bitboard tm,
                                                              const Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), threatsByPawn(thbp), threatsByMinor(thbm), threatsByRook(thbr),refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+             ttMove(ttm), threatened(tm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -119,11 +117,7 @@ void MovePicker::score() {
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   -     type_of(pos.moved_piece(m)) == PAWN || type_of(pos.moved_piece(m)) == KING ? 0
-                      : (type_of(pos.moved_piece(m)) == KNIGHT || type_of(pos.moved_piece(m)) == BISHOP) && (threatsByPawn & to_sq(m)) ? (1 << 28)
-                      :  type_of(pos.moved_piece(m)) == ROOK && ((threatsByPawn | threatsByMinor) & to_sq(m)) ? (1 << 28)
-                      :  type_of(pos.moved_piece(m)) == QUEEN && ((threatsByPawn | threatsByMinor | threatsByRook) & to_sq(m)) ? (1 << 28)
-                      :  0;
+                   +     (threatened & from_sq(m) ? (1 << 28) : 0);
 
       else // Type == EVASIONS
       {
