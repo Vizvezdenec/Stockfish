@@ -89,26 +89,6 @@ namespace {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
-  template <Color Us>
-  Bitboard threats (Position& pos)
-  {
-      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
-      Bitboard threats = 0;
-      while (our)
-      {
-        Square s = pop_lsb(our);
-        if (type_of(pos.piece_on(s)) == KNIGHT)
-            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
-        else if (type_of(pos.piece_on(s)) == BISHOP)
-            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
-        else
-            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
-      }
-      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
-      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
-      return threats;
-  }
-
   // Skill structure is used to implement strength limit. If we have an uci_elo then
   // we convert it to a suitable fractional skill level using anchoring to CCRL Elo
   // (goldfish 1.13 = 2000) and a fit through Ordo derived Elo for match (TC 60+0.6)
@@ -138,9 +118,9 @@ namespace {
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard threatened);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard threatened);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -649,6 +629,11 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
+    Bitboard threatened = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
+                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
+                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
+                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -664,7 +649,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), threatened);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -828,24 +813,8 @@ namespace {
     {
         assert(eval - beta >= 0);
 
-        bool doNmp = true;
-
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
-
-        if (depth <= 6)
-        {
-        Bitboard threatss = 0;
-        if (us == WHITE)
-            threatss = threats<BLACK>(pos);
-        else
-            threatss = threats<WHITE>(pos);
-        if (threatss)
-            doNmp = false;
-        }
-
-        if (doNmp)
-        {
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -878,7 +847,6 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
-        }
         }
     }
 
@@ -979,8 +947,10 @@ moves_loop: // When in check, search starts here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->threatHistory,
                                       &captureHistory,
                                       contHist,
+                                      threatened,
                                       countermove,
                                       ss->killers);
 
@@ -1375,7 +1345,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, threatened);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 4 || PvNode)
@@ -1519,14 +1489,21 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    Bitboard threatened = pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
+                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
+                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
+                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));;
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square prevSq = to_sq((ss-1)->currentMove);
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
+                                      &thisThread->threatHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      threatened,
                                       prevSq);
 
     int quietCheckEvasions = 0;
@@ -1705,7 +1682,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard threatened) {
 
     int bonus1, bonus2;
     Color us = pos.side_to_move();
@@ -1721,13 +1698,15 @@ moves_loop: // When in check, search starts here
     if (!pos.capture_or_promotion(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus2, threatened);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            if (threatened & from_sq(quietsSearched[i]))
+                thisThread->threatHistory[us][from_to(quietsSearched[i])] << -bonus2;
         }
     }
     else
@@ -1768,7 +1747,7 @@ moves_loop: // When in check, search starts here
 
   // update_quiet_stats() updates move sorting heuristics
 
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard threatened) {
 
     // Update killers
     if (ss->killers[0] != move)
@@ -1781,6 +1760,8 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    if (threatened & from_sq(move))
+        thisThread->threatHistory[us][from_to(move)] << bonus;
 
     // Update countermove history
     if (is_ok((ss-1)->currentMove))
