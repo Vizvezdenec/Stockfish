@@ -89,22 +89,35 @@ namespace {
   }
 
   template <Color Us>
-  Bitboard threats (Position& pos)
+  Bitboard threatsPawn (Position& pos)
   {
-      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
+      return pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
+  }
+  template <Color Us>
+  Bitboard threatsMinor (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us, KNIGHT, BISHOP);
       Bitboard threats = 0;
       while (our)
       {
         Square s = pop_lsb(our);
         if (type_of(pos.piece_on(s)) == KNIGHT)
-            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
-        else if (type_of(pos.piece_on(s)) == BISHOP)
-            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces());
         else
-            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
+            threats |= attacks_bb<BISHOP>(s, pos.pieces());
       }
-      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
-      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
+      return threats;
+  }
+  template <Color Us>
+  Bitboard threatsRook (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us, ROOK);
+      Bitboard threats = 0;
+      while (our)
+      {
+        Square s = pop_lsb(our);
+        threats |= attacks_bb<ROOK>(s, pos.pieces());
+      }
       return threats;
   }
 
@@ -960,13 +973,17 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Bitboard threatened = pos.side_to_move() == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
+    Bitboard threatsByPawn = pos.side_to_move() == WHITE ? threatsPawn<BLACK>(pos) : threatsPawn<WHITE>(pos);
+    Bitboard threatsByMinor = pos.side_to_move() == WHITE ? threatsMinor<BLACK>(pos) : threatsMinor<WHITE>(pos);
+    Bitboard threatsByRook = pos.side_to_move() == WHITE ? threatsRook<BLACK>(pos) : threatsRook<WHITE>(pos);
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      threatened,
+                                      threatsByPawn,
+                                      threatsByMinor,
+                                      threatsByRook,
                                       ss->killers);
 
     value = bestValue;

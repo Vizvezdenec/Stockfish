@@ -122,6 +122,8 @@ public:
                                            const PieceToHistory**,
                                            Move,
                                            Bitboard,
+                                           Bitboard,
+                                           Bitboard,
                                            const Move*);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
@@ -141,7 +143,9 @@ private:
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;
-  Bitboard threatened;
+  Bitboard threatsByPawn;
+  Bitboard threatsByMinor;
+  Bitboard threatsByRook;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
