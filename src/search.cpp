@@ -88,6 +88,26 @@ namespace {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
+template <Color Us>
+  Bitboard threats (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
+      Bitboard threats = 0;
+      while (our)
+      {
+        Square s = pop_lsb(our);
+        if (type_of(pos.piece_on(s)) == KNIGHT)
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else if (type_of(pos.piece_on(s)) == BISHOP)
+            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else
+            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
+      }
+      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
+      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
+      return threats;
+  }
+
   // Skill structure is used to implement strength limit. If we have an uci_elo then
   // we convert it to a suitable fractional skill level using anchoring to CCRL Elo
   // (goldfish 1.13 = 2000) and a fit through Ordo derived Elo for match (TC 60+0.6)
@@ -628,11 +648,6 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
-    Bitboard threatened = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
-                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
-                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
-                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));
-
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -944,6 +959,8 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    Bitboard threatened = pos.side_to_move() == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
@@ -1487,10 +1504,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Bitboard threatened = pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
-                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
-                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
-                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));;
+    Bitboard threatened = pos.side_to_move() == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
