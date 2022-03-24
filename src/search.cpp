@@ -23,7 +23,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -87,6 +86,26 @@ namespace {
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
+  }
+
+  template <Color Us>
+  Bitboard threats (Position& pos)
+  {
+      Bitboard our = pos.pieces(Us) & ~pos.pieces(Us, KING) & ~pos.pieces(Us, QUEEN) & ~pos.pieces(Us, PAWN);
+      Bitboard threats = 0;
+      while (our)
+      {
+        Square s = pop_lsb(our);
+        if (type_of(pos.piece_on(s)) == KNIGHT)
+            threats |= attacks_bb<KNIGHT>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else if (type_of(pos.piece_on(s)) == BISHOP)
+            threats |= attacks_bb<BISHOP>(s, pos.pieces()) & pos.pieces(~Us, ROOK, QUEEN);
+        else
+            threats |= attacks_bb<ROOK>(s, pos.pieces()) & pos.pieces(~Us, QUEEN);
+      }
+      Bitboard pawnAttacks = pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
+      threats |= pawnAttacks & (pos.pieces(~Us, ROOK, QUEEN) | pos.pieces(~Us, KNIGHT, BISHOP));
+      return threats;
   }
 
   // Skill structure is used to implement strength limit. If we have an uci_elo then
@@ -719,11 +738,6 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    Value biggestThreat = VALUE_ZERO;
-
-    Bitboard theirAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
-                                        : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -800,22 +814,13 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    if (pos.pieces(us, QUEEN) & theirAttacks)
-        biggestThreat = QueenValueMg - PawnValueMg;
-    else if (pos.pieces(us, ROOK) & theirAttacks)
-        biggestThreat = RookValueMg - PawnValueMg;
-    else if (pos.pieces(us, BISHOP) & theirAttacks)
-        biggestThreat = BishopValueMg - PawnValueMg;
-    else if (pos.pieces(us, KNIGHT) & theirAttacks)
-        biggestThreat = KnightValueMg - PawnValueMg;
-
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + biggestThreat
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -955,10 +960,13 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Bitboard threatened = pos.side_to_move() == WHITE ? threats<BLACK>(pos) : threats<WHITE>(pos);
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
+                                      threatened,
                                       ss->killers);
 
     value = bestValue;
