@@ -628,6 +628,11 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
+    Bitboard threatened = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
+                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
+                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
+                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));
+
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -944,6 +949,7 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
+                                      threatened,
                                       ss->killers);
 
     value = bestValue;
@@ -1481,6 +1487,11 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    Bitboard threatened = pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) 
+                                     & (pos.pieces(WHITE, BISHOP, KNIGHT) | pos.pieces(WHITE, ROOK, QUEEN))
+                                      : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) 
+                                     & (pos.pieces(BLACK, BISHOP, KNIGHT) | pos.pieces(BLACK, ROOK, QUEEN));;
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1489,6 +1500,7 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      threatened,
                                       prevSq);
 
     int quietCheckEvasions = 0;
