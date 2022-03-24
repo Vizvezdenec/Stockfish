@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -718,6 +719,11 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    Value biggestThreat = VALUE_ZERO;
+
+    Bitboard theirAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
+                                        : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -794,13 +800,22 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
+    if (pos.pieces(us, QUEEN) & theirAttacks)
+        biggestThreat = QueenValueMg - PawnValueMg;
+    else if (pos.pieces(us, ROOK) & theirAttacks)
+        biggestThreat = RookValueMg - PawnValueMg;
+    else if (pos.pieces(us, BISHOP) & theirAttacks)
+        biggestThreat = BishopValueMg - PawnValueMg;
+    else if (pos.pieces(us, KNIGHT) & theirAttacks)
+        biggestThreat = KnightValueMg - PawnValueMg;
+
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + biggestThreat
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
