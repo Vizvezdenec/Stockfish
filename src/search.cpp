@@ -1303,6 +1303,8 @@ moves_loop: // When in check, search starts here
                   break;
               }
           }
+          else if (moveCount == 1 && ttCapture)
+              badTtCapt = !pos.see_ge(move);
       }
 
       // If the move is worse than some previously searched move, remember it to update its stats later
@@ -1314,9 +1316,6 @@ moves_loop: // When in check, search starts here
           else if (!captureOrPromotion && quietCount < 64)
               quietsSearched[quietCount++] = move;
       }
-
-      if (moveCount == 1 && ttCapture)
-          badTtCapt = !pos.see_ge(move);
     }
 
     // The following condition would detect a stop only after move loop has been
