@@ -1146,6 +1146,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
+              && !likelyFailLow
               && bestMoveCount <= 3)
               r--;
 
