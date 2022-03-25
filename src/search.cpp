@@ -1003,10 +1003,6 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          int history =   (*contHist[0])[movedPiece][to_sq(move)]
-                        + (*contHist[1])[movedPiece][to_sq(move)]
-                        + (*contHist[3])[movedPiece][to_sq(move)];
-          moveCountPruning &= captureOrPromotion || !PvNode || history < 40000;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1030,6 +1026,10 @@ moves_loop: // When in check, search starts here
           }
           else
           {
+              int history =   (*contHist[0])[movedPiece][to_sq(move)]
+                            + (*contHist[1])[movedPiece][to_sq(move)]
+                            + (*contHist[3])[movedPiece][to_sq(move)];
+
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
                   && history < -3875 * (depth - 1))
