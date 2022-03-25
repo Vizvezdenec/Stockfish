@@ -863,7 +863,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, std::max(Value(1), probCutBeta - ss->staticEval), depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
@@ -955,6 +955,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    bool badTtCapt = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1163,7 +1165,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture)
+          if (ttCapture && !badTtCapt)
               r++;
 
           // Decrease reduction at PvNodes if bestvalue
@@ -1312,6 +1314,9 @@ moves_loop: // When in check, search starts here
           else if (!captureOrPromotion && quietCount < 64)
               quietsSearched[quietCount++] = move;
       }
+
+      if (moveCount == 1 && ttCapture)
+          badTtCapt = !pos.see_ge(move);
     }
 
     // The following condition would detect a stop only after move loop has been
