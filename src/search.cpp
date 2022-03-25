@@ -1006,7 +1006,7 @@ moves_loop: // When in check, search starts here
           int history =   (*contHist[0])[movedPiece][to_sq(move)]
                         + (*contHist[1])[movedPiece][to_sq(move)]
                         + (*contHist[3])[movedPiece][to_sq(move)];
-          moveCountPruning &= captureOrPromotion || history < 70000;
+          moveCountPruning &= captureOrPromotion || !PvNode || history < 40000;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
