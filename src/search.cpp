@@ -863,7 +863,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, std::max(VALUE_ZERO, probCutBeta - ss->staticEval), depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, std::max(Value(1), probCutBeta - ss->staticEval), depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         ss->ttPv = false;
 
