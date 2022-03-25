@@ -956,8 +956,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool badTtCapt = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1005,6 +1003,10 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          int history =   (*contHist[0])[movedPiece][to_sq(move)]
+                        + (*contHist[1])[movedPiece][to_sq(move)]
+                        + (*contHist[3])[movedPiece][to_sq(move)];
+          moveCountPruning &= captureOrPromotion || history < 50000;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1028,10 +1030,6 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              int history =   (*contHist[0])[movedPiece][to_sq(move)]
-                            + (*contHist[1])[movedPiece][to_sq(move)]
-                            + (*contHist[3])[movedPiece][to_sq(move)];
-
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
                   && history < -3875 * (depth - 1))
@@ -1165,7 +1163,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && !badTtCapt)
+          if (ttCapture)
               r++;
 
           // Decrease reduction at PvNodes if bestvalue
@@ -1303,8 +1301,6 @@ moves_loop: // When in check, search starts here
                   break;
               }
           }
-          else if (moveCount == 1 && ttCapture)
-              badTtCapt = !pos.see_ge(move);
       }
 
       // If the move is worse than some previously searched move, remember it to update its stats later
