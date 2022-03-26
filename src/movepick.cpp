@@ -142,7 +142,7 @@ void MovePicker::score() {
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   +     ((threatened & from_sq(m)) && pos.see_ge(m, KnightValueMg - BishopValueMg) ?
+                   +     ((threatened & from_sq(m)) && pos.see_ge(m) ?
                                                     (type_of(pos.piece_on(from_sq(m))) == QUEEN ? (1 << 28)
                                                   :  type_of(pos.piece_on(from_sq(m))) == ROOK  ? (1 << 27)
                                                   :                                               (1 << 26))
