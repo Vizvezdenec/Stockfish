@@ -139,8 +139,11 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatByPawn, threatByMinor, threatByRook, pinned;
+  bool triedSquares[64];
   if constexpr (Type == QUIETS)
   {
+      for (int i = 0; i < 64; ++i)
+          triedSquares[i] = false;
       pinned = pos.blockers_for_king(~pos.side_to_move());
       threatByPawn = pos.side_to_move() == WHITE ? threatsByPawn<BLACK>(pos) : threatsByPawn<WHITE>(pos);
       threatByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos, pinned) : threatsByMinor<WHITE>(pos, pinned);
@@ -160,6 +163,7 @@ void MovePicker::score() {
      (void) threatByPawn;
      (void) threatByMinor;
      (void) threatByRook;
+     (void) triedSquares;
   }
 
   for (auto& m : *this)
@@ -168,17 +172,22 @@ void MovePicker::score() {
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
+      {
+          int evasionCount = !triedSquares[from_sq(m)] && (threatened & from_sq(m) ? 
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatByRook)  ? 4
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatByMinor) ? 2
+                          :                                               !(to_sq(m) & threatByPawn)  ? 1
+                          : 0)
+                          : 0);
+          if (evasionCount)
+              triedSquares[from_sq(m)] = true;
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatByRook)  ? 100000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatByMinor) ? 50000
-                          :                                               !(to_sq(m) & threatByPawn)  ? 25000
-                          : 0)
-                          : 0);
+                   +     evasionCount * (1 << 26);
+      }
 
       else // Type == EVASIONS
       {
