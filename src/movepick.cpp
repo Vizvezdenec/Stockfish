@@ -103,9 +103,9 @@ Bitboard threatsByPawn (const Position& pos)
     return pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
 }
 template <Color Us>
-Bitboard threatsByMinor (const Position& pos)
+Bitboard threatsByMinor (const Position& pos, const Bitboard pinned)
 {
-    Bitboard our = pos.pieces(Us, KNIGHT, BISHOP);
+    Bitboard our = pos.pieces(Us, KNIGHT, BISHOP) & ~(pos.pieces(Us, KNIGHT) & pinned);
     Bitboard threats = 0;
     while (our)
     {
@@ -113,19 +113,19 @@ Bitboard threatsByMinor (const Position& pos)
         if (type_of(pos.piece_on(s)) == KNIGHT)
             threats |= attacks_bb<KNIGHT>(s, pos.pieces());
         else 
-            threats |= attacks_bb<BISHOP>(s, pos.pieces());
+            threats |= (pinned & s) ? attacks_bb<BISHOP>(s, pos.pieces()) & line_bb(pos.square<KING>(Us), s) : attacks_bb<BISHOP>(s, pos.pieces());
     }
     return threats;
 }
 template <Color Us>
-Bitboard threatsByRook (const Position& pos)
+Bitboard threatsByRook (const Position& pos, const Bitboard pinned)
 {
     Bitboard our = pos.pieces(Us, ROOK);
     Bitboard threats = 0;
     while (our)
     {
         Square s = pop_lsb(our);
-        threats |= attacks_bb<ROOK>(s, pos.pieces());
+        threats |= (pinned & s) ? attacks_bb<ROOK>(s, pos.pieces()) & line_bb(pos.square<KING>(Us), s) : attacks_bb<ROOK>(s, pos.pieces()) ;
     }
     return threats;
 }
@@ -138,13 +138,14 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatByPawn, threatByMinor, threatByRook;
+  Bitboard threatened, threatByPawn, threatByMinor, threatByRook, pinned;
   if constexpr (Type == QUIETS)
   {
+      pinned = pos.blockers_for_king(~pos.side_to_move());
       threatByPawn = pos.side_to_move() == WHITE ? threatsByPawn<BLACK>(pos) : threatsByPawn<WHITE>(pos);
-      threatByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos) : threatsByMinor<WHITE>(pos);
+      threatByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos, pinned) : threatsByMinor<WHITE>(pos, pinned);
       threatByMinor |= threatByPawn;
-      threatByRook = pos.side_to_move() == WHITE ? threatsByRook<BLACK>(pos) : threatsByRook<WHITE>(pos);
+      threatByRook = pos.side_to_move() == WHITE ? threatsByRook<BLACK>(pos, pinned) : threatsByRook<WHITE>(pos, pinned);
       threatByRook |= threatByMinor;
       threatened = pos.side_to_move() == WHITE ? ((pos.pieces(WHITE, QUEEN) & threatByRook) |
                                                   (pos.pieces(WHITE, ROOK) & threatByMinor) |
@@ -173,9 +174,9 @@ void MovePicker::score() {
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatByRook)  ? 50000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatByMinor) ? 25000
-                          :                                               !(to_sq(m) & threatByPawn)  ? 15000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatByRook)  ? (1 << 28)
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatByMinor) ? (1 << 27)
+                          :                                               !(to_sq(m) & threatByPawn)  ? (1 << 26)
                           : 0)
                           : 0);
 
