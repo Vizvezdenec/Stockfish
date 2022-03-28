@@ -207,10 +207,10 @@ Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook) && !(to_sq(m) & attacked)   ? 50000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) && !(to_sq(m) & attacked)? 25000
-                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 15000
-                          : (pos.pieces(pos.side_to_move(), PAWN) & from_sq(m)) && !(to_sq(m) & attacked) ? 5000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook) && !(to_sq(m) & attacked)   ? 27000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) && !(to_sq(m) & attacked)? 15000
+                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 9000
+                          : (pos.pieces(pos.side_to_move(), PAWN) & from_sq(m)) && !(to_sq(m) & attacked) ? 3000
                           :                                                                                 0)
                           :                                                                                 0);
 
