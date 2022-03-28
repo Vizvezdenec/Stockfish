@@ -184,8 +184,8 @@ Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
       threatenedByQueen = pos.side_to_move() == WHITE ? threatsByQueen<BLACK>(pos) : threatsByQueen<WHITE>(pos);
       threatenedByKing = pos.side_to_move() == WHITE ? threatsByKing<BLACK>(pos) : threatsByKing<WHITE>(pos);
       attacked = threatenedByRook | threatenedByQueen | threatenedByKing;
-      threatened |= pos.side_to_move() == WHITE ? pos.pieces(WHITE) & ~pos.pieces(WHITE, KING) & ~defended & attacked
-                                                : pos.pieces(BLACK) & ~pos.pieces(BLACK, KING) & ~defended & attacked;
+      threatened |= pos.side_to_move() == WHITE ? pos.pieces(WHITE) & ~pos.pieces(WHITE, KING, PAWN) & ~defended & attacked
+                                                : pos.pieces(BLACK) & ~pos.pieces(BLACK, KING, PAWN) & ~defended & attacked;
       attacked &= ~defended;
   }
   else
@@ -207,10 +207,10 @@ Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook) && !(to_sq(m) & attacked)   ? 60000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) && !(to_sq(m) & attacked)? 30000
-                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 18000
-                          : (pos.pieces(pos.side_to_move(), PAWN) & from_sq(m)) && !(to_sq(m) & attacked) ? 6000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook) && !(to_sq(m) & attacked)   ? 50000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) && !(to_sq(m) & attacked)  ? 25000
+                          : type_of(pos.piece_on(from_sq(m))) == BISHOP && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 17000
+                          : type_of(pos.piece_on(from_sq(m))) == KNIGHT && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 15000
                           :                                                                                 0)
                           :                                                                                 0);
 
