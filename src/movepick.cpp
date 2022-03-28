@@ -173,9 +173,9 @@ Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, pinn
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
-                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn)  ? 15000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 25000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 13000
+                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn)  ? 7500
                           :                                                                                 0)
                           :                                                                                 0);
 
