@@ -129,30 +129,6 @@ Bitboard threatsByRook (const Position& pos) //squares threatened by rook attack
     }
     return threats;
 }
-template <Color Us>
-Bitboard threatsByQueen (const Position& pos) //squares threatened by queen attacks
-{
-    Bitboard our = pos.pieces(Us, QUEEN);
-    Bitboard threats = 0;
-    while (our)
-    {
-        Square s = pop_lsb(our);
-        threats |= attacks_bb<QUEEN>(s, pos.pieces());
-    }
-    return threats;
-}
-template <Color Us>
-Bitboard threatsByKing (const Position& pos) //squares threatened by king attacks
-{
-    Bitboard our = pos.pieces(Us, KING);
-    Bitboard threats = 0;
-    while (our)
-    {
-        Square s = pop_lsb(our);
-        threats |= attacks_bb<KING>(s, pos.pieces());
-    }
-    return threats;
-}
 
 /// MovePicker::score() assigns a numerical value to each move in a list, used
 /// for sorting. Captures are ordered by Most Valuable Victim (MVV), preferring
@@ -162,14 +138,9 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
-Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
+  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
   if constexpr (Type == QUIETS)
   {
-      defended = pos.side_to_move() == WHITE ? threatsByPawn<WHITE>(pos) | threatsByMinor<WHITE>(pos) 
-                 | threatsByRook<WHITE>(pos) | threatsByQueen<WHITE>(pos) | threatsByKing<WHITE>(pos)
-                                             : threatsByPawn<BLACK>(pos) | threatsByMinor<BLACK>(pos) 
-                 | threatsByRook<BLACK>(pos) | threatsByQueen<BLACK>(pos) | threatsByKing<BLACK>(pos);
       threatenedByPawn = pos.side_to_move() == WHITE ? threatsByPawn<BLACK>(pos) : threatsByPawn<WHITE>(pos); // squares threatened by pawns
       threatenedByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos) : threatsByMinor<WHITE>(pos); // squares threatened by minors or pawns
       threatenedByMinor |= threatenedByPawn;
@@ -181,12 +152,6 @@ Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
                                                : ((pos.pieces(BLACK, QUEEN) & threatenedByRook) |
                                                   (pos.pieces(BLACK, ROOK) & threatenedByMinor) |
                                                   (pos.pieces(BLACK, KNIGHT, BISHOP) & threatenedByPawn));
-      threatenedByQueen = pos.side_to_move() == WHITE ? threatsByQueen<BLACK>(pos) : threatsByQueen<WHITE>(pos);
-      threatenedByKing = pos.side_to_move() == WHITE ? threatsByKing<BLACK>(pos) : threatsByKing<WHITE>(pos);
-      attacked = threatenedByRook | threatenedByQueen | threatenedByKing;
-      threatened |= pos.side_to_move() == WHITE ? pos.pieces(WHITE) & ~pos.pieces(WHITE, KING, PAWN) & ~defended & attacked
-                                                : pos.pieces(BLACK) & ~pos.pieces(BLACK, KING, PAWN) & ~defended & attacked;
-      attacked &= ~defended;
   }
   else
   {
@@ -206,11 +171,12 @@ Bitboard defended, threatenedByQueen, threatenedByKing, attacked;
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook) && !(to_sq(m) & attacked)   ? 50000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) && !(to_sq(m) & attacked)  ? 25000
-                          : type_of(pos.piece_on(from_sq(m))) == BISHOP && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 17000
-                          : type_of(pos.piece_on(from_sq(m))) == KNIGHT && !(to_sq(m) & threatenedByPawn) && !(to_sq(m) & attacked)  ? 15000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
+                          : type_of(pos.piece_on(from_sq(m))) == BISHOP && !(to_sq(m) & threatenedByPawn)  ? 17000
+                          : type_of(pos.piece_on(from_sq(m))) == KNIGHT && !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                                 0)
                           :                                                                                 0);
 
