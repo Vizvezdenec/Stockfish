@@ -103,9 +103,9 @@ Bitboard threatsByPawn (const Position& pos) //squares threatened by pawn attack
     return pawn_attacks_bb<Us>(pos.pieces(Us, PAWN));
 }
 template <Color Us>
-Bitboard threatsByMinor (const Position& pos) //squares threatened by minor attacks
+Bitboard threatsByMinor (const Position& pos, const Bitboard pinned) //squares threatened by minor attacks
 {
-    Bitboard our = pos.pieces(Us, KNIGHT, BISHOP);
+    Bitboard our = pos.pieces(Us, KNIGHT, BISHOP) & ~(pos.pieces(Us, KNIGHT) & pinned);
     Bitboard threats = 0;
     while (our)
     {
@@ -113,19 +113,19 @@ Bitboard threatsByMinor (const Position& pos) //squares threatened by minor atta
         if (type_of(pos.piece_on(s)) == KNIGHT)
             threats |= attacks_bb<KNIGHT>(s, pos.pieces());
         else 
-            threats |= attacks_bb<BISHOP>(s, pos.pieces());
+            threats |= (pinned & s) ? attacks_bb<BISHOP>(s, pos.pieces()) & line_bb(pos.square<KING>(Us), s) : attacks_bb<BISHOP>(s, pos.pieces());
     }
     return threats;
 }
 template <Color Us>
-Bitboard threatsByRook (const Position& pos) //squares threatened by rook attacks
+Bitboard threatsByRook (const Position& pos, const Bitboard pinned) //squares threatened by rook attacks
 {
     Bitboard our = pos.pieces(Us, ROOK);
     Bitboard threats = 0;
     while (our)
     {
         Square s = pop_lsb(our);
-        threats |= attacks_bb<ROOK>(s, pos.pieces());
+        threats |= (pinned & s) ? attacks_bb<ROOK>(s, pos.pieces()) & line_bb(pos.square<KING>(Us), s) : attacks_bb<ROOK>(s, pos.pieces()) ;
     }
     return threats;
 }
@@ -138,13 +138,14 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, pinned;
   if constexpr (Type == QUIETS)
   {
+      pinned = pos.blockers_for_king(~pos.side_to_move());
       threatenedByPawn = pos.side_to_move() == WHITE ? threatsByPawn<BLACK>(pos) : threatsByPawn<WHITE>(pos); // squares threatened by pawns
-      threatenedByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos) : threatsByMinor<WHITE>(pos); // squares threatened by minors or pawns
+      threatenedByMinor = pos.side_to_move() == WHITE ? threatsByMinor<BLACK>(pos, pinned) : threatsByMinor<WHITE>(pos, pinned); // squares threatened by minors or pawns
       threatenedByMinor |= threatenedByPawn;
-      threatenedByRook = pos.side_to_move() == WHITE ? threatsByRook<BLACK>(pos) : threatsByRook<WHITE>(pos); // squares threatened by rooks, minors or pawns
+      threatenedByRook = pos.side_to_move() == WHITE ? threatsByRook<BLACK>(pos, pinned) : threatsByRook<WHITE>(pos, pinned); // squares threatened by rooks, minors or pawns
       threatenedByRook |= threatenedByMinor;
       threatened = pos.side_to_move() == WHITE ? ((pos.pieces(WHITE, QUEEN) & threatenedByRook) | // pieces threatened by pieces of lesser material value
                                                   (pos.pieces(WHITE, ROOK) & threatenedByMinor) |
@@ -172,9 +173,9 @@ Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ? 
-                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 27000
-                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 15000
-                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn)  ? 9000
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
+                          : (pos.pieces(pos.side_to_move(), KNIGHT, BISHOP) & from_sq(m)) && !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                                 0)
                           :                                                                                 0);
 
