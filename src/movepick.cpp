@@ -143,7 +143,7 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, kingRing;
   if constexpr (Type == QUIETS)
   {
       // squares threatened by pawns
@@ -162,6 +162,9 @@ void MovePicker::score() {
                                                : ((pos.pieces(BLACK, QUEEN) & threatenedByRook) |
                                                   (pos.pieces(BLACK, ROOK) & threatenedByMinor) |
                                                   (pos.pieces(BLACK, KNIGHT, BISHOP) & threatenedByPawn));
+      Square s = make_square(std::clamp(file_of(pos.square<KING>(~pos.side_to_move())), FILE_B, FILE_G),
+                             std::clamp(rank_of(pos.square<KING>(~pos.side_to_move())), RANK_2, RANK_7));
+      kingRing = attacks_bb<KING>(s) | s;
   }
   else
   {
@@ -170,6 +173,7 @@ void MovePicker::score() {
       (void) threatenedByPawn;
       (void) threatenedByMinor;
       (void) threatenedByRook;
+      (void) kingRing;
   }
 
   for (auto& m : *this)
@@ -188,7 +192,10 @@ void MovePicker::score() {
                           : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                               !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                                 0)
-                          :                                                                                 0);
+                          :                                                                                 0)
+                   +  pos.non_pawn_material() > 12000 && 
+                      type_of(pos.piece_on(from_sq(m))) == KNIGHT && !(attacks_bb<KNIGHT>(from_sq(m)) & kingRing)
+                                                                  &&  (attacks_bb<KNIGHT>(to_sq(m)) & kingRing) ? 8000 : 0;
 
       else // Type == EVASIONS
       {
