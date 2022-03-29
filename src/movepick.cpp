@@ -144,7 +144,8 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
-  if constexpr (Type == QUIETS)
+  bool generatedThreats = false;
+  if (!generatedThreats)
   {
       // squares threatened by pawns
       threatenedByPawn   = pos.side_to_move() == WHITE ? threatsByPawn<BLACK>(pos)  : threatsByPawn<WHITE>(pos);
@@ -162,6 +163,7 @@ void MovePicker::score() {
                                                : ((pos.pieces(BLACK, QUEEN) & threatenedByRook) |
                                                   (pos.pieces(BLACK, ROOK) & threatenedByMinor) |
                                                   (pos.pieces(BLACK, KNIGHT, BISHOP) & threatenedByPawn));
+      generatedThreats = true;
   }
   else
   {
@@ -175,7 +177,13 @@ void MovePicker::score() {
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
           m.value =  6 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
-                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
+                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
+                   +     (threatened & from_sq(m) ?
+                           (type_of(pos.piece_on(from_sq(m))) == QUEEN && (PieceValue[MG][pos.piece_on(to_sq(m))] >= PieceValue[MG][pos.piece_on(from_sq(m))] || !(to_sq(m) & threatenedByRook))  ? 15000
+                          : type_of(pos.piece_on(from_sq(m))) == ROOK  && (PieceValue[MG][pos.piece_on(to_sq(m))] >= PieceValue[MG][pos.piece_on(from_sq(m))] || !(to_sq(m) & threatenedByMinor)) ? 7500
+                          :                                               (PieceValue[MG][pos.piece_on(to_sq(m))] >= PieceValue[MG][pos.piece_on(from_sq(m))] || !(to_sq(m) & threatenedByPawn))  ? 4500
+                          :                                                                                 0)
+                          :                                                                                 0);
 
       else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
