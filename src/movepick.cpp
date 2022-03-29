@@ -189,8 +189,8 @@ void MovePicker::score() {
                           :                                               !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                                 0)
                           :                                                                                 0)
-                   +   type_of(pos.piece_on(from_sq(m))) == KNIGHT && !(to_sq(m) & threatenedByPawn) 
-                   && (attacks_bb<KNIGHT>(to_sq(m)) & pos.pieces(~pos.side_to_move(), QUEEN))             ? 10000 : 0;
+                   -     type_of(pos.piece_on(from_sq(m))) == QUEEN && !(threatened & from_sq(m)) && 
+                        (to_sq(m) & threatenedByRook) ? 10000 : 0;
 
       else // Type == EVASIONS
       {
