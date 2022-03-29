@@ -185,6 +185,7 @@ void MovePicker::score() {
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ?
                            (type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
+                          : type_of(pos.piece_on(from_sq(m))) == QUEEN && !(to_sq(m) & threatenedByMinor) ? 25000
                           : type_of(pos.piece_on(from_sq(m))) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                               !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                                 0)
