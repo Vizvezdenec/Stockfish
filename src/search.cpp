@@ -796,12 +796,8 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    noNmp = depth <= 3 && (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) & pos.pieces(WHITE, QUEEN)
-                                                       : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, QUEEN));
-
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
-        && !noNmp
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
@@ -816,6 +812,12 @@ namespace {
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
+        noNmp = depth - R <= 0 && (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) & pos.pieces(WHITE, QUEEN)
+                                                       : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, QUEEN));
+
+        if (!noNmp)
+
+        {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
@@ -847,6 +849,7 @@ namespace {
 
             if (v >= beta)
                 return nullValue;
+        }
         }
     }
 
