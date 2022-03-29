@@ -135,13 +135,6 @@ Bitboard threatsByRook (const Position& pos)
     return threats;
 }
 
-//squares threatened by king
-template <Color Us>
-Bitboard threatsByKing (const Position& pos)
-{
-    return attacks_bb<KING>(pos.square<KING>(Us)) & ~pawn_attacks_bb<~Us>(pos.pieces(~Us, PAWN));
-}
-
 /// MovePicker::score() assigns a numerical value to each move in a list, used
 /// for sorting. Captures are ordered by Most Valuable Victim (MVV), preferring
 /// captures with a good history. Quiets moves are ordered using the histories.
@@ -169,9 +162,6 @@ void MovePicker::score() {
                                                : ((pos.pieces(BLACK, QUEEN) & threatenedByRook) |
                                                   (pos.pieces(BLACK, ROOK) & threatenedByMinor) |
                                                   (pos.pieces(BLACK, KNIGHT, BISHOP) & threatenedByPawn));
-
-      if(pos.non_pawn_material() < 2 * QueenValueMg)
-          threatenedByPawn |= pos.side_to_move() == WHITE ? threatsByKing<BLACK>(pos)  : threatsByKing<WHITE>(pos);
   }
   else
   {
