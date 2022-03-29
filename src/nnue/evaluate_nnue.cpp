@@ -143,7 +143,7 @@ namespace Stockfish::Eval::NNUE {
     // overaligning stack variables with alignas() doesn't work correctly.
 
     constexpr uint64_t alignment = CacheLineSize;
-    int delta = 14 - pos.non_pawn_material() / 1515 - pos.count<PAWN>() / 2;
+    int delta = 16 - pos.non_pawn_material() / 1515 - pos.count<PAWN>() / 2;
 
 #if defined(ALIGNAS_ON_STACK_VARIABLES_BROKEN)
     TransformedFeatureType transformedFeaturesUnaligned[
