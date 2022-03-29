@@ -796,7 +796,7 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    noNmp = depth <= 4 && (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) & pos.pieces(WHITE, QUEEN)
+    noNmp = depth <= 6 && (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) & pos.pieces(WHITE, QUEEN)
                                                        : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, QUEEN));
 
     // Step 9. Null move search with verification search (~22 Elo)
