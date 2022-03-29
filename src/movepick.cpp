@@ -190,7 +190,7 @@ void MovePicker::score() {
                           :                                                                                 0)
                           :                                                                                 0)
                    -     type_of(pos.piece_on(from_sq(m))) == QUEEN && !(threatened & from_sq(m)) && 
-                        (to_sq(m) & threatenedByRook) ? 10000 : 0;
+                        (to_sq(m) & threatenedByPawn) ? 10000 : 0;
 
       else // Type == EVASIONS
       {
