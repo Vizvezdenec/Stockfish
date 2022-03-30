@@ -797,14 +797,14 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    if (depth <= 3)
+    if (depth <= 4)
     {
         pawnAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
                                   : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
-        staticAdj = pawnAttacks & pos.pieces(us, QUEEN)  ? QueenValueMg
-                  : pawnAttacks & pos.pieces(us, ROOK)   ? RookValueMg
-                  : pawnAttacks & pos.pieces(us, BISHOP) ? BishopValueMg
-                  : pawnAttacks & pos.pieces(us, KNIGHT) ? KnightValueMg
+        staticAdj = pawnAttacks & pos.pieces(us, QUEEN)  ? QueenValueMg - PawnValueMg
+                  : pawnAttacks & pos.pieces(us, ROOK)   ? RookValueMg - PawnValueMg
+                  : pawnAttacks & pos.pieces(us, BISHOP) ? BishopValueMg - PawnValueMg
+                  : pawnAttacks & pos.pieces(us, KNIGHT) ? KnightValueMg - PawnValueMg
                   :                                        VALUE_ZERO;
     }
 
