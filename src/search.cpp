@@ -718,9 +718,6 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    Value staticAdj = VALUE_ZERO;
-    Bitboard pawnAttacks = 0;
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -797,24 +794,13 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    if (depth <= 3)
-    {
-        pawnAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
-                                  : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
-        staticAdj = pawnAttacks & pos.pieces(us, QUEEN)  ? QueenValueMg / 4
-                  : pawnAttacks & pos.pieces(us, ROOK)   ? RookValueMg / 4
-                  : pawnAttacks & pos.pieces(us, BISHOP) ? BishopValueMg / 4
-                  : pawnAttacks & pos.pieces(us, KNIGHT) ? KnightValueMg / 4
-                  :                                        VALUE_ZERO;
-    }
-
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + staticAdj
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1170,7 +1156,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 7)
+          if ((ss-1)->moveCount > 7 && (ss-1)->statScore < 50000)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
