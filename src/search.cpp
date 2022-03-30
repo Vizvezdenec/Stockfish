@@ -718,7 +718,8 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    bool noNmp = false;
+    Value staticAdj = VALUE_ZERO;
+    Bitboard pawnAttacks = 0;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -796,17 +797,24 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    noNmp = depth <= 2 && (pos.side_to_move() == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN)) & pos.pieces(WHITE, QUEEN)
-                                                       : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN)) & pos.pieces(BLACK, QUEEN));
+    if (depth <= 3)
+    {
+        pawnAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(BLACK, PAWN))
+                                  : pawn_attacks_bb<WHITE>(pos.pieces(WHITE, PAWN));
+        staticAdj = pawnAttacks & pos.pieces(us, QUEEN)  ? QueenValueMg
+                  : pawnAttacks & pos.pieces(us, ROOK)   ? RookValueMg
+                  : pawnAttacks & pos.pieces(us, BISHOP) ? BishopValueMg
+                  : pawnAttacks & pos.pieces(us, KNIGHT) ? KnightValueMg
+                  :                                        VALUE_ZERO;
+    }
 
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
-        && !noNmp
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + staticAdj
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
