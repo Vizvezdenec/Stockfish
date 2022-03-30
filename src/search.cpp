@@ -1557,9 +1557,9 @@ moves_loop: // When in check, search starts here
 
       // movecount pruning for quiet check evasions
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && quietCheckEvasions > 1
+          && quietCheckEvasions > 0
           && !capture
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 5000
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -5000
           && ss->inCheck)
           continue;
 
