@@ -1156,7 +1156,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 7 && (ss-1)->statScore < 70000)
+          if ((ss-1)->moveCount > 7)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
@@ -1559,6 +1559,7 @@ moves_loop: // When in check, search starts here
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && quietCheckEvasions > 1
           && !capture
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && ss->inCheck)
           continue;
 
