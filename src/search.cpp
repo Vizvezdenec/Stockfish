@@ -1559,7 +1559,7 @@ moves_loop: // When in check, search starts here
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && quietCheckEvasions > 1
           && !capture
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] <= 0
           && ss->inCheck)
           continue;
 
