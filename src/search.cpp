@@ -603,6 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+4)->longKiller   = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -941,11 +942,16 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move killer[2] = {ss->killers[0], ss->killers[1]};
+
+    if (!killer[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 10000)
+        killer[0] = ss->longKiller;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      killer);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1557,9 +1563,8 @@ moves_loop: // When in check, search starts here
 
       // movecount pruning for quiet check evasions
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && quietCheckEvasions > 0
+          && quietCheckEvasions > 1
           && !capture
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -5000
           && ss->inCheck)
           continue;
 
@@ -1740,6 +1745,7 @@ moves_loop: // When in check, search starts here
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
+    ss->longKiller = move;
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
