@@ -1099,7 +1099,7 @@ moves_loop: // When in check, search starts here
                   extension = -2;
           }
 
-          else if (depth < 9 && cutNode && move == ttMove && !ss->inCheck && ttValue < alpha - 25)
+          else if (depth < 7 && cutNode && move == ttMove && !ss->inCheck && ttValue < alpha - 55)
               extension = 1;
 
           // Check extensions (~1 Elo)
