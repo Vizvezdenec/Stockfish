@@ -603,7 +603,6 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+4)->longKiller   = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -942,16 +941,11 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Move killer[2] = {ss->killers[0], ss->killers[1]};
-
-    if (!killer[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 15000)
-        killer[0] = ss->longKiller;
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      killer);
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1104,6 +1098,9 @@ moves_loop: // When in check, search starts here
               else if (ttValue >= beta)
                   extension = -2;
           }
+
+          else if (depth < 7 && cutNode && move == ttMove && !ss->inCheck && ttValue < alpha - 25)
+              extension = 1;
 
           // Check extensions (~1 Elo)
           else if (   givesCheck
@@ -1745,7 +1742,6 @@ moves_loop: // When in check, search starts here
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
-    ss->longKiller = move;
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
