@@ -944,7 +944,7 @@ moves_loop: // When in check, search starts here
 
     Move killer[2] = {ss->killers[0], ss->killers[1]};
 
-    if (!killer[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 10000)
+    if (!killer[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 5000)
         killer[0] = ss->longKiller;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
