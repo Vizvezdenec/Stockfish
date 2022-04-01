@@ -957,9 +957,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    if (improving)
-        dbg_mean_of(improvement);
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1150,9 +1147,6 @@ moves_loop: // When in check, search starts here
           // Decrease reduction at some PvNodes (~2 Elo)
           if (   PvNode
               && bestMoveCount <= 3)
-              r--;
-
-          if (improvement > 2000)
               r--;
 
           // Decrease reduction if position is or has been on the PV
@@ -1347,7 +1341,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (depth >= 4 || PvNode)
+    else if (   (depth >= 4 || PvNode || (depth >= 2 && cutNode))
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
