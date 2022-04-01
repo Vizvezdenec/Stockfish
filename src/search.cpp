@@ -1152,7 +1152,7 @@ moves_loop: // When in check, search starts here
               && bestMoveCount <= 3)
               r--;
 
-          if (improvement > 500)
+          if (improvement > 1000)
               r--;
 
           // Decrease reduction if position is or has been on the PV
