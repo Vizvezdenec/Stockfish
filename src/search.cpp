@@ -783,7 +783,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        else if (value > beta + 88 * depth)
+        else if (value > beta + 151 * depth)
             return value;
     }
 
