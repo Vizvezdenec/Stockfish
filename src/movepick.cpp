@@ -150,7 +150,7 @@ void MovePicker::score() {
                           :                                                                           0)
                    +     type_of(pos.moved_piece(m)) == KNIGHT 
                       && !(to_sq(m) & threatenedByRook)
-                      && more_than_one(attacks_bb<KNIGHT>(to_sq(m)) & pos.pieces(~pos.side_to_move(), KING, QUEEN)) ? 50000 : 0;
+                      && more_than_one(attacks_bb<KNIGHT>(to_sq(m)) & pos.pieces(~pos.side_to_move(), KING, QUEEN)) ? 5000 : 0;
 
       else // Type == EVASIONS
       {
