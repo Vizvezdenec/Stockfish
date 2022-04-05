@@ -49,36 +49,6 @@ namespace {
 
 } // namespace
 
-auto f1 = [](int m){return Range(m-5000, m+5000);};
-int ValA1 = 0, ValB1 = 0, ValC1 = 0, ValD1 = 0, ValE1 = 0, ValF1 = 0, ValG1 = 0, ValH1 = 0;
-int ValA2 = 0, ValB2 = 0, ValC2 = 0, ValD2 = 0, ValE2 = 0, ValF2 = 0, ValG2 = 0, ValH2 = 0;
-int ValA3 = 0, ValB3 = 0, ValC3 = 0, ValD3 = 0, ValE3 = 0, ValF3 = 0, ValG3 = 0, ValH3 = 0;
-int ValA4 = 0, ValB4 = 0, ValC4 = 0, ValD4 = 0, ValE4 = 0, ValF4 = 0, ValG4 = 0, ValH4 = 0;
-int ValA5 = 0, ValB5 = 0, ValC5 = 0, ValD5 = 0, ValE5 = 0, ValF5 = 0, ValG5 = 0, ValH5 = 0;
-int ValA6 = 0, ValB6 = 0, ValC6 = 0, ValD6 = 0, ValE6 = 0, ValF6 = 0, ValG6 = 0, ValH6 = 0;
-int ValA7 = 0, ValB7 = 0, ValC7 = 0, ValD7 = 0, ValE7 = 0, ValF7 = 0, ValG7 = 0, ValH7 = 0;
-int ValA8 = 0, ValB8 = 0, ValC8 = 0, ValD8 = 0, ValE8 = 0, ValF8 = 0, ValG8 = 0, ValH8 = 0;
-TUNE(SetRange(f1), ValA1 , ValB1 , ValC1 , ValD1 , ValE1 , ValF1 , ValG1 , ValH1);
-TUNE(SetRange(f1), ValA2 , ValB2 , ValC2 , ValD2 , ValE2 , ValF2 , ValG2 , ValH2);
-TUNE(SetRange(f1), ValA3 , ValB3 , ValC3 , ValD3 , ValE3 , ValF3 , ValG3 , ValH3);
-TUNE(SetRange(f1), ValA4 , ValB4 , ValC4 , ValD4 , ValE4 , ValF4 , ValG4 , ValH4);
-TUNE(SetRange(f1), ValA5 , ValB5 , ValC5 , ValD5 , ValE5 , ValF5 , ValG5 , ValH5);
-TUNE(SetRange(f1), ValA6 , ValB6 , ValC6 , ValD6 , ValE6 , ValF6 , ValG6 , ValH6);
-TUNE(SetRange(f1), ValA7 , ValB7 , ValC7 , ValD7 , ValE7 , ValF7 , ValG7 , ValH7);
-TUNE(SetRange(f1), ValA8 , ValB8 , ValC8 , ValD8 , ValE8 , ValF8 , ValG8 , ValH8);
-
-int knightPsq[SQUARE_NB] = 
-{
-    ValA1 , ValB1 , ValC1 , ValD1 , ValE1 , ValF1 , ValG1 , ValH1,
-    ValA2 , ValB2 , ValC2 , ValD2 , ValE2 , ValF2 , ValG2 , ValH2,
-    ValA3 , ValB3 , ValC3 , ValD3 , ValE3 , ValF3 , ValG3 , ValH3,
-    ValA4 , ValB4 , ValC4 , ValD4 , ValE4 , ValF4 , ValG4 , ValH4,
-    ValA5 , ValB5 , ValC5 , ValD5 , ValE5 , ValF5 , ValG5 , ValH5,
-    ValA6 , ValB6 , ValC6 , ValD6 , ValE6 , ValF6 , ValG6 , ValH6,
-    ValA7 , ValB7 , ValC7 , ValD7 , ValE7 , ValF7 , ValG7 , ValH7,
-    ValA8 , ValB8 , ValC8 , ValD8 , ValE8 , ValF8 , ValG8 , ValH8
-};
-
 
 /// Constructors of the MovePicker class. As arguments we pass information
 /// to help it to return the (presumably) good moves first, to decide which
@@ -177,9 +147,8 @@ void MovePicker::score() {
                           : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
-                          :                                                                           0)
-                   +    (type_of(pos.moved_piece(m)) == KNIGHT ? knightPsq[relative_square(pos.side_to_move(), to_sq(m))] 
-                                                               - knightPsq[relative_square(pos.side_to_move(), from_sq(m))] : 0);
+                          :                                                                           0);
+
       else // Type == EVASIONS
       {
           if (pos.capture(m))
@@ -188,7 +157,8 @@ void MovePicker::score() {
           else
               m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                       - (1 << 28);
+                       - !pos.see_ge(m) * (1 << 27)
+                       - (1 << 27);
       }
 }
 
