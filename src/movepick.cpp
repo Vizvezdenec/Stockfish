@@ -150,7 +150,7 @@ void MovePicker::score() {
                           :                                                                           0)
                    -    (type_of(pos.moved_piece(m)) == KNIGHT 
                      && (file_of(to_sq(m)) == FILE_A 
-                      || file_of(to_sq(m)) == FILE_H) ? 1000 : 0);
+                      || file_of(to_sq(m)) == FILE_H) ? 5000 : 0);
 
       else // Type == EVASIONS
       {
