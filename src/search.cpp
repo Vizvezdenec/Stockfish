@@ -644,7 +644,7 @@ namespace {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-                else if (ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(ttMove))] + 20 * depth < alpha)
+                else if (ss->staticEval + PieceValue[MG][pos.piece_on(to_sq(ttMove))] / 2 < alpha)
                     thisThread->captureHistory[pos.moved_piece(ttMove)][to_sq(ttMove)][type_of(pos.piece_on(to_sq(ttMove)))] << stat_bonus(depth);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
