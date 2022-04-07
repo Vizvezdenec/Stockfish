@@ -49,9 +49,6 @@ namespace {
 
 } // namespace
 
-auto f1 = [](int m){return Range(m-5000, m+5000);};
-int knightPsq[64] = {0}; TUNE(SetRange(f1), knightPsq);
-
 
 /// Constructors of the MovePicker class. As arguments we pass information
 /// to help it to return the (presumably) good moves first, to decide which
@@ -150,9 +147,7 @@ void MovePicker::score() {
                           : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
-                          :                                                                           0)
-                   +    (type_of(pos.moved_piece(m)) == KNIGHT ? knightPsq[relative_square(pos.side_to_move(), to_sq(m))] 
-                                                               - knightPsq[relative_square(pos.side_to_move(), from_sq(m))] : 0);
+                          :                                                                           0);
 
       else // Type == EVASIONS
       {
