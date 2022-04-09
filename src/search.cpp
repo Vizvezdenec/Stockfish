@@ -904,7 +904,7 @@ namespace {
                             depth - 3, move, ss->staticEval);
                     return value;
                 }
-                else if (value <= alpha)
+                else if (value <= alpha - 10 * depth)
                     probcutMove[failedPcCount++] = move;
             }
          ss->ttPv = ttPv;
