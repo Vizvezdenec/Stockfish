@@ -544,7 +544,7 @@ namespace {
     assert(0 < depth && depth < MAX_PLY);
     assert(!(PvNode && cutNode));
 
-    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64];
+    Move pv[MAX_PLY+1], capturesSearched[32], quietsSearched[64], probcutMove[32];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -557,6 +557,7 @@ namespace {
     bool capture, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
+    int failedPcCount = 0;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -903,6 +904,8 @@ namespace {
                             depth - 3, move, ss->staticEval);
                     return value;
                 }
+                else if (value <= alpha)
+                    probcutMove[failedPcCount++] = move;
             }
          ss->ttPv = ttPv;
     }
@@ -1171,6 +1174,12 @@ moves_loop: // When in check, search starts here
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
+
+          if (capture)
+          {
+              for (int i = 0; i < failedPcCount; ++i)
+                  r += (move == probcutMove[i]);
+          }
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
