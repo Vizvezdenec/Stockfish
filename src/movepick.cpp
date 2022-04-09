@@ -49,20 +49,6 @@ namespace {
 
 } // namespace
 
-auto f1 = [](int m){return Range(m-5000, m+5000);};
-
-int knightPsq[64] = 
-{ 402, 409, -98, -72, -2, 239, -323, 136,
- -102, 106, 623, -22, 9, -208, -76, -88,
- -35, -98, 118, 165, 402, -368, -689, 187, 
- -102, 87, 31, -194, -128, -232, 7, 265,
- -335, 44, -249, -279, 189, -130, 143, 71, 
-  225, -254, -96, -16, 373, -42, -236, -505,
- -470, -258, -171, 79, 55, 106, -89, 458,
- -163, 232, -143, 186, -226, -690, -200, 1};
-
- TUNE(SetRange(f1), knightPsq);
-
 
 /// Constructors of the MovePicker class. As arguments we pass information
 /// to help it to return the (presumably) good moves first, to decide which
@@ -121,6 +107,7 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+  int comp;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -135,6 +122,7 @@ void MovePicker::score() {
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+      comp = 10000 / depth;
   }
   else
   {
@@ -143,6 +131,7 @@ void MovePicker::score() {
       (void) threatenedByPawn;
       (void) threatenedByMinor;
       (void) threatenedByRook;
+      (void) comp;
   }
 
   for (auto& m : *this)
@@ -157,13 +146,11 @@ void MovePicker::score() {
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ?
-                           (type_of(pos.moved_piece(m)) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
-                          : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
-                          :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
+                           (type_of(pos.moved_piece(m)) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000 + comp
+                          : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000 + comp
+                          :                                         !(to_sq(m) & threatenedByPawn)  ? 15000 + comp
                           :                                                                           0)
-                          :                                                                           0)
-                   +    (type_of(pos.moved_piece(m)) == KNIGHT ? knightPsq[relative_square(pos.side_to_move(), to_sq(m))] 
-                                                               - knightPsq[relative_square(pos.side_to_move(), from_sq(m))] : 0);
+                          :                                                                           0);
 
       else // Type == EVASIONS
       {
