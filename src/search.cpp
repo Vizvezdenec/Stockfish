@@ -664,6 +664,14 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
+        && ttValue > alpha && ttValue < beta)
+    {
+        if (tte->bound() == BOUND_UPPER)
+            beta = ttValue;
+        else if (tte->bound() == BOUND_LOWER)
+            alpha = ttValue;
+    }
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
