@@ -664,7 +664,7 @@ namespace {
             return ttValue;
     }
 
-    if (PvNode && depth <= 2 && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
+    if (PvNode && depth <= 1 && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
         && ttValue > alpha && ttValue < beta)
     {
         if (tte->bound() == BOUND_UPPER)
