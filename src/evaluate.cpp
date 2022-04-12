@@ -1088,9 +1088,9 @@ Value Eval::evaluate(const Position& pos) {
   // Deciding between classical and NNUE eval (~10 Elo): for high PSQ imbalance we use classical,
   // but we switch to NNUE during long shuffling or with high material on the board.
   if (  !useNNUE
-      || pos.this_thread()->ply < 5
-      || ((pos.this_thread()->depth > 9 || pos.count<ALL_PIECES>() > 7) &&
-          abs(eg_value(pos.psq_score())) * 5 > (856 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count())))
+      || ((pos.this_thread()->depth > 9 || pos.count<ALL_PIECES>() > 7) 
+       && (pos.this_thread()->depth > 4 || pos.count<ALL_PIECES>() > 16) 
+       && abs(eg_value(pos.psq_score())) * 5 > (856 + pos.non_pawn_material() / 64) * (5 + pos.rule50_count())))
   {
       v = Evaluation<NO_TRACE>(pos).value();          // classical
       useClassical = abs(v) >= 297;
@@ -1140,7 +1140,6 @@ std::string Eval::trace(Position& pos) {
   std::memset(scores, 0, sizeof(scores));
 
   // Reset any global variable used in eval
-  pos.this_thread()->ply             = 0;
   pos.this_thread()->depth           = 0;
   pos.this_thread()->trend           = SCORE_ZERO;
   pos.this_thread()->bestValue       = VALUE_ZERO;
