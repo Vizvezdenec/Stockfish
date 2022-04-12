@@ -664,13 +664,13 @@ namespace {
             return ttValue;
     }
 
-    if (PvNode && depth <= 1 && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
+    if (PvNode && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
         && ttValue > alpha && ttValue < beta)
     {
         if (tte->bound() == BOUND_UPPER)
-            beta = ttValue;
+            beta = beta - (beta - ttValue) / depth;
         else if (tte->bound() == BOUND_LOWER)
-            alpha = ttValue;
+            alpha = alpha + (ttValue - alpha) / depth;
     }
 
     // Step 5. Tablebases probe
