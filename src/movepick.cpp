@@ -122,7 +122,7 @@ void MovePicker::score() {
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-      comp = 5000 / depth;
+      comp = 3000 / depth;
   }
   else
   {
