@@ -665,15 +665,6 @@ namespace {
             return ttValue;
     }
 
-    if (PvNode && depth <= 1 && ss->ttHit && tte->depth() >= depth && ttValue != VALUE_NONE
-        && ttValue > alpha && ttValue < beta)
-    {
-        if (tte->bound() == BOUND_UPPER)
-            beta = ttValue;
-        else if (tte->bound() == BOUND_LOWER)
-            alpha = ttValue;
-    }
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1445,6 +1436,15 @@ moves_loop: // When in check, search starts here
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
+
+    if (PvNode && ss->ttHit && tte->depth() >= ttDepth && ttValue != VALUE_NONE
+        && ttValue > alpha && ttValue < beta)
+    {
+        if (tte->bound() == BOUND_UPPER)
+            beta = ttValue;
+        else if (tte->bound() == BOUND_LOWER)
+            alpha = ttValue;
+    }
 
     // Evaluate the position statically
     if (ss->inCheck)
