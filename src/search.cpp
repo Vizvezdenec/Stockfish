@@ -1004,7 +1004,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth) - bestMoveCount;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1436,15 +1436,6 @@ moves_loop: // When in check, search starts here
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
-
-    if (PvNode && ss->ttHit && tte->depth() >= ttDepth && ttValue != VALUE_NONE
-        && ttValue > alpha && ttValue < beta)
-    {
-        if (tte->bound() == BOUND_UPPER)
-            beta = ttValue;
-        else if (tte->bound() == BOUND_LOWER)
-            alpha = ttValue;
-    }
 
     // Evaluate the position statically
     if (ss->inCheck)
