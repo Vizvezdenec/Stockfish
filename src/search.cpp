@@ -556,7 +556,7 @@ namespace {
     bool givesCheck, improving, didLMR, priorCapture;
     bool capture, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
+    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity, scomplexity;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -771,6 +771,7 @@ namespace {
 
     improving = improvement > 0;
     complexity = abs(ss->staticEval - (us == WHITE ? eg_value(pos.psq_score()) : -eg_value(pos.psq_score())));
+    scomplexity = abs(ss->staticEval - eval);
 
     thisThread->complexityAverage.update(complexity);
 
@@ -801,7 +802,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + scomplexity / 64
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1294,10 +1295,7 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
-                  if (move == ttMove && beta < VALUE_INFINITE && value > KnightValueMg)
-                      alpha = (3 * value + beta - 1) / 4;
-                  else
-                      alpha = value;
+                  alpha = value;
                   bestMoveCount++;
               }
               else
