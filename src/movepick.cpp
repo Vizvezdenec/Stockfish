@@ -160,7 +160,7 @@ void MovePicker::score() {
               int m1, m2;
               m1 = popcount(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & mobilityArea);
               m2 = popcount(attacks_bb<KNIGHT>(to_sq(m), pos.pieces()) & mobilityArea);
-              m.value += (m2 * m2 - m1 * m1) * 250;
+              m.value += (m2 - m1) * 2000;
           }
       }
 
