@@ -47,6 +47,9 @@ namespace {
         }
   }
 
+    int knightMobility[8] = {0, 250, 500, 750, 1000, 1250, 1500, 1750};
+    TUNE(SetRange(0, 6000), knightMobility);
+
 } // namespace
 
 
@@ -160,7 +163,7 @@ void MovePicker::score() {
               int m1, m2;
               m1 = popcount(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & mobilityArea);
               m2 = popcount(attacks_bb<KNIGHT>(to_sq(m), pos.pieces()) & mobilityArea);
-              m.value += (m2 * m2 - m1 * m1) * 100;
+              m.value += knightMobility[m2] - knightMobility[m1];
           }
       }
 
