@@ -160,7 +160,7 @@ void MovePicker::score() {
               int m1, m2;
               m1 = popcount(attacks_bb<BISHOP>(from_sq(m), pos.pieces() ^ pos.pieces(QUEEN)) & mobilityArea);
               m2 = popcount(attacks_bb<BISHOP>(to_sq(m), pos.pieces() ^ pos.pieces(QUEEN)) & mobilityArea);
-              m.value += (m2 - m1) * 1000;
+              m.value += (m2 * m2 - m1 * m1) * 100;
           }
       }
 
