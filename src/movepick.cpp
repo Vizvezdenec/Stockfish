@@ -49,6 +49,15 @@ namespace {
 
 } // namespace
 
+constexpr int knightPsq[64] = 
+{ 680, 221, -664, 312, 1199, 307, 529, -921,
+ -45, 640, -335, 105, -288, 250, -471, -1221,
+ 187, -449, 747, 677, 97, 557, 466, 1480, 
+ -1024, -258, 890, 208, 928, -757, -154, -131,
+ -954, -668, -403, -766, 647, -1912, -263, -99, 
+  527, 728, -355, -650, 719, -13, 423, -720,
+ -1423, -430, -1112, 342, -805, -532, 22, 1366,
+ 1230, -672, 203, 1046, -685, -506, 187, -903};
 
 /// Constructors of the MovePicker class. As arguments we pass information
 /// to help it to return the (presumably) good moves first, to decide which
@@ -147,7 +156,9 @@ void MovePicker::score() {
                           : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
-                          :                                                                           0);
+                          :                                                                           0)
+                   +    (type_of(pos.moved_piece(m)) == KNIGHT ? knightPsq[relative_square(pos.side_to_move(), to_sq(m))] 
+                                                               - knightPsq[relative_square(pos.side_to_move(), from_sq(m))] : 0);
 
       else // Type == EVASIONS
       {
