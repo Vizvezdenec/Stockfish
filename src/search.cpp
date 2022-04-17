@@ -603,7 +603,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captKiller = MOVE_NONE;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -645,6 +645,7 @@ namespace {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                else ss->captKiller = ttMove;
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -1116,7 +1117,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode 
                    && capture
                    && move == ttMove
-                   && pos.see_ge(move))
+                   && move == ss->captKiller)
               extension = 1;
       }
 
@@ -1701,8 +1702,11 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        ss->captKiller = bestMove;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
