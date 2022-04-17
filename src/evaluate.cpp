@@ -950,6 +950,8 @@ namespace {
     v =  mg * int(me->game_phase())
        + eg * int(PHASE_MIDGAME - me->game_phase()) * ScaleFactor(sf) / SCALE_FACTOR_NORMAL;
     v /= PHASE_MIDGAME;
+    if (Eval::useNNUE && (int(mg) < 150 || int(eg) < 150))
+        v = VALUE_ZERO;
 
     if constexpr (T)
     {
