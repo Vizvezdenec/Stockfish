@@ -70,7 +70,7 @@ namespace {
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, int bestMoveCount) {
-    int r = Reductions[d] * Reductions[mn + bestMoveCount * bestMoveCount / 8];
+    int r = Reductions[d] * Reductions[mn + bestMoveCount * bestMoveCount * bestMoveCount / 9];
     return (r + 1463 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 1010);
   }
 
