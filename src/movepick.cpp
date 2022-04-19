@@ -46,7 +46,13 @@ namespace {
             *q = tmp;
         }
   }
-  constexpr int knightMobility[9] = {-390 / 4, 1214 / 4, 1572 / 4, 1968 / 4, 2290 / 4, 2444 / 4, 2598 / 4, 3106 / 4, 4344 / 4};
+
+  auto f1 = [](int m){return Range(m-10000, m+10000);};
+  int knightMobility[9] = {0};
+  int bishopMobility[14] = {0};
+  int rookMobility[15] = {0};
+  int queenMobility[28] = {0};
+  TUNE(SetRange(f1), knightMobility, bishopMobility, rookMobility, queenMobility);
 
 } // namespace
 
@@ -108,6 +114,7 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, mobilityArea;
+
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -156,12 +163,33 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0);
-          if (type_of(pos.moved_piece(m)) == KNIGHT)
+          if (type_of(pos.moved_piece(m)) != PAWN && type_of(pos.moved_piece(m)) != KING)
           {
               int m1, m2;
-              m1 = popcount(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & mobilityArea);
-              m2 = popcount(attacks_bb<KNIGHT>(to_sq(m), pos.pieces()) & mobilityArea);
-              m.value += knightMobility[m2] - knightMobility[m1];
+              if (type_of(pos.moved_piece(m)) == KNIGHT)
+              {
+                m1 = popcount(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & mobilityArea);
+                m2 = popcount(attacks_bb<KNIGHT>(to_sq(m), pos.pieces()) & mobilityArea);
+                m.value += knightMobility[m2] - knightMobility[m1];
+              }
+              else if (type_of(pos.moved_piece(m)) == BISHOP)
+              {
+                m1 = popcount(attacks_bb<BISHOP>(from_sq(m), pos.pieces() ^ pos.pieces(QUEEN)) & mobilityArea);
+                m2 = popcount(attacks_bb<BISHOP>(to_sq(m), pos.pieces() ^ pos.pieces(QUEEN)) & mobilityArea);
+                m.value += bishopMobility[m2] - bishopMobility[m1];
+              }
+              else if (type_of(pos.moved_piece(m)) == ROOK)
+              {
+                m1 = popcount(attacks_bb<ROOK>(from_sq(m), pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(pos.side_to_move(), ROOK)) & mobilityArea);
+                m2 = popcount(attacks_bb<ROOK>(to_sq(m), pos.pieces() ^ pos.pieces(QUEEN) ^ pos.pieces(pos.side_to_move(), ROOK)) & mobilityArea);
+                m.value += rookMobility[m2] - rookMobility[m1];
+              }
+              else 
+              {
+                m1 = popcount(attacks_bb<QUEEN>(from_sq(m), pos.pieces()) & mobilityArea);
+                m2 = popcount(attacks_bb<QUEEN>(to_sq(m), pos.pieces()) & mobilityArea);
+                m.value += queenMobility[m2] - queenMobility[m1];
+              }
           }
       }
 
