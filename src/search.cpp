@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
-          if (ttCapture && move != ss->killers[0])
+          if (ttCapture)
               r++;
 
           // Decrease reduction at PvNodes if bestvalue
@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 4            ? 2
-                       : PvNode && depth > 4       ? 1
+                       : PvNode                    ? 1 + (depth <= 4)
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
 
