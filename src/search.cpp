@@ -69,8 +69,8 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
-    int r = Reductions[d] * Reductions[mn];
+  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, int bestMoveCount) {
+    int r = Reductions[d] * Reductions[mn + bestMoveCount];
     return (r + 1463 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 1010);
   }
 
@@ -556,7 +556,7 @@ namespace {
     bool givesCheck, improving, didLMR, priorCapture;
     bool capture, doFullDepthSearch, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, improvement, complexity;
+    int moveCount, captureCount, quietCount, bestMoveCount, improvement, complexity;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -564,7 +564,7 @@ namespace {
     ss->inCheck        = pos.checkers();
     priorCapture       = pos.captured_piece();
     Color us           = pos.side_to_move();
-    moveCount          = captureCount = quietCount = ss->moveCount = 0;
+    moveCount          = bestMoveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
 
@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta, bestMoveCount), 0);
 
           if (   capture
               || givesCheck)
@@ -1143,7 +1143,11 @@ moves_loop: // When in check, search starts here
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, bestMoveCount);
+
+          // Decrease reduction at some PvNodes (~2 Elo)
+          if (PvNode)
+              r--;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
@@ -1170,7 +1174,7 @@ moves_loop: // When in check, search starts here
 
           // Increase depth based reduction if PvNode
           if (PvNode)
-              r -= 1 + 15 / (3 + depth);
+              r -= 15 / ( 3 + depth );
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1294,6 +1298,7 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
                   alpha = value;
+                  bestMoveCount++;
               }
               else
               {
