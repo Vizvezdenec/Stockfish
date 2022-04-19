@@ -46,7 +46,7 @@ namespace {
             *q = tmp;
         }
   }
-  constexpr int knightMobility[9] = {-390, 1214, 1572, 1968, 2290, 2444, 2598, 3106, 4344};
+  constexpr int knightMobility[9] = {-390 / 4, 1214 / 4, 1572 / 4, 1968 / 4, 2290 / 4, 2444 / 4, 2598 / 4, 3106 / 4, 4344 / 4};
 
 } // namespace
 
