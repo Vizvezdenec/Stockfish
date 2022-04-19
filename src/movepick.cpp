@@ -47,8 +47,6 @@ namespace {
         }
   }
 
-  constexpr int knightMobility[9] = {-195, 607, 786, 984, 1145, 1222, 1299, 1553, 2172};
-
 } // namespace
 
 
@@ -108,7 +106,7 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, mobilityArea;
+  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -118,11 +116,6 @@ void MovePicker::score() {
       threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
       // squares threatened by rooks, minors or pawns
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-      Bitboard LowRanks = (us == WHITE ? Rank2BB | Rank3BB : Rank7BB | Rank6BB);
-      Bitboard b = us == WHITE ? pos.pieces(us, PAWN) & (shift<SOUTH>(pos.pieces()) | LowRanks) 
-                               : pos.pieces(us, PAWN) & (shift<NORTH>(pos.pieces()) | LowRanks);
-      mobilityArea = ~(b | pos.pieces(us, KING, QUEEN) | pos.blockers_for_king(us) | threatenedByPawn);
 
       // pieces threatened by pieces of lesser material value
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
@@ -136,7 +129,6 @@ void MovePicker::score() {
       (void) threatenedByPawn;
       (void) threatenedByMinor;
       (void) threatenedByRook;
-      (void) mobilityArea;
   }
 
   for (auto& m : *this)
@@ -145,7 +137,6 @@ void MovePicker::score() {
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
-      {
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
@@ -157,14 +148,6 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0);
-          if (type_of(pos.moved_piece(m)) == KNIGHT)
-          {
-              int m1, m2;
-              m1 = popcount(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & mobilityArea);
-              m2 = popcount(attacks_bb<KNIGHT>(to_sq(m), pos.pieces()) & mobilityArea);
-              m.value += knightMobility[m2] - knightMobility[m1];
-          }
-      }
 
       else // Type == EVASIONS
       {
