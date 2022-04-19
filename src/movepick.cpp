@@ -47,7 +47,7 @@ namespace {
         }
   }
 
-  constexpr int knightMobility[9] = {-195, 607, 522, 984, 1145, 755, 1299, 1553, 2172};
+  constexpr int knightMobility[9] = {-195, 607, 786, 984, 1145, 1222, 1299, 1553, 2172};
 
 } // namespace
 
