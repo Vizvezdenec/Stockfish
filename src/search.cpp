@@ -1593,7 +1593,7 @@ moves_loop: // When in check, search starts here
               {
                   alpha = value;
                   bestMoveCount++;
-                  if (bestMoveCount > 2)
+                  if (bestMoveCount > 1)
                       break;
               }
               else
