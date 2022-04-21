@@ -1114,6 +1114,7 @@ moves_loop: // When in check, search starts here
               extension = 1;
           else if (  !PvNode
                    && ss->ttHit
+                   && move == ttMove
                    && tte->bound() == BOUND_LOWER
                    && ttValue > ss->staticEval + 60 * depth)
               extension = 1;
