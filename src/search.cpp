@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts here
                    && ss->ttHit
                    && move == ttMove
                    && tte->bound() == BOUND_LOWER
-                   && ttValue > ss->staticEval + 30 * depth)
+                   && ttValue > ss->staticEval + 120 * depth)
               extension = 1;
       }
 
