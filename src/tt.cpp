@@ -33,7 +33,7 @@ TranspositionTable TT; // Our global transposition table
 /// TTEntry::save() populates the TTEntry with a new node's data, possibly
 /// overwriting an old position. Update is not atomic and can be racy.
 
-void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev, Position& pos) {
+void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) {
 
   // Preserve any existing move for the same position
   if (m || (uint16_t)k != key16)
@@ -42,8 +42,7 @@ void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev, 
   // Overwrite less valuable entries (cheapest checks first)
   if (   b == BOUND_EXACT
       || (uint16_t)k != key16
-      || d - DEPTH_OFFSET + 2 * pv > depth8 - 4
-      || !(pos.pseudo_legal((Move )move16) && pos.legal((Move )move16)))
+      || d - DEPTH_OFFSET + 2 * pv > depth8 - 4)
   {
       assert(d > DEPTH_OFFSET);
       assert(d < 256 + DEPTH_OFFSET);
