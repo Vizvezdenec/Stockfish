@@ -701,7 +701,7 @@ namespace {
                 {
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, b,
                               std::min(MAX_PLY - 1, depth + 6),
-                              MOVE_NONE, VALUE_NONE);
+                              MOVE_NONE, VALUE_NONE, false);
 
                     return value;
                 }
@@ -751,7 +751,7 @@ namespace {
 
         // Save static evaluation into transposition table
         if (!excludedMove)
-            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
+            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval, false);
     }
 
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
@@ -901,7 +901,7 @@ namespace {
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
-                            depth - 3, move, ss->staticEval);
+                            depth - 3, move, ss->staticEval, false);
                     return value;
                 }
             }
@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool forceRewrite = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -980,6 +982,9 @@ moves_loop: // When in check, search starts here
           continue;
 
       ss->moveCount = ++moveCount;
+
+      if (moveCount == 1 && ttMove && ss->ttHit && move != ttMove && !excludedMove)
+          forceRewrite = true;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth
@@ -1371,7 +1376,7 @@ moves_loop: // When in check, search starts here
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  depth, bestMove, ss->staticEval);
+                  depth, bestMove, ss->staticEval, forceRewrite);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
@@ -1472,7 +1477,7 @@ moves_loop: // When in check, search starts here
             // Save gathered info in transposition table
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
-                          DEPTH_NONE, MOVE_NONE, ss->staticEval);
+                          DEPTH_NONE, MOVE_NONE, ss->staticEval, false);
 
             return bestValue;
         }
@@ -1499,6 +1504,8 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
+    bool forceRewrite = false;
+
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
     {
@@ -1512,6 +1519,9 @@ moves_loop: // When in check, search starts here
       capture = pos.capture(move);
 
       moveCount++;
+
+      if (moveCount == 1 && ss->ttHit && ttMove && move != ttMove)
+          forceRewrite = true;
 
       // Futility pruning and moveCount pruning (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
@@ -1608,7 +1618,7 @@ moves_loop: // When in check, search starts here
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
-              ttDepth, bestMove, ss->staticEval);
+              ttDepth, bestMove, ss->staticEval, forceRewrite);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
