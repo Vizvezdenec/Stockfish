@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, int improvement) {
-    return Value((168 - std::clamp(improvement / 64, -20, 20))* (d - (improvement > 0)));
+    return Value((168 - std::clamp(improvement / 64, -10, 10)) * (d - (improvement > 0)));
   }
 
   // Reductions lookup table, initialized at startup
@@ -785,7 +785,7 @@ namespace {
         if (value < alpha)
             return value;
     }
-
+    
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
