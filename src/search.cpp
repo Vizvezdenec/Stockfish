@@ -1355,7 +1355,7 @@ moves_loop: // When in check, search starts here
                           || cutNode
                           || bestValue < alpha - 70 * depth;
 
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus) + std::min(int(alpha - bestValue) / 32, std::min(16 * depth * depth, 1000)));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus) + std::min(int(alpha - bestValue) / 32, 4 * depth * depth));
     }
 
     if (PvNode)
