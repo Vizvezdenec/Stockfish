@@ -1117,6 +1117,7 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && tte->bound() == BOUND_LOWER
                    && ttValue > ss->staticEval + 333
+                   && abs(ttValue) < VALUE_KNOWN_WIN
                    && ttValue > alpha)
               extension = 1;
       }
