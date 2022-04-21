@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, int improvement) {
-    return Value((168 - std::clamp(improvement / 32, -10, 10))* (d - (improvement > 0)));
+    return Value((168 - std::clamp(improvement / 16, -20, 20))* (d - (improvement > 0)));
   }
 
   // Reductions lookup table, initialized at startup
