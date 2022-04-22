@@ -535,7 +535,7 @@ namespace {
             return alpha;
     }
 
-    if (ss->ply > 2 * pos.this_thread()->rootDepth && depth >= (ss-1)->depth)
+    if (ss->ply >= 2 * pos.this_thread()->rootDepth && depth >= (ss-1)->depth)
         depth = (ss-1)->depth - 1;
 
     // Dive into quiescence search when the depth reaches zero
