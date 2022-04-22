@@ -535,6 +535,9 @@ namespace {
             return alpha;
     }
 
+    if (ss->ply > 2 * pos.this_thread()->rootDepth && depth >= (ss-1)->depth)
+        depth = (ss-1)->depth - 1;
+
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
         return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
@@ -1053,8 +1056,6 @@ moves_loop: // When in check, search starts here
 
       // Step 15. Extensions (~66 Elo)
       // We take care to not overdo to avoid search getting stuck.
-      if (ss->ply < thisThread->rootDepth * 2)
-      {
           // Singular extension search (~58 Elo). If all moves but one fail low on a
           // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
           // then that move is singular and should be extended. To verify this we do
@@ -1067,7 +1068,7 @@ moves_loop: // When in check, search starts here
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3 - (!PvNode && tte->bound() == BOUND_LOWER && depth > 11))
+              &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
@@ -1116,7 +1117,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-      }
 
       // Add extension to new depth
       newDepth += extension;
