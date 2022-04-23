@@ -723,7 +723,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = ss->eval = VALUE_NONE;
+        ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
         complexity = 0;
@@ -744,11 +744,10 @@ namespace {
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-        ss->eval = eval;
     }
     else
     {
-        ss->staticEval = eval = ss->eval = evaluate(pos);
+        ss->staticEval = eval = evaluate(pos);
 
         // Save static evaluation into transposition table
         if (!excludedMove)
@@ -775,7 +774,7 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    if ((ss-2)->currentMove == MOVE_NULL && improving && eval > ss->staticEval && eval > (ss-2)->eval && eval > beta + 40 * depth)
+    if ((ss-2)->currentMove == MOVE_NULL && improvement > 300)
         return beta;
 
     // Step 7. Razoring.
