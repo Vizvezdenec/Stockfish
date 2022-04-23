@@ -775,7 +775,11 @@ namespace {
     thisThread->complexityAverage.update(complexity);
 
     if ((ss-1)->currentMove == MOVE_NULL && improvement < 0)
-        return alpha;
+    {
+        value = qsearch<NonPV>(pos, ss, alpha, beta);
+        if (value <= alpha)
+            return value;
+    }
 
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
