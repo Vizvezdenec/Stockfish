@@ -1230,7 +1230,7 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta + (beta - alpha) / 4))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta + (beta - alpha) / 8))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
