@@ -774,7 +774,7 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    if ((ss-2)->currentMove == MOVE_NULL && improvement > 300)
+    if ((ss-2)->currentMove == MOVE_NULL && improvement > 110)
         return beta;
 
     // Step 7. Razoring.
