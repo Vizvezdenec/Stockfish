@@ -774,9 +774,6 @@ namespace {
 
     thisThread->complexityAverage.update(complexity);
 
-    if ((ss-2)->currentMove == MOVE_NULL && eval > ss->staticEval && improvement > 110)
-        return beta;
-
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -1104,7 +1101,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-                  extension = -1;
+                  extension = -1 - (ttValue < value - 56);
           }
 
           // Check extensions (~1 Elo)
