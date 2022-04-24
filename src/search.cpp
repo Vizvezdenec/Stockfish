@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, int improvement) {
-    return Value((168 - std::clamp(improvement / 4, -40, 40)) * (d - (improvement > 0)));
+  Value futility_margin(Depth d, bool improving) {
+    return Value(168 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -790,7 +790,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 8
-        &&  eval - futility_margin(depth, improvement) - (ss-1)->statScore / 256 >= beta
+        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts here
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta) / (1 + capture);
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
