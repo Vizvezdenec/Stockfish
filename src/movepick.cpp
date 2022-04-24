@@ -117,8 +117,8 @@ void MovePicker::score() {
       // squares threatened by rooks, minors or pawns
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
 
-      possiblePA = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(~us) ^ pos.pieces(~us, PAWN))
-                               : pawn_attacks_bb<WHITE>(pos.pieces(~us) ^ pos.pieces(~us, PAWN));
+      possiblePA = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(~us) ^ pos.pieces(~us, PAWN)) & ~pawn_attacks_bb<BLACK>(pos.pieces(~us, PAWN))
+                               : pawn_attacks_bb<WHITE>(pos.pieces(~us) ^ pos.pieces(~us, PAWN)) & ~pawn_attacks_bb<WHITE>(pos.pieces(~us, PAWN));
 
       // pieces threatened by pieces of lesser material value
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
