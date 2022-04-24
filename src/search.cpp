@@ -1147,7 +1147,7 @@ moves_loop: // When in check, search starts here
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta) / (1 + capture);
+          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta) / (1 + 2 * capture);
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
