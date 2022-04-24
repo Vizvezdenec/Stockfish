@@ -106,7 +106,7 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, possiblePA;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -116,6 +116,9 @@ void MovePicker::score() {
       threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
       // squares threatened by rooks, minors or pawns
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
+
+      possiblePA = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(~us) ^ pos.pieces(~us, PAWN))
+                               : pawn_attacks_bb<WHITE>(pos.pieces(~us) ^ pos.pieces(~us, PAWN));
 
       // pieces threatened by pieces of lesser material value
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
@@ -129,6 +132,7 @@ void MovePicker::score() {
       (void) threatenedByPawn;
       (void) threatenedByMinor;
       (void) threatenedByRook;
+      (void) possiblePA;
   }
 
   for (auto& m : *this)
@@ -147,7 +151,9 @@ void MovePicker::score() {
                           : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
-                          :                                                                           0);
+                          :                                                                           0)
+                   +     (type_of(pos.moved_piece(m)) == PAWN && (possiblePA & to_sq(m)) && !(possiblePA & from_sq(m)) ? 10000
+                                                                                                                       : 0);
 
       else // Type == EVASIONS
       {
