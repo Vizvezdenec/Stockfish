@@ -1066,7 +1066,7 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
-              Value dodgeValue = mva && type_of(movedPiece) != PAWN && (pawnAttacks & from_sq(move)) ? PieceValue[MG][pos.piece_on(from_sq(move))] : VALUE_ZERO;
+              Value dodgeValue = mva && type_of(movedPiece) != PAWN && (pawnAttacks & from_sq(move)) && !(pawnAttacks & to_sq(move)) ? PieceValue[MG][pos.piece_on(from_sq(move))] : VALUE_ZERO;
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
