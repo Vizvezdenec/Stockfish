@@ -845,7 +845,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 179 - 46 * improving - 23 * ((ss-1)->currentMove == MOVE_NULL);
+    probCutBeta = beta + 179 - 46 * improving + 23 * ((ss-1)->currentMove == MOVE_NULL);
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
