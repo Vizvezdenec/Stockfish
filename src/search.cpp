@@ -958,6 +958,33 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    Bitboard pawnAttacks, mva;
+    pawnAttacks = mva = 0;
+    Value staticAdj = VALUE_ZERO;
+    if (!ss->inCheck)
+    {
+        pawnAttacks = us == WHITE ? pawn_attacks_bb<BLACK>(pos.pieces(~us, PAWN))
+                                  : pawn_attacks_bb<WHITE>(pos.pieces(~us, PAWN));
+
+        mva = pawnAttacks & pos.pieces(us, QUEEN);
+        if (!mva)
+        {
+            mva = pawnAttacks & pos.pieces(us, ROOK);
+            staticAdj = mva ? RookValueMg : VALUE_ZERO;
+        }
+        else staticAdj = QueenValueMg;
+        if (!mva)
+        {
+            mva = pawnAttacks & pos.pieces(us, BISHOP);
+            staticAdj = mva ? BishopValueMg : VALUE_ZERO;
+        }
+        if (!mva)
+        {
+            mva = pawnAttacks & pos.pieces(us, KNIGHT);
+            staticAdj = mva ? KnightValueMg : VALUE_ZERO;
+        }
+    }
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1039,10 +1066,12 @@ moves_loop: // When in check, search starts here
 
               history += thisThread->mainHistory[us][from_to(move)];
 
+              Value dodgeValue = mva && type_of(movedPiece) != PAWN && (pawnAttacks & from_sq(move)) ? PieceValue[MG][pos.piece_on(from_sq(move))] : VALUE_ZERO;
+
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 - staticAdj + dodgeValue <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1189,7 +1218,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : moveCount <= 4 - PvNode * 2 * (r + 2)   ? 2
+                       : moveCount <= 4            ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
