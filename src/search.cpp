@@ -778,9 +778,10 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
+        && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
-        value = search<NonPV>(pos, ss, alpha - 1, alpha, depth - 7, cutNode);
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
     }
@@ -1147,6 +1148,9 @@ moves_loop: // When in check, search starts here
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+
+          if ((ss-1)->currentMove == MOVE_NULL && !capture && depth >= 4)
+              r += 2;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
