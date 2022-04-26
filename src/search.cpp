@@ -1149,7 +1149,7 @@ moves_loop: // When in check, search starts here
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-          if ((ss-1)->currentMove == MOVE_NULL && !capture && depth >= 4 && !cutNode)
+          if ((ss-1)->currentMove == MOVE_NULL && !capture && depth >= 4 && ss->staticEval <= alpha)
               r++;
 
           // Decrease reduction if position is or has been on the PV
