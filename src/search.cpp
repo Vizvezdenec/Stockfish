@@ -1034,7 +1034,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -2000 * (depth - 1))
+                  && history < -3875 * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
@@ -1171,6 +1171,10 @@ moves_loop: // When in check, search starts here
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
+
+          // Increase reduction if the previous move was a null move.
+          if ((ss-1)->currentMove == MOVE_NULL && depth >= 4)
+              r += 1 - 2 * capture;
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
