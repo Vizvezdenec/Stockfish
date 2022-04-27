@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    Value origDelta = beta - alpha;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -997,6 +999,9 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
+
+      if (bestMove && ttMove && bestMove == ttMove && delta < origDelta / 2)
+          newDepth -= std::max(1, newDepth - moveCount / 8);
 
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1148,9 +1153,6 @@ moves_loop: // When in check, search starts here
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
-
-          if ((ss-1)->currentMove == MOVE_NULL && !capture && depth >= 4 && !ss->ttPv)
-              r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
