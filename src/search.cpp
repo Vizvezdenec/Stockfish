@@ -1000,8 +1000,8 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
-      if (bestMove && ttMove && bestMove == ttMove && delta < origDelta / 2)
-          newDepth -= std::max(1, newDepth - moveCount / 8);
+      if (bestMove && ttMove && bestMove == ttMove && delta < origDelta / 4)
+          newDepth -= std::max(1, newDepth - moveCount / 16);
 
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
