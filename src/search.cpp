@@ -83,17 +83,6 @@ namespace {
     return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
-  int pred[] = {4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2};
-
-  TUNE(pred);
-
-  int pvReduction(Depth d)
-  {
-      if (d > 12)
-          return 1;
-      return pred[d - 2];
-  }
-
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -1185,7 +1174,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= pvReduction(depth);
+              r -= 1 + 15 / ( 3 + depth );
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1711,7 +1700,7 @@ moves_loop: // When in check, search starts here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0] || bestValue > beta + 80 * depth))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
