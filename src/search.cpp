@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
-              r -= 1 + (abs(ss->staticEval - bestValue) > 1500);
+              r -= 1 + (abs(ss->staticEval - bestValue) > 3000);
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
