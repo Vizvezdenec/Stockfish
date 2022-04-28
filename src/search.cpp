@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
-              r--;
+              r -= 1 + (abs(ss->staticEval - bestValue) > 1000);
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
@@ -1700,7 +1700,7 @@ moves_loop: // When in check, search starts here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0] || bestValue > beta + 500 + 80 * depth))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
