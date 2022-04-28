@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
-              r--;
+              r -= 1 + (abs(ss->staticEval - bestValue) > 1500);
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
@@ -1186,7 +1186,7 @@ moves_loop: // When in check, search starts here
           r -= ss->statScore / 15914;
 
           if (PvNode)
-              r = std::min(r, 2);
+              r = std::min(r, 4);
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
