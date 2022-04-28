@@ -83,6 +83,17 @@ namespace {
     return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
+  int pred[] = {4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2};
+
+  TUNE(pred);
+
+  int pvReduction(Depth d)
+  {
+      if (d > 12)
+          return 1;
+      return pred[d - 2];
+  }
+
   // Add a small random component to draw evaluations to avoid 3-fold blindness
   Value value_draw(Thread* thisThread) {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
@@ -1172,13 +1183,9 @@ moves_loop: // When in check, search starts here
           if (PvNode && !ss->inCheck && abs(ss->staticEval - bestValue) > 250)
               r--;
 
-          // Increase reduction if the previous move was a null move.
-          if ((ss-1)->currentMove == MOVE_NULL && depth >= 4)
-              r += 1 - 2 * capture;
-
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / ( 3 + depth );
+              r -= pvReduction(depth);
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
