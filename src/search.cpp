@@ -607,6 +607,10 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    if (PvNode)
+        ss->plyToPv = 0, ss->totalMc = 0;
+    else 
+        ss->plyToPv = (ss-1)->plyToPv + 1, ss->totalMc = (ss-1)->totalMc + (ss-1)->moveCount * !!(ss-1)->plyToPv;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -1175,6 +1179,9 @@ moves_loop: // When in check, search starts here
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 15 / ( 3 + depth );
+
+          if (ss->plyToPv > 4 && ss->totalMc > 16 * ss->plyToPv)
+              r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
