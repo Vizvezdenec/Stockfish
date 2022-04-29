@@ -723,7 +723,7 @@ namespace {
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = VALUE_NONE;
+        ss->staticEval = eval = ss->eval = VALUE_NONE;
         improving = false;
         improvement = 0;
         complexity = 0;
@@ -732,22 +732,22 @@ namespace {
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        ss->staticEval = eval = tte->eval();
+        ss->staticEval = eval = ss->eval = tte->eval();
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos);
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
-            eval = value_draw(thisThread);
+            eval = ss->eval = value_draw(thisThread);
 
         // ttValue can be used as a better position evaluation (~4 Elo)
         if (    ttValue != VALUE_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
-            eval = ttValue;
+            eval = ss->eval = ttValue;
     }
     else
     {
-        ss->staticEval = eval = evaluate(pos);
+        ss->staticEval = eval = ss->eval = evaluate(pos);
 
         // Save static evaluation into transposition table
         if (!excludedMove)
@@ -765,8 +765,8 @@ namespace {
     // static evaluation and the previous static evaluation at our turn (if we were
     // in check at our previous move we look at the move prior to it). The improvement
     // margin and the improving flag are used in various pruning heuristics.
-    improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
-                  : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
+    improvement =   (ss-2)->eval != VALUE_NONE ? ss->eval - (ss-2)->eval
+                  : (ss-4)->eval != VALUE_NONE ? ss->eval - (ss-4)->eval
                   :                                    175;
 
     improving = improvement > 0;
