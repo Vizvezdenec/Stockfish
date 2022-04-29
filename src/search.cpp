@@ -779,7 +779,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - 348 - 258 * depth * depth + 300 * ((ss-1)->currentMove == MOVE_NULL))
+        && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1567,7 +1567,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (moveCount == 1 && (givesCheck || ss->inCheck)));
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
