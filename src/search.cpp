@@ -742,7 +742,6 @@ namespace {
 
         // ttValue can be used as a better position evaluation (~4 Elo)
         if (    ttValue != VALUE_NONE
-            && tte->depth() >= -1
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -1144,6 +1143,7 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
+          && !(capture && !captureCount)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
