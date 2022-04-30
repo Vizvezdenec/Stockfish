@@ -781,9 +781,21 @@ namespace {
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
+        bool ttHit = ss->ttHit;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        else if (!ttHit)
+        {
+            posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
+            tte = TT.probe(posKey, ss->ttHit);
+            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
+                : ss->ttHit    ? tte->move() : MOVE_NONE;
+            ttCapture = ttMove && pos.capture(ttMove);
+            if (!excludedMove)
+                ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1165,7 +1177,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + 2 * (!PvNode && ss->inCheck && !capture);
+              r++;
 
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
