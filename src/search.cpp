@@ -607,6 +607,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    ss->isRazoring = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -781,9 +782,12 @@ namespace {
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
+        ss->isRazoring = true;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        ss->isRazoring = false;
         if (value < alpha)
             return value;
+        else ttMove = ss->razorMove;
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1587,7 +1591,11 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  if (ss->isRazoring)
+                      ss->razorMove = move;
                   break; // Fail high
+              }
           }
        }
     }
