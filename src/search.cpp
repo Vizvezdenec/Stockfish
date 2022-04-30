@@ -1174,7 +1174,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / ( 3 + depth - (2 * delta / thisThread->rootDelta));
+              r -= 1 + 15 / ( 3 + depth - (delta == thisThread->rootDelta));
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
