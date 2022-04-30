@@ -607,6 +607,11 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    bool inIID = ss->inIID;
+    ss->inIID = false;
+    ss->singularMove = MOVE_NONE;
+    ss->singularValue = VALUE_NONE;
+    bool doSingular = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -781,21 +786,9 @@ namespace {
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
-        bool ttHit = ss->ttHit;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        else if (!ttHit)
-        {
-            posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
-            tte = TT.probe(posKey, ss->ttHit);
-            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
-                : ss->ttHit    ? tte->move() : MOVE_NONE;
-            ttCapture = ttMove && pos.capture(ttMove);
-            if (!excludedMove)
-                ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
-        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -925,6 +918,15 @@ namespace {
         && depth >= 3
         && !ttMove)
         depth -= 2;
+
+    if (PvNode && !ss->ttHit && depth > 8)
+    {
+        ss->inIID = true;
+        value = search<NonPV>(pos, ss, alpha, alpha + 1, depth - 3, cutNode);
+        ss->inIID = false;
+        if (value > alpha)
+            doSingular = true;
+    }
 
     if (   cutNode
         && depth >= 8
@@ -1063,6 +1065,9 @@ moves_loop: // When in check, search starts here
           }
       }
 
+      doSingular |= abs(ttValue) < VALUE_KNOWN_WIN
+              && (tte->bound() & BOUND_LOWER)
+              &&  tte->depth() >= depth - 3;
       // Step 15. Extensions (~66 Elo)
       // We take care to not overdo to avoid search getting stuck.
       if (ss->ply < thisThread->rootDepth * 2)
@@ -1074,14 +1079,12 @@ moves_loop: // When in check, search starts here
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
               &&  depth >= 4 + 2 * (PvNode && tte->is_pv())
-              &&  move == ttMove
+              && (move == ttMove || move == ss->singularMove)
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-              &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3)
+              &&  doSingular)
           {
-              Value singularBeta = ttValue - 3 * depth;
+              Value singularBeta = ss->ttHit ? ttValue - 3 * depth : ss->singularValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1312,6 +1315,8 @@ moves_loop: // When in check, search starts here
               else
               {
                   assert(value >= beta); // Fail high
+                  ss->singularValue = value;
+                  ss->singularMove = move;
                   break;
               }
           }
@@ -1375,7 +1380,7 @@ moves_loop: // When in check, search starts here
         ss->ttPv = ss->ttPv || ((ss-1)->ttPv && depth > 3);
 
     // Write gathered information in transposition table
-    if (!excludedMove && !(rootNode && thisThread->pvIdx))
+    if (!excludedMove && !(rootNode && thisThread->pvIdx) && !inIID)
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,

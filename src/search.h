@@ -54,6 +54,9 @@ struct Stack {
   bool ttPv;
   bool ttHit;
   int doubleExtensions;
+  Move singularMove;
+  bool inIID;
+  Value singularValue;
 };
 
 
