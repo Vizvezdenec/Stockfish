@@ -74,8 +74,8 @@ namespace {
     return (r + 1463 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 1010);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+  constexpr int futility_move_count(bool improving, Depth depth, bool pn) {
+    return (3 + 2 * pn + depth * depth) / (2 - improving);
   }
 
   // History and stats update bonus, based on depth
@@ -607,7 +607,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
-    ss->unprunable       = MOVE_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -1005,11 +1004,8 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth, PvNode);
 
-          if (move != ss->unprunable)
-
-          {
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
@@ -1053,7 +1049,6 @@ moves_loop: // When in check, search starts here
               if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 20 * lmrDepth)))
                   continue;
           }
-          }
       }
 
       // Step 15. Extensions (~66 Elo)
@@ -1078,9 +1073,7 @@ moves_loop: // When in check, search starts here
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
-              ss->singularValue = ttValue <= alpha ? alpha : VALUE_NONE;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-              ss->singularValue = VALUE_NONE;
               ss->excludedMove = MOVE_NONE;
 
               if (value < singularBeta)
@@ -1307,8 +1300,6 @@ moves_loop: // When in check, search starts here
               else
               {
                   assert(value >= beta); // Fail high
-                  if (excludedMove && value >= ss->singularValue)
-                      ss->unprunable = move;
                   break;
               }
           }
@@ -1379,9 +1370,6 @@ moves_loop: // When in check, search starts here
                   depth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
-
-    if (!excludedMove)
-        ss->unprunable = MOVE_NONE;
 
     return bestValue;
   }
