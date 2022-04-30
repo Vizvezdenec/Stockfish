@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
+              r += 1 + 2 * (!PvNode && ss->inCheck && !capture);
 
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
@@ -1174,7 +1174,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / ( 3 + depth - (delta == thisThread->rootDelta));
+              r -= 1 + 15 / ( 3 + depth );
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
