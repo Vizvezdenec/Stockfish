@@ -46,6 +46,7 @@ struct Stack {
   Move currentMove;
   Move excludedMove;
   Move killers[2];
+  Move unprunable;
   Value staticEval;
   Depth depth;
   int statScore;
