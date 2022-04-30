@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + (ss->inCheck && !capture);
+              r += 1 + 2 * (ss->inCheck && !capture);
 
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
