@@ -921,21 +921,6 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (!excludedMove && !ss->ttHit && depth > 3)
-    {
-        value = search<NonPV>(pos, ss, alpha, alpha + 1, depth - 3, cutNode);
-        if (value > alpha)
-        {
-            posKey = pos.key();
-            tte = TT.probe(posKey, ss->ttHit);
-            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
-            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
-                    : ss->ttHit    ? tte->move() : MOVE_NONE;
-            ttCapture = ttMove && pos.capture(ttMove);
-            ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
-        }
-    }
-
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
     probCutBeta = beta + 481;
     if (   ss->inCheck
@@ -1190,6 +1175,9 @@ moves_loop: // When in check, search starts here
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 15 / ( 3 + depth );
+
+          if (move == ss->killers[0] && move == (ss-2)->killers[0])
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
