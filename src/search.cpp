@@ -921,6 +921,22 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    if (PvNode && !ss->ttHit && depth > 3)
+    {
+        value = search<NonPV>(pos, ss, alpha, alpha + 1, depth - 3, cutNode);
+        if (value > alpha)
+        {
+            posKey = pos.key();
+            tte = TT.probe(posKey, ss->ttHit);
+            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
+                    : ss->ttHit    ? tte->move() : MOVE_NONE;
+            ttCapture = ttMove && pos.capture(ttMove);
+            if (!excludedMove)
+            ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+        }
+    }
+
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
     probCutBeta = beta + 481;
     if (   ss->inCheck
@@ -957,8 +973,6 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    int qce = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1007,13 +1021,6 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-
-          if (ss->inCheck && !capture)
-          {
-              if (qce > 2 + depth * depth / 2)
-                  continue;
-              qce++;
-          }
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
