@@ -1037,6 +1037,9 @@ moves_loop: // When in check, search starts here
                   && history < -3875 * (depth - 1))
                   continue;
 
+              if (ss->inCheck && ttCapture && (*contHist[0])[movedPiece][to_sq(move)] < -10000 * (depth - 1))
+                  continue;
+
               history += thisThread->mainHistory[us][from_to(move)];
 
               // Futility pruning: parent node (~9 Elo)
@@ -1165,7 +1168,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + 3 * (ss->inCheck && !capture);
+              r++;
 
           // Decrease reduction at PvNodes if bestvalue
           // is vastly different from static evaluation
