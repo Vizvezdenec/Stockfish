@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / ( 3 + depth );
 
           if (move == ss->killers[0] && move == (ss-2)->killers[0])
-              r--;
+              r -= 2;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
