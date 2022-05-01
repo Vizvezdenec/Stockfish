@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int qce = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1006,6 +1008,13 @@ moves_loop: // When in check, search starts here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
+          if (ss->inCheck && !capture)
+          {
+              if (qce > 2 + depth)
+                  continue;
+              qce++;
+          }
+
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
@@ -1035,9 +1044,6 @@ moves_loop: // When in check, search starts here
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
                   && history < -3875 * (depth - 1))
-                  continue;
-
-              if (ss->inCheck && ttCapture && (*contHist[0])[movedPiece][to_sq(move)] < -10000 * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
