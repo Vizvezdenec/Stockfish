@@ -921,7 +921,7 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (PvNode && !ss->ttHit && depth > 3)
+    if (PvNode && !ss->ttHit && depth > 3 && ss->staticEval > alpha)
     {
         value = search<NonPV>(pos, ss, alpha, alpha + 1, depth - 3, cutNode);
         if (value > alpha)
