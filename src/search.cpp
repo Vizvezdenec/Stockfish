@@ -921,7 +921,7 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (PvNode && !ss->ttHit && depth > 3 && ss->staticEval > alpha)
+    if (!excludedMove && !ss->ttHit && depth > 3)
     {
         value = search<NonPV>(pos, ss, alpha, alpha + 1, depth - 3, cutNode);
         if (value > alpha)
@@ -932,7 +932,6 @@ moves_loop: // When in check, search starts here
             ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
                     : ss->ttHit    ? tte->move() : MOVE_NONE;
             ttCapture = ttMove && pos.capture(ttMove);
-            if (!excludedMove)
             ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
         }
     }
