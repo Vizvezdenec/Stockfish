@@ -1010,7 +1010,7 @@ moves_loop: // When in check, search starts here
 
           if (ss->inCheck && !capture)
           {
-              if (qce > 2 + depth)
+              if (qce > 2 + depth * depth / 2)
                   continue;
               qce++;
           }
