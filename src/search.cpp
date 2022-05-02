@@ -1023,8 +1023,11 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-183 - 4 * depth) * depth))
+              if (!pos.see_ge(move, Value(-183 - 8 * depth) * depth))
+              {
+                  dbg_mean_of(depth);
                   continue;
+              }
           }
           else
           {
