@@ -78,6 +78,13 @@ namespace {
     return (3 + depth * depth) / (2 - improving);
   }
 
+  int peme[][13] = {{203, 406, 609, 812, 1015, 1218, 1421, 1624, 1827, 2030, 2233, 2436, 2639},
+                    {203, 406, 609, 812, 1015, 1218, 1421, 1624, 1827, 2030, 2233, 2436, 2639}};
+  TUNE(peme);
+  Value pruning_margin(Depth d, bool improving)  {
+    return d > 13 ? Value(2639) : Value(peme[improving][d-1]);
+  }
+
   // History and stats update bonus, based on depth
   int stat_bonus(Depth d) {
     return std::min((9 * d + 270) * d - 311 , 2145);
@@ -1022,8 +1029,9 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
+              Value pruningMargin = pruning_margin(depth, improving);
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-163 - 17 * depth) * depth))
+              if (!pos.see_ge(move, -pruningMargin))
                   continue;
           }
           else
