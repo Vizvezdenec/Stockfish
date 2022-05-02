@@ -778,6 +778,7 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
+        && !(ss-1)->inLmr
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
@@ -816,6 +817,7 @@ namespace {
 
         pos.do_null_move(st);
 
+        ss->inLmr = false;
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
@@ -887,6 +889,7 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                ss->inLmr = false;
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
@@ -1073,6 +1076,7 @@ moves_loop: // When in check, search starts here
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
+              ss->inLmr = false;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
 
@@ -1196,7 +1200,9 @@ moves_loop: // When in check, search starts here
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
+          ss->inLmr = true;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          ss->inLmr = false;
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
@@ -1208,7 +1214,7 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
-
+      ss->inLmr = false;
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
