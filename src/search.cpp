@@ -1023,7 +1023,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (move != ss->captureReply && !pos.see_ge(move, Value(-203) * depth))
+              if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
           }
           else
@@ -1115,6 +1115,8 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
+              extension = 1;
+          else if (move == ss->captureReply)
               extension = 1;
       }
 
