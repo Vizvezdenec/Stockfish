@@ -864,9 +864,6 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        if (ss->ttHit && ttCapture && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth - 2 && ttValue >= probCutBeta + 20 * (depth - 4))
-            return ttValue;
-
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
@@ -1049,7 +1046,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
-              if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 20 * lmrDepth)))
+              if (move != ss->killers[0] && !pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 20 * lmrDepth)))
                   continue;
           }
       }
