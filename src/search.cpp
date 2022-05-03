@@ -864,7 +864,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, MOVE_NONE);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
         ss->ttPv = false;
@@ -946,7 +946,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      ss->captureReply);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1023,7 +1024,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (move != ss->captureReply && !pos.see_ge(move, Value(-203) * depth))
+              if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
           }
           else
@@ -1493,7 +1494,8 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      MOVE_NONE);
 
     int quietCheckEvasions = 0;
 
