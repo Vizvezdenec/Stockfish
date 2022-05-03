@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts here
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 4            ? 2
                        : move == ss->killers[0]
-                      && (*contHist[0])[movedPiece][to_sq(move)] >= 5491 ? 2
+                      && (*contHist[0])[movedPiece][to_sq(move)] >= 10000 ? 2
                        : PvNode && depth > 4       ? 1
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
