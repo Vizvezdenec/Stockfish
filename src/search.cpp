@@ -864,6 +864,9 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
+        if (ss->ttHit && ttCapture && tte->bound() == BOUND_LOWER && tte->depth() >= depth - 2 && ttValue >= probCutBeta)
+            return ttValue;
+
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
@@ -1143,7 +1146,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && !(ss->inCheck && moveCount == 2)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
