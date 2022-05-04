@@ -869,11 +869,13 @@ namespace {
         bool captureOrPromotion;
         ss->ttPv = false;
 
-        while ((ss+1)->cutoffCnt == 0 && (move = mp.next_move()) != MOVE_NONE)
+        while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
+                if (move == ttMove && eval < probCutBeta)
+                    continue;
                 captureOrPromotion = true;
 
                 ss->currentMove = move;
