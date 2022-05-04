@@ -874,7 +874,7 @@ namespace {
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
-                if (move == ttMove && eval < probCutBeta)
+                if (move == ttMove && eval < ss->staticEval && eval < probCutBeta)
                     continue;
                 captureOrPromotion = true;
 
