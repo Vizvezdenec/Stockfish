@@ -603,7 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->cutoffCnt    = 0;
+    (ss+2)->cutoffCnt    = (ss+2)->nmCnt = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -820,6 +820,8 @@ namespace {
 
         pos.undo_null_move();
 
+        ss->nmCnt++;
+
         if (nullValue >= beta)
         {
             // Do not return unproven mate or TB scores
@@ -843,6 +845,7 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+        ss->nmCnt = 0;
     }
 
     probCutBeta = beta + 179 - 46 * improving;
@@ -1178,6 +1181,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
+              r++;
+
+          if ((ss+1)->nmCnt > 3 && !PvNode)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
