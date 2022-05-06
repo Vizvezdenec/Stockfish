@@ -261,7 +261,7 @@ void Thread::search() {
   // The former is needed to allow update_continuation_histories(ss-1, ...),
   // which accesses its argument at ss-6, also near the root.
   // The latter is needed for statScore and killer initialization.
-  Stack stack[MAX_PLY+10], *ss = stack+7;
+  Stack stack[MAX_PLY+12], *ss = stack+7;
   Move  pv[MAX_PLY+1];
   Value alpha, beta, delta;
   Move  lastBestMove = MOVE_NONE;
@@ -271,11 +271,11 @@ void Thread::search() {
   Color us = rootPos.side_to_move();
   int iterIdx = 0;
 
-  std::memset(ss-7, 0, 10 * sizeof(Stack));
+  std::memset(ss-7, 0, 12 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
       (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
-  for (int i = 0; i <= MAX_PLY + 2; ++i)
+  for (int i = 0; i <= MAX_PLY + 4; ++i)
       (ss+i)->ply = i;
 
   ss->pv = pv;
@@ -602,7 +602,7 @@ namespace {
 
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+3)->longKiller = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
@@ -942,6 +942,9 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    if (!ss->killers[0])
+        ss->killers[0] = ss->longKiller;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
@@ -1205,8 +1208,6 @@ moves_loop: // When in check, search starts here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
-          if (r == 1 && depth < 9 && value > beta + 101)
-              doFullDepthSearch = false;
           didLMR = true;
       }
       else
@@ -1761,6 +1762,7 @@ moves_loop: // When in check, search starts here
         ss->killers[1] = ss->killers[0];
         ss->killers[0] = move;
     }
+    ss->longKiller = move;
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
