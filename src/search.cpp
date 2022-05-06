@@ -951,8 +951,6 @@ moves_loop: // When in check, search starts here
     value = bestValue;
     moveCountPruning = false;
 
-    int wasDepthRed = true;
-
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
@@ -1176,7 +1174,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / ( 3 + depth ) + wasDepthRed / 3;
+              r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
@@ -1207,6 +1205,8 @@ moves_loop: // When in check, search starts here
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
           doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
+          if (r == 1 && depth < 7 && value > beta + 188)
+              doFullDepthSearch = false;
           didLMR = true;
       }
       else
@@ -1310,7 +1310,7 @@ moves_loop: // When in check, search starts here
                       && depth < 7
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth -= 1, wasDepthRed++;
+                     depth -= 1;
 
                   assert(depth > 0);
               }
