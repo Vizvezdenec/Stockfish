@@ -951,14 +951,14 @@ moves_loop: // When in check, search starts here
     value = bestValue;
     moveCountPruning = false;
 
+    int wasDepthRed = true;
+
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    int wasDepthRed = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / ( 3 + depth ) + wasDepthRed;
+              r -= 1 + 15 / ( 3 + depth ) + wasDepthRed / 2;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
