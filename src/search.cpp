@@ -943,7 +943,7 @@ moves_loop: // When in check, search starts here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     Move killerss[2] = {ss->killers[0], ss->killers[1]};
-    if (!ss->killers[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 10000)
+    if (!ss->killers[0] && (*contHist[0])[pos.moved_piece(ss->longKiller)][to_sq(ss->longKiller)] > 20000)
         killerss[0] = ss->longKiller;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
