@@ -942,14 +942,15 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move killerss[2] = {ss->killers[0], ss->killers[1]};
     if (!ss->killers[0])
-        ss->killers[0] = ss->longKiller;
+        killerss[0] = ss->longKiller;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      killerss);
 
     value = bestValue;
     moveCountPruning = false;
