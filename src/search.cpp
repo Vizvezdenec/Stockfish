@@ -809,7 +809,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth, eval and complexity of position
-        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
+        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753) + ss->nmCnt / 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1181,9 +1181,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
-              r++;
-
-          if ((ss+1)->nmCnt > 4 && !PvNode)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
