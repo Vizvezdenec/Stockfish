@@ -958,7 +958,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool wasDepthRed = false;
+    int wasDepthRed = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1310,7 +1310,7 @@ moves_loop: // When in check, search starts here
                       && depth < 7
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth -= 1, wasDepthRed = true;
+                     depth -= 1, wasDepthRed++;
 
                   assert(depth > 0);
               }
