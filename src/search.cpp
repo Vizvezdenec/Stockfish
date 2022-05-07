@@ -759,6 +759,11 @@ namespace {
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        if (type_of(pos.moved_piece((ss-1)->currentMove)) != PAWN && type_of((ss-1)->currentMove) == NORMAL)
+        {
+            Move rm = make_move(to_sq((ss-1)->currentMove), from_sq((ss-1)->currentMove));
+            thisThread->mainHistory[~us][from_to(rm)] << -bonus / 8;
+        }
     }
 
     // Set up the improvement variable, which is the difference between the current
