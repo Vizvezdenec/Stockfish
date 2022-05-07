@@ -994,7 +994,7 @@ moves_loop: // When in check, search starts here
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
 
-      if (captMcP && !givesCheck && capture)
+      if (captMcP && !givesCheck && capture && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
           continue;
 
       // Calculate new depth for this move
