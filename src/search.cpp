@@ -603,10 +603,13 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->cutoffCnt    = (ss+2)->nmCnt = 0;
+    (ss+2)->cutoffCnt    = (ss+2)->failCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
+
+    int failCnt = ss->failCnt;
+    ss->failCnt = 0;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -783,7 +786,10 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+            ss->failCnt = failCnt;
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -809,7 +815,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth, eval and complexity of position
-        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753) + ss->nmCnt / 4;
+        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -819,8 +825,6 @@ namespace {
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
-
-        ss->nmCnt++;
 
         if (nullValue >= beta)
         {
@@ -845,7 +849,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        ss->nmCnt = 0;
     }
 
     probCutBeta = beta + 179 - 46 * improving;
@@ -1183,6 +1186,9 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
+          if (!PvNode && failCnt > 1)
+              r++;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1361,9 +1367,9 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
     {
-        ss->nmCnt = 0;
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        ss->failCnt = 0;
     }
 
     // Bonus for prior countermove that caused the fail low
@@ -1393,6 +1399,9 @@ moves_loop: // When in check, search starts here
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
+
+    if (!bestMove)
+        ss->failCnt = failCnt + 1;
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
