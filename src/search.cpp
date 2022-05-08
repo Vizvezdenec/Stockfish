@@ -1754,7 +1754,7 @@ moves_loop: // When in check, search starts here
     if (type_of(pos.moved_piece(move)) != PAWN && type_of(move) == NORMAL && !ss->inCheck)
     {
         Move reverse = make_move(to_sq(move), from_sq(move));
-        thisThread->mainHistory[us][from_to(reverse)] << -bonus / 8;
+        thisThread->mainHistory[us][from_to(reverse)] << -bonus / 16;
     }
   }
   
