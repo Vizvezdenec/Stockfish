@@ -886,17 +886,21 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+                bool didSearch = false;
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta)
+                if ((depth > 7 || value < probCutBeta + 300 + 200 * (depth - 4) * (depth - 4)) && value >= probCutBeta)
+                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    didSearch = true;
+                }
 
                 pos.undo_move(move);
 
                 if (value >= probCutBeta)
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
-                    if ( !(ss->ttHit
+                    if ( didSearch && !(ss->ttHit
                        && tte->depth() >= depth - 3
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
