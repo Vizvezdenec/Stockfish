@@ -117,6 +117,7 @@ namespace {
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
+  void update_main_history(const Position& pos, Stack* ss, Thread* thisThread, Move move, Color us, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
                         Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
@@ -654,7 +655,7 @@ namespace {
             else if (!ttCapture)
             {
                 int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                update_main_history(pos, ss, thisThread, ttMove, us, penalty);
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -758,12 +759,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        if (type_of(pos.moved_piece((ss-1)->currentMove)) != PAWN && type_of((ss-1)->currentMove) == NORMAL)
-        {
-            Move rm = make_move(to_sq((ss-1)->currentMove), from_sq((ss-1)->currentMove));
-            thisThread->mainHistory[~us][from_to(rm)] << -bonus / 8;
-        }
+        update_main_history(pos, (ss-1), thisThread, (ss-1)->currentMove, ~us, bonus);
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -1714,7 +1710,7 @@ moves_loop: // When in check, search starts here
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            update_main_history(pos, ss, thisThread, quietsSearched[i], us, -bonus2);
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
@@ -1753,6 +1749,16 @@ moves_loop: // When in check, search starts here
     }
   }
 
+  void update_main_history(const Position& pos, Stack* ss, Thread* thisThread, Move move, Color us, int bonus){
+    thisThread->mainHistory[us][from_to(move)] << bonus;
+    if (type_of(pos.moved_piece(move)) != PAWN && type_of(move) == NORMAL && !ss->inCheck)
+    {
+        Move reverse = make_move(to_sq(move), from_sq(move));
+        thisThread->mainHistory[us][from_to(reverse)] << -bonus / 8;
+    }
+  }
+  
+
 
   // update_quiet_stats() updates move sorting heuristics
 
@@ -1767,13 +1773,8 @@ moves_loop: // When in check, search starts here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
+    update_main_history(pos, ss, thisThread, move, us, bonus);
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
-    if (type_of(pos.moved_piece(move)) != PAWN && type_of(move) == NORMAL)
-    {
-        Move rm = make_move(to_sq(move), from_sq(move));
-        thisThread->mainHistory[us][from_to(rm)] << -bonus / 8;
-    }
 
     // Update countermove history
     if (is_ok((ss-1)->currentMove))
