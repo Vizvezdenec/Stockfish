@@ -796,12 +796,11 @@ namespace {
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
-    if (   !PvNode
+    if (    cutNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        && (eval == ss->staticEval || ss->staticEval >= beta)
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
