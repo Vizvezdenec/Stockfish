@@ -958,8 +958,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Depth initialDepth = depth;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1144,10 +1142,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
-          &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && (   !ss->ttPv
-              || !capture
-              || (cutNode && (ss-1)->moveCount > 1)))
+          &&  moveCount > 1 + (PvNode && ss->ply <= 1))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
@@ -1218,10 +1213,7 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          Depth searchDepth = newDepth + doDeeperSearch;
-          if (PvNode && capture)
-              searchDepth = std::max(initialDepth - 1, searchDepth);
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, searchDepth, !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR)
