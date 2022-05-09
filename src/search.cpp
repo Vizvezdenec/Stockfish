@@ -801,6 +801,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
+        && (eval == ss->staticEval || ss->staticEval >= beta)
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
@@ -1157,9 +1158,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
-              r--;
-
-          if ((ss-2)->currentMove == MOVE_NULL && (ss-1)->moveCount > 7)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
