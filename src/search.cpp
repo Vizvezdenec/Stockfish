@@ -886,21 +886,17 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-                bool didSearch = false;
 
                 // If the qsearch held, perform the regular search
-                if ((depth > 7 || value < probCutBeta + 350 + 300 * (depth - 4) * (depth - 4)) && value >= probCutBeta)
-                {
+                if (value >= probCutBeta)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-                    didSearch = true;
-                }
 
                 pos.undo_move(move);
 
                 if (value >= probCutBeta)
                 {
                     // if transposition table doesn't have equal or more deep info write probCut data into it
-                    if ( didSearch && !(ss->ttHit
+                    if ( !(ss->ttHit
                        && tte->depth() >= depth - 3
                        && ttValue != VALUE_NONE))
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
@@ -1161,6 +1157,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
+              r--;
+
+          if ((ss-2)->currentMove == MOVE_NULL && (ss-1)->moveCount > 15)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
