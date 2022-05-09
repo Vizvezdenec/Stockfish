@@ -801,7 +801,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 228 - 30 * cutNode + complexity / 28
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
-          if ((ss+1)->cutoffCnt > 3 && !PvNode)
+          if ((ss+1)->cutoffCnt > 4 - 2 * cutNode && !PvNode)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
