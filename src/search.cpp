@@ -958,6 +958,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    Depth initialDepth = depth;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1177,7 +1179,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
-          if ((ss+1)->cutoffCnt > 4 - 2 * cutNode && !PvNode)
+          if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1216,7 +1218,10 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
+          Depth searchDepth = newDepth + doDeeperSearch;
+          if (PvNode && capture)
+              searchDepth = std::max(initialDepth - 1, searchDepth);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, searchDepth, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR)
