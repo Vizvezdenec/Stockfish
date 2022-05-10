@@ -779,8 +779,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && !improving
-        && eval < alpha - 298 - 198 * depth * depth)
+        && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1024,7 +1023,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-203) * depth))
+              if (!pos.see_ge(move, Value(-200 - 10 * improving) * depth))
                   continue;
           }
           else
