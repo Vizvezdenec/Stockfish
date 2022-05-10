@@ -778,10 +778,8 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
-        && !improving
-        && !cutNode
         && depth <= 7
-        && eval < alpha - 248 - 158 * depth * depth)
+        && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -802,7 +800,7 @@ namespace {
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
         &&  eval >= beta
-        &&  eval >= ss->staticEval
+        &&  eval == ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
