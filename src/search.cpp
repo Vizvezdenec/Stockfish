@@ -781,7 +781,7 @@ namespace {
         && !improving
         && !cutNode
         && depth <= 7
-        && eval < alpha - 208 - 198 * depth * depth)
+        && eval < alpha - 248 - 158 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
