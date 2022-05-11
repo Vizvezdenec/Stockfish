@@ -781,9 +781,10 @@ namespace {
         && !improving
         && !cutNode
         && depth <= 7
-        && eval < alpha - 348 - 77 * depth * depth)
+        && eval < alpha - 488 - 55 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+        dbg_mean_of(value <= alpha);
         if (value <= alpha)
             return value;
     }
