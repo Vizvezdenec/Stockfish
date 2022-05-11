@@ -801,7 +801,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + 50 * std::max(ss->nmpFailCnt - 3, 0)
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 - 50 * std::max(ss->nmpFailCnt - 3, 0)
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -822,7 +822,7 @@ namespace {
 
         if (nullValue >= beta)
         {
-            ss->nmpFailCnt = 0;
+            ss->nmpFailCnt++;
             // Do not return unproven mate or TB scores
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
                 nullValue = beta;
@@ -844,7 +844,7 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else ss->nmpFailCnt++;
+        else ss->nmpFailCnt = 0;
     }
 
     probCutBeta = beta + 179 - 46 * improving;
