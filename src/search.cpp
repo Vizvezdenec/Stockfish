@@ -1243,7 +1243,7 @@ moves_loop: // When in check, search starts here
                               std::min(maxNextDepth, newDepth), false);
 
           if (didLMR && value <= alpha && !capture)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth));
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth) / 2);
       }
 
       // Step 19. Undo move
