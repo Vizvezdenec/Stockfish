@@ -804,7 +804,6 @@ namespace {
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
-        && !more_than_one(pos.blockers_for_king(us))
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -1242,6 +1241,9 @@ moves_loop: // When in check, search starts here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
+
+          if (didLMR && value <= alpha && !capture)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth));
       }
 
       // Step 19. Undo move
