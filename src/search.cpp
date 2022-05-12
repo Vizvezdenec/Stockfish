@@ -603,7 +603,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->cutoffCnt    = (ss+2)->nmpSuccess = 0;
+    (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -801,9 +801,10 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 - 25 * (ss->nmpSuccess > 4)
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
+        && !more_than_one(pos.blockers_for_king(us))
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -822,7 +823,6 @@ namespace {
 
         if (nullValue >= beta)
         {
-            ss->nmpSuccess++;
             // Do not return unproven mate or TB scores
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
                 nullValue = beta;
@@ -844,8 +844,6 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else 
-            ss->nmpSuccess = 0;
     }
 
     probCutBeta = beta + 179 - 46 * improving;
