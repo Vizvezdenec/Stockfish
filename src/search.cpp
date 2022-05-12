@@ -1189,6 +1189,9 @@ moves_loop: // When in check, search starts here
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
 
+          if (capture)
+              r = std::min(r, 3);
+
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
@@ -1241,9 +1244,6 @@ moves_loop: // When in check, search starts here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
                               std::min(maxNextDepth, newDepth), false);
-
-          if (didLMR && value <= alpha && !capture)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(depth) / 2);
       }
 
       // Step 19. Undo move
