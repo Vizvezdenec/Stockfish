@@ -864,11 +864,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                              nullptr                   , (ss-4)->continuationHistory,
-                                              nullptr                   , (ss-6)->continuationHistory };
-
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, contHist);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
         ss->ttPv = false;
