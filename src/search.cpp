@@ -864,7 +864,11 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
+        const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                              nullptr                   , (ss-4)->continuationHistory,
+                                              nullptr                   , (ss-6)->continuationHistory };
+
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, contHist);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
         ss->ttPv = false;
@@ -1188,9 +1192,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
-
-          if (capture)
-              r = std::min(r, 4);
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
