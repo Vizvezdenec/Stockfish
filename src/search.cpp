@@ -912,8 +912,10 @@ namespace {
     if (   PvNode
         && depth >= 3
         && !ttMove)
-        depth -= 2;
+        depth -= 2 + (beta - alpha < thisThread->rootDelta / 4);
 
+    if (depth <= 0)
+        depth = 1;
     if (   cutNode
         && depth >= 8
         && !ttMove)
@@ -1188,9 +1190,6 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
-
-          if (capture)
-              r = std::min(r, 7);
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
