@@ -1190,7 +1190,7 @@ moves_loop: // When in check, search starts here
           r -= ss->statScore / 15914;
 
           if (capture)
-              r = std::min(r, 6);
+              r = std::min(r, 7);
 
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
