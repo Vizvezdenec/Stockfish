@@ -72,7 +72,7 @@ public:
   Depth rootDepth, completedDepth, depth, previousDepth;
   Value rootDelta;
   CounterMoveHistory counterMoves;
-  CounterMovePtHistory counterMovesPt;
+  CounterMoveHistory1 counterMovese;
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];

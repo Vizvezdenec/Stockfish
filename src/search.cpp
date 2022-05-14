@@ -943,10 +943,9 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
-
-    if (type_of(pos.moved_piece(countermove)) != thisThread->counterMovesPt[pos.piece_on(prevSq)][prevSq])
-        countermove = MOVE_NONE;
+    Move countermove = thisThread->counterMovese[pos.piece_on(prevSq)][from_to((ss-1)->currentMove)];
+    if (!countermove)
+        countermove = thisThread->counterMovese[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
@@ -1776,7 +1775,7 @@ moves_loop: // When in check, search starts here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
-        thisThread->counterMovesPt[pos.piece_on(prevSq)][prevSq] = type_of(pos.moved_piece(move));
+        thisThread->counterMovese[pos.piece_on(prevSq)][from_to((ss-1)->currentMove)] = move;
     }
   }
 
