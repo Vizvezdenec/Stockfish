@@ -912,10 +912,8 @@ namespace {
     if (   PvNode
         && depth >= 3
         && !ttMove)
-        depth -= 2 + (beta - alpha < thisThread->rootDelta / 4);
+        depth -= 2;
 
-    if (depth <= 0)
-        depth = 1;
     if (   cutNode
         && depth >= 8
         && !ttMove)
