@@ -945,6 +945,9 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    if (type_of(pos.moved_piece(countermove)) != thisThread->counterMovesPt[pos.piece_on(prevSq)][prevSq])
+        countermove = MOVE_NONE;
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
@@ -960,8 +963,6 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    int refutCnt = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1142,8 +1143,6 @@ moves_loop: // When in check, search starts here
 
       bool doDeeperSearch = false;
 
-      refutCnt += move == ss->killers[0] || move == ss->killers[1] || move == countermove;
-
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1185,9 +1184,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
-              r++;
-
-          if (refutCnt == 3 && !PvNode && !capture && move != countermove)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
@@ -1780,6 +1776,7 @@ moves_loop: // When in check, search starts here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMovesPt[pos.piece_on(prevSq)][prevSq] = type_of(pos.moved_piece(move));
     }
   }
 
