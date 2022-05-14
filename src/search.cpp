@@ -941,6 +941,13 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    if (countermove && pos.empty(from_sq(countermove)) 
+       && (attacks_bb<KNIGHT>(to_sq(countermove)) & from_sq(countermove))
+       && (attacks_bb<KNIGHT>(to_sq(countermove)) & pos.pieces(us, KNIGHT)))
+    {
+        Bitboard b = attacks_bb<KNIGHT>(to_sq(countermove)) & pos.pieces(us, KNIGHT);
+        countermove = make_move(pop_lsb(b), to_sq(countermove));
+    }
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
