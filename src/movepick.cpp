@@ -119,14 +119,15 @@ void MovePicker::score() {
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
       Bitboard noThreats = ~(pos.attacks_by<QUEEN>(~us) | threatenedByRook | pos.attacks_by<KING>(~us));
 
-      // pieces threatened by pieces of lesser material value
-      threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
-                  | (pos.pieces(us, ROOK)  & threatenedByMinor)
-                  | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
       knightCheckSq = pos.check_squares(KNIGHT) & noThreats;
       bishopCheckSq = pos.check_squares(BISHOP) & noThreats;
       rookCheckSq = pos.check_squares(ROOK) & noThreats;
       queenCheckSq = pos.check_squares(QUEEN) & noThreats;
+
+      // pieces threatened by pieces of lesser material value
+      threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
+                  | (pos.pieces(us, ROOK)  & threatenedByMinor)
+                  | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
   }
   else
   {
@@ -158,10 +159,10 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   +     (  type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 20000
-                          : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 10000
-                          : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 20000
-                          : type_of(pos.moved_piece(m)) == ROOK   && (rookCheckSq & to_sq(m))   ? 30000
+                   +     (  type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 15000
+                          : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 15000
+                          : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 15000
+                          : type_of(pos.moved_piece(m)) == ROOK   && (rookCheckSq & to_sq(m))   ? 15000
                           :                                                                           0);
 
       else // Type == EVASIONS
