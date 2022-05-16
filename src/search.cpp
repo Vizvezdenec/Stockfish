@@ -601,6 +601,11 @@ namespace {
     else
         thisThread->rootDelta = beta - alpha;
 
+    if (PvNode)
+        ss->lastDelta = beta - alpha;
+    else 
+        ss->lastDelta = (ss-1)->lastDelta;
+
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->ttPv         = false;
@@ -610,10 +615,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
-    if (PvNode)
-        ss->lastDelta = beta - alpha;
-    else 
-        ss->lastDelta = (ss-1)->lastDelta;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -808,7 +809,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28 + (ss->lastDelta - thisThread->rootDelta) * 2
+        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 198 + complexity / 28
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1004,7 +1005,8 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
-      ss->lastDelta = delta;
+      if (PvNode)
+          ss->lastDelta = delta;
 
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1186,6 +1188,9 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
+              r++;
+
+          if (!PvNode && ss->lastDelta < thisThread->rootDelta / 4)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
