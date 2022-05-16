@@ -1581,14 +1581,14 @@ moves_loop: // When in check, search starts here
 
       // movecount pruning for quiet check evasions
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && quietCheckEvasions > 0
+          && quietCheckEvasions > 1
           && !capture
           && ss->inCheck
           && type_of(pos.moved_piece(move)) == KING)
           continue;
 
       if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && quietNonKingEvasions > 0
+          && quietNonKingEvasions > 1
           && !capture
           && ss->inCheck
           && type_of(pos.moved_piece(move)) != KING)
