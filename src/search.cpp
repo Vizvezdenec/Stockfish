@@ -961,8 +961,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int bestMoveCount = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1178,7 +1176,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Decrease reduction for PvNodes based on depth
-          if (PvNode && bestMoveCount < 4)
+          if (PvNode)
               r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
@@ -1315,7 +1313,6 @@ moves_loop: // When in check, search starts here
                       && alpha > -VALUE_KNOWN_WIN)
                      depth -= 1;
 
-                  bestMoveCount++;
                   assert(depth > 0);
               }
               else
