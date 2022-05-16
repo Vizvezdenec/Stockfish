@@ -117,16 +117,20 @@ void MovePicker::score() {
       threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
       // squares threatened by rooks, minors or pawns
       threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-      Bitboard noThreats = ~(pos.attacks_by<QUEEN>(~us) | threatenedByRook | pos.attacks_by<KING>(~us));
 
       // pieces threatened by pieces of lesser material value
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+      if (pos.non_pawn_material() > 8000)
+      {
+      Bitboard noThreats = ~(pos.attacks_by<QUEEN>(~us) | threatenedByRook | pos.attacks_by<KING>(~us));
       knightCheckSq = pos.check_squares(KNIGHT) & noThreats;
       bishopCheckSq = pos.check_squares(BISHOP) & noThreats;
       rookCheckSq = pos.check_squares(ROOK) & noThreats;
       queenCheckSq = pos.check_squares(QUEEN) & noThreats;
+      }
+      else knightCheckSq = bishopCheckSq = rookCheckSq = queenCheckSq = 0;
   }
   else
   {
@@ -147,6 +151,7 @@ void MovePicker::score() {
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
+      {
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
@@ -157,12 +162,14 @@ void MovePicker::score() {
                           : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
-                          :                                                                           0)
-                   +     (  type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 25000
-                          : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 25000
-                          : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 25000
-                          : type_of(pos.moved_piece(m)) == ROOK   && (rookCheckSq & to_sq(m))   ? 25000
                           :                                                                           0);
+          if (pos.non_pawn_material() > 8000)
+          m.value +=     (  type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 20000
+                          : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 20000
+                          : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 20000
+                          : type_of(pos.moved_piece(m)) == ROOK   && (rookCheckSq & to_sq(m))   ? 20000
+                          :                                                                           0);
+      }
 
       else // Type == EVASIONS
       {
