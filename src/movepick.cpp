@@ -122,7 +122,7 @@ void MovePicker::score() {
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-      if (pos.non_pawn_material() > 8000)
+      if (pos.non_pawn_material() < 8000)
       {
       Bitboard noThreats = ~(pos.attacks_by<QUEEN>(~us) | threatenedByRook | pos.attacks_by<KING>(~us));
       knightCheckSq = pos.check_squares(KNIGHT) & noThreats;
@@ -163,7 +163,7 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0);
-          if (pos.non_pawn_material() > 8000)
+              if (pos.non_pawn_material() < 8000)
           m.value +=     (  type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 20000
                           : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 20000
                           : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 20000
