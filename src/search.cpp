@@ -1583,9 +1583,10 @@ moves_loop: // When in check, search starts here
       if (  bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && quietCheckEvasions > 1
           && !capture
-          && ss->inCheck)
+          && ss->inCheck
+          && type_of(pos.moved_piece(move)) == KING)
           continue;
-          
+
       if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && quietNonKingEvasions > 0
           && !capture
@@ -1593,7 +1594,7 @@ moves_loop: // When in check, search starts here
           && type_of(pos.moved_piece(move)) != KING)
           continue;
 
-      quietCheckEvasions += !capture && ss->inCheck;
+      quietCheckEvasions += !capture && ss->inCheck && type_of(pos.moved_piece(move)) == KING;
       quietNonKingEvasions += !capture && ss->inCheck && type_of(pos.moved_piece(move)) != KING;
 
       // Make and search the move
