@@ -950,7 +950,7 @@ moves_loop: // When in check, search starts here
                                       contHist,
                                       countermove,
                                       ss->killers,
-                                      ss->staticEval <= alpha);
+                                      ss->staticEval <= alpha - 25 * depth);
 
     value = bestValue;
     moveCountPruning = false;
