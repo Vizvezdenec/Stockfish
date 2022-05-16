@@ -61,10 +61,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
-                                                             const Move* killers,
-                                                             bool bs)
+                                                             const Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, badStatic(bs), depth(d)
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -108,7 +107,6 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
-  Bitboard knightCheckSq, bishopCheckSq, rookCheckSq, queenCheckSq;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -123,15 +121,6 @@ void MovePicker::score() {
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-      if (badStatic)
-      {
-          Bitboard noThreats = ~(pos.attacks_by<QUEEN>(~us) | threatenedByRook | pos.attacks_by<KING>(~us));
-          knightCheckSq = pos.check_squares(KNIGHT) & noThreats;
-          bishopCheckSq = pos.check_squares(BISHOP) & noThreats;
-          rookCheckSq = pos.check_squares(ROOK) & noThreats;
-          queenCheckSq = pos.check_squares(QUEEN) & noThreats;
-      }
-      else knightCheckSq = bishopCheckSq = rookCheckSq = queenCheckSq = 0;
   }
   else
   {
@@ -140,10 +129,6 @@ void MovePicker::score() {
       (void) threatenedByPawn;
       (void) threatenedByMinor;
       (void) threatenedByRook;
-      (void) knightCheckSq;
-      (void) bishopCheckSq;
-      (void) rookCheckSq;
-      (void) queenCheckSq;
   }
 
   for (auto& m : *this)
@@ -152,7 +137,6 @@ void MovePicker::score() {
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
-      {
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
@@ -164,13 +148,6 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0);
-          if (badStatic)
-              m.value +=    type_of(pos.moved_piece(m)) == KNIGHT && (knightCheckSq & to_sq(m)) ? 20000
-                          : type_of(pos.moved_piece(m)) == BISHOP && (bishopCheckSq & to_sq(m)) ? 10000
-                          : type_of(pos.moved_piece(m)) == QUEEN  && (queenCheckSq & to_sq(m))  ? 20000
-                          : type_of(pos.moved_piece(m)) == ROOK   && (rookCheckSq & to_sq(m))   ? 30000
-                          :                                                                           0;
-      }
 
       else // Type == EVASIONS
       {
