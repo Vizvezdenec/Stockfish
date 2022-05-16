@@ -1516,7 +1516,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    bool bqc = false;
+    int quietNonKingEvasions = 0;
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1530,8 +1530,6 @@ moves_loop: // When in check, search starts here
       givesCheck = pos.gives_check(move);
       capture = pos.capture(move);
 
-      if (bqc && !capture && givesCheck)
-          continue;
       moveCount++;
 
       // Futility pruning and moveCount pruning (~5 Elo)
@@ -1587,8 +1585,16 @@ moves_loop: // When in check, search starts here
           && !capture
           && ss->inCheck)
           continue;
+          
+      if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && quietNonKingEvasions > 0
+          && !capture
+          && ss->inCheck
+          && type_of(pos.moved_piece(move)) != KING)
+          continue;
 
       quietCheckEvasions += !capture && ss->inCheck;
+      quietNonKingEvasions += !capture && ss->inCheck && type_of(pos.moved_piece(move)) != KING;
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
@@ -1610,11 +1616,7 @@ moves_loop: // When in check, search starts here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha here!
-              {
                   alpha = value;
-                  if (!capture && givesCheck)
-                      bqc = true;
-              }
               else
                   break; // Fail high
           }
