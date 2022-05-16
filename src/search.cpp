@@ -601,11 +601,6 @@ namespace {
     else
         thisThread->rootDelta = beta - alpha;
 
-    if (PvNode)
-        ss->lastDelta = beta - alpha;
-    else 
-        ss->lastDelta = (ss-1)->lastDelta;
-
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->ttPv         = false;
@@ -1005,8 +1000,6 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
-      if (PvNode)
-          ss->lastDelta = delta;
 
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1052,7 +1045,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 112 + 138 * lmrDepth + history / 60 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1188,9 +1181,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
-              r++;
-
-          if (!PvNode && ss->lastDelta < thisThread->rootDelta / 8)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
