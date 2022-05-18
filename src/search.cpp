@@ -1183,7 +1183,7 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          if (move == ss->killers[0] && ss->killerCnt > 2)
+          if (move == ss->killers[0] && ss->killerCnt > 3)
               r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
