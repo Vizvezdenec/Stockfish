@@ -787,7 +787,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
         {
-            ss->cutoffCnt = -1;
+            ss->cutoffCnt = std::min(1, ss->cutoffCnt);
             return value;
         }
     }
