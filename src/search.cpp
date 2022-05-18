@@ -352,7 +352,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(16) + int(prev) * prev / 19178;
+              delta = Value(16) + int(prev) * prev / 19178 - (abs(prev) < 2);
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -1118,8 +1118,6 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
-              extension = 1;
-          else if (   PvNode && ttCapture && move == ttMove && depth < 3)
               extension = 1;
       }
 
