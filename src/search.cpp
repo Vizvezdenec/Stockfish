@@ -924,7 +924,7 @@ namespace {
         && !ttMove)
         depth--;
 
-    whatever = beta + 700 - 200 * improving;
+    whatever = beta + 433 - 80 * improving;
 
     if (!PvNode && !ss->ttHit && depth >= 3 && !excludedMove && ss->staticEval >= whatever)
     {
