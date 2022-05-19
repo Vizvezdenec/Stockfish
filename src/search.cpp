@@ -352,7 +352,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(16) + int(prev) * prev / 19178 - 3 * (abs(prev) < 2);
+              delta = Value(16) + int(prev) * prev / 19178;
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -606,7 +606,7 @@ namespace {
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
-    (ss+2)->cutoffCnt    = 0;
+    (ss+2)->cutoffCnt    = (ss+2)->killerCnt = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     ss->depth            = depth;
     Square prevSq        = to_sq((ss-1)->currentMove);
@@ -1183,6 +1183,9 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
+          if (move == ss->killers[0] && ss->killerCnt > 5)
+              r--;
+
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1299,6 +1302,9 @@ moves_loop: // When in check, search starts here
           {
               bestMove = move;
 
+              if (move == ss->killers[0])
+                  ss->killerCnt++;
+
               if (PvNode && !rootNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
 
@@ -1324,7 +1330,11 @@ moves_loop: // When in check, search starts here
           }
       }
       else
-         ss->cutoffCnt = 0;
+      {  
+          if (move == ss->killers[0])
+              ss->killerCnt = 0;
+          ss->cutoffCnt = 0;
+      }
 
 
       // If the move is worse than some previously searched move, remember it to update its stats later
