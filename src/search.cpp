@@ -924,11 +924,11 @@ namespace {
         && !ttMove)
         depth--;
 
-    whatever = beta + 1111 - 211 * improving;
+    whatever = beta + 1741 - 311 * improving;
 
-    if (!PvNode && !ss->ttHit && depth >= 3 && !excludedMove && ss->staticEval >= whatever)
+    if (!PvNode && !ss->ttHit && depth >= 3 && !excludedMove && whatever < VALUE_KNOWN_WIN && ss->staticEval >= whatever)
     {
-        value = search<NonPV>(pos, ss, whatever, whatever + 1, depth - 2, cutNode);
+        value = search<NonPV>(pos, ss, whatever, whatever + 1, depth - 3, cutNode);
         if (value > whatever)
             return value;
     }
