@@ -722,6 +722,8 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    Value whatever = VALUE_NONE;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -905,7 +907,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    ss->cutoffCnt++;
                     return value;
                 }
             }
@@ -922,6 +923,15 @@ namespace {
         && depth >= 8
         && !ttMove)
         depth--;
+
+    whatever = beta + 500;
+
+    if (!PvNode && !ss->ttHit && depth >= 3 && !excludedMove && ss->staticEval >= whatever)
+    {
+        value = search<NonPV>(pos, ss, whatever, whatever + 1, depth - 2, cutNode);
+        if (value > whatever)
+            return value;
+    }
 
 moves_loop: // When in check, search starts here
 
