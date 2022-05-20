@@ -926,7 +926,7 @@ namespace {
 
     whatever = beta + 299 - 40 * improving;
 
-    if (!PvNode && !ss->ttHit && depth >= 2 && !excludedMove && ss->staticEval >= whatever)
+    if (!PvNode && !ss->ttHit && depth >= 2 && !excludedMove && ss->staticEval >= 2 * whatever - beta)
     {
         value = search<NonPV>(pos, ss, whatever, whatever + 1, depth - 1, cutNode);
         if (value > whatever)
