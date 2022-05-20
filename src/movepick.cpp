@@ -209,7 +209,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(-(69 + 10 * PvNode) * cur->value / 1024)) ?
+                       return pos.see_ge(*cur, Value(-(69 + 20 * PvNode) * cur->value / 1024)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
