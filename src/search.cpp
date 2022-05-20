@@ -720,8 +720,6 @@ namespace {
         }
     }
 
-    Value whatever = VALUE_NONE;
-
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
@@ -923,15 +921,6 @@ namespace {
         && depth >= 8
         && !ttMove)
         depth--;
-
-    whatever = beta + 499 - 90 * improving;
-
-    if (!PvNode && !ss->ttHit && depth >= 3 && !excludedMove && ss->staticEval >= 2 * whatever - beta)
-    {
-        value = search<NonPV>(pos, ss, whatever, whatever + 1, depth - 2, cutNode);
-        if (value > whatever)
-            return value;
-    }
 
 moves_loop: // When in check, search starts here
 
@@ -1170,7 +1159,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 7)
+          if ((ss-1)->moveCount > 7 && (capture || ss->killers[0]))
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
