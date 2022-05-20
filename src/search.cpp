@@ -867,7 +867,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, false);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
         ss->ttPv = false;
@@ -949,7 +949,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      PvNode);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1160,7 +1161,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
-              r -= 1 + (capture || move == ss->killers[0]);
+              r--;
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
@@ -1513,7 +1514,8 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      PvNode);
 
     int quietCheckEvasions = 0;
 

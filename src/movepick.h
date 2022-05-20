@@ -121,12 +121,14 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
-                                           const Move*);
+                                           const Move*,
+                                           bool);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square);
-  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
+                                           Square,
+                                           bool);
+  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*, bool);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -144,6 +146,7 @@ private:
   int stage;
   Square recaptureSquare;
   Value threshold;
+  bool PvNode;
   Depth depth;
   ExtMove moves[MAX_MOVES];
 };
