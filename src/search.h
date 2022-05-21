@@ -46,7 +46,6 @@ struct Stack {
   Move currentMove;
   Move excludedMove;
   Move killers[2];
-  Move bfm;
   Value staticEval;
   Depth depth;
   int statScore;
@@ -54,7 +53,6 @@ struct Stack {
   bool inCheck;
   bool ttPv;
   bool ttHit;
-  bool ttmove;
   int doubleExtensions;
   int cutoffCnt;
 };
