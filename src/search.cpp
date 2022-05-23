@@ -786,7 +786,12 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+                        tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv,
+                            BOUND_UPPER,
+                            depth, MOVE_NONE, ss->staticEval);
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1197,7 +1202,6 @@ moves_loop: // When in check, search starts here
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
                        : moveCount <= 4            ? 2
-                       : PvNode && move == ss->killers[0]   ? 2
                        : PvNode                    ? 1
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
