@@ -787,6 +787,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
         {
+            if (!(ss->ttHit && tte->depth() >= depth / 2))
                         tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv,
                             BOUND_UPPER,
                             depth, MOVE_NONE, ss->staticEval);
