@@ -782,7 +782,6 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && (depth > 1 || !cutNode || eval < alpha - 1300)
         && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
@@ -1037,7 +1036,7 @@ moves_loop: // When in check, search starts here
                             + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~2 Elo)
-              if (   lmrDepth < 5
+              if (   lmrDepth < 4 + thisThread->previousDepth / 16
                   && history < -3875 * (depth - 1))
                   continue;
 
