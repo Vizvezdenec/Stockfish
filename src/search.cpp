@@ -782,7 +782,8 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - (348 - 100 * !(cutNode || priorCapture)) - 258 * depth * depth)
+        && (depth > 1 || !cutNode || eval < alpha - 1300)
+        && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
