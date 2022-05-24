@@ -669,7 +669,7 @@ namespace {
             if (ttValue >= beta)
                 ss->cutoffCnt++;
             else
-                ss->cutoffCnt = 0;
+                ss->cutoffCnt = std::max(0, ss->cutoffCnt - 1);
             return ttValue;
         }
     }
