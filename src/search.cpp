@@ -668,6 +668,8 @@ namespace {
         {
             if (ttValue >= beta)
                 ss->cutoffCnt++;
+            else
+                ss->cutoffCnt = 0;
             return ttValue;
         }
     }
