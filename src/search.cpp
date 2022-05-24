@@ -666,10 +666,11 @@ namespace {
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
         {
-            if (ttValue >= beta)
-                ss->cutoffCnt++;
-            else
-                ss->cutoffCnt = 0;
+            if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+    {
+            int bonus = std::clamp(-16 * int((ss-1)->staticEval + tte->eval()), -2000, 2000);
+            thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+    }
             return ttValue;
         }
     }
@@ -792,10 +793,7 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
-        {
-            ss->cutoffCnt = 0;
             return value;
-        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -914,7 +912,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    ss->cutoffCnt++;
                     return value;
                 }
             }
