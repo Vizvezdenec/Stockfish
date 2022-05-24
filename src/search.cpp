@@ -665,7 +665,11 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (ttValue >= beta)
+                ss->cutoffCnt++;
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -905,7 +909,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    ss->cutoffCnt++;
                     return value;
                 }
             }
