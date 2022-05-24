@@ -669,7 +669,7 @@ namespace {
             if (ttValue >= beta)
                 ss->cutoffCnt++;
             else
-                ss->cutoffCnt = std::max(0, ss->cutoffCnt - 1);
+                ss->cutoffCnt = 0;
             return ttValue;
         }
     }
@@ -792,7 +792,10 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+            ss->cutoffCnt = 0;
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -911,6 +914,7 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    ss->cutoffCnt++;
                     return value;
                 }
             }
