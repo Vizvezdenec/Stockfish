@@ -905,6 +905,7 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    ss->cutoffCnt++;
                     return value;
                 }
             }
@@ -1196,8 +1197,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : moveCount <= 4 - !cutNode ? 2
-                       : PvNode && moveCount <= 6  ? 2
+                       : moveCount <= 4            ? 2
                        : PvNode                    ? 1
                        : cutNode && moveCount <= 8 ? 1
                        :                             0;
