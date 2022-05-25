@@ -107,8 +107,6 @@ void MovePicker::score() {
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
-  if constexpr (Type == QUIETS)
-  {
       Color us = pos.side_to_move();
       // squares threatened by pawns
       threatenedByPawn  = pos.attacks_by<PAWN>(~us);
@@ -121,20 +119,14 @@ void MovePicker::score() {
       threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-  }
-  else
-  {
-      // Silence unused variable warnings
-      (void) threatened;
-      (void) threatenedByPawn;
-      (void) threatenedByMinor;
-      (void) threatenedByRook;
-  }
 
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
           m.value =  6 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
-                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
+                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))][bool(threatened & from_sq(m))]
+                         [bool((type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & threatenedByRook)) || 
+                          (type_of(pos.moved_piece(m)) == ROOK  && (to_sq(m) & threatenedByMinor)) ||
+                          ((type_of(pos.moved_piece(m)) == BISHOP || type_of(pos.moved_piece(m)) == KNIGHT) && (to_sq(m) & threatenedByMinor)))];
 
       else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]

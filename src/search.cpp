@@ -1022,7 +1022,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))][false][false] / 6 < alpha)
                   continue;
 
               // SEE based pruning (~9 Elo)
@@ -1104,7 +1104,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-                  extension = -1 - (value >= beta + 6 * depth);
+                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
@@ -1704,6 +1704,19 @@ moves_loop: // When in check, search starts here
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
+    Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
+    // squares threatened by pawns
+    threatenedByPawn  = pos.attacks_by<PAWN>(~us);
+    // squares threatened by minors or pawns
+    threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
+    // squares threatened by rooks, minors or pawns
+    threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
+
+    // pieces threatened by pieces of lesser material value
+    threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
+                | (pos.pieces(us, ROOK)  & threatenedByMinor)
+                | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+
     if (!pos.capture(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
@@ -1717,8 +1730,14 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
+        bool tosqthr = type_of(moved_piece) == KNIGHT || type_of(moved_piece) == BISHOP ? threatenedByPawn & to_sq(bestMove)
+                     : type_of(moved_piece) == ROOK                            ? threatenedByMinor & to_sq(bestMove)
+                     : type_of(moved_piece) == QUEEN                           ? threatenedByRook & to_sq(bestMove)
+                     : 0;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[type_of(moved_piece)][to_sq(bestMove)][captured][bool(threatened & from_sq(bestMove))][tosqthr] << bonus1;
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1730,8 +1749,12 @@ moves_loop: // When in check, search starts here
     for (int i = 0; i < captureCount; ++i)
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
+        bool tosqthr = type_of(moved_piece) == KNIGHT || type_of(moved_piece) == BISHOP ? threatenedByPawn & to_sq(capturesSearched[i])
+                     : type_of(moved_piece) == ROOK                            ? threatenedByMinor & to_sq(capturesSearched[i])
+                     : type_of(moved_piece) == QUEEN                           ? threatenedByRook & to_sq(capturesSearched[i])
+                     : 0;
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[type_of(moved_piece)][to_sq(capturesSearched[i])][captured][bool(threatened & from_sq(capturesSearched[i]))][tosqthr] << -bonus1;
     }
   }
 
