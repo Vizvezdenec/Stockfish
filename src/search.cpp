@@ -887,7 +887,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
-                                                                          [bool(attacked & from_sq(move))]
+                                                                          [bool(attacked & to_sq(move))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1583,7 +1583,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
