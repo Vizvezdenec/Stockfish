@@ -276,7 +276,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -657,7 +657,7 @@ namespace {
             else if (!ttCapture)
             {
                 int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                thisThread->mainHistory[us][from_to(ttMove)][ss->inCheck] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -722,10 +722,6 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    Bitboard attacked, threatenedByPawn, threatenedByMinor, threatenedByRook;
-    attacked = threatenedByPawn = threatenedByMinor = threatenedByRook = 0;
-    bool threatsCalculated = false;
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -765,7 +761,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)][false] << bonus;
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -819,7 +815,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -854,19 +850,6 @@ namespace {
 
     probCutBeta = beta + 179 - 46 * improving;
 
-    threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-    // squares threatened by minors or pawns
-    threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-    // squares threatened by rooks, minors or pawns
-    threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-    // pieces threatened by pieces of lesser material value
-    attacked  =  (pos.pieces(us, QUEEN) & threatenedByRook)
-               | (pos.pieces(us, ROOK)  & threatenedByMinor)
-               | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-
-    threatsCalculated = true;
-
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -899,7 +882,6 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
-                                                                          [bool(attacked & from_sq(move))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -978,22 +960,6 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    if (!threatsCalculated)
-    {
-    threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-    // squares threatened by minors or pawns
-    threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-    // squares threatened by rooks, minors or pawns
-    threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-    // pieces threatened by pieces of lesser material value
-    attacked  =  (pos.pieces(us, QUEEN) & threatenedByRook)
-               | (pos.pieces(us, ROOK)  & threatenedByMinor)
-               | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-
-    threatsCalculated = true;
-    }
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1074,7 +1040,7 @@ moves_loop: // When in check, search starts here
                   && history < -3875 * (depth - 1))
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];
+              history += thisThread->mainHistory[us][from_to(move)][ss->inCheck];
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
@@ -1166,7 +1132,6 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1218,7 +1183,7 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+          ss->statScore =  thisThread->mainHistory[us][from_to(move)][ss->inCheck]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1552,20 +1517,6 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
-    Color us = pos.side_to_move();
-    Bitboard attacked, threatenedByPawn, threatenedByMinor, threatenedByRook;
-
-    threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-    // squares threatened by minors or pawns
-    threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-    // squares threatened by rooks, minors or pawns
-    threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-    // pieces threatened by pieces of lesser material value
-    attacked  =  (pos.pieces(us, QUEEN) & threatenedByRook)
-               | (pos.pieces(us, ROOK)  & threatenedByMinor)
-               | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
     {
@@ -1617,7 +1568,6 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
@@ -1762,7 +1712,7 @@ moves_loop: // When in check, search starts here
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            thisThread->mainHistory[us][from_to(quietsSearched[i])][ss->inCheck] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
@@ -1815,7 +1765,7 @@ moves_loop: // When in check, search starts here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->mainHistory[us][from_to(move)][ss->inCheck] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Update countermove history
