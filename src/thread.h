@@ -72,7 +72,6 @@ public:
   Depth rootDepth, completedDepth, depth, previousDepth;
   Value rootDelta;
   CounterMoveHistory counterMoves;
-  ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
   ContinuationHistory continuationHistory[2][2];
   Score trend;

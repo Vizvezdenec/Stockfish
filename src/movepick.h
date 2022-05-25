@@ -82,12 +82,6 @@ struct Stats<T, D, Size> : public std::array<StatsEntry<T, D>, Size> {};
 enum StatsParams { NOT_USED = 0 };
 enum StatsType { NoCaptures, Captures };
 
-/// ButterflyHistory records how often quiet moves have been successful or
-/// unsuccessful during the current search, and is used for reduction and move
-/// ordering decisions. It uses 2 tables (one for each color) indexed by
-/// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
-typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB), 2, 2> ButterflyHistory;
-
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
@@ -117,17 +111,13 @@ class MovePicker {
 public:
   MovePicker(const MovePicker&) = delete;
   MovePicker& operator=(const MovePicker&) = delete;
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
+  MovePicker(const Position&, Move, Depth, const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
-                                           const Move*,
-                                           Bitboard);
-  MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
-                                           const CapturePieceToHistory*,
+                                           const Move*);
+  MovePicker(const Position&, Move, Depth, const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square,
-                                           Bitboard);
+                                           Square);
   MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
 
@@ -138,14 +128,12 @@ private:
   ExtMove* end() { return endMoves; }
 
   const Position& pos;
-  const ButterflyHistory* mainHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
-  Bitboard threatened;
   Value threshold;
   Depth depth;
   ExtMove moves[MAX_MOVES];
