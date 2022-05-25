@@ -139,13 +139,7 @@ void MovePicker::score() {
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
-                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   +     (fromThreat ?
-                           (type_of(pos.moved_piece(m)) == QUEEN && !toThreat  ? 50000
-                          : type_of(pos.moved_piece(m)) == ROOK  && !toThreat ? 25000
-                          :                                         !toThreat  ? 15000
-                          :                                                                           0)
-                          :                                                                           0);
+                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)];
 
       else // Type == EVASIONS
       {
