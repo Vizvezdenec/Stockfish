@@ -61,9 +61,14 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
-                                                             const Move* killers)
+                                                             const Move* killers,
+                                                             const Bitboard tbp, 
+                                                             const Bitboard tbm, 
+                                                             const Bitboard tbr, 
+                                                             const Bitboard thr)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, 
+             threatenedByPawn(tbp), threatenedByMinor(tbm), threatenedByRook(tbr), threatened(thr), depth(d)
 {
   assert(d > 0);
 
@@ -75,8 +80,13 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
+                                                             Square rs,
+                                                             const Bitboard tbp, 
+                                                             const Bitboard tbm, 
+                                                             const Bitboard tbr, 
+                                                             const Bitboard thr)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), 
+             threatenedByPawn(tbp), threatenedByMinor(tbm), threatenedByRook(tbr), threatened(thr), depth(d)
 {
   assert(d <= 0);
 
@@ -88,8 +98,13 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), depth(d)
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const CapturePieceToHistory* cph,
+                                                             const Bitboard tbp, 
+                                                             const Bitboard tbm, 
+                                                             const Bitboard tbr, 
+                                                             const Bitboard thr)
+           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), 
+             threatenedByPawn(tbp), threatenedByMinor(tbm), threatenedByRook(tbr), threatened(thr), depth(d)
 {
   assert(!pos.checkers());
 
@@ -106,46 +121,29 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
-  if constexpr (Type == QUIETS)
-  {
-      Color us = pos.side_to_move();
-      // squares threatened by pawns
-      threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-      // squares threatened by minors or pawns
-      threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-      // squares threatened by rooks, minors or pawns
-      threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-
-      // pieces threatened by pieces of lesser material value
-      threatened =  (pos.pieces(us, QUEEN) & threatenedByRook)
-                  | (pos.pieces(us, ROOK)  & threatenedByMinor)
-                  | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-  }
-  else
-  {
-      // Silence unused variable warnings
-      (void) threatened;
-      (void) threatenedByPawn;
-      (void) threatenedByMinor;
-      (void) threatenedByRook;
-  }
-
   for (auto& m : *this)
+  {
+      bool toThreat = type_of(pos.moved_piece(m)) == QUEEN ? threatenedByRook  & to_sq(m)
+                    : type_of(pos.moved_piece(m)) == ROOK  ? threatenedByMinor & to_sq(m)
+                    : type_of(pos.moved_piece(m)) == KNIGHT || type_of(pos.moved_piece(m)) == BISHOP ? threatenedByPawn & to_sq(m)
+                    : 0;
+
+      bool fromThreat = threatened & from_sq(m);
+
       if constexpr (Type == CAPTURES)
           m.value =  6 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
-                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
+                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))][fromThreat][toThreat];
 
       else if constexpr (Type == QUIETS)
-          m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
+          m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)][fromThreat][toThreat]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
-                   +     (threatened & from_sq(m) ?
-                           (type_of(pos.moved_piece(m)) == QUEEN && !(to_sq(m) & threatenedByRook)  ? 50000
-                          : type_of(pos.moved_piece(m)) == ROOK  && !(to_sq(m) & threatenedByMinor) ? 25000
-                          :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
+                   +     (fromThreat ?
+                           (type_of(pos.moved_piece(m)) == QUEEN && !toThreat  ? 50000
+                          : type_of(pos.moved_piece(m)) == ROOK  && !toThreat ? 25000
+                          :                                         !toThreat  ? 15000
                           :                                                                           0)
                           :                                                                           0);
 
@@ -155,10 +153,11 @@ void MovePicker::score() {
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                        - Value(type_of(pos.moved_piece(m)));
           else
-              m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
+              m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)][fromThreat][toThreat]
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
+  }
 }
 
 /// MovePicker::select() returns the next move satisfying a predicate function.

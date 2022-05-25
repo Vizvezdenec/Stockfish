@@ -86,14 +86,14 @@ enum StatsType { NoCaptures, Captures };
 /// unsuccessful during the current search, and is used for reduction and move
 /// ordering decisions. It uses 2 tables (one for each color) indexed by
 /// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
-typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
+typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB), 2, 2> ButterflyHistory;
 
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
 
 /// CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
-typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
+typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB, 2, 2> CapturePieceToHistory;
 
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
@@ -121,12 +121,24 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
-                                           const Move*);
+                                           const Move*,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square);
-  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
+                                           Square,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard);
+  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard,
+                                           Bitboard);
   Move next_move(bool skipQuiets = false);
 
 private:
@@ -144,6 +156,7 @@ private:
   int stage;
   Square recaptureSquare;
   Value threshold;
+  Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatened;
   Depth depth;
   ExtMove moves[MAX_MOVES];
 };
