@@ -93,7 +93,7 @@ typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB), 2, 2> B
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
 
 /// CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
-typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB, 2, 2> CapturePieceToHistory;
+typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceToHistory;
 
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
@@ -134,11 +134,7 @@ public:
                                            Bitboard,
                                            Bitboard,
                                            Bitboard);
-  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*,
-                                           Bitboard,
-                                           Bitboard,
-                                           Bitboard,
-                                           Bitboard);
+  MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
 
 private:

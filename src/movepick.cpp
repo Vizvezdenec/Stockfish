@@ -98,13 +98,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const CapturePieceToHistory* cph,
-                                                             const Bitboard tbp, 
-                                                             const Bitboard tbm, 
-                                                             const Bitboard tbr, 
-                                                             const Bitboard thr)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), 
-             threatenedByPawn(tbp), threatenedByMinor(tbm), threatenedByRook(tbr), threatened(thr), depth(d)
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const CapturePieceToHistory* cph)
+           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), depth(d)
 {
   assert(!pos.checkers());
 
@@ -132,14 +127,20 @@ void MovePicker::score() {
 
       if constexpr (Type == CAPTURES)
           m.value =  6 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
-                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))][fromThreat][toThreat];
+                   +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))];
 
       else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)][fromThreat][toThreat]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
-                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)];
+                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
+                   +     (fromThreat ?
+                           (type_of(pos.moved_piece(m)) == QUEEN && !toThreat  ? 50000
+                          : type_of(pos.moved_piece(m)) == ROOK  && !toThreat  ? 25000
+                          :                                         !toThreat  ? 15000
+                          :                                                                           0)
+                          :                                                                           0);
 
       else // Type == EVASIONS
       {

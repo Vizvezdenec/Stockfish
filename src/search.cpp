@@ -885,7 +885,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, threatenedByPawn, threatenedByMinor, threatenedByRook, threatened);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
         bool ttPv = ss->ttPv;
         bool captureOrPromotion;
         ss->ttPv = false;
@@ -1049,7 +1049,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))][bool(from_sq(move) & threatened)][threatenedTo] / 6 < alpha)
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
               // SEE based pruning (~9 Elo)
@@ -1769,12 +1769,8 @@ moves_loop: // When in check, search starts here
     }
     else
     {
-        bool threatenedTo =       type_of(pos.moved_piece(bestMove)) == QUEEN ? threatenedByRook  & to_sq(bestMove)
-                                : type_of(pos.moved_piece(bestMove)) == ROOK  ? threatenedByMinor & to_sq(bestMove)
-                                : type_of(pos.moved_piece(bestMove)) == KNIGHT || type_of(pos.moved_piece(bestMove)) == BISHOP ? threatenedByPawn & to_sq(bestMove)
-                                : 0;
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured][bool(from_sq(bestMove) & threatened)][threatenedTo] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
@@ -1786,13 +1782,9 @@ moves_loop: // When in check, search starts here
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
     {
-        bool threatenedTo =       type_of(pos.moved_piece(capturesSearched[i])) == QUEEN ? threatenedByRook  & to_sq(capturesSearched[i])
-                                : type_of(pos.moved_piece(capturesSearched[i])) == ROOK  ? threatenedByMinor & to_sq(capturesSearched[i])
-                                : type_of(pos.moved_piece(capturesSearched[i])) == KNIGHT || type_of(pos.moved_piece(capturesSearched[i])) == BISHOP ? threatenedByPawn & to_sq(capturesSearched[i])
-                                : 0;
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured][bool(from_sq(capturesSearched[i]) & threatened)][threatenedTo] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
