@@ -799,11 +799,11 @@ namespace {
         return eval;
 
     if (   !ss->ttPv
-        && depth < 5
+        && depth < 7
         && eval >= beta
         && eval < VALUE_KNOWN_WIN
-        && eval > ss->staticEval + 125 * depth
-        && tte->depth() >= depth - 2)
+        && eval > ss->staticEval + 55 * depth * depth
+        && tte->depth() >= depth - 1)
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
