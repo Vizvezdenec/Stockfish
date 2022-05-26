@@ -854,7 +854,7 @@ namespace {
     probCutBeta = beta + 179 - 46 * improving;
 
     attackedCalc = true;
-    attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+    attacked = pos.attacks_by<PAWN>(~us);
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts here
                          && tte->depth() >= depth;
 
     if (!attackedCalc)
-        attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+        attacked = pos.attacks_by<PAWN>(~us);
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1517,7 +1517,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Color us = pos.side_to_move();
-    Bitboard attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+    Bitboard attacked = pos.attacks_by<PAWN>(~us);
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
