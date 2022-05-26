@@ -802,7 +802,7 @@ namespace {
         && depth < 5
         && eval >= beta
         && eval < VALUE_KNOWN_WIN
-        && eval > ss->staticEval + 250 * depth
+        && eval > ss->staticEval + 125 * depth
         && tte->depth() >= depth - 2)
         return eval;
 
