@@ -276,7 +276,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -668,6 +668,9 @@ namespace {
             return ttValue;
     }
 
+    bool attackedCalc = false;
+    Bitboard attacked = 0;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -815,7 +818,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -850,6 +853,10 @@ namespace {
 
     probCutBeta = beta + 179 - 46 * improving;
 
+    attackedCalc = true;
+    attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
+             | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us) | pos.attacks_by<QUEEN>(~us);
+
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -882,6 +889,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
+                                                                          [bool(attacked & to_sq(move))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -960,6 +968,10 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    if (!attackedCalc)
+        attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
+                 | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us) | pos.attacks_by<QUEEN>(~us);
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1132,6 +1144,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1505,6 +1518,10 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
+    Color us = pos.side_to_move();
+    Bitboard attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
+                      | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us);
+
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1568,6 +1585,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
