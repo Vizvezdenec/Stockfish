@@ -276,7 +276,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -632,9 +632,6 @@ namespace {
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
-    Bitboard threatened = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
-                        | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us);
-
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
@@ -724,6 +721,11 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+
+    Bitboard attackedByPawn = 0;
+    Bitboard attackedByMinor = 0;
+    Bitboard attackedByRook = 0;
+    bool attackedCalc = false;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -818,7 +820,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -853,6 +855,11 @@ namespace {
 
     probCutBeta = beta + 179 - 46 * improving;
 
+    attackedCalc = true;
+    attackedByPawn = pos.attacks_by<PAWN>(~us);
+    attackedByMinor = attackedByPawn | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+    attackedByRook = attackedByMinor | pos.attacks_by<ROOK>(~us);
+
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
@@ -883,8 +890,15 @@ namespace {
                 captureOrPromotion = true;
 
                 ss->currentMove = move;
+                bool histBool = type_of(pos.moved_piece(move)) == QUEEN ? attackedByRook & to_sq(move)
+                              : type_of(pos.moved_piece(move)) == ROOK ? attackedByMinor & to_sq(move)
+                              : type_of(pos.moved_piece(move)) == KNIGHT ? attackedByPawn & to_sq(move)
+                              : type_of(pos.moved_piece(move)) == BISHOP ? attackedByPawn & to_sq(move)
+                              : false;
+
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
+                                                                          [histBool]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -963,6 +977,13 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    if (!attackedCalc)
+    {
+        attackedByPawn = pos.attacks_by<PAWN>(~us);
+        attackedByMinor = attackedByPawn | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+        attackedByRook = attackedByMinor | pos.attacks_by<ROOK>(~us);
+    }
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1131,10 +1152,17 @@ moves_loop: // When in check, search starts here
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
 
+      bool histBool = type_of(pos.moved_piece(move)) == QUEEN ? attackedByRook & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == ROOK ? attackedByMinor & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == KNIGHT ? attackedByPawn & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == BISHOP ? attackedByPawn & to_sq(move)
+                    : false;
+
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [histBool]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1508,11 +1536,6 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Color us = pos.side_to_move();
-
-    Bitboard threatened = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
-                        | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us);
-
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1524,6 +1547,12 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+
+    Color us = pos.side_to_move();
+
+    Bitboard attackedByPawn = pos.attacks_by<PAWN>(~us);
+    Bitboard attackedByMinor = attackedByPawn | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us);
+    Bitboard attackedByRook = attackedByMinor | pos.attacks_by<ROOK>(~us);
 
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1573,9 +1602,16 @@ moves_loop: // When in check, search starts here
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
 
+      bool histBool = type_of(pos.moved_piece(move)) == QUEEN ? attackedByRook & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == ROOK ? attackedByMinor & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == KNIGHT ? attackedByPawn & to_sq(move)
+                    : type_of(pos.moved_piece(move)) == BISHOP ? attackedByPawn & to_sq(move)
+                    : false;
+
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [histBool]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
