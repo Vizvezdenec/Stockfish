@@ -784,10 +784,8 @@ namespace {
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha, beta);
-        if (value <= alpha)
-            return value;
-        else if (depth == 1)
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
             return value;
     }
 
@@ -798,6 +796,14 @@ namespace {
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
+        return eval;
+
+    if (   !ss->ttPv
+        && depth < 5
+        && eval >= beta
+        && eval < VALUE_KNOWN_WIN
+        && eval > ss->staticEval + 250 * depth
+        && tte->depth() >= depth - 2)
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
