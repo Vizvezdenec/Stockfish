@@ -1520,7 +1520,7 @@ moves_loop: // When in check, search starts here
 
     Color us = pos.side_to_move();
     Bitboard attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) 
-                      | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us);
+                      | pos.attacks_by<ROOK>(~us) | pos.attacks_by<KING>(~us) | pos.attacks_by<QUEEN>(~us);
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
