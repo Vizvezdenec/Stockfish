@@ -721,7 +721,7 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-    Bitboard attacked = pos.attacks_by<PAWN>(~us);
+    Bitboard attacked = pos.attacks_by<PAWN>(~us) & ~pos.attacks_by<PAWN>(us);
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -883,7 +883,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [captureOrPromotion]
-                                                                          [bool(attacked & from_sq(move))]
+                                                                          [bool(attacked & to_sq(move))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1134,7 +1134,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1509,7 +1509,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Color us = pos.side_to_move();
-    Bitboard attacked = pos.attacks_by<PAWN>(~us);
+    Bitboard attacked = pos.attacks_by<PAWN>(~us) & ~pos.attacks_by<PAWN>(us);
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
@@ -1574,7 +1574,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [bool(attacked & from_sq(move))]
+                                                                [bool(attacked & to_sq(move))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
