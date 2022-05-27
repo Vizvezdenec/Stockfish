@@ -802,8 +802,8 @@ namespace {
         && depth < 5
         && eval >= beta
         && eval < VALUE_KNOWN_WIN
-        && eval > ss->staticEval + 500 * depth
-        && tte->depth() >= depth - 2)
+        && eval > ss->staticEval + 600 * depth
+        && tte->depth() >= depth - 3)
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
