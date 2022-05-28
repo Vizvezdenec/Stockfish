@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts here
           // Quiet ttMove extensions (~0 Elo)
           else if (   PvNode
                    && move == ttMove
-                   && (move == ss->killers[0] || (move == (ss-2)->killers[0] && move == ss->killers[1]))
+                   && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
       }
@@ -1148,7 +1148,8 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (cutNode && (ss-1)->moveCount > 1)))
+              || (cutNode && (ss-1)->moveCount > 1)
+              || (!PvNode && moveCount >= futility_move_count(improving, depth) + 5)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
