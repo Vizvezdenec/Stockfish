@@ -413,7 +413,7 @@ void Thread::search() {
               }
               else if (bestValue >= beta)
               {
-                  hardFH = bestValue >= beta + 200;
+                  hardFH = bestValue >= beta + 100;
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
               }
