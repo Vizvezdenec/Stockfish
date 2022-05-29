@@ -1718,7 +1718,7 @@ moves_loop: // When in check, search starts here
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
         if (!pos.see_ge(bestMove))
-            update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus2 / 4);
+            update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus2 / 8);
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
