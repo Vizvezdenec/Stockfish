@@ -540,7 +540,12 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+    {
+        if (depth == 0 && pos.checkers())
+            depth = 1;
+        else
+            return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+    }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -1396,7 +1401,6 @@ moves_loop: // When in check, search starts here
 
   // qsearch() is the quiescence search function, which is called by the main search
   // function with zero depth, or recursively with further decreasing depth per call.
-  // (~155 elo)
   template <NodeType nodeType>
   Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
