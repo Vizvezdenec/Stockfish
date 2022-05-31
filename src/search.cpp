@@ -945,7 +945,7 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    const ButterflyHistory1* contHist1[] = { (ss-1)->continuationHistory1, (ss-2)->continuationHistory1 };
+    const ButterflyHistory1* contHist1[] = { (ss-2)->continuationHistory1 };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
@@ -1755,7 +1755,6 @@ moves_loop: // When in check, search starts here
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
     }
-    (*(ss-1)->continuationHistory1)[from][to]<< bonus;
     (*(ss-2)->continuationHistory1)[from][to]<< bonus;
   }
 
