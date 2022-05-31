@@ -879,7 +879,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [true]
-                                                                          [relative_rank(us, from_sq(move)) < RANK_5]
+                                                                          [file_of(from_sq(move)) < FILE_E]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1130,7 +1130,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [relative_rank(us, from_sq(move)) < RANK_5]
+                                                                [file_of(from_sq(move)) < FILE_E]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1567,7 +1567,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [relative_rank(pos.side_to_move(), from_sq(move)) < RANK_5]
+                                                                [file_of(from_sq(move)) < FILE_E]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
