@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-              else if (cutNode && depth <= 5 && move == ttMove &&  abs(ttValue) < VALUE_KNOWN_WIN && tte->bound() == BOUND_LOWER)
+              else if (cutNode && depth <= 4 && move == ttMove &&  abs(ttValue) < VALUE_KNOWN_WIN && tte->bound() == BOUND_LOWER)
                   extension = 1;
       }
 
