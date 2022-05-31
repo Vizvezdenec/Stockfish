@@ -1102,8 +1102,6 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
-              else if (cutNode && depth <= 5 && move == ttMove && tte->bound() == BOUND_LOWER)
-                  extension = 1;
           }
 
           // Check extensions (~1 Elo)
@@ -1118,6 +1116,8 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
+              else if (cutNode && depth <= 6 && move == ttMove &&  abs(ttValue) < VALUE_KNOWN_WIN && tte->bound() == BOUND_LOWER)
+                  extension = 1;
       }
 
       // Add extension to new depth
