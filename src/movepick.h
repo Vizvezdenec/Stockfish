@@ -88,8 +88,6 @@ enum StatsType { NoCaptures, Captures };
 /// the move's from and to squares, see www.chessprogramming.org/Butterfly_Boards
 typedef Stats<int16_t, 14365, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory;
 
-typedef Stats<int16_t, 29952, int(SQUARE_NB) * int(SQUARE_NB)> ButterflyHistory1;
-
 /// CounterMoveHistory stores counter moves indexed by [piece][to] of the previous
 /// move, see www.chessprogramming.org/Countermove_Heuristic
 typedef Stats<Move, NOT_USED, PIECE_NB, SQUARE_NB> CounterMoveHistory;
@@ -100,12 +98,14 @@ typedef Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB> CapturePieceTo
 /// PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 typedef Stats<int16_t, 29952, PIECE_NB, SQUARE_NB> PieceToHistory;
 
+typedef Stats<int16_t, 29952, SQUARE_NB, SQUARE_NB> ButterflyHistory1;
+
 /// ContinuationHistory is the combined history of a given pair of moves, usually
 /// the current one given a previous one. The nested history table is based on
 /// PieceToHistory instead of ButterflyBoards.
 typedef Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB> ContinuationHistory;
 
-typedef Stats<ButterflyHistory1, NOT_USED, int(SQUARE_NB) * int(SQUARE_NB)> ContinuationHistory1;
+typedef Stats<ButterflyHistory1, NOT_USED, SQUARE_NB, SQUARE_NB> ContinuationHistory1;
 
 /// MovePicker class is used to pick one pseudo-legal move at a time from the
 /// current position. The most important method is next_move(), which returns a

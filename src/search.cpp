@@ -280,7 +280,7 @@ void Thread::search() {
       (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 3; i > 0; i--)
-      (ss-i)->continuationHistory1 = &this->continuationHistory1[0]; // Use as a sentinel
+      (ss-i)->continuationHistory1 = &this->continuationHistory1[0][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -819,7 +819,7 @@ namespace {
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
-        ss->continuationHistory1 = &thisThread->continuationHistory1[0];
+        ss->continuationHistory1 = &thisThread->continuationHistory1[0][0];
 
         pos.do_null_move(st);
 
@@ -885,7 +885,7 @@ namespace {
                                                                           [true]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
-                ss->continuationHistory1 = &thisThread->continuationHistory1[from_to(move)];
+                ss->continuationHistory1 = &thisThread->continuationHistory1[from_sq(move)][to_sq(move)];
 
                 pos.do_move(move, st);
 
@@ -1139,7 +1139,7 @@ moves_loop: // When in check, search starts here
                                                                 [capture]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
-      ss->continuationHistory1 = &thisThread->continuationHistory1[from_to(move)];
+      ss->continuationHistory1 = &thisThread->continuationHistory1[from_sq(move)][to_sq(move)];
 
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
@@ -1755,7 +1755,7 @@ moves_loop: // When in check, search starts here
         if (is_ok((ss-i)->currentMove))
             (*(ss-i)->continuationHistory)[pc][to] << bonus;
     }
-    (*(ss-1)->continuationHistory1)[from_to(make_move(from, to))] << bonus;
+    (*(ss-1)->continuationHistory1)[from][to]<< bonus;
   }
 
 
