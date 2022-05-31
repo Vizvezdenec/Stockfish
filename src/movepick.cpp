@@ -139,7 +139,7 @@ void MovePicker::score() {
 
       else if constexpr (Type == QUIETS)
           m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
-                   +     (*continuationHistory1[0])[from_sq(m)][to_sq(m)]
+                   + 4 * (*continuationHistory1[0])[from_sq(m)][to_sq(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
