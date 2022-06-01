@@ -1116,8 +1116,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-              else if (cutNode && depth <= 3 && move == ttMove &&  abs(ttValue) < VALUE_KNOWN_WIN && tte->bound() == BOUND_LOWER)
-                  extension = 1;
       }
 
       // Add extension to new depth
@@ -1716,8 +1714,12 @@ moves_loop: // When in check, search starts here
         }
     }
     else
+    {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        if (!pos.see_ge(bestMove))
+            update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus2 / 7);
+    }
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
