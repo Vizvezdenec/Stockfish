@@ -910,9 +910,11 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
-        && depth >= 3
         && !ttMove)
         depth -= 2;
+
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta, depth);
 
     if (   cutNode
         && depth >= 8
@@ -1007,7 +1009,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth + PvNode * (10 / (depth + 3)) - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
               || givesCheck)
