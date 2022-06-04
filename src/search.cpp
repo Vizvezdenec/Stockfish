@@ -879,7 +879,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [true]
-                                                                          [(relative_rank(us, from_sq(move)) / 2) * 2 + (file_of(from_sq(move)) < FILE_E)]
+                                                                          [relative_rank(pos.side_to_move(), from_sq(move))]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1130,7 +1130,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [(relative_rank(us, from_sq(move)) / 2) * 2 + (file_of(from_sq(move)) < FILE_E)]
+                                                                [relative_rank(pos.side_to_move(), from_sq(move))]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1562,7 +1562,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
-                                                                [(relative_rank(pos.side_to_move(), from_sq(move)) / 2) * 2 + (file_of(from_sq(move)) < FILE_E)]
+                                                                [relative_rank(pos.side_to_move(), from_sq(move))]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
