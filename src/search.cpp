@@ -1015,7 +1015,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning for captures (~0 Elo)
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
-                  && (cutNode || !ss->ttPv)
+                  && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
@@ -1172,7 +1172,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
-          if ((ss+1)->cutoffCnt > 3 && !PvNode)
+          if ((ss+1)->cutoffCnt > 3 + 6 * PvNode)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
