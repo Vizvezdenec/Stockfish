@@ -277,7 +277,7 @@ void Thread::search() {
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
 
   for (int i = 0; i <= MAX_PLY + 2; ++i)
       (ss+i)->ply = i;
@@ -815,7 +815,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 753);
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -879,6 +879,7 @@ namespace {
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [true]
+                                                                          [relative_rank(us, from_sq(move)) < RANK_5 + (type_of(pos.moved_piece(move)) == PAWN)]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1069,7 +1070,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - std::max(3 * depth, 9 + 20 * (!PvNode && tte->is_pv()));
+              Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1129,6 +1130,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [relative_rank(us, from_sq(move)) < RANK_5 + (type_of(pos.moved_piece(move)) == PAWN)]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1560,6 +1562,7 @@ moves_loop: // When in check, search starts here
       ss->currentMove = move;
       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                 [capture]
+                                                                [relative_rank(pos.side_to_move(), from_sq(move)) < RANK_5 + (type_of(pos.moved_piece(move)) == PAWN)]
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
