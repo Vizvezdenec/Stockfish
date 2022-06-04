@@ -914,7 +914,7 @@ namespace {
         depth -= 2;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta, depth);
+        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (   cutNode
         && depth >= 8
