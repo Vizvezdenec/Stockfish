@@ -540,7 +540,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, (ss-1)->priorc ? depth : 0);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -604,6 +604,7 @@ namespace {
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
+    ss->priorc = priorCapture;
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
@@ -910,16 +911,9 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 2 or 1 depending on node type (~3 Elo)
     if (   PvNode
+        && depth >= 3
         && !ttMove)
         depth -= 2;
-
-    if (depth <= 0)
-    {
-        value = qsearch<PV>(pos, ss, alpha, beta);
-        if (value <= alpha)
-            return value;
-        else depth = 1;
-    }
 
     if (   cutNode
         && depth >= 8
