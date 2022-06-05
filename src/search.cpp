@@ -913,7 +913,10 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    depth = std::max(depth, 1);
+    if (depth <= 0)
+        depth++;
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (   cutNode
         && depth >= 8
