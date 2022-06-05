@@ -540,7 +540,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, (ss-1)->priorc ? depth : 0);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -570,6 +570,10 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+
+    if (rootNode)
+        ss->cumulativeSs = 0;
+    else ss->cumulativeSs = -(ss-1)->cumulativeSs;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -604,7 +608,6 @@ namespace {
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
-    ss->priorc = priorCapture;
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
@@ -1181,6 +1184,11 @@ moves_loop: // When in check, search starts here
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4334;
+
+          ss->cumulativeSs = -(ss-1)->cumulativeSs / 2 + ss->statScore;
+
+          if (ss->cumulativeSs < -50000)
+              r++;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
