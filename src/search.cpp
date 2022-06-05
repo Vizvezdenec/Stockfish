@@ -1185,7 +1185,7 @@ moves_loop: // When in check, search starts here
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4334;
 
-          ss->cumulativeSs = -(ss-1)->cumulativeSs * 3 / 4;
+          ss->cumulativeSs = -(ss-1)->cumulativeSs / 2;
 
           r -= ss->cumulativeSs / 32768;
 
