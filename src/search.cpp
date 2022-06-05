@@ -1185,10 +1185,11 @@ moves_loop: // When in check, search starts here
                          + (*contHist[3])[movedPiece][to_sq(move)]
                          - 4334;
 
-          ss->cumulativeSs = -(ss-1)->cumulativeSs / 2 + ss->statScore;
+          ss->cumulativeSs = -(ss-1)->cumulativeSs * 3 / 4;
 
-          if (ss->cumulativeSs < -50000)
-              r++;
+          r -= ss->cumulativeSs / 32768;
+
+          ss->cumulativeSs += ss->statScore;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
