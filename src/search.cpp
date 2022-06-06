@@ -787,8 +787,8 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
         {
-            if (cutNode && !priorCapture)
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2));
+            if (!priorCapture)
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2) * (1 + cutNode) / 2);
             return value;
         }
     }
