@@ -903,7 +903,7 @@ namespace {
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
                     if (!priorCapture && (ss-1)->moveCount <= 2 && !cutNode)
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth - 2));
+                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
                 }
             }
