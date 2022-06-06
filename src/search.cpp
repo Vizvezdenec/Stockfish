@@ -786,7 +786,11 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+            if (cutNode && !priorCapture)
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2) / 2);
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -902,8 +906,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    if (!priorCapture && ((ss-1)->moveCount == 1 + (ss-1)->ttHit) && !cutNode)
-                        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
                 }
             }
