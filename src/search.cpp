@@ -902,7 +902,7 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    if (!priorCapture && (ss-1)->moveCount <= 4 && !cutNode)
+                    if (!priorCapture && (ss-1)->moveCount <= 5 && !cutNode)
                         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
                     return value;
                 }
