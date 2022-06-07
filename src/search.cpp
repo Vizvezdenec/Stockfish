@@ -1454,7 +1454,7 @@ moves_loop: // When in check, search starts here
                             : (tte->bound() & BOUND_UPPER)))
         return ttValue;
 
-    if (  PvNode && ss->ttHit && tte->depth() > 0 && depth < DEPTH_QS_NO_CHECKS && ttValue != VALUE_NONE 
+    if (  PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE 
     && ((ttValue <= alpha && tte->bound() == BOUND_UPPER) || (ttValue >= beta && tte->bound() == BOUND_LOWER)))
         return ttValue;
 
