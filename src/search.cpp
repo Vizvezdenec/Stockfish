@@ -788,7 +788,7 @@ namespace {
         if (value < alpha)
         {
             if (!priorCapture)
-                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(2) * (1 + cutNode));
+                update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth + 1) * (1 + cutNode));
             return value;
         }
     }
