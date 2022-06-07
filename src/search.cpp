@@ -274,7 +274,6 @@ void Thread::search() {
   double timeReduction = 1, totBestMoveChanges = 0;
   Color us = rootPos.side_to_move();
   int iterIdx = 0;
-  Thread* thisThread = rootPos.this_thread();
 
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; i--)
@@ -354,7 +353,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(16) + int(prev) * prev / 19178 + Value(((thisThread->id() + 3) % 8 - 3));
+              delta = Value(16) + int(prev) * prev / 19178;
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -1453,6 +1452,10 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
+        return ttValue;
+
+    if (  PvNode && ss->ttHit && tte->depth() > 0 && depth < DEPTH_QS_NO_CHECKS && ttValue != VALUE_NONE 
+    && ((ttValue <= alpha && tte->bound() == BOUND_UPPER) || (ttValue >= beta && tte->bound() == BOUND_LOWER)))
         return ttValue;
 
     // Evaluate the position statically
