@@ -902,7 +902,6 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
-                    ss->cutoffCnt++;
                     return value;
                 }
             }
@@ -1097,7 +1096,10 @@ moves_loop: // When in check, search starts here
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
               else if (singularBeta >= beta)
+              {
+                  ss->cutoffCnt++;
                   return singularBeta;
+              }
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
