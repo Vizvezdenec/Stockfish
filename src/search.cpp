@@ -570,7 +570,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    ss->currentMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -855,7 +854,7 @@ namespace {
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
     if (   !PvNode
-        &&  depth > 4
+        && (depth > 4 || cutNode)
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -889,7 +888,7 @@ namespace {
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta)
+                if (value >= probCutBeta && depth > 4)
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
@@ -1105,27 +1104,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-              {
-                  if (!PvNode && value >= beta + 3 * depth && ss->currentMove)
-                  {
-                      Move bm = ss->currentMove;
-                      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [pos.capture(bm)]
-                                                                [pos.moved_piece(bm)]
-                                                                [to_sq(bm)];
-                      pos.do_move(bm, st, pos.gives_check(bm));
-                      value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1, !cutNode);
-                      pos.undo_move(bm);
-                      if (value > alpha)
-                      {
-                          bestMove = bm;
-                          ss->cutoffCnt++;
-                          bestValue = value;
-                          break;
-                      }
-                  }
                   extension = -1;
-              }
           }
 
           // Check extensions (~1 Elo)
