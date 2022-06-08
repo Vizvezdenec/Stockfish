@@ -782,7 +782,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - 270 - pos.non_pawn_material() / 128 - 258 * depth * depth)
+        && eval < alpha - 309 - pos.non_pawn_material() / 256 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
