@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts here
                   extension = -2;
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
-              else if (ttValue <= alpha && ttValue <= value)
+              else if (ttValue <= alpha && ttValue <= value && ttMove != ss->killers[0])
                   extension = -1;
           }
 
@@ -1114,7 +1114,7 @@ moves_loop: // When in check, search starts here
               extension = 1;
 
           // Quiet ttMove extensions (~0 Elo)
-          else if (  (PvNode || cutNode)
+          else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
