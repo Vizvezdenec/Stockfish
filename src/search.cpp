@@ -570,6 +570,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    ss->currentMove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -922,9 +923,6 @@ namespace {
         && !ttMove)
         depth--;
 
-    if (cutNode && depth == 1 && !ttMove && !improving)
-        return qsearch<NonPV>(pos, ss, alpha, beta);
-
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
@@ -1107,7 +1105,27 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
+              {
+                  if (!PvNode && value >= beta && ss->currentMove)
+                  {
+                      Move bm = ss->currentMove;
+                      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                [pos.capture(bm)]
+                                                                [pos.moved_piece(bm)]
+                                                                [to_sq(bm)];
+                      pos.do_move(bm, st, pos.gives_check(bm));
+                      value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1, !cutNode);
+                      pos.undo_move(bm);
+                      if (value > alpha)
+                      {
+                          bestMove = bm;
+                          ss->cutoffCnt++;
+                          bestValue = value;
+                          break;
+                      }
+                  }
                   extension = -1;
+              }
           }
 
           // Check extensions (~1 Elo)
