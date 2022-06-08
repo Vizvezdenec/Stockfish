@@ -922,6 +922,9 @@ namespace {
         && !ttMove)
         depth--;
 
+    if (cutNode && depth == 1 && !ttMove)
+        return qsearch<NonPV>(pos, ss, alpha, beta);
+
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
@@ -1096,10 +1099,7 @@ moves_loop: // When in check, search starts here
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
               else if (singularBeta >= beta)
-              {
-                  ss->cutoffCnt++;
                   return singularBeta;
-              }
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
