@@ -1106,7 +1106,7 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
               {
-                  if (!PvNode && value >= beta && ss->currentMove)
+                  if (!PvNode && value >= beta + 3 * depth && ss->currentMove)
                   {
                       Move bm = ss->currentMove;
                       ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
