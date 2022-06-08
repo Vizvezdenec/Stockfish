@@ -902,6 +902,7 @@ namespace {
                         tte->save(posKey, value_to_tt(value, ss->ply), ttPv,
                             BOUND_LOWER,
                             depth - 3, move, ss->staticEval);
+                    ss->cutoffCnt++;
                     return value;
                 }
             }
@@ -1452,10 +1453,6 @@ moves_loop: // When in check, search starts here
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (ttValue >= beta ? (tte->bound() & BOUND_LOWER)
                             : (tte->bound() & BOUND_UPPER)))
-        return ttValue;
-
-    if (  PvNode && ss->ttHit && tte->depth() > 0 && ttValue != VALUE_NONE && ttMove && (pos.capture(ttMove) || ttValue <= alpha)
-    && ((ttValue <= alpha && tte->bound() == BOUND_UPPER) || (ttValue >= beta && tte->bound() == BOUND_LOWER)))
         return ttValue;
 
     // Evaluate the position statically
