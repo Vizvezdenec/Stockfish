@@ -782,7 +782,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - 348 - 258 * depth * depth)
+        && eval < alpha - 270 - pos.non_pawn_material() / 128 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts here
                   extension = -2;
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
-              else if (ttValue <= alpha && ttValue <= value && ttMove != ss->killers[0])
+              else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
           }
 
