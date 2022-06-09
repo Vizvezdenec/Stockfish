@@ -1167,7 +1167,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           if (PvNode && givesCheck && more_than_one(pos.checkers()))
-              r -= 2;
+              r--;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
