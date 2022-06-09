@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
           if (cutNode && move != ss->killers[0])
               r += 2;
 
-          if (givesCheck && more_than_one(pos.checkers()))
+          if (PvNode && givesCheck && more_than_one(pos.checkers()))
               r -= 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
