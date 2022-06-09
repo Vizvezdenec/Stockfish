@@ -782,7 +782,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - 309 - pos.non_pawn_material() / 256 - 258 * depth * depth)
+        && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1169,6 +1169,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
               r++;
+
+          if (more_than_one(pos.checkers()))
+              r--;
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
