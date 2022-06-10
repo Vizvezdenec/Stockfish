@@ -945,20 +945,11 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Move refutations[3] = {MOVE_NONE, MOVE_NONE, MOVE_NONE};
-
-    if (countermove != ss->killers[1] && countermove != ss->killers[0])
-        if (!cutNode)
-            refutations[0] = countermove, refutations[1] = ss->killers[0], refutations[2] = ss->killers[1];
-        else
-            refutations[0] = ss->killers[0], refutations[1] = countermove, refutations[2] = ss->killers[1];
-    else
-        refutations[0] = ss->killers[0], refutations[1] = ss->killers[1];
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
-                                      refutations);
+                                      countermove,
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1035,7 +1026,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-203) * depth))
+              if (!pos.see_ge(move, Value(-203) * depth - Value(captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 128)))
                   continue;
           }
           else
