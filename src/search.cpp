@@ -945,12 +945,15 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Move refutations[3] = {ss->killers[0], MOVE_NONE, MOVE_NONE};
+    Move refutations[3] = {MOVE_NONE, MOVE_NONE, MOVE_NONE};
 
     if (countermove != ss->killers[1] && countermove != ss->killers[0])
-        refutations[1] = countermove, refutations[2] = ss->killers[1];
+        if (!cutNode)
+            refutations[0] = countermove, refutations[1] = ss->killers[0], refutations[2] = ss->killers[1];
+        else
+            refutations[0] = ss->killers[0], refutations[1] = countermove, refutations[2] = ss->killers[1];
     else
-        refutations[1] = ss->killers[1];
+        refutations[0] = ss->killers[0], refutations[1] = ss->killers[1];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
