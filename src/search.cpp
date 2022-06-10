@@ -947,7 +947,7 @@ moves_loop: // When in check, search starts here
 
     Move killers[3] = {ss->killers[0], ss->killers[1], ss->killers[2]};
     if (!cutNode)
-        killers[2] = MOVE_NONE;
+        killers[2] = MOVE_NONE, killers[1] = MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
