@@ -89,12 +89,6 @@ namespace {
     return VALUE_DRAW + Value(2 * (thisThread->nodes & 1) - 1);
   }
 
-  constexpr int pvred1[] = {0, 0, 4, 3, 3, 2, 2, 2, 2, 2, 2, 2, 2, 2};
-
-  int pvred(Depth d) {
-    return d > 12 ? 1 : pvred1[d];
-  }
-
   // Skill structure is used to implement strength limit. If we have an uci_elo then
   // we convert it to a suitable fractional skill level using anchoring to CCRL Elo
   // (goldfish 1.13 = 2000) and a fit through Ordo derived Elo for match (TC 60+0.6)
@@ -1178,7 +1172,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= pvred(depth);
+              r -= 1 + 15 / ( 3 + depth );
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
@@ -1196,7 +1190,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth. But if reductions
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
-          int deeper =   r >= -1                   ? 0
+          int deeper =   r >= std::min(-1, depth - 5)                   ? 0
                        : moveCount <= 4            ? 2
                        : PvNode || cutNode         ? 1
                        :                             0;
