@@ -867,7 +867,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        if (ss->ttHit && ttCapture &&  tte->depth() >= depth - 2 && (tte->bound() & BOUND_LOWER) && ttValue != VALUE_NONE && ttValue >= probCutBeta)
+        if (ss->ttHit && ttCapture &&  tte->depth() >= depth - 2 && (tte->bound() == BOUND_LOWER) && ttValue != VALUE_NONE && ttValue >= probCutBeta)
             return ttValue;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
