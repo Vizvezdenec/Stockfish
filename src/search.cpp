@@ -1148,6 +1148,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
+              || (!PvNode && depth < 5 && ss->staticEval + PieceValue[MG][type_of(pos.captured_piece())] <= alpha)
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
@@ -1191,7 +1192,6 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : PvNode && moveCount <= 2  ? 3
                        : moveCount <= 4            ? 2
                        : PvNode || cutNode         ? 1
                        :                             0;
