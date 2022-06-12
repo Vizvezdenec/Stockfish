@@ -945,11 +945,21 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
+    Move killers[2] = {ss->killers[0], ss->killers[1]};
+    if (type_of(pos.piece_on(prevSq)) == PAWN)
+    {
+        Bitboard pawnAttacks = pos.attacks_by<PAWN>(~us);
+        if (type_of(pos.moved_piece(ss->killers[0])) != PAWN && (pawnAttacks & to_sq(ss->killers[0])))
+            killers[0] = MOVE_NONE;
+        if (type_of(pos.moved_piece(ss->killers[1])) != PAWN && (pawnAttacks & to_sq(ss->killers[1])))
+            killers[1] = MOVE_NONE;
+    }
+
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      killers);
 
     value = bestValue;
     moveCountPruning = false;
