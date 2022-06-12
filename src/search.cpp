@@ -1191,10 +1191,10 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : !(PvNode || cutNode)      ? 0
-                       : PvNode && moveCount == 2  ? 3
+                       : PvNode && moveCount <= 2  ? 3
                        : moveCount <= 4            ? 2
-                       :                             1;
+                       : PvNode || cutNode         ? 1
+                       :                             0;
 
           Depth d = std::clamp(newDepth - r, 1, newDepth + deeper);
 
