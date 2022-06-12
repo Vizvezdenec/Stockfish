@@ -80,8 +80,8 @@ namespace {
   }
 
   // History and stats update bonus, based on depth
-  int stat_bonus(Depth d, bool capture) {
-    return std::min((9 * d + 270) * d - 311 , 2145 + capture * 1000);
+  int stat_bonus(Depth d) {
+    return std::min((9 * d + 270) * d - 311 , 2145);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -118,9 +118,9 @@ namespace {
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard attacked);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard attacked);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -610,6 +610,8 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    Bitboard attacked = pos.attacks_by<PAWN>(~us) | pos.attacks_by<KING>(~us) | pos.attacks_by<ROOK>(~us)
+                      | pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | pos.attacks_by<QUEEN>(~us);
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -647,17 +649,17 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth, false));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), attacked);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1, false));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
             else if (!ttCapture)
             {
-                int penalty = -stat_bonus(depth, false);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                int penalty = -stat_bonus(depth);
+                thisThread->mainHistory[us][from_to(ttMove)][bool(from_sq(ttMove) & attacked)][bool(to_sq(ttMove) & attacked)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -761,7 +763,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)][false][false] << bonus;
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -949,7 +951,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      attacked);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1040,7 +1043,7 @@ moves_loop: // When in check, search starts here
                   && history < -3875 * (depth - 1))
                   continue;
 
-              history += thisThread->mainHistory[us][from_to(move)];
+              history += thisThread->mainHistory[us][from_to(move)][bool(from_sq(move) & attacked)][bool(to_sq(move) & attacked)];
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
@@ -1178,7 +1181,7 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          ss->statScore =  thisThread->mainHistory[us][from_to(move)]
+          ss->statScore =  thisThread->mainHistory[us][from_to(move)][bool(from_sq(move) & attacked)][bool(to_sq(move) & attacked)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
                          + (*contHist[3])[movedPiece][to_sq(move)]
@@ -1218,8 +1221,8 @@ moves_loop: // When in check, search starts here
           // If the move passed LMR update its stats
           if (didLMR)
           {
-              int bonus = value > alpha ?  stat_bonus(newDepth, false)
-                                        : -stat_bonus(newDepth, false);
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               if (capture)
                   bonus /= 6;
@@ -1355,7 +1358,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, attacked);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 4 || PvNode)
@@ -1367,7 +1370,7 @@ moves_loop: // When in check, search starts here
                           || cutNode
                           || bestValue < alpha - 70 * depth;
 
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth, false) * (1 + extraBonus));
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
 
     if (PvNode)
@@ -1686,35 +1689,34 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Bitboard attacked) {
 
-    int bonus1, bonus2, bonus3;
+    int bonus1, bonus2;
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
 
-    bonus1 = stat_bonus(depth + 1, false);
+    bonus1 = stat_bonus(depth + 1);
     bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
-                                            : stat_bonus(depth, false);   // smaller bonus
-    bonus3 = stat_bonus(depth + 1, true);
+                                            : stat_bonus(depth);   // smaller bonus
 
     if (!pos.capture(bestMove))
     {
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus2, attacked);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            thisThread->mainHistory[us][from_to(quietsSearched[i])][bool(from_sq(quietsSearched[i]) & attacked)][bool(to_sq(quietsSearched[i]) & attacked)] << -bonus2;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus3;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1727,7 +1729,7 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus3;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
@@ -1750,7 +1752,7 @@ moves_loop: // When in check, search starts here
 
   // update_quiet_stats() updates move sorting heuristics
 
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, Bitboard attacked) {
 
     // Update killers
     if (ss->killers[0] != move)
@@ -1761,7 +1763,7 @@ moves_loop: // When in check, search starts here
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->mainHistory[us][from_to(move)][bool(from_sq(move) & attacked)][bool(to_sq(move) & attacked)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Update countermove history
