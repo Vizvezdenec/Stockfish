@@ -945,21 +945,11 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    Move killers[2] = {ss->killers[0], ss->killers[1]};
-    if (type_of(pos.piece_on(prevSq)) == PAWN)
-    {
-        Bitboard pawnAttacks = pawn_attacks_bb(~us, prevSq);
-        if (type_of(pos.moved_piece(ss->killers[0])) != PAWN && (pawnAttacks & to_sq(ss->killers[0])))
-            killers[0] = MOVE_NONE;
-        if (type_of(pos.moved_piece(ss->killers[1])) != PAWN && (pawnAttacks & to_sq(ss->killers[1])))
-            killers[1] = MOVE_NONE;
-    }
-
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      killers);
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1201,7 +1191,7 @@ moves_loop: // When in check, search starts here
           // are really negative and movecount is low, we allow this move to be searched
           // deeper than the first move (this may lead to hidden double extensions).
           int deeper =   r >= -1                   ? 0
-                       : moveCount <= 4            ? 2
+                       : moveCount <= 4            ? 2 - !(PvNode || cutNode)
                        : PvNode || cutNode         ? 1
                        :                             0;
 
