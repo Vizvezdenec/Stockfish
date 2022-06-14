@@ -1119,7 +1119,7 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-          else if (   PvNode && moveCount != 1 && depth < 5 && capture)
+          else if (   PvNode && moveCount != 1 && depth < 3 && capture)
               extension = 1;
       }
 
