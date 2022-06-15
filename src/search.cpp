@@ -1179,7 +1179,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           if (!PvNode)
-              r += 1 - 12 / (3 + depth);
+              r += 1 - 14 / (3 + depth);
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
