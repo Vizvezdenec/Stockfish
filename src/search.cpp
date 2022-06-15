@@ -1447,7 +1447,7 @@ moves_loop: // When in check, search starts here
     pvHit = ss->ttHit && tte->is_pv();
 
     if (PvNode && !ttMove)
-        depth--;
+        depth -= 2;
 
     if (  !PvNode
         && ss->ttHit
