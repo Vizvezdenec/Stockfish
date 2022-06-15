@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
           if (ttCapture)
               r++;
 
-          if (move == ss->killers[0] && ss->inCheck && type_of(movedPiece) == KING)
+          if (PvNode && move == ss->killers[0] && ss->inCheck && type_of(movedPiece) == KING)
               r -= 2;
 
           // Decrease reduction for PvNodes based on depth
