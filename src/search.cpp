@@ -667,6 +667,9 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && ttCapture && thisThread->nodes & 8)
+        depth++;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1112,8 +1115,6 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
-              extension = 1;
-          else if (PvNode && move == ttMove && depth <= 4 && ttCapture)
               extension = 1;
       }
 
