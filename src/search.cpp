@@ -667,6 +667,9 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && ttCapture)
+        depth++;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
