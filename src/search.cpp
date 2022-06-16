@@ -667,6 +667,15 @@ namespace {
             return ttValue;
     }
 
+    if (   !ss->ttPv
+        && !ss->inCheck
+        && ttCapture
+        && tte->depth() >= depth - 2
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue >= beta + 400
+        && ttValue < VALUE_KNOWN_WIN)
+        return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -703,7 +712,7 @@ namespace {
                 {
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, b,
                               std::min(MAX_PLY - 1, depth + 6),
-                              MOVE_NONE, VALUE_NONE, false);
+                              MOVE_NONE, VALUE_NONE);
 
                     return value;
                 }
@@ -753,7 +762,7 @@ namespace {
 
         // Save static evaluation into transposition table
         if (!excludedMove)
-            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval, false);
+            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
@@ -895,7 +904,7 @@ namespace {
                 if (value >= probCutBeta)
                 {
                     // Save ProbCut data into transposition table
-                    tte->save(posKey, value_to_tt(value, ss->ply), ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval, true);
+                    tte->save(posKey, value_to_tt(value, ss->ply), ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
                 }
             }
@@ -1377,7 +1386,7 @@ moves_loop: // When in check, search starts here
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  depth, bestMove, ss->staticEval, pos.capture(bestMove));
+                  depth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
@@ -1478,7 +1487,7 @@ moves_loop: // When in check, search starts here
             // Save gathered info in transposition table
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
-                          DEPTH_NONE, MOVE_NONE, ss->staticEval, false);
+                          DEPTH_NONE, MOVE_NONE, ss->staticEval);
 
             return bestValue;
         }
@@ -1614,7 +1623,7 @@ moves_loop: // When in check, search starts here
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
-              ttDepth, bestMove, ss->staticEval, pos.capture(bestMove));
+              ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
