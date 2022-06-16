@@ -667,7 +667,7 @@ namespace {
             return ttValue;
     }
 
-    if (PvNode && ttCapture && thisThread->nodes & 8)
+    if (PvNode && ttCapture && thisThread->nodes & 16)
         depth++;
 
     // Step 5. Tablebases probe
