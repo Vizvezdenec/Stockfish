@@ -667,15 +667,6 @@ namespace {
             return ttValue;
     }
 
-    if (   !ss->ttPv
-        && !ss->inCheck
-        && ttCapture
-        && tte->depth() >= depth - 2
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue >= beta + 600
-        && ttValue < VALUE_KNOWN_WIN)
-        return ttValue;
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1167,7 +1158,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 3 - 8 / (2 + depth);
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
