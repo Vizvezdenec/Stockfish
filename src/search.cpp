@@ -672,7 +672,7 @@ namespace {
         && ttCapture
         && tte->depth() >= depth - 2
         && (tte->bound() & BOUND_LOWER)
-        && ttValue >= beta + 300
+        && ttValue >= beta + 500
         && ttValue < VALUE_KNOWN_WIN)
         return ttValue;
 
