@@ -610,6 +610,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    ss->fhMove = MOVE_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -896,6 +897,8 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    if (excludedMove)
+                        ss->fhMove = move;
                     return value;
                 }
             }
@@ -1098,11 +1101,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-              {
-                  if (PvNode && ttValue < alpha - 200 && value < alpha - 200)
-                      depth--;
-                  else extension = -1;
-              }
+                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
@@ -1175,6 +1174,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
+
+          if (move == ss->fhMove)
+              r--;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1310,6 +1312,8 @@ moves_loop: // When in check, search starts here
               else
               {
                   ss->cutoffCnt++;
+                  if (excludedMove)
+                      ss->fhMove = move;
                   assert(value >= beta); // Fail high
                   break;
               }
