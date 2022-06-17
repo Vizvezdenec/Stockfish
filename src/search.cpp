@@ -610,7 +610,6 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
-    ss->fhMove = MOVE_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -897,8 +896,6 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
-                    if (excludedMove)
-                        ss->fhMove = move;
                     return value;
                 }
             }
@@ -1018,12 +1015,12 @@ moves_loop: // When in check, search starts here
                   && !PvNode
                   && lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                  && ss->staticEval + 271 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
               // SEE based pruning (~9 Elo)
-              if (!pos.see_ge(move, Value(-203) * depth))
+              if (!pos.see_ge(move, Value(-233) * depth))
                   continue;
           }
           else
@@ -1034,7 +1031,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -3875 * (depth - 1))
+                  && history < -4025 * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
@@ -1042,11 +1039,11 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 140 + 138 * lmrDepth + history / 60 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
-              if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 20 * lmrDepth)))
+              if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 20 * lmrDepth - 20)))
                   continue;
           }
       }
@@ -1174,9 +1171,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
-
-          if (move == ss->fhMove)
-              r -= 3;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1312,8 +1306,6 @@ moves_loop: // When in check, search starts here
               else
               {
                   ss->cutoffCnt++;
-                  if (excludedMove)
-                      ss->fhMove = move;
                   assert(value >= beta); // Fail high
                   break;
               }
