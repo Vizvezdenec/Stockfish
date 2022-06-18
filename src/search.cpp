@@ -542,6 +542,9 @@ namespace {
     if (depth <= 0)
         return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
+    if (PvNode && beta - alpha <= 2)
+        return search<NonPV>(pos, ss, beta - 1, beta, depth, false);
+
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
     assert(0 < depth && depth < MAX_PLY);
@@ -1098,11 +1101,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-              {
-                  if (!PvNode && ttValue < alpha - 50 && value < alpha - 50)
-                      depth--;
                   extension = -1;
-              }
           }
 
           // Check extensions (~1 Elo)
