@@ -955,8 +955,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool singular = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1084,8 +1082,6 @@ moves_loop: // When in check, search starts here
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
                       extension = 2;
-
-                  singular = value < singularBeta - 100;
               }
 
               // Multi-cut pruning
@@ -1162,7 +1158,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2;
+              r += 2 - givesCheck;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
@@ -1174,9 +1170,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
-              r++;
-
-          if (singular)
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
