@@ -909,7 +909,12 @@ namespace {
         depth -= 3;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+    {
+        Value v = qsearch<PV>(pos, ss, alpha, beta);
+        if (v >= beta || v <= alpha)
+            return v;
+        else depth = 1;
+    }
 
     if (    cutNode
         &&  depth >= 8
@@ -1157,7 +1162,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0] && !givesCheck)
+          if (cutNode && move != ss->killers[0])
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
