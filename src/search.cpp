@@ -1085,7 +1085,7 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 8)
                       extension = 2;
 
-                  singular = true;
+                  singular = value <= alpha;
               }
 
               // Multi-cut pruning
