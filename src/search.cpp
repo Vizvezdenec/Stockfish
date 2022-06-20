@@ -1150,7 +1150,7 @@ moves_loop: // When in check, search starts here
               && !ss->likelyFailLow)
               r -= 2;
 
-          if ((ss-1)->likelyFailLow)
+          if (PvNode && (ss-1)->likelyFailLow)
               r--;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
