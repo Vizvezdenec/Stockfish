@@ -225,7 +225,7 @@ top:
       [[fallthrough]];
 
   case REFUTATION:
-      if ( !(skipQuiets && *cur != refutations[0].move) && select<Next>([&](){ return    *cur != MOVE_NONE
+      if ( !skipQuiets && select<Next>([&](){ return    *cur != MOVE_NONE
                                     && !pos.capture(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
