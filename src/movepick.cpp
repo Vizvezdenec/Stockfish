@@ -104,7 +104,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const Cap
 template<GenType Type>
 void MovePicker::score() {
 
-  static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
+  static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS || Type == QUIET_CHECKS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
   if constexpr (Type == QUIETS)
@@ -149,7 +149,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0);
 
-      else // Type == EVASIONS
+      else if constexpr (Type == EVASIONS)// Type == EVASIONS
       {
           if (pos.capture(m))
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
@@ -159,6 +159,10 @@ void MovePicker::score() {
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
+      else
+          m.value =  2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*mainHistory)[pos.side_to_move()][from_to(m)];
 }
 
 /// MovePicker::select() returns the next move satisfying a predicate function.
@@ -201,7 +205,7 @@ top:
       endMoves = generate<CAPTURES>(pos, cur);
 
       score<CAPTURES>();
-      partial_insertion_sort(cur, endMoves, -3000 * std::max(depth, -2));
+      partial_insertion_sort(cur, endMoves, -3000 * depth);
       ++stage;
       goto top;
 
@@ -291,6 +295,8 @@ top:
   case QCHECK_INIT:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
+      score<QUIET_CHECKS>();
+      partial_insertion_sort(cur, endMoves, 0);
 
       ++stage;
       [[fallthrough]];
