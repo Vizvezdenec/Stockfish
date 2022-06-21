@@ -1036,7 +1036,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 72 + 138 * lmrDepth + history / 60 + complexity / 8 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1095,12 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-              {
-                  if (value < alpha - 50 && depth <= 5)
-                      depth--;
-                  else
-                      extension = -1;
-              }
+                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
