@@ -609,7 +609,6 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    ss->likelyFailLow = false;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -948,7 +947,7 @@ moves_loop: // When in check, search starts here
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
-   ss->likelyFailLow =      PvNode
+    bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
@@ -1147,11 +1146,8 @@ moves_loop: // When in check, search starts here
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
           if (   ss->ttPv
-              && !ss->likelyFailLow)
+              && !likelyFailLow)
               r -= 2;
-
-          if (PvNode && (ss-1)->likelyFailLow)
-              r--;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
@@ -1185,7 +1181,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + (PvNode || cutNode));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
