@@ -786,8 +786,6 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        if (complexity < 100 && value > beta + 200 * depth * depth)
-            return value;
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -905,7 +903,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3 - (complexity > 500);
+        depth -= 3 - (complexity > 1300);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
