@@ -738,7 +738,7 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos, &complexity);
         else // Fall back to (semi)classical complexity for TT hits, the NNUE complexity is lost
-            complexity = 4 * abs(ss->staticEval - pos.psq_eg_stm()) / 2;
+            complexity = abs(ss->staticEval - pos.psq_eg_stm());
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
@@ -785,6 +785,8 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+            return value;
+        if (complexity < 100 && value > beta + 200 * depth * depth)
             return value;
     }
 
