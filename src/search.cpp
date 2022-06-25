@@ -738,7 +738,7 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos, &complexity);
         else // Fall back to (semi)classical complexity for TT hits, the NNUE complexity is lost
-            complexity = abs(ss->staticEval - pos.psq_eg_stm());
+            complexity = 5 * abs(ss->staticEval - pos.psq_eg_stm()) / 2;
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
@@ -903,10 +903,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
         && !ttMove)
-        {
-            Depth depthRed = std::max(0, 4 - !ss->ttHit * complexity / 1024);
-            depth -= depthRed;
-        }
+        depth -= 3;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
