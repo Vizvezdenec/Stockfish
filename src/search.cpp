@@ -904,7 +904,7 @@ namespace {
     if (    PvNode
         && !ttMove)
         {
-            Depth depthRed = std::max(0, 3 - !ss->ttHit * complexity / 1024);
+            Depth depthRed = std::max(0, 4 - !ss->ttHit * complexity / 1024);
             depth -= depthRed;
         }
 
