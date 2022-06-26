@@ -738,7 +738,12 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos, &complexity);
         else // Fall back to (semi)classical complexity for TT hits, the NNUE complexity is lost
-            complexity = abs(ss->staticEval - pos.psq_eg_stm()) + abs(ss->staticEval - pos.psq_mg_stm());
+        {
+            if (PvNode)
+                complexity = abs(ss->staticEval - pos.psq_eg_stm());
+            else
+                ss->staticEval = eval = evaluate(pos, &complexity);
+        }
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)

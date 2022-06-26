@@ -162,7 +162,6 @@ public:
   int rule50_count() const;
   Score psq_score() const;
   Value psq_eg_stm() const;
-  Value psq_mg_stm() const;
   Value non_pawn_material(Color c) const;
   Value non_pawn_material() const;
 
@@ -346,10 +345,6 @@ inline Score Position::psq_score() const {
 
 inline Value Position::psq_eg_stm() const {
   return (sideToMove == WHITE ? 1 : -1) * eg_value(psq);
-}
-
-inline Value Position::psq_mg_stm() const {
-  return (sideToMove == WHITE ? 1 : -1) * mg_value(psq);
 }
 
 inline Value Position::non_pawn_material(Color c) const {
