@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving) {
-    return Value(162 * (d - improving));
+  Value futility_margin(Depth d, bool improving, int complexity) {
+    return Value((156 + complexity / 32) * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -753,8 +753,6 @@ namespace {
     {
         ss->staticEval = eval = evaluate(pos, &complexity);
 
-        dbg_mean_of(complexity);
-
         // Save static evaluation into transposition table
         if (!excludedMove)
             tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
@@ -794,7 +792,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 + complexity / 36 >= beta
+        &&  eval - futility_margin(depth, improving, complexity) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
