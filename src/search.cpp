@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(168 * (d - improving));
+    return Value(165 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -738,12 +738,7 @@ namespace {
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos, &complexity);
         else // Fall back to (semi)classical complexity for TT hits, the NNUE complexity is lost
-        {
-            if (PvNode)
-                complexity = abs(ss->staticEval - pos.psq_eg_stm());
-            else
-                ss->staticEval = eval = evaluate(pos, &complexity);
-        }
+            complexity = abs(ss->staticEval - pos.psq_eg_stm());
 
         // Randomize draw evaluation
         if (eval == VALUE_DRAW)
@@ -757,6 +752,8 @@ namespace {
     else
     {
         ss->staticEval = eval = evaluate(pos, &complexity);
+
+        dbg_mean_of(complexity);
 
         // Save static evaluation into transposition table
         if (!excludedMove)
@@ -797,7 +794,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
+        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 + complexity / 36 >= beta
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
