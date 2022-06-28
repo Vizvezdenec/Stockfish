@@ -936,7 +936,7 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
     {
-        Value margin = Value(300 + 250 * depth * depth);
+        Value margin = Value(170 + 150 * depth * depth);
         value = qsearch<NonPV>(pos, ss, alpha - margin, alpha + 1 - margin);
         if (value <= alpha)
             return value;
