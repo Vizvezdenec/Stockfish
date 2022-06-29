@@ -929,19 +929,6 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
-    if (   ss->inCheck
-        && !PvNode
-        && ss->ttHit
-        && ttMove
-        && depth <= 5
-        && (tte->bound() & BOUND_UPPER)
-        && tte->depth() >= depth - 3
-        && ttValue <= alpha - 100 - 75 * depth * depth
-        && abs(ttValue) <= VALUE_KNOWN_WIN
-        && abs(beta) <= VALUE_KNOWN_WIN
-       )
-        return ttValue;
-
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1194,7 +1181,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + capture + givesCheck);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
