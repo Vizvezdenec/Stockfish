@@ -931,16 +931,16 @@ moves_loop: // When in check, search starts here
 
     if (   ss->inCheck
         && !PvNode
-        && depth <= 4
+        && ss->ttHit
+        && ttMove
+        && depth <= 5
+        && (tte->bound() & BOUND_UPPER)
         && tte->depth() >= depth - 3
+        && ttValue <= alpha - 150 - 125 * depth * depth
+        && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
-    {
-        Value margin = Value(370 + 350 * depth * depth);
-        value = qsearch<NonPV>(pos, ss, alpha - margin, alpha + 1 - margin);
-        if (value <= alpha)
-            return value;
-    }
+        return ttValue;
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
