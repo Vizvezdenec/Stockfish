@@ -936,7 +936,7 @@ moves_loop: // When in check, search starts here
         && depth <= 5
         && (tte->bound() & BOUND_UPPER)
         && tte->depth() >= depth - 3
-        && ttValue <= alpha - 400 - 350 * depth * depth
+        && ttValue <= alpha - 100 - 75 * depth * depth
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
