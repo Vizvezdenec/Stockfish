@@ -929,6 +929,19 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
+    if (   ss->inCheck
+        && !PvNode
+        && ss->ttHit
+        && ttMove
+        && depth <= 5
+        && (tte->bound() & BOUND_UPPER)
+        && tte->depth() >= depth - 3
+        && ttValue <= alpha
+        && abs(ttValue) <= VALUE_KNOWN_WIN
+        && abs(beta) <= VALUE_KNOWN_WIN
+       )
+        return ttValue;
+
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1195,8 +1208,6 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
-
-      doFullDepthSearch &= !PvNode || bestValue > VALUE_TB_LOSS_IN_MAX_PLY;
 
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
