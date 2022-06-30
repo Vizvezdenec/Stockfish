@@ -933,10 +933,10 @@ moves_loop: // When in check, search starts here
         && !PvNode
         && ss->ttHit
         && ttMove
-        && depth <= 2
+        && depth >= 4
         && (tte->bound() & BOUND_UPPER)
         && tte->depth() >= depth - 3
-        && ttValue <= alpha
+        && ttValue <= alpha - 30 - 30 * depth * depth
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN
        )
