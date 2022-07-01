@@ -797,6 +797,17 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
+    if (!PvNode && ss->staticEval > beta + 2 * KnightValueMg && !excludedMove && pos.count<KNIGHT>(us) == 1)
+    {
+        Bitboard b = pos.pieces(us, KNIGHT);
+        Square s = pop_lsb(b);
+        pos.remove_piece(s);
+        Value v = search<NonPV>(pos, ss, alpha, beta, depth - 4, cutNode);
+        pos.put_piece(us == WHITE ? W_KNIGHT : B_KNIGHT, s);
+        if (v >= beta)
+            return v;
+    }
+
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
@@ -1076,7 +1087,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - (26 - 10 * ((int)thisThread->id() % 2))
+                      && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
