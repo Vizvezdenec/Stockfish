@@ -952,6 +952,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int extraRed = (ss-1)->statScore / 40000;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1138,7 +1140,6 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
-              || (!PvNode && (ss-1)->statScore > 70000)
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
@@ -1178,6 +1179,8 @@ moves_loop: // When in check, search starts here
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
           r -= ss->statScore / 15914;
+
+          r += extraRed;
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
