@@ -1076,7 +1076,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 26
+                      && value < singularBeta - (26 - ((int)thisThread->id() % 8))
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
@@ -1095,12 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-              {
-                  if (value - ttValue < 10 && value < alpha - 100)
-                      depth--;
-                  else
-                      extension = -1;
-              }
+                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
