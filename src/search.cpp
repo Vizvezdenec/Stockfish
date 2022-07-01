@@ -1095,7 +1095,12 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
-                  extension = -1;
+              {
+                  if (ttValue < alpha - 200 && value < alpha - 100)
+                      depth--;
+                  else
+                      extension = -1;
+              }
           }
 
           // Check extensions (~1 Elo)
@@ -1150,7 +1155,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 6 + depth / 8)
+          if ((ss-1)->moveCount > 7)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
