@@ -797,24 +797,10 @@ namespace {
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
-    if (!PvNode && ss->staticEval > beta + 2 * KnightValueMg && !excludedMove && pos.count<KNIGHT>(us) == 1)
-    {
-        Bitboard b = pos.pieces(us, KNIGHT);
-        Square s = pop_lsb(b);
-        if (!((pos.blockers_for_king(us) | pos.blockers_for_king(~us)) & s))
-        {
-            pos.remove_piece(s);
-            Value v = search<NonPV>(pos, ss, alpha, beta, depth - 4, cutNode);
-            pos.put_piece(us == WHITE ? W_KNIGHT : B_KNIGHT, s);
-            if (v >= beta)
-                return v;
-        }
-    }
-
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 14695
+        && (ss-1)->statScore < 11999 + 6500 * cutNode
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
