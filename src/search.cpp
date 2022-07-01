@@ -647,6 +647,7 @@ namespace {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                else update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), stat_bonus(depth) / 4);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -796,17 +797,6 @@ namespace {
         &&  eval >= beta
         &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
-
-    if (!PvNode && ss->staticEval > beta + 2 * KnightValueMg && !excludedMove && pos.count<KNIGHT>(us) == 1)
-    {
-        Bitboard b = pos.pieces(us, KNIGHT);
-        Square s = pop_lsb(b);
-        pos.remove_piece(s);
-        Value v = search<NonPV>(pos, ss, alpha, beta, depth - 4, cutNode);
-        pos.put_piece(us == WHITE ? W_KNIGHT : B_KNIGHT, s);
-        if (v >= beta)
-            return v;
-    }
 
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
