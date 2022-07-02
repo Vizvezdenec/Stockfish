@@ -800,7 +800,7 @@ namespace {
     // Step 9. Null move search with verification search (~22 Elo)
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
-        && (ss-1)->statScore < 11999 + 6500 * cutNode
+        && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
@@ -1587,7 +1587,11 @@ moves_loop: // When in check, search starts here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha here!
+              {
                   alpha = value;
+                  if (depth < -3)
+                      break;
+              }
               else
                   break; // Fail high
           }
