@@ -240,7 +240,7 @@ top:
           endMoves = generate<QUIETS>(pos, cur);
 
           score<QUIETS>();
-          partial_insertion_sort(cur, endMoves, -(2500 + 1000 * PvNode) * depth);
+          partial_insertion_sort(cur, endMoves, -3000 * depth - (PvNode ? 6000 / depth : 0));
       }
 
       ++stage;
