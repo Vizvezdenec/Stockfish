@@ -901,6 +901,12 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~4 Elo)
+    if (    PvNode
+        && !ttMove)
+        depth -= 3;
+
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 8
@@ -908,12 +914,6 @@ namespace {
         depth--;
 
 moves_loop: // When in check, search starts here
-
-    if (PvNode && !ttMove)
-        depth -= 3;
-
-    if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
 
     // Step 12. A small Probcut idea, when we are in check (~0 Elo)
     probCutBeta = beta + 481;
@@ -1137,6 +1137,7 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
+          && !(PvNode && ss->inCheck)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
@@ -1569,7 +1570,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (depth == 0 && ss->inCheck));
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
