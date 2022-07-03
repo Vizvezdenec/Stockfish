@@ -1024,19 +1024,13 @@ moves_loop: // When in check, search starts here
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
-                            + (*contHist[3])[movedPiece][to_sq(move)];
-
-              // Continuation history based pruning (~2 Elo)
-              if (   lmrDepth < 5
-                  && history < -3875 * (depth - 1))
-                  continue;
-
-              history += thisThread->mainHistory[us][from_to(move)];
+                            + (*contHist[3])[movedPiece][to_sq(move)] 
+                            + thisThread->mainHistory[us][from_to(move)];
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 122 + 138 * lmrDepth + history / 32 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1587,11 +1581,7 @@ moves_loop: // When in check, search starts here
                   update_pv(ss->pv, move, (ss+1)->pv);
 
               if (PvNode && value < beta) // Update alpha here!
-              {
                   alpha = value;
-                  if (depth < -4)
-                      break;
-              }
               else
                   break; // Fail high
           }
