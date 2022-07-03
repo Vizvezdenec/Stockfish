@@ -1063,7 +1063,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 - cutNode) * depth;
+              Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1154,8 +1154,8 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode && move != ss->killers[0])
-              r += 2;
+          if (!PvNode && move != ss->killers[0])
+              r++;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
