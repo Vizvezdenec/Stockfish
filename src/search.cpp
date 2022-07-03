@@ -940,8 +940,7 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers,
-                                      PvNode);
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1064,7 +1063,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - 3 * depth;
+              Value singularBeta = ttValue - (3 - cutNode) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
