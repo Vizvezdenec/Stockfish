@@ -1356,7 +1356,7 @@ moves_loop: // When in check, search starts here
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
 
-    if (!bestMove && bestValue < alpha - 50 && excludedMove)
+    if (!bestMove && excludedMove)
         update_all_stats(pos, ss, excludedMove, alpha + 3 * (2 + depth + 1), beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
