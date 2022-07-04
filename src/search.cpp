@@ -1081,7 +1081,7 @@ moves_loop: // When in check, search starts here
                       {
                           extension = 2;
                           if (!ttCapture)
-                              update_quiet_stats(pos, ss, ttMove, stat_bonus(singularDepth));
+                              update_quiet_stats(pos, ss, ttMove, stat_bonus(singularDepth + 1));
                       }
               }
 
