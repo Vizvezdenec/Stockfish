@@ -1078,11 +1078,7 @@ moves_loop: // When in check, search starts here
                   if (  !PvNode
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
-                      {
-                          extension = 2;
-                          if (!ttCapture)
-                              update_quiet_stats(pos, ss, ttMove, stat_bonus(singularDepth + 1));
-                      }
+                      extension = 2;
               }
 
               // Multi-cut pruning
@@ -1359,6 +1355,10 @@ moves_loop: // When in check, search starts here
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
+
+    if (!bestMove && bestValue < alpha - 50 && excludedMove)
+        update_all_stats(pos, ss, excludedMove, alpha + 3 * (2 + depth + 1), beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
