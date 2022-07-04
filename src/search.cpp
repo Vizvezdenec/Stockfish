@@ -1074,6 +1074,9 @@ moves_loop: // When in check, search starts here
               {
                   extension = 1;
 
+                  if (!ttCapture)
+                      update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
+
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
                       && value < singularBeta - 26
@@ -1137,7 +1140,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && !(PvNode && ss->inCheck && moveCount < depth * depth - 1)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
