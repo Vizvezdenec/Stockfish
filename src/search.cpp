@@ -906,7 +906,7 @@ namespace {
         depth -= 3;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta, depth <= -2 ? -1 : 0);
 
     if (    cutNode
         &&  depth >= 8
@@ -1353,7 +1353,7 @@ moves_loop: // When in check, search starts here
                           || cutNode
                           || bestValue < alpha - 70 * depth;
 
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (3 + 2 * extraBonus) / 5);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
     }
 
     if (PvNode)
