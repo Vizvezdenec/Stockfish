@@ -1353,7 +1353,7 @@ moves_loop: // When in check, search starts here
                           || cutNode
                           || bestValue < alpha - 70 * depth;
 
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (2 + 3 * extraBonus) / 2);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (3 + 2 * extraBonus) / 5);
     }
 
     if (PvNode)
