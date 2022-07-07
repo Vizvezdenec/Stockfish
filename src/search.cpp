@@ -1244,7 +1244,7 @@ moves_loop: // When in check, search starts here
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),
                                     thisThread->rootMoves.end(), move);
 
-          rm.scoreDelta = rm.averageScore == -VALUE_INFINITE ? VALUE_ZERO : Value(abs(value - rm.averageScore));
+          rm.scoreDelta = rm.averageScore == -VALUE_INFINITE ? VALUE_ZERO : Value(abs(value - rm.averageScore) + rm.scoreDelta) / 2;
           rm.averageScore = rm.averageScore != -VALUE_INFINITE ? (2 * value + rm.averageScore) / 3 : value;
 
           // PV move or new best move?
