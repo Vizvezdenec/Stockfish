@@ -746,7 +746,6 @@ namespace {
 
         // ttValue can be used as a better position evaluation (~4 Elo)
         if (    ttValue != VALUE_NONE
-            && tte->depth() >= depth - 15
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -952,6 +951,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    bool reduced = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1292,7 +1293,7 @@ moves_loop: // When in check, search starts here
                       && depth < 7
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth -= 1;
+                     depth -= 1, reduced = true;
 
                   assert(depth > 0);
               }
@@ -1370,7 +1371,7 @@ moves_loop: // When in check, search starts here
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  depth, bestMove, ss->staticEval);
+                  depth + reduced, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
