@@ -784,7 +784,7 @@ namespace {
         && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha || depth == 1)
+        if (value < alpha || value >= beta + 300 * (depth - 1))
             return value;
     }
 
