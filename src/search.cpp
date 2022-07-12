@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / (3 + depth);
 
           if (!capture && !ss->inCheck && !givesCheck && alpha > 0 && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
-              r++;
+              r += 2;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
