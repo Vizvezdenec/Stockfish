@@ -784,7 +784,7 @@ namespace {
         && eval < alpha - 348 - 258 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha || (depth == 1 && value >= beta))
+        if (value < alpha)
             return value;
     }
 
@@ -1164,6 +1164,9 @@ moves_loop: // When in check, search starts here
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 15 / (3 + depth);
+
+          if (!capture && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
+              r++;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
