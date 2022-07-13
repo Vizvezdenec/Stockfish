@@ -1169,7 +1169,7 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          if (!capture && !ss->inCheck && !givesCheck && alpha > 25 && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
+          if (!capture && !ss->inCheck && !givesCheck && alpha > 100 && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
