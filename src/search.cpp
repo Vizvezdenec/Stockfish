@@ -1165,11 +1165,11 @@ moves_loop: // When in check, search starts here
           if (PvNode)
               r -= 1 + 15 / (3 + depth);
 
-          if (!capture && !ss->inCheck && !givesCheck && alpha > 0 && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
-              r += 2;
-
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
+              r++;
+
+          if (!capture && !ss->inCheck && !givesCheck && alpha > 50 && (ss-2)->currentMove == make_move(to_sq(move), from_sq(move)))
               r++;
 
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
