@@ -18,7 +18,6 @@
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstdlib>
 #include <cstring>   // For std::memset
 #include <fstream>
@@ -1071,12 +1070,12 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   if (useNNUE && !useClassical)
   {
        int nnueComplexity;
-       int scale = 1064 + 106 * pos.non_pawn_material() / 5120;
+       int scale = 1069 + 106 * pos.non_pawn_material() / 5120;
        Value optimism = pos.this_thread()->optimism[stm];
 
        Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
        // Blend nnue complexity with (semi)classical complexity
-       nnueComplexity = sqrt((nnueComplexity * nnueComplexity + int(nnue - psq) * int(nnue - psq)) / 2);
+       nnueComplexity = (104 * nnueComplexity + 131 * abs(nnue - psq)) / 256;
        if (complexity) // Return hybrid NNUE complexity to caller
            *complexity = nnueComplexity;
 
