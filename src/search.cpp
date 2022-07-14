@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(168 * (d - improving));
+    return Value(178 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -765,7 +765,7 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
+        int bonus = std::clamp(-18 * int((ss-1)->staticEval + ss->staticEval), -1946, 1946);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -783,7 +783,7 @@ namespace {
     // return a fail low.
     if (   !PvNode
         && depth <= 7
-        && eval < alpha - 348 - 258 * depth * depth)
+        && eval < alpha - 337 - 247 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -793,10 +793,10 @@ namespace {
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
-        &&  depth < 8
-        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
+        &&  depth < 9
+        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 268 >= beta
         &&  eval >= beta
-        &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
+        &&  eval < 26887) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
@@ -805,7 +805,7 @@ namespace {
         && (ss-1)->statScore < 14695
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
+        &&  ss->staticEval >= beta - 14 * depth - improvement / 15 + 202 + complexity / 25
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -813,7 +813,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth, eval and complexity of position
-        Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 650);
+        Depth R = std::min(int(eval - beta) / 151, 5) + depth / 3 + 4 - (complexity > 642);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -849,7 +849,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 179 - 46 * improving;
+    probCutBeta = beta + 175 - 47 * improving;
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -1012,7 +1012,7 @@ moves_loop: // When in check, search starts here
               if (   !pos.empty(to_sq(move))
                   && !givesCheck
                   && !PvNode
-                  && lmrDepth < 6
+                  && lmrDepth < 7
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
+                  && ss->staticEval + 123 + 137 * lmrDepth + history / 59 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1102,8 +1102,8 @@ moves_loop: // When in check, search starts here
 
           // Check extensions (~1 Elo)
           else if (   givesCheck
-                   && depth > 9
-                   && abs(ss->staticEval) > 71)
+                   && depth > 8
+                   && abs(ss->staticEval) > 73)
               extension = 1;
 
           // Quiet ttMove extensions (~0 Elo)
