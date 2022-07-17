@@ -606,7 +606,6 @@ namespace {
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
-    ss->inTt = false;
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
@@ -955,6 +954,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool failedSing = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -984,8 +985,6 @@ moves_loop: // When in check, search starts here
                     << " currmovenumber " << moveCount + thisThread->pvIdx << sync_endl;
       if (PvNode)
           (ss+1)->pv = nullptr;
-
-      ss->inTt = false;
 
       extension = 0;
       capture = pos.capture(move);
@@ -1074,8 +1073,6 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
-              ss->inTt = true;
-              ss->moveCount = 1;
 
               if (value < singularBeta)
               {
@@ -1103,6 +1100,9 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
+
+              if (value >= singularBeta)
+                  failedSing = true;
           }
 
           // Check extensions (~1 Elo)
@@ -1146,7 +1146,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (cutNode && ((ss-1)->moveCount > 1 || (ss-1)->inTt))))
+              || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 7 || (ss-1)->inTt)
+          if ((ss-1)->moveCount > 7)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
@@ -1309,6 +1309,8 @@ moves_loop: // When in check, search starts here
                   break;
               }
           }
+          else if (moveCount == 1 && failedSing && !ttCapture && ss->moveCount != 2)
+              update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), -stat_bonus(depth));
       }
       else
          ss->cutoffCnt = 0;
@@ -1708,7 +1710,7 @@ moves_loop: // When in check, search starts here
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->moveCount == 1 && (ss-1)->inTt) || ((ss-1)->currentMove == (ss-1)->killers[0]))
+    if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
