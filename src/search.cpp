@@ -954,8 +954,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool failedSing = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1100,9 +1098,6 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
-
-              if (value >= singularBeta)
-                  failedSing = true;
           }
 
           // Check extensions (~1 Elo)
@@ -1194,7 +1189,7 @@ moves_loop: // When in check, search starts here
 
           // If the son is reduced and fails high it will be re-searched at full depth
           doFullDepthSearch = value > alpha && d < newDepth;
-          doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
+          doDeeperSearch = value > (alpha + 78 + 11 * r);
           didLMR = true;
       }
       else
@@ -1309,8 +1304,6 @@ moves_loop: // When in check, search starts here
                   break;
               }
           }
-          else if (moveCount == 1 && failedSing && !ttCapture && ss->moveCount != 2)
-              update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), -stat_bonus(depth));
       }
       else
          ss->cutoffCnt = 0;
