@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(170 * d - 210 * improving);
+    return Value(168 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -606,6 +606,7 @@ namespace {
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
+    ss->inTt = false;
     (ss+1)->ttPv         = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
@@ -984,6 +985,8 @@ moves_loop: // When in check, search starts here
       if (PvNode)
           (ss+1)->pv = nullptr;
 
+      ss->inTt = false;
+
       extension = 0;
       capture = pos.capture(move);
       movedPiece = pos.moved_piece(move);
@@ -1071,6 +1074,8 @@ moves_loop: // When in check, search starts here
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
+              ss->inTt = true;
+              ss->moveCount = 1;
 
               if (value < singularBeta)
               {
@@ -1141,7 +1146,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (cutNode && (ss-1)->moveCount > 1)))
+              || (cutNode && ((ss-1)->moveCount > 1 || (ss-1)->inTt))))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
@@ -1152,7 +1157,7 @@ moves_loop: // When in check, search starts here
               r -= 2;
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
-          if ((ss-1)->moveCount > 7)
+          if ((ss-1)->moveCount > 7 || (ss-1)->inTt)
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
