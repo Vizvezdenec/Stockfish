@@ -1110,7 +1110,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
-                   && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
+                   && (*contHist[0])[movedPiece][to_sq(move)] >= 5491 - 10000 * (thisThread->id() % 2 == 1))
               extension = 1;
       }
 
@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction for cut nodes (~3 Elo)
           if (cutNode && move != ss->killers[0])
-              r += 2 + 2 * (thisThread->id() % 2 == 1);
+              r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
