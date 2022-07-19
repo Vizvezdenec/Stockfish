@@ -1168,8 +1168,7 @@ moves_loop: // When in check, search starts here
           {
               r -= 1 + 15 / (3 + depth);
 
-              if (thisThread->id() % 8 == 1)
-                  r--;
+              r -= thisThread->id() % 3;
           }
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
