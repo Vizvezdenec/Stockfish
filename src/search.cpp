@@ -1161,11 +1161,16 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r += 1 + (!PvNode && (thisThread->id() % 8 == 1));
+              r++;
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
+          {
               r -= 1 + 15 / (3 + depth);
+
+              if (thisThread->id() % 4 == 1)
+                  r--;
+          }
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
