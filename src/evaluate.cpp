@@ -1086,7 +1086,10 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   // Damp down the evaluation linearly when shuffling
   v = v * (195 - pos.rule50_count()) / 211;
 
-  v += v > VALUE_ZERO ? -Value(40) : v < VALUE_ZERO ? Value(40) : VALUE_ZERO;
+  if (v > VALUE_ZERO)
+      v -= Value(std::clamp(int(v) / 2 - 50, 0, 30));
+  else 
+      v += Value(std::clamp(int(-v) / 2 - 50, 0, 30));
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
