@@ -1087,9 +1087,9 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
   v = v * (195 - pos.rule50_count()) / 211;
 
   if (v > VALUE_ZERO)
-      v -= Value(std::clamp(int(v) / 2 - 60, 0, 50));
+      v -= Value(std::clamp(int(v) / 4 - 30, 0, 40));
   else 
-      v += Value(std::clamp(int(-v) / 2 - 60, 0, 50));
+      v += Value(std::clamp(int(-v) / 4 - 30, 0, 40));
 
   // Guarantee evaluation does not hit the tablebase range
   v = std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
