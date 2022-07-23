@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          dontDoZWS = PvNode && capture && moveCount <= 2;
+          dontDoZWS = PvNode && capture && moveCount <= 3;
           didLMR = false;
       }
 
