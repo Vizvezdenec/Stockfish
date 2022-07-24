@@ -1132,7 +1132,6 @@ moves_loop: // When in check, search starts here
       pos.do_move(move, st, givesCheck);
 
       bool doDeeperSearch = false;
-      bool dontDoZWS = false;
 
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1196,12 +1195,12 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          dontDoZWS = PvNode && capture && moveCount <= 4;
+          doDeeperSearch = PvNode && capture;
           didLMR = false;
       }
 
       // Step 18. Full depth search when LMR is skipped or fails high
-      if (doFullDepthSearch && !dontDoZWS)
+      if (doFullDepthSearch)
       {
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
@@ -1221,7 +1220,7 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || dontDoZWS || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
