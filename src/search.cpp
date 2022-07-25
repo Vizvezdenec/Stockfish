@@ -1282,7 +1282,7 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              isGoodMove |= capture || givesCheck || moveCount == 1;
+              isGoodMove |= capture || givesCheck || move == ttMove;
 
               bestMove = move;
 
