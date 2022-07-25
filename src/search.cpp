@@ -1197,7 +1197,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doDeeperSearch = PvNode && capture && !isGoodMove;
+          doDeeperSearch = (PvNode || cutNode) && moveCount != 1 && capture && !isGoodMove;
           didLMR = false;
       }
 
@@ -1282,7 +1282,7 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              isGoodMove |= capture || givesCheck;
+              isGoodMove |= capture;
 
               bestMove = move;
 
