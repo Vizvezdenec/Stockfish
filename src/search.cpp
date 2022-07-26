@@ -1495,6 +1495,7 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
+                                      PvNode,
                                       prevSq);
 
     int quietCheckEvasions = 0;
@@ -1571,8 +1572,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      Depth nextDepth = !PvNode && ttMove && move == ttMove && !capture && !givesCheck ? depth : depth - 1;
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, nextDepth);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
