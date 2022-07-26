@@ -1195,9 +1195,9 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          if (PvNode && moveCount > 1 && capture)
+          if (PvNode && moveCount > 1)
           {
-              value = -search<NonPV>(pos, ss+1, -(alpha+51), -alpha - 50, depth - 2, true);
+              value = -search<NonPV>(pos, ss+1, -(alpha+71), -alpha - 70, depth - 2, true);
               if (value > alpha + 50)
                   doDeeperSearch = true;
           }
