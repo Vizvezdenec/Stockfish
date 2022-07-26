@@ -954,8 +954,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool isGoodMove = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1197,7 +1195,6 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          doDeeperSearch = PvNode && capture && !isGoodMove && depth >= 2;
           didLMR = false;
       }
 
@@ -1282,8 +1279,6 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              isGoodMove |= capture || givesCheck || moveCount == 1;
-
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
@@ -1576,7 +1571,8 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      Depth nextDepth = PvNode ? std::max(depth - 1, DEPTH_QS_RECAPTURES + 1) : depth - 1;
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, nextDepth);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
