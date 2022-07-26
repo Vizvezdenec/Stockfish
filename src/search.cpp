@@ -1571,8 +1571,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      Depth nextDepth = PvNode && ss->ttHit ? std::max(depth - 1, DEPTH_QS_RECAPTURES + 1) : depth - 1;
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, nextDepth);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
