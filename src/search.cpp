@@ -1571,7 +1571,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      Depth nextDepth = ttMove && move == ttMove && !capture && !givesCheck ? depth : depth - 1;
+      Depth nextDepth = PvNode && ttMove && move == ttMove && !capture && !givesCheck ? depth : depth - 1;
       value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, nextDepth);
       pos.undo_move(move);
 
