@@ -572,7 +572,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    ss->pn = PvNode;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1172,9 +1171,6 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          if (!PvNode && (ss-1)->pn && depth < 6)
-              r--;
-
           ss->statScore =  thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1195,6 +1191,8 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = value > alpha && d < newDepth;
           doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
           didLMR = true;
+          if (!ss->inCheck && capture && r <= 3 && value > probCutBeta)
+              doFullDepthSearch = false;
       }
       else
       {
