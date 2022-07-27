@@ -891,7 +891,7 @@ namespace {
                 if (value >= probCutBeta)
                 {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-                    if (!probcutmove && value <= alpha)
+                    if (!probcutmove && value <= alpha - 200)
                         probcutmove = move;
                 }
 
