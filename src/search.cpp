@@ -748,6 +748,7 @@ namespace {
 
         // ttValue can be used as a better position evaluation (~4 Elo)
         if (    ttValue != VALUE_NONE
+            && tte->depth() > DEPTH_NONE
             && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
@@ -1030,7 +1031,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -(3875 - 500 * ss->inCheck) * (depth - 1))
+                  && history < -3875 * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
