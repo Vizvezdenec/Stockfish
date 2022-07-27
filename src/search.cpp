@@ -572,7 +572,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    Move probcutmove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -889,11 +888,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-                    if (!probcutmove && value <= alpha - 200)
-                        probcutmove = move;
-                }
 
                 pos.undo_move(move);
 
@@ -968,9 +963,6 @@ moves_loop: // When in check, search starts here
       if (move == excludedMove)
           continue;
 
-      if (move == probcutmove)
-          continue;
-
       // At root obey the "searchmoves" option and skip moves not listed in Root
       // Move List. As a consequence any illegal move is also skipped. In MultiPV
       // mode we also skip PV moves which have been already searched and those
@@ -1038,7 +1030,7 @@ moves_loop: // When in check, search starts here
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 5
-                  && history < -3875 * (depth - 1))
+                  && history < -(3875 + 500 * ss->inCheck) * (depth - 1))
                   continue;
 
               history += thisThread->mainHistory[us][from_to(move)];
