@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = value > alpha && d < newDepth;
           doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
           didLMR = true;
-          if (!ss->inCheck && capture && r <= 3 && value > probCutBeta)
+          if (!ss->inCheck && capture && depth <= 3 && value > probCutBeta)
               doFullDepthSearch = false;
       }
       else
