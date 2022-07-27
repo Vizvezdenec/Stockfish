@@ -572,6 +572,7 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
+    Move probcutmove = MOVE_NONE;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -888,7 +889,11 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    if (!probcutmove && value <= alpha)
+                        probcutmove = move;
+                }
 
                 pos.undo_move(move);
 
@@ -961,6 +966,9 @@ moves_loop: // When in check, search starts here
       assert(is_ok(move));
 
       if (move == excludedMove)
+          continue;
+
+      if (move == probcutmove)
           continue;
 
       // At root obey the "searchmoves" option and skip moves not listed in Root
@@ -1191,8 +1199,6 @@ moves_loop: // When in check, search starts here
           doFullDepthSearch = value > alpha && d < newDepth;
           doDeeperSearch = value > (alpha + 78 + 11 * (newDepth - d));
           didLMR = true;
-          if (!ss->inCheck && capture && depth <= 3 && value > probCutBeta)
-              doFullDepthSearch = false;
       }
       else
       {
