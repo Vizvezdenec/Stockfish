@@ -1521,8 +1521,6 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          mc++;
-
           if (mc > 1)
               continue;
 
@@ -1539,6 +1537,7 @@ moves_loop: // When in check, search starts here
               bestValue = std::max(bestValue, futilityBase);
               continue;
           }
+          mc++;
       }
 
       // Do not search moves with negative SEE values (~5 Elo)
