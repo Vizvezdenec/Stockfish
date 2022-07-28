@@ -1521,7 +1521,9 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (mc > 1)
+          mc++;
+
+          if (moveCount > 3 || mc > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1537,7 +1539,6 @@ moves_loop: // When in check, search starts here
               bestValue = std::max(bestValue, futilityBase);
               continue;
           }
-          mc++;
       }
 
       // Do not search moves with negative SEE values (~5 Elo)
