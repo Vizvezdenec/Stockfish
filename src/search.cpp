@@ -1521,7 +1521,7 @@ moves_loop: // When in check, search starts here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (depth < 0 && moveCount > 2)
+          if (moveCount > 2 + (depth == 0))
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
