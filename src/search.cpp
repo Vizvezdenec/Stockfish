@@ -1286,6 +1286,9 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
+                  if (!rootNode && depth == 1 && value > (alpha + beta * 7) / 8)
+                      break;
+
                   alpha = value;
 
                   // Reduce other moves if we have found at least one score improvement
