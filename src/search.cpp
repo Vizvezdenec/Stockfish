@@ -669,6 +669,17 @@ namespace {
             return ttValue;
     }
 
+    if ((int)thisThread->id() % 4 == 3
+        && PvNode
+        && !rootNode
+        && ss->ttHit
+        && tte->depth() > 2 * depth
+        && ttValue != VALUE_NONE
+        && (ttValue >= beta || ttValue <= alpha)
+        && pos.rule50_count() < 90
+        && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
+            return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -1286,9 +1297,6 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
-                  if (!rootNode && depth == 1 && moveCount > 3 && value > (alpha + beta * 3) / 4)
-                      break;
-
                   alpha = value;
 
                   // Reduce other moves if we have found at least one score improvement
