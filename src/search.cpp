@@ -669,11 +669,11 @@ namespace {
             return ttValue;
     }
 
-    if ((int)thisThread->id() % 4 == 3
+    if ((int)thisThread->id() % 8 == 7
         && PvNode
         && !rootNode
         && ss->ttHit
-        && tte->depth() > 2 * depth
+        && tte->depth() > 3 * depth / 2
         && ttValue != VALUE_NONE
         && (ttValue >= beta || ttValue <= alpha)
         && pos.rule50_count() < 90
