@@ -1286,7 +1286,7 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
-                  if (!rootNode && value > depth * delta / (depth + 1) + alpha)
+                  if (!rootNode && value > (depth + 1) * delta / (depth + 2) + alpha)
                       break;
                   alpha = value;
 
