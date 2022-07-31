@@ -1369,7 +1369,7 @@ moves_loop: // When in check, search starts here
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
     {
-        if (!bestMove && ss->ttHit && ttMove && tte->bound() == BOUND_EXACT)
+        if (!bestMove && ss->ttHit && ttMove && tte->bound() == BOUND_EXACT && tte->depth() > depth)
             bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
