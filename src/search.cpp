@@ -868,6 +868,9 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
+        if (ttCapture && tte->bound() == BOUND_EXACT && tte->depth() >= depth - 3 && ttValue >= probCutBeta)
+            return ttValue;
+
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -1368,14 +1371,10 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
-    {
-        if (!bestMove && ss->ttHit && ttMove && tte->bound() == BOUND_EXACT && tte->depth() > depth)
-            bestMove = ttMove;
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
