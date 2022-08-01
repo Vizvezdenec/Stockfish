@@ -1083,7 +1083,7 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                   else if (PvNode
                       && tte->bound() == BOUND_EXACT
-                      && value < singularBeta - 208
+                      && value < singularBeta - 416
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
