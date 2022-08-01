@@ -796,8 +796,7 @@ namespace {
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
-        &&  eval < 26305
-        && !(eval == ss->staticEval && (pos.attacks_by<PAWN>(~us) & (pos.pieces(us, KNIGHT, BISHOP) | pos.pieces(us, ROOK, QUEEN))))) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
+        &&  eval < 26305) // larger than VALUE_KNOWN_WIN, but smaller than TB wins.
         return eval;
 
     // Step 9. Null move search with verification search (~22 Elo)
@@ -1080,6 +1079,11 @@ moves_loop: // When in check, search starts here
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
                       && value < singularBeta - 26
+                      && ss->doubleExtensions <= 8)
+                      extension = 2;
+                  else if (PvNode
+                      && tte->bound() == BOUND_EXACT
+                      && value < singularBeta - 52
                       && ss->doubleExtensions <= 8)
                       extension = 2;
               }
