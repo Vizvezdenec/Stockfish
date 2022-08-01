@@ -868,9 +868,6 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        if (ttCapture && tte->bound() == BOUND_EXACT && tte->depth() >= depth - 3 && ttValue >= probCutBeta)
-            return ttValue;
-
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -1168,7 +1165,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / (3 + depth);
+              r -= 1 + 15 / (3 + depth) - (ss->ttHit && ttMove && (tte->bound() == BOUND_EXACT));
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
