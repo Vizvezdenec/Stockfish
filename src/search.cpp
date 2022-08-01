@@ -1081,11 +1081,6 @@ moves_loop: // When in check, search starts here
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
                       extension = 2;
-                  else if (PvNode
-                      && tte->bound() == BOUND_EXACT
-                      && value < singularBeta - 416
-                      && ss->doubleExtensions <= 8)
-                      extension = 2;
               }
 
               // Multi-cut pruning
@@ -1170,7 +1165,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / (3 + depth);
+              r -= 1 + 15 / (3 + depth) - (ss->ttHit && ttMove && tte->depth() > depth && (tte->bound() == BOUND_EXACT));
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
