@@ -954,6 +954,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool isGoodMove = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1195,6 +1197,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
+          doDeeperSearch = PvNode && capture && !isGoodMove;
           didLMR = false;
       }
 
@@ -1279,6 +1282,8 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
+              isGoodMove = capture;
+
               bestMove = move;
 
               if (PvNode && !rootNode) // Update pv even in fail-high case
@@ -1499,8 +1504,6 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
-    int mc = 0;
-
     // Loop through the moves until no moves remain or a beta cutoff occurs
     while ((move = mp.next_move()) != MOVE_NONE)
     {
@@ -1522,9 +1525,8 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          mc++;
 
-          if (moveCount > 3 || mc > 2)
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
