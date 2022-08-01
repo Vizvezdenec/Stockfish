@@ -1077,7 +1077,7 @@ moves_loop: // When in check, search starts here
                   extension = 1;
 
                   // Avoid search explosion by limiting the number of double extensions
-                  if (  (!PvNode || tte->bound() == BOUND_EXACT)
+                  if (  !PvNode
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
                       extension = 2;
@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
+              r += 1 + (tte->bound() == BOUND_EXACT);
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
