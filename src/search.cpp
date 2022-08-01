@@ -868,10 +868,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        if (ttCapture && tte->bound() == BOUND_EXACT && tte->depth() > depth - 3 && ttValue >= probCutBeta)
-            return ttValue;
-
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory, prevSq);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -945,7 +942,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      prevSq);
 
     value = bestValue;
     moveCountPruning = false;
@@ -1018,7 +1016,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 281 + 179 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
+                   + captureHistory[movedPiece][to_sq(move) == prevSq][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
               // SEE based pruning (~9 Elo)
@@ -1702,7 +1700,7 @@ moves_loop: // When in check, search starts here
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove) == prevSq][to_sq(bestMove)][captured] << bonus1;
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1715,7 +1713,7 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i]) == prevSq][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
