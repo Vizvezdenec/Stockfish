@@ -1441,7 +1441,7 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
 
-    if (   PvNode && ss->ttHit && tte->depth() > 0 && ttMove && pos.capture(ttMove) 
+    if (   PvNode && ss->ttHit && tte->depth() > 0 && ttMove && (pos.capture(ttMove) || ttValue <= alpha)
         && ttValue != VALUE_NONE && tte->bound() == BOUND_EXACT && (ttValue >= beta || ttValue <= alpha))
         return ttValue;
 
