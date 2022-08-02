@@ -226,7 +226,7 @@ top:
 
   case REFUTATION:
       if (select<Next>([&](){ return    *cur != MOVE_NONE
-                                    && (!skipQuiets || *cur != refutations[2].move)
+                                    && (!skipQuiets || *cur == refutations[0].move)
                                     && !pos.capture(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
