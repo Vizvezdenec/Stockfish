@@ -1153,10 +1153,10 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if opponent's move count is high (~1 Elo)
           if ((ss-1)->moveCount > 7)
-              r -= 1 + (move == ss->killers[0] && (ss-1)->moveCount > 15);
+              r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode)
+          if (cutNode && !(!capture && move == ss->killers[0]))
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
