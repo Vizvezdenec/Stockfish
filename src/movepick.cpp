@@ -225,10 +225,13 @@ top:
       [[fallthrough]];
 
   case REFUTATION:
+      if (!skipQuiets)
+      {
       if (select<Next>([&](){ return    *cur != MOVE_NONE
                                     && !pos.capture(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
+      }
       ++stage;
       [[fallthrough]];
 
