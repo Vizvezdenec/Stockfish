@@ -1353,7 +1353,7 @@ moves_loop: // When in check, search starts here
         //or fail low was really bad
         bool extraBonus =    PvNode
                           || cutNode
-                          || (ss-1)->moveCount > 15
+                          || (ss-1)->moveCount > 10
                           || bestValue < alpha - 70 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
