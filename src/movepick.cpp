@@ -26,7 +26,7 @@ namespace Stockfish {
 namespace {
 
   enum Stages {
-    MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
+    MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION_INIT, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
@@ -104,7 +104,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const Cap
 template<GenType Type>
 void MovePicker::score() {
 
-  static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
+  static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS || Type == REFUTATIONS, "Wrong type");
 
   Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook;
   if constexpr (Type == QUIETS)
@@ -149,7 +149,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0);
 
-      else // Type == EVASIONS
+      else if constexpr (Type == EVASIONS)// Type == EVASIONS
       {
           if (pos.capture(m))
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
@@ -159,6 +159,12 @@ void MovePicker::score() {
                        + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                        - (1 << 28);
       }
+      else
+          m.value =      (*mainHistory)[pos.side_to_move()][from_to(m)]
+                   + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
+                   +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)];
 }
 
 /// MovePicker::select() returns the next move satisfying a predicate function.
@@ -224,9 +230,15 @@ top:
       ++stage;
       [[fallthrough]];
 
+  case REFUTATION_INIT:
+      score<REFUTATIONS>();
+      partial_insertion_sort(cur, endMoves, -3000 * depth);
+
+      ++stage;
+      [[fallthrough]];
+
   case REFUTATION:
       if (select<Next>([&](){ return    *cur != MOVE_NONE
-                                    && (!skipQuiets || *cur == refutations[0].move)
                                     && !pos.capture(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
