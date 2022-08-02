@@ -232,13 +232,12 @@ top:
 
   case REFUTATION_INIT:
       score<REFUTATIONS>();
-      partial_insertion_sort(cur, endMoves, -3000 * depth);
 
       ++stage;
       [[fallthrough]];
 
   case REFUTATION:
-      if (select<Next>([&](){ return    *cur != MOVE_NONE
+      if (select<Best>([&](){ return    *cur != MOVE_NONE
                                     && !pos.capture(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
