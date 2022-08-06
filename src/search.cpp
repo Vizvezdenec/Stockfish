@@ -1092,7 +1092,7 @@ moves_loop: // When in check, search starts here
                   return singularBeta;
 
               else if (ttValue >= beta + depth && value >= ttValue)
-                  return beta;
+                  return ttValue;
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
