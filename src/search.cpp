@@ -1091,6 +1091,9 @@ moves_loop: // When in check, search starts here
               else if (singularBeta >= beta)
                   return singularBeta;
 
+              else if (ttValue >= beta + depth && value >= ttValue)
+                  return ttValue;
+
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
                   extension = -2;
@@ -1201,16 +1204,13 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped or fails high
       if (doFullDepthSearch)
       {
-          Value tempValue = value;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
           // If the move passed LMR update its stats
           if (didLMR)
           {
-              bool extra = value > alpha && value - tempValue > 200;
-              extra |= value < alpha && value - tempValue < -200;
-              int bonus = value > alpha ?  stat_bonus(newDepth + extra)
-                                        : -stat_bonus(newDepth + extra);
+              int bonus = value > alpha ?  stat_bonus(newDepth)
+                                        : -stat_bonus(newDepth);
 
               if (capture)
                   bonus /= 6;
