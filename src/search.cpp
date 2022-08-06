@@ -878,7 +878,7 @@ namespace {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
                 probcutCount++;
-                if (probcutCount > 3 && to_sq(move) != prevSq)
+                if (probcutCount > 2 && to_sq(move) != prevSq)
                     continue;
 
                 ss->currentMove = move;
