@@ -868,12 +868,18 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
+        int probcutCount = 0;
+
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
+
+                probcutCount++;
+                if (probcutCount > 3 && to_sq(move) != prevSq)
+                    continue;
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
