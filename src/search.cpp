@@ -875,6 +875,9 @@ namespace {
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
+                if (to_sq(move) != prevSq)
+                    continue;
+
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [true]
