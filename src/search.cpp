@@ -870,12 +870,17 @@ namespace {
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
+        int recaptureCnt = 0;
+
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
-                if (move != ttMove && to_sq(move) != prevSq)
+                if (to_sq(move) == prevSq)
+                    recaptureCnt++;
+
+                if (recaptureCnt > 2)
                     continue;
 
                 ss->currentMove = move;
