@@ -875,7 +875,7 @@ namespace {
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
-                if (to_sq(move) != prevSq)
+                if (move != ttMove && to_sq(move) != prevSq)
                     continue;
 
                 ss->currentMove = move;
