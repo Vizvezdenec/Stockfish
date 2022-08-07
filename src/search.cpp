@@ -880,7 +880,7 @@ namespace {
                 if (to_sq(move) == prevSq)
                     recaptureCnt++;
 
-                if (recaptureCnt > 2)
+                if (recaptureCnt > 1)
                     continue;
 
                 ss->currentMove = move;
