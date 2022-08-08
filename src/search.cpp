@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / (3 + std::min(depth, moveCount));
+              r -= 1 + 15 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + (PvNode && depth <= 5));
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
