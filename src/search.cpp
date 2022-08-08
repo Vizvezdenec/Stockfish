@@ -870,18 +870,10 @@ namespace {
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
-        int recaptureCnt = 0;
-
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
-
-                if (to_sq(move) == prevSq)
-                    recaptureCnt++;
-
-                if (recaptureCnt > 3 && to_sq(move) == prevSq)
-                    continue;
 
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
@@ -1174,7 +1166,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 15 / (3 + depth);
+              r -= 1 + 15 / (3 + depth) + 15 / (3 + moveCount);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
