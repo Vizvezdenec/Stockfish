@@ -120,7 +120,7 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth singularExt, Move ttMove);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -954,6 +954,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int singularExt = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1082,6 +1084,7 @@ moves_loop: // When in check, search starts here
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
                       extension = 2;
+                  singularExt = extension;
               }
 
               // Multi-cut pruning
@@ -1169,8 +1172,8 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR && capture)
-              r -= 2;
+          if (singularQuietLMR)
+              r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
@@ -1348,7 +1351,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, singularExt, ttMove);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 4 || PvNode)
@@ -1678,7 +1681,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, Depth singularExt, Move ttMove) {
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
@@ -1686,25 +1689,30 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
     int bonus1 = stat_bonus(depth + 1);
+    int bonus3 = stat_bonus(depth + singularExt + 1);
 
     if (!pos.capture(bestMove))
     {
         int bonus2 = bestValue > beta + PawnValueMg ? bonus1               // larger bonus
                                                     : stat_bonus(depth);   // smaller bonus
 
+        int bonus4 = bestValue > beta + PawnValueMg ? bonus3               // larger bonus
+                                                    : stat_bonus(depth + singularExt);   // smaller bonus
+
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bestMove == ttMove ? bonus4 : bonus2);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
+            int bnus = quietsSearched[i] == ttMove ? -bonus4 : -bonus2;
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << bnus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), bnus);
         }
     }
     else
         // Increase stats for the best move in case it was a capture move
-        captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
+        captureHistory[moved_piece][to_sq(bestMove)][captured] << (bestMove == ttMove ? bonus3 : bonus1);
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
@@ -1717,7 +1725,7 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << (capturesSearched[i] == ttMove ? -bonus3 : -bonus1);
     }
   }
 
