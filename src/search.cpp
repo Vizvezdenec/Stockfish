@@ -1705,9 +1705,8 @@ moves_loop: // When in check, search starts here
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            int bnus = quietsSearched[i] == ttMove ? -bonus4 : -bonus2;
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << bnus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), bnus);
+            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bonus2;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]), to_sq(quietsSearched[i]), -bonus2);
         }
     }
     else
@@ -1725,7 +1724,7 @@ moves_loop: // When in check, search starts here
     {
         moved_piece = pos.moved_piece(capturesSearched[i]);
         captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << (capturesSearched[i] == ttMove ? -bonus3 : -bonus1);
+        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus1;
     }
   }
 
