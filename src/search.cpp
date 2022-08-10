@@ -625,20 +625,28 @@ namespace {
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
-    posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
+    if (!excludedMove)
+    {
+    posKey = pos.key();
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
     ttCapture = ttMove && pos.capture(ttMove);
-    if (!excludedMove)
-        ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+    ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+    }
+    else
+    {
+        ttValue = VALUE_NONE;
+        ttMove = MOVE_NONE;
+        ttCapture = false;
+    }
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - ((int)thisThread->id() & 0x1) - (tte->bound() == BOUND_EXACT)
         && ttValue != VALUE_NONE // Possible in case of TT access race
+        && tte->depth() > depth - ((int)thisThread->id() & 0x1) - (tte->bound() == BOUND_EXACT)
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit (~1 Elo)
@@ -733,7 +741,7 @@ namespace {
         complexity = 0;
         goto moves_loop;
     }
-    else if (ss->ttHit)
+    else if (ss->ttHit && !excludedMove)
     {
         // Never assume anything about values stored in TT
         ss->staticEval = eval = tte->eval();
@@ -753,7 +761,10 @@ namespace {
     }
     else
     {
-        ss->staticEval = eval = evaluate(pos, &complexity);
+        if (!excludedMove)
+            ss->staticEval = eval = evaluate(pos, &complexity);
+        else 
+            eval = ss->staticEval, complexity = 0;
 
         // Save static evaluation into transposition table
         if (!excludedMove)
@@ -862,6 +873,7 @@ namespace {
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
         && !(   ss->ttHit
+             && !excludedMove
              && tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
@@ -895,7 +907,8 @@ namespace {
                 if (value >= probCutBeta)
                 {
                     // Save ProbCut data into transposition table
-                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    if (!excludedMove)
+                        tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
                 }
             }
@@ -1057,9 +1070,9 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
+              && !excludedMove // Avoid recursive singular search
               &&  depth >= 4 - (thisThread->previousDepth > 27) + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
-              && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
@@ -1069,7 +1082,7 @@ moves_loop: // When in check, search starts here
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, false);
+              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
               ss->excludedMove = MOVE_NONE;
 
               if (value < singularBeta)
