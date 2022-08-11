@@ -227,7 +227,7 @@ Thread* ThreadPool::get_best_thread() const {
     for (Thread* th : *this)
     {
         votes[th->rootMoves[0].pv[0]] +=
-            (th->rootMoves[0].score - minScore + 14) * int(th->actualDepth);
+            (th->rootMoves[0].score - minScore + 14) * (4 * int(th->completedDepth) + int(th->actualDepth));
 
         if (abs(bestThread->rootMoves[0].score) >= VALUE_TB_WIN_IN_MAX_PLY)
         {
