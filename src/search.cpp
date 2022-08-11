@@ -371,11 +371,12 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           int failedHighCnt = 0;
+          int failedLowCnt = 0;
           while (true)
           {
               // Adjust the effective depth searched, but ensuring at least one effective increment for every
               // four searchAgain steps (see issue #2717).
-              Depth adjustedDepth = std::max(1, rootDepth - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
+              Depth adjustedDepth = std::max(1, rootDepth - failedLowCnt - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
               bestValue = Stockfish::search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
               // Bring the best move to the front. It is critical that sorting
@@ -407,6 +408,7 @@ void Thread::search() {
                   beta = (alpha + beta) / 2;
                   alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
+                  failedLowCnt += id() % 2;
                   failedHighCnt = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
@@ -415,6 +417,7 @@ void Thread::search() {
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
+                  failedLowCnt = 0;
               }
               else
                   break;
@@ -1199,7 +1202,7 @@ moves_loop: // When in check, search starts here
       }
       else
       {
-          doFullDepthSearch = !PvNode || moveCount > 1 + rootNode;
+          doFullDepthSearch = !PvNode || moveCount > 1;
           didLMR = false;
       }
 
@@ -1224,7 +1227,7 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && ((moveCount <= 1 + rootNode) || (value > alpha && (rootNode || value < beta))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
