@@ -1140,7 +1140,6 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && !(capture && singularQuietLMR)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
@@ -1168,6 +1167,10 @@ moves_loop: // When in check, search starts here
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 15 / (3 + depth);
+
+          // Decrease reduction if ttMove has been singularly extended (~1 Elo)
+          if (singularQuietLMR)
+              r -= 1 + 2 * capture;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
