@@ -748,11 +748,15 @@ namespace {
     }
     else
     {
-        ss->staticEval = eval = evaluate(pos, &complexity);
+        ss->staticEval = evaluate(pos, &complexity);
 
         // Save static evaluation into transposition table
         if (!excludedMove)
-            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
+            tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, ss->staticEval);
+
+        if (!PvNode)
+            eval = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+        else eval = ss->staticEval;
     }
 
     thisThread->complexityAverage.update(complexity);
@@ -1063,16 +1067,9 @@ moves_loop: // When in check, search starts here
               Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
-              if (PvNode && tte->depth() >= depth + 2 && tte->bound() == BOUND_EXACT && ttValue > alpha)
-                  value = singularBeta - 1;
-              else
-              {
-                  ss->excludedMove = move;
-                  value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-                  ss->excludedMove = MOVE_NONE;
-              }
-
-
+              ss->excludedMove = move;
+              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+              ss->excludedMove = MOVE_NONE;
 
               if (value < singularBeta)
               {
