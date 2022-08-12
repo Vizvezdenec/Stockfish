@@ -1063,7 +1063,7 @@ moves_loop: // When in check, search starts here
               Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
-              if (PvNode && tte->depth() >= depth + 1 && tte->bound() == BOUND_EXACT && ttValue > alpha)
+              if (PvNode && tte->depth() >= depth && tte->bound() == BOUND_EXACT && ttValue > alpha)
                   value = singularBeta - 1;
               else
               {
