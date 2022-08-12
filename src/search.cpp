@@ -1200,7 +1200,7 @@ moves_loop: // When in check, search starts here
       else
       {
           doFullDepthSearch = !PvNode || moveCount > 1;
-          if (depth == 2 && PvNode)
+          if (depth < 3 && PvNode)
               doDeeperSearch = true;
           didLMR = false;
       }
