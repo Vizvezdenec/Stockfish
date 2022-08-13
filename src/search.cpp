@@ -636,7 +636,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - ((int)thisThread->id() & 0x1) - (tte->bound() == BOUND_EXACT)
+        && tte->depth() > depth - (tte->bound() == BOUND_EXACT)
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -667,9 +667,6 @@ namespace {
         if (pos.rule50_count() < 90)
             return ttValue;
     }
-
-    if (!PvNode && ss->ttHit && tte->depth() >= depth - 1 && !ttCapture && ttValue != VALUE_NONE && (tte->bound() == BOUND_EXACT) && ttValue <= alpha - 128)
-        return ttValue;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
