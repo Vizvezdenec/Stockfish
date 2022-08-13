@@ -668,7 +668,7 @@ namespace {
             return ttValue;
     }
 
-    if (!PvNode && ss->ttHit && tte->depth() >= depth - 1 && ttValue != VALUE_NONE && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 128)
+    if (!PvNode && ss->ttHit && tte->depth() >= depth - 1 && !ttCapture && ttValue != VALUE_NONE && (tte->bound() == BOUND_EXACT) && ttValue <= alpha - 128)
         return ttValue;
 
     // Step 5. Tablebases probe
