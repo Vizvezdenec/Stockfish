@@ -780,8 +780,6 @@ namespace {
         && depth <= 7
         && eval < alpha - 348 - 258 * depth * depth)
     {
-        if (ss->ttHit && tte->depth() >= 0 && ttValue != VALUE_NONE && ttValue <= eval && (tte->bound() & BOUND_UPPER))
-            return ttValue;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
@@ -789,7 +787,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
-    if (   !ss->ttPv
+    if (   (!ss->ttPv || (!PvNode && depth == 1))
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
