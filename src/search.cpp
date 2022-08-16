@@ -883,14 +883,14 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4 + 2 * ss->ttPv, !cutNode);
 
                 pos.undo_move(move);
 
                 if (value >= probCutBeta)
                 {
                     // Save ProbCut data into transposition table
-                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3 + 2 * ss->ttPv, move, ss->staticEval);
                     return value;
                 }
             }
@@ -1181,7 +1181,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, int(!cutNode), newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
