@@ -782,10 +782,7 @@ namespace {
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
-        {
-            ss->cutoffCnt = 0;
             return value;
-        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -894,6 +891,7 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    ss->cutoffCnt++;
                     return value;
                 }
             }
