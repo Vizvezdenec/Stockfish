@@ -844,7 +844,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 174 - 46 * improving + 69 * ss->ttPv;
+    probCutBeta = beta + 209 - 46 * improving - 5 * std::min(depth, 20);
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
