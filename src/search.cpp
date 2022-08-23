@@ -950,11 +950,11 @@ moves_loop: // When in check, search starts here
                          && tte->depth() >= depth;
 
     bool extraRed = false;
-    if (!PvNode && depth >= 2 && ss->staticEval <= alpha - 40 * depth)
+    if (!PvNode && depth >= 2 && eval <= ss->staticEval && eval <= alpha - 80 * depth)
     {
-        value = search<NonPV>(pos, ss, ss->staticEval - 1, ss->staticEval, depth / 2, cutNode);
-        if (value < ss->staticEval)
-            extraRed = false;
+        value = search<NonPV>(pos, ss, eval - 1, eval, depth / 2, cutNode);
+        if (value < eval)
+            extraRed = true;
     }
     if (extraRed)
         depth--;
