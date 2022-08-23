@@ -949,6 +949,16 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool extraRed = false;
+    if (!PvNode && depth >= 2 && ss->staticEval <= alpha - 40 * depth)
+    {
+        value = search<NonPV>(pos, ss, ss->staticEval - 1, ss->staticEval, depth / 2, cutNode);
+        if (value < ss->staticEval)
+            extraRed = false;
+    }
+    if (extraRed)
+        depth--;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1033,7 +1043,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 11
-                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 - 4 * (ss+1)->cutoffCnt * (ss+1)->cutoffCnt <= alpha)
+                  && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
