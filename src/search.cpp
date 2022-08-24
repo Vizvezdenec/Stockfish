@@ -1133,15 +1133,12 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
-
-          if (!capture && !ss->inCheck && !givesCheck 
-               && ss->staticEval + thisThread->mainHistory[us][from_to(move)] / 16 + 70 + 70 * std::max(depth - r, 0) <= alpha)
-               r++;
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
