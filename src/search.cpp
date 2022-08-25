@@ -1133,7 +1133,7 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && (PvNode || bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+          && (!PvNode || bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
           && (   !ss->ttPv
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
