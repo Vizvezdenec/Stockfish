@@ -561,7 +561,7 @@ namespace {
     bool givesCheck, improving, priorCapture, singularQuietLMR;
     bool capture, moveCountPruning, ttCapture;
     Piece movedPiece;
-    int moveCount, captureCount, quietCount, improvement, complexity, prevMSC;
+    int moveCount, captureCount, quietCount, improvement, complexity;
 
     // Step 1. Initialize node
     Thread* thisThread = pos.this_thread();
@@ -730,7 +730,6 @@ namespace {
         improving = false;
         improvement = 0;
         complexity = 0;
-        prevMSC = 0;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -761,11 +760,9 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        prevMSC = int((ss-1)->staticEval + ss->staticEval);
-        int bonus = std::clamp(-16 * prevMSC, -2000, 2000);
+        int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
-    else prevMSC = 0;
 
     // Set up the improvement variable, which is the difference between the current
     // static evaluation and the previous static evaluation at our turn (if we were
@@ -801,7 +798,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
-        &&  eval >= beta
+        &&  eval >= beta + (eval - ss->staticEval) / 16
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
         && !excludedMove
@@ -1171,8 +1168,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
-
-          r -= prevMSC / 512;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
