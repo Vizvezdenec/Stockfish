@@ -826,7 +826,11 @@ namespace {
                 nullValue = beta;
 
             if (thisThread->nmpMinPly || (abs(beta) < VALUE_KNOWN_WIN && depth < 14))
+            {
+                if (!ss->ttHit)
+                    tte->save(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv, BOUND_LOWER, depth - R, MOVE_NONE, ss->staticEval);
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly); // Recursive verification is not allowed
 
