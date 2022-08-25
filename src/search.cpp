@@ -798,7 +798,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
-        &&  ss->staticEval >= beta
+        &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
         && !excludedMove
@@ -1107,6 +1107,8 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
+              extension = 1;
+          else if (move == ttMove && ss->statScore > 50000)
               extension = 1;
       }
 
