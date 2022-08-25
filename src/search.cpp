@@ -989,9 +989,6 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
-      if (moveCount == 1 && !excludedMove)
-          ss->statScore = 0;
-
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
           && pos.non_pawn_material(us)
@@ -1110,6 +1107,9 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
+              extension = 1;
+
+          else if (moveCount == 1 && ss->statScore > 50000)
               extension = 1;
       }
 
