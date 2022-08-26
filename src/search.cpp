@@ -798,7 +798,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
-        &&  eval >= beta + 3 * (eval - ss->staticEval) / 4
+        &&  eval >= beta + (eval - ss->staticEval) / 4
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
         && !excludedMove
