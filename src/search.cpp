@@ -791,7 +791,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
-    if (   !PvNode
+    if (   !ss->ttPv
         && (!ttMove || (!ttCapture && 2 * thisThread->mainHistory[us][from_to(ttMove)]
                          + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
                          + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
