@@ -720,6 +720,10 @@ namespace {
         }
     }
 
+    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                          nullptr                   , (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-6)->continuationHistory };
+
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
@@ -787,8 +791,11 @@ namespace {
 
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
-    if (   !ss->ttPv
-        && !ttMove
+    if (   !PvNode
+        && (!ttMove || (!ttCapture && 2 * thisThread->mainHistory[us][from_to(ttMove)]
+                         + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+                         + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+                         + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] > 10000))
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
@@ -926,11 +933,6 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
-
-
-    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                          nullptr                   , (ss-4)->continuationHistory,
-                                          nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
