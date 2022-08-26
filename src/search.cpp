@@ -795,7 +795,7 @@ namespace {
         && (!ttMove || (!ttCapture && 2 * thisThread->mainHistory[us][from_to(ttMove)]
                          + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
                          + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-                         + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] > 10000))
+                         + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] > 30000))
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 256 >= beta
         &&  eval >= beta
