@@ -1017,7 +1017,7 @@ moves_loop: // When in check, search starts here
               if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
           }
-          else
+          else if (pos.non_pawn_material(us) >= 1200)
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1162,7 +1162,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR && bestMove == ttMove)
+          if (singularQuietLMR)
               r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
