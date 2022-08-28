@@ -1017,7 +1017,7 @@ moves_loop: // When in check, search starts here
               if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
           }
-          else if (pos.non_pawn_material(us) >= 1200)
+          else if (pos.non_pawn_material(us) >= 1500)
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
