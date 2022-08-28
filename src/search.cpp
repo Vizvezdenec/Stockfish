@@ -1108,10 +1108,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5491)
               extension = 1;
-          else if (   capture
-                   && PieceValue[EG][pos.piece_on(to_sq(move))] > PawnValueEg
-                   && pos.non_pawn_material() <= 2 * RookValueMg)
-              extension = 1;
       }
 
       // Add extension to new depth
@@ -1513,7 +1509,7 @@ moves_loop: // When in check, search starts here
           && !givesCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
-          &&  type_of(move) != PROMOTION)
+          &&  !(type_of(pos.moved_piece(move)) == PAWN && relative_rank(pos.side_to_move(), to_sq(move)) > RANK_6 ))
       {
 
           if (moveCount > 2)
