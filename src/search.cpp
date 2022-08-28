@@ -1162,7 +1162,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 15 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR)
+          if (singularQuietLMR && bestMove == ttMove)
               r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
