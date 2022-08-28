@@ -785,6 +785,18 @@ namespace {
             return value;
     }
 
+    // Step 11. If the position is not in TT, decrease depth by 3.
+    // Use qsearch if depth is equal or below zero (~4 Elo)
+    if (PvNode)
+    {
+        if (!ttMove)
+            depth -= 3;
+        if (depth <= 0)
+            return qsearch<PV>(pos, ss, alpha, beta);
+        else
+            goto moves_loop;
+    }
+
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -895,15 +907,6 @@ namespace {
                 }
             }
     }
-
-    // Step 11. If the position is not in TT, decrease depth by 3.
-    // Use qsearch if depth is equal or below zero (~4 Elo)
-    if (    PvNode
-        && !ttMove)
-        depth -= 3;
-
-    if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 8
@@ -1032,7 +1035,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 11 + improvement / 512
+                  && lmrDepth < 11
                   && ss->staticEval + 122 + 138 * lmrDepth + history / 60 <= alpha)
                   continue;
 
