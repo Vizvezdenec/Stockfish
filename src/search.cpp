@@ -1176,7 +1176,10 @@ moves_loop: // When in check, search starts here
                          - 4334;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-          r -= ss->statScore / 15914;
+          if (!ss->inCheck)
+              r -= ss->statScore / 15914;
+          else
+              r-= (2 * thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
@@ -1509,7 +1512,7 @@ moves_loop: // When in check, search starts here
           && !givesCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
-          &&  !(type_of(pos.moved_piece(move)) == PAWN && relative_rank(pos.side_to_move(), to_sq(move)) > RANK_6 ))
+          &&  type_of(move) != PROMOTION)
       {
 
           if (moveCount > 2)
