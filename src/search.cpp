@@ -1169,6 +1169,9 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
+          if (rootNode && thisThread->rootDepth > 10 && thisThread->bestMoveChanges <= 2)
+              r++;
+
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1176,10 +1179,7 @@ moves_loop: // When in check, search starts here
                          - 4334;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-          if (!ss->inCheck)
-              r -= ss->statScore / 15914;
-          else
-              r-= (2 * thisThread->mainHistory[us][from_to(move)] + (*contHist[0])[movedPiece][to_sq(move)] - 4333) / 16384;
+          r -= ss->statScore / 15914;
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
