@@ -802,6 +802,7 @@ namespace {
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
         && !excludedMove
+        &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
@@ -948,6 +949,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool doubleExt = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1075,7 +1078,7 @@ moves_loop: // When in check, search starts here
                   if (  !PvNode
                       && value < singularBeta - 26
                       && ss->doubleExtensions <= 8)
-                      extension = 2;
+                      extension = 2, doubleExt = true;
               }
 
               // Multi-cut pruning
@@ -1180,7 +1183,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + !doubleExt);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
