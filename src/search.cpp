@@ -991,7 +991,6 @@ moves_loop: // When in check, search starts here
 
       // Step 14. Pruning at shallow depth (~98 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
-          && pos.non_pawn_material(us)
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~7 Elo)
@@ -1017,7 +1016,7 @@ moves_loop: // When in check, search starts here
               if (!pos.see_ge(move, Value(-203) * depth))
                   continue;
           }
-          else if (pos.non_pawn_material(us) >= 800)
+          else
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
