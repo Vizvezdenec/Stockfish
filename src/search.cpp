@@ -890,6 +890,11 @@ namespace {
                 if (value >= probCutBeta)
                 {
                     // Save ProbCut data into transposition table
+                    if ( !(ss->ttHit
+                       && tte->depth() >= depth - 3
+                       && ttValue > value
+                       && (tte->bound() & BOUND_LOWER)
+                       && ttValue != VALUE_NONE))
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
                 }
