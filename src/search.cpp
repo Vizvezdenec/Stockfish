@@ -63,7 +63,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(168 * d / (1 + improving));
+    return Value(168 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -1135,7 +1135,8 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (cutNode && (ss-1)->moveCount > 1)))
+              || (cutNode && (ss-1)->moveCount > 1)
+              || (depth <= 4 && type_of(movedPiece) != PAWN && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
