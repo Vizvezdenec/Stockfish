@@ -798,7 +798,6 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 14695
-        && (ss-1)->currentMove != (ss-1)->killers[0]
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 15 * depth - improvement / 15 + 201 + complexity / 24
@@ -1059,7 +1058,7 @@ moves_loop: // When in check, search starts here
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3)
+              &&  tte->depth() >= depth - 3 - (move == ss->killers[0]))
           {
               Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
