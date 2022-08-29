@@ -1058,7 +1058,7 @@ moves_loop: // When in check, search starts here
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3 - (move == ss->killers[0]))
+              &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = !ttCapture;
+                  singularQuietLMR = !ttCapture && move != ss->killers[0];
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
