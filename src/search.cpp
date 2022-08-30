@@ -1169,8 +1169,8 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          if (rootNode)
-              r += thisThread->failedHighCnt * thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 1024;
+          if (ss->ply < 2)
+              r += thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
