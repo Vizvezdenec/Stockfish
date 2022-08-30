@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
               r++;
 
           if (ss->ply < 2)
-              r += thisThread->failedHighCnt * thisThread->failedHighCnt * moveCount / 256;
+              r += (1 - ss->ply * 2) * thisThread->failedHighCnt * thisThread->failedHighCnt * (ss - ss->ply)->moveCount / 256;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
