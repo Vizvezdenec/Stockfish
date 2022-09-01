@@ -61,9 +61,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
-                                                             const Move* killers)
+                                                             const Move* killers,
+                                                             bool isnm)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, afterNM(isnm), depth(d)
 {
   assert(d > 0);
 
@@ -75,8 +76,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
+                                                             Square rs,
+                                                             bool isnm)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), afterNM(isnm), depth(d)
 {
   assert(d <= 0);
 
@@ -139,7 +141,7 @@ void MovePicker::score() {
       else if constexpr (Type == QUIETS)
           m.value =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                   +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
+                   + (1 + afterNM) * (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[3])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[5])[pos.moved_piece(m)][to_sq(m)]
                    +     (threatened & from_sq(m) ?

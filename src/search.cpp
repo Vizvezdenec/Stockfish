@@ -937,7 +937,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      (ss-1)->currentMove == MOVE_NULL);
 
     value = bestValue;
     moveCountPruning = singularQuietLMR = false;
@@ -1070,7 +1071,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = PvNode && !ttCapture;
+                  singularQuietLMR = !ttCapture;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1163,7 +1164,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r -= 2;
+              r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
@@ -1486,7 +1487,8 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      (ss-1)->currentMove == MOVE_NULL);
 
     int quietCheckEvasions = 0;
 
