@@ -1058,9 +1058,9 @@ moves_loop: // When in check, search starts here
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
-              &&  tte->depth() >= depth - 3 - (!PvNode && tte->bound() == BOUND_EXACT))
+              &&  tte->depth() >= depth - 3 - 2 * (!PvNode && tte->bound() == BOUND_EXACT))
           {
-              Value singularBeta = ttValue - (3 - (!PvNode && tte->bound() == BOUND_EXACT)) * depth;
+              Value singularBeta = ttValue - 3 * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
