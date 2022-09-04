@@ -1060,7 +1060,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - 3 * depth;
+              Value singularBeta = ttValue - (3 - (ttCapture && tte->bound() == BOUND_EXACT)) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1135,7 +1135,6 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (!PvNode && thisThread->id() % 4 == 3)
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
