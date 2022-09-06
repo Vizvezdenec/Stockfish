@@ -578,6 +578,7 @@ namespace {
 
     if (ss->forcenmp)
     {
+        ss->nmattempt = true;
         pos.do_null_move(st);
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth, !cutNode);
         pos.undo_null_move();
