@@ -580,6 +580,14 @@ namespace {
     if (PvNode && thisThread->selDepth < ss->ply + 1)
         thisThread->selDepth = ss->ply + 1;
 
+    if (ss->forcenmp)
+    {
+        pos.do_null_move(st);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth, !cutNode);
+        pos.undo_null_move();
+        return nullValue;
+    }
+
     if (!rootNode)
     {
         // Step 2. Check for aborted search and immediate draw
@@ -632,6 +640,9 @@ namespace {
     ttCapture = ttMove && pos.capture(ttMove);
     if (!excludedMove)
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+
+    ss->nmattempt = false;
+    ss->forcenmp = false;
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -785,6 +796,18 @@ namespace {
             return value;
     }
 
+    if (!PvNode && depth > 4 && !(ss-1)->forcenmp && !priorCapture && eval < ss->staticEval && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !(ss-1)->nmattempt && abs(eval) < VALUE_KNOWN_WIN && eval < alpha - 100 * depth)
+    {
+        Square fromsq = from_sq((ss-1)->currentMove);
+        pos.do_move(make_move(prevSq, fromsq), st, false);
+        (ss-1)->forcenmp = true;
+        Value nullValue = search<NonPV>(pos, ss-1, -beta, -alpha, depth-4, !cutNode);
+        (ss-1)->forcenmp = false;
+        pos.undo_move(make_move(prevSq, fromsq));
+        if (nullValue <= alpha)
+            return std::max(nullValue, -VALUE_KNOWN_WIN);
+    }
+
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
@@ -809,6 +832,8 @@ namespace {
 
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 147, 5) + depth / 3 + 4 - (complexity > 650);
+
+        ss->nmattempt = true;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1056,7 +1081,7 @@ moves_loop: // When in check, search starts here
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
-              &&  abs(ttValue) < 5000
+              &&  abs(ttValue) < VALUE_KNOWN_WIN
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
