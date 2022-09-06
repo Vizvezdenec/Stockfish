@@ -576,15 +576,6 @@ namespace {
     if (thisThread == Threads.main())
         static_cast<MainThread*>(thisThread)->check_time();
 
-    if (ss->forcenmp)
-    {
-        ss->nmattempt = true;
-        pos.do_null_move(st);
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth, !cutNode);
-        pos.undo_null_move();
-        return nullValue;
-    }
-
     // Used to send selDepth info to GUI (selDepth counts from 1, ply from 0)
     if (PvNode && thisThread->selDepth < ss->ply + 1)
         thisThread->selDepth = ss->ply + 1;
@@ -677,9 +668,6 @@ namespace {
             return ttValue;
     }
 
-    ss->nmattempt = false;
-    ss->forcenmp = false;
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -770,7 +758,7 @@ namespace {
     thisThread->complexityAverage.update(complexity);
 
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && (type_of((ss-1)->currentMove) == NORMAL || type_of((ss-1)->currentMove) == CASTLING))
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
@@ -795,18 +783,6 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-    }
-
-    if (!PvNode && depth > 4 && !(ss-1)->forcenmp && !priorCapture && eval < ss->staticEval && is_ok((ss-1)->currentMove) && type_of((ss-1)->currentMove) == NORMAL && !(ss-1)->inCheck && !(ss-1)->nmattempt && abs(eval) < VALUE_KNOWN_WIN && eval <= alpha - 1000)
-    {
-        Square fromsq = from_sq((ss-1)->currentMove);
-        pos.do_move(make_move(prevSq, fromsq), st, false);
-        (ss-1)->forcenmp = true;
-        Value nullValue = search<NonPV>(pos, ss-1, -beta, -alpha, depth-4, !cutNode);
-        (ss-1)->forcenmp = false;
-        pos.undo_move(make_move(prevSq, fromsq));
-        if (nullValue <= alpha)
-            return std::max(nullValue, -VALUE_KNOWN_WIN);
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
