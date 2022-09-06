@@ -758,7 +758,7 @@ namespace {
     thisThread->complexityAverage.update(complexity);
 
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && (type_of((ss-1)->currentMove) == NORMAL || type_of((ss-1)->currentMove) == CASTLING))
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-16 * int((ss-1)->staticEval + ss->staticEval), -2000, 2000);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
@@ -1738,6 +1738,8 @@ moves_loop: // When in check, search starts here
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
+    if (type_of(move) == NORMAL)
+        thisThread->mainHistory[us][from_to(make_move(to_sq(move), from_sq(move)))] << -bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Update countermove history
