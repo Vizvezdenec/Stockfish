@@ -797,7 +797,7 @@ namespace {
             return value;
     }
 
-    if (!PvNode && depth > 4 && !(ss-1)->forcenmp && !priorCapture && eval < ss->staticEval && is_ok((ss-1)->currentMove) && type_of((ss-1)->currentMove) == NORMAL && !(ss-1)->inCheck && !(ss-1)->nmattempt && abs(eval) < VALUE_KNOWN_WIN && eval <= alpha - 200 * depth)
+    if (!PvNode && depth > 4 && !(ss-1)->forcenmp && !priorCapture && eval < ss->staticEval && is_ok((ss-1)->currentMove) && type_of((ss-1)->currentMove) == NORMAL && !(ss-1)->inCheck && !(ss-1)->nmattempt && abs(eval) < VALUE_KNOWN_WIN && eval <= alpha - 100 * depth)
     {
         Square fromsq = from_sq((ss-1)->currentMove);
         pos.do_move(make_move(prevSq, fromsq), st, false);
