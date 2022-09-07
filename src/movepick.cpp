@@ -154,10 +154,10 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & (checkByRook | checkByBishop)))
-                     || (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook))
-                     || (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop))
-                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? 80000 : 0);
+                   + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & (checkByRook | checkByBishop) & !threatenedByRook))
+                     || (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook & !threatenedByMinor))
+                     || (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop & !threatenedByPawn))
+                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight & !threatenedByPawn)) ? 40000 : 0);
 
       else // Type == EVASIONS
       {
