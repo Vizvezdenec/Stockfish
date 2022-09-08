@@ -160,7 +160,7 @@ void MovePicker::score() {
                    + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & checkByQueen))
                      || (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook))
                      || (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop))
-                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? 10000 : 0);
+                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? 15000 : 0);
 
       else // Type == EVASIONS
       {
