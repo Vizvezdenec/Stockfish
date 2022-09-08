@@ -106,7 +106,7 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, checkByRook, checkByBishop, checkByKnight;
+  Bitboard threatened, threatenedByPawn, threatenedByMinor, threatenedByRook, checkByRook, checkByBishop, checkByKnight, checkByQueen;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -125,6 +125,7 @@ void MovePicker::score() {
       checkByRook = pos.check_squares(ROOK);
       checkByBishop = pos.check_squares(BISHOP);
       checkByKnight = pos.check_squares(KNIGHT);
+      checkByQueen = checkByRook | checkByBishop;
   }
   else
   {
@@ -136,6 +137,7 @@ void MovePicker::score() {
       (void) checkByRook;
       (void) checkByBishop;
       (void) checkByKnight;
+      (void) checkByQueen;
   }
 
   for (auto& m : *this)
@@ -155,10 +157,10 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & (checkByRook | checkByBishop))) ? 20000
-                      : (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook))                    ? 25000
-                      : (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop))                ? 16000
-                      : (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight))                ? 20000 : 0);
+                   + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & checkByQueen))
+                     || (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook))
+                     || (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop))
+                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? 10000 : 0);
 
       else // Type == EVASIONS
       {
