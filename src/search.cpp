@@ -1001,7 +1001,7 @@ moves_loop: // When in check, search starts here
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
-              || givesCheck)
+              || (givesCheck && pos.non_pawn_material() > 4000))
           {
               // Futility pruning for captures (~0 Elo)
               if (   !pos.empty(to_sq(move))
@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r -= 1 + (ss->ttPv && !PvNode);
+              r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
