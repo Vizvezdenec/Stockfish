@@ -122,7 +122,6 @@ void MovePicker::score() {
                   | (pos.pieces(us, ROOK)  & threatenedByMinor)
                   | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
 
-
       checkByRook = pos.check_squares(ROOK);
       checkByBishop = pos.check_squares(BISHOP);
       checkByKnight = pos.check_squares(KNIGHT);
@@ -161,7 +160,7 @@ void MovePicker::score() {
                    + (  (type_of(pos.moved_piece(m)) == QUEEN && (to_sq(m) & checkByQueen))
                      || (type_of(pos.moved_piece(m)) == ROOK && (to_sq(m) & checkByRook))
                      || (type_of(pos.moved_piece(m)) == BISHOP && (to_sq(m) & checkByBishop))
-                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? pos.non_pawn_material() * int(pos.non_pawn_material()) / 2048 : 0);
+                     || (type_of(pos.moved_piece(m)) == KNIGHT && (to_sq(m) & checkByKnight)) ? pos.non_pawn_material() * int(pos.non_pawn_material()) / 8192 : 0);
 
       else // Type == EVASIONS
       {
