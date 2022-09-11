@@ -933,7 +933,7 @@ moves_loop: // When in check, search starts here
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
-    if (!countermove && !ss->killers[0] && !ttMove && depth > 1)
+    if (!ss->inCheck && !countermove && !ss->killers[0] && (!ttMove || ttCapture) && depth > 1)
     {
         ss->skipCaptures = true;
         value = search<NonPV>(pos, ss, alpha, alpha+1, 1, cutNode);
