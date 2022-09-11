@@ -905,9 +905,9 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        &&  depth >= 8
+        &&  depth >= 9
         && !ttMove)
-        depth = std::max(depth - 2, 7);
+        depth -= 2;
 
 moves_loop: // When in check, search starts here
 
@@ -931,6 +931,10 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    if (!countermove && !ss->killers[0] && !ttMove && depth > 1)
+        value = search<NonPV>(pos, ss, alpha, alpha+1, 1, cutNode);
+
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
