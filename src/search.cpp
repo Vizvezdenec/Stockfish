@@ -559,7 +559,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, priorCapture, singularQuietLMR;
-    bool capture, moveCountPruning, ttCapture;
+    bool capture, moveCountPruning, ttCapture, skipCaptures;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, improvement, complexity;
 
@@ -605,7 +605,7 @@ namespace {
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
-    (ss+1)->ttPv         = false;
+    (ss+1)->ttPv         = (ss+1)->skipCaptures = false;
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
@@ -624,6 +624,7 @@ namespace {
     // search to overwrite a previous full search TT value, so we use a different
     // position key in case of an excluded move.
     excludedMove = ss->excludedMove;
+    skipCaptures = ss->skipCaptures;
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
@@ -723,7 +724,7 @@ namespace {
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
-    if (ss->inCheck)
+    if (ss->inCheck || skipCaptures)
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
@@ -933,8 +934,11 @@ moves_loop: // When in check, search starts here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     if (!countermove && !ss->killers[0] && !ttMove && depth > 1)
+    {
+        ss->skipCaptures = true;
         value = search<NonPV>(pos, ss, alpha, alpha+1, 1, cutNode);
-
+        ss->skipCaptures = false;
+    }
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
@@ -986,6 +990,8 @@ moves_loop: // When in check, search starts here
       capture = pos.capture(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
+      if (skipCaptures && capture)
+          continue;
 
       // Calculate new depth for this move
       newDepth = depth - 1;
