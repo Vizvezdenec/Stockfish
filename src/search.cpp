@@ -1180,7 +1180,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + (PvNode && !bestMove));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1203,7 +1203,7 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped
       else if (!PvNode || moveCount > 1)
       {
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + (PvNode && capture && !bestMove), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
