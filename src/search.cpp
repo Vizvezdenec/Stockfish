@@ -669,7 +669,7 @@ namespace {
     }
 
     else if (   PvNode && ss->ttHit && ttValue != VALUE_NONE && tte->bound() == BOUND_EXACT 
-             && tte->depth() >= depth + 4 && ttValue > alpha && ttValue < beta)
+             && tte->depth() >= depth + 6 && ttValue > alpha && ttValue < beta)
         return ttValue;
 
     // Step 5. Tablebases probe
