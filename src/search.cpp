@@ -668,10 +668,6 @@ namespace {
             return ttValue;
     }
 
-    else if (   PvNode && ss->ttHit && ttValue != VALUE_NONE && tte->bound() == BOUND_EXACT 
-             && tte->depth() >= depth + 6 && ttValue > alpha && ttValue < beta)
-        return ttValue;
-
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -909,9 +905,9 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        &&  depth >= 9
+        &&  depth >= 8
         && !ttMove)
-        depth -= 2;
+        depth = std::max(depth - 2, 7);
 
 moves_loop: // When in check, search starts here
 
