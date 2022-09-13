@@ -897,12 +897,12 @@ namespace {
 
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~4 Elo)
-    if (    PvNode
+    if (    ss->ttPv
         && !ttMove)
         depth -= 3;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 9
@@ -1059,7 +1059,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 + (ss->ttPv && !PvNode && tte->bound() != BOUND_EXACT)) * depth;
+              Value singularBeta = ttValue - (3 + (ss->ttPv && !PvNode)) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
