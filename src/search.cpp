@@ -1035,8 +1035,10 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 106 + 145 * lmrDepth + history / 52 <= alpha)
                   continue;
 
+              history -= 300;
+
               // Prune moves with negative SEE (~3 Elo)
-              if (!pos.see_ge(move, Value(std::min(0, -24 * lmrDepth * lmrDepth - 15 * lmrDepth - history / 1024))))
+              if (!pos.see_ge(move, Value(std::min(0, -24 * lmrDepth * lmrDepth - 15 * lmrDepth - history / 4096))))
                   continue;
           }
       }
