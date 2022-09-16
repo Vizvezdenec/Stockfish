@@ -782,6 +782,11 @@ namespace {
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
 
+    if (    cutNode
+        &&  depth >= 9
+        && !ttMove)
+        depth -= 2;
+
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -903,11 +908,6 @@ namespace {
                 }
             }
     }
-
-    if (    cutNode
-        &&  depth >= 9
-        && !ttMove)
-        depth -= 2;
 
 moves_loop: // When in check, search starts here
 
