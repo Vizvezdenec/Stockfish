@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts here
                   singularQuietLMR = !ttCapture;
 
                   // Avoid search explosion by limiting the number of double extensions
-                  if (  !PvNode
+                  if (  (!PvNode || tte->bound() == BOUND_EXACT)
                       && value < singularBeta - 25
                       && ss->doubleExtensions <= 9)
                       extension = 2;
