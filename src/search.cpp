@@ -416,7 +416,11 @@ void Thread::search() {
                   ++failedHighCnt;
               }
               else
+              {
+                  if (failedHighCnt > 3)
+                      rootDepth--;
                   break;
+              }
 
               delta += delta / 4 + 2;
 
@@ -1068,7 +1072,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = !ttCapture && !(!PvNode && tte->bound() == BOUND_EXACT);
+                  singularQuietLMR = !ttCapture;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
