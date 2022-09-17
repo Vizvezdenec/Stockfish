@@ -412,7 +412,7 @@ void Thread::search() {
               }
               else if (bestValue >= beta)
               {
-                  int fhc = std::max(failedHighCnt - 1, 0);
+                  int fhc = std::max(failedHighCnt - 2, 0);
                   alpha = (alpha + beta * fhc) / (fhc + 1);
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
