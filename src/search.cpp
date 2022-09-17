@@ -417,7 +417,7 @@ void Thread::search() {
               }
               else
               {
-                  if (failedHighCnt > 3)
+                  if (failedHighCnt > 2)
                       rootDepth--;
                   break;
               }
