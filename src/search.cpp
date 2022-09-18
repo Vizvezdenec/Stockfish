@@ -947,8 +947,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Bitboard threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1155,14 +1153,11 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if ttMove is a capture (~3 Elo)
           if (ttCapture)
-              r++;
+              r += 1 + ss->inCheck;
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 11 / (3 + depth);
-
-          if (type_of(movedPiece) != KING && type_of(movedPiece) != PAWN && (threatenedByPawn & from_sq(move)) && !(threatenedByPawn & to_sq(move)))
-              r -= type_of(movedPiece) - 2 + (type_of(movedPiece) == KNIGHT);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
