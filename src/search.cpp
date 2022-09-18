@@ -726,7 +726,8 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        improving = !(ss-1)->improving;
+        ss->improving = improving;
         improvement = 0;
         complexity = 0;
         goto moves_loop;
@@ -771,6 +772,7 @@ namespace {
                   : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
                   :                                    168;
     improving = improvement > 0;
+    ss->improving = improving;
 
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
@@ -1072,7 +1074,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && (tte->bound() == BOUND_EXACT || value < singularBeta - 25)
+                      && value < singularBeta - 25
                       && ss->doubleExtensions <= 9)
                       extension = 2;
               }
