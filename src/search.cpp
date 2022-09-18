@@ -726,8 +726,7 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = !(ss-1)->improving;
-        ss->improving = improving;
+        improving = false;
         improvement = 0;
         complexity = 0;
         goto moves_loop;
@@ -772,7 +771,6 @@ namespace {
                   : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
                   :                                    168;
     improving = improvement > 0;
-    ss->improving = improving;
 
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
@@ -948,6 +946,8 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
+
+    Bitboard threatenedByPawn  = pos.attacks_by<PAWN>(~us);
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1160,6 +1160,9 @@ moves_loop: // When in check, search starts here
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
               r -= 1 + 11 / (3 + depth);
+
+          if (type_of(movedPiece) != KING && type_of(movedPiece) != PAWN && (threatenedByPawn & from_sq(move)) && !(threatenedByPawn & to_sq(move)))
+              r--;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
