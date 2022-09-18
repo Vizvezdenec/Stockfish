@@ -1162,7 +1162,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 11 / (3 + depth);
 
           if (type_of(movedPiece) != KING && type_of(movedPiece) != PAWN && (threatenedByPawn & from_sq(move)) && !(threatenedByPawn & to_sq(move)))
-              r--;
+              r -= 2;
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
