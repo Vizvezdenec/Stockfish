@@ -1031,7 +1031,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 13
-                  && ss->staticEval + std::max(0, 106 + 145 * lmrDepth + history / 52) <= alpha)
+                  && ss->staticEval + 106 + 145 * lmrDepth + history / 52 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~3 Elo)
@@ -1166,6 +1166,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction if next ply has a lot of fail high else reset count to 0
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
+
+          if (excludedMove && bestValue <= alpha - 25)
+              r--;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
