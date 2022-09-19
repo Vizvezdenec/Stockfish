@@ -90,7 +90,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
 MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const CapturePieceToHistory* cph, Square rs)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th), recaptureSquare(rs), depth(d)
+           : pos(p), captureHistory(cph), ttMove(ttm), recaptureSquare(rs), threshold(th), depth(d)
 {
   assert(!pos.checkers());
 
@@ -128,7 +128,7 @@ void MovePicker::score() {
       if constexpr (Type == CAPTURES)
           m.value =  6 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]
-                   +     (depth <= 4 && to_sq(m) == recaptureSquare) * 7000;
+                   +     (to_sq(m) == recaptureSquare) * 3000 / std::max(depth, 1);
 
       else if constexpr (Type == QUIETS)
           m.value =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)]
