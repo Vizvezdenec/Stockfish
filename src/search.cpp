@@ -1087,7 +1087,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -2;
+                  extension = -2, singularQuietLMR = !ttCapture;
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
@@ -1105,7 +1105,7 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
-              extension = 1, singularQuietLMR = true;
+              extension = 1;
       }
 
       // Add extension to new depth
