@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = !ttCapture && value >= singularBeta - 10 * singularDepth;
+                  singularQuietLMR = !ttCapture;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1160,7 +1160,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 11 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR && (capture || moveCount < 20))
+          if (singularQuietLMR && (capture || moveCount < 6))
               r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
