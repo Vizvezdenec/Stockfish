@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = !ttCapture;
+                  singularQuietLMR = !ttCapture && value >= singularBeta - 100 * singularDepth;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1087,7 +1087,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-                  extension = -2, singularQuietLMR = !ttCapture && !givesCheck;
+                  extension = -2;
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
