@@ -1096,7 +1096,7 @@ moves_loop: // When in check, search starts here
 
           // Check extensions (~1 Elo)
           else if (   givesCheck
-                   && depth > 9
+                   && (depth > 9 || PvNode)
                    && abs(ss->staticEval) > 82)
               extension = 1;
 
@@ -1105,8 +1105,6 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
-              extension = 1;
-          else if (PvNode && capture && depth <= 7 && moveCount > 1)
               extension = 1;
       }
 
