@@ -1415,9 +1415,7 @@ moves_loop: // When in check, search starts here
     // TT entry depth that we are going to use. Note that in qsearch we use
     // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
     ttDepth = ss->inCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS
-                           : depth >= DEPTH_QS_NO_CHECKS ? DEPTH_QS_NO_CHECKS
-                           : depth >= DEPTH_QS_RECAPTURES ? DEPTH_QS_RECAPTURES
-                           : DEPTH_NONE;
+                                                  : DEPTH_QS_NO_CHECKS;
     // Transposition table lookup
     posKey = pos.key();
     tte = TT.probe(posKey, ss->ttHit);
@@ -1512,7 +1510,7 @@ moves_loop: // When in check, search starts here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > 2)
+          if (moveCount > 2 && depth < -1)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
