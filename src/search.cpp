@@ -1510,7 +1510,7 @@ moves_loop: // When in check, search starts here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > std::max(depth + 4, 2))
+          if (moveCount > std::max(depth + 5, 1))
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
