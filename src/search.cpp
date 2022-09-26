@@ -776,7 +776,7 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   depth <= 7
-        && eval < alpha - 340 - 254 * depth * depth - 300 * (beta - alpha) / thisThread->rootDelta)
+        && eval < alpha - 369 - 254 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1161,6 +1161,9 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
+              r--;
+
+          if (abs(ss->staticEval) < 50 && givesCheck && capture)
               r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
