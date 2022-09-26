@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts here
           if (singularQuietLMR)
               r--;
 
-          if (abs(ss->staticEval) < 25 && givesCheck && capture)
+          if (abs(ss->staticEval) < 100 && givesCheck && capture)
               r--;
 
           // Increase reduction if next ply has a lot of fail high else reset count to 0
