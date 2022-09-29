@@ -861,7 +861,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, std::max(Value(-20 * depth), probCutBeta - ss->staticEval), depth - 3, &captureHistory);
+        MovePicker mp(pos, ttMove, std::max(Value(-300), probCutBeta - ss->staticEval), depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
