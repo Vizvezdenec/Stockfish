@@ -1342,12 +1342,10 @@ moves_loop: // When in check, search starts here
         //or fail low was really bad
         bool extraBonus =    PvNode
                           || cutNode
-                          || bestValue < alpha - 62 * depth;
+                          || bestValue < alpha - 62 * depth
+                          || (ss-1)->statScore < -60000;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
-        if ((ss-1)->statScore < -50000 && (ss-1)->moveCount != 1)
-            update_all_stats(pos, ss, MOVE_NONE, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
 
     if (PvNode)
@@ -1679,7 +1677,6 @@ moves_loop: // When in check, search starts here
         int bonus2 = bestValue > beta + 137 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
-        if (bestMove != MOVE_NONE)
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2);
 
@@ -1697,7 +1694,7 @@ moves_loop: // When in check, search starts here
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
-        && !pos.captured_piece() && bestMove != MOVE_NONE)
+        && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
     // Decrease stats for all non-best capture moves
