@@ -1167,7 +1167,7 @@ moves_loop: // When in check, search starts here
           if (   depth > 9
               && (mp.threatenedPieces & from_sq(move)) 
               && !((type_of(movedPiece) < ROOK ? mp.threatenedByPawn : type_of(movedPiece) < QUEEN ? mp.threatenedByMinor : mp.threatenedByRook) & to_sq(move)))
-              r--;
+              r -= 2;
 
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
