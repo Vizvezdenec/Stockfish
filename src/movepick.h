@@ -131,7 +131,7 @@ public:
   MovePicker(const Position&, Move, Value, Depth, const CapturePieceToHistory*);
   Move next_move(bool skipQuiets = false);
 
-  Bitboard threatenedPieces;
+  Bitboard threatenedPieces, threatenedByPawn, threatenedByMinor, threatenedByRook;
 
 private:
   template<PickType T, typename Pred> Move select(Pred);
