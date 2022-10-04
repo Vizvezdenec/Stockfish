@@ -1175,7 +1175,7 @@ moves_loop: // When in check, search starts here
 
           // Dicrease reduction if we move a threatened piece (~1 Elo)
           if (   depth > 9
-              && EvasionArray[from_sq(move)] < 3
+              && EvasionArray[from_sq(move)] < 4
               && (mp.threatenedPieces & from_sq(move)))
               {
                   EvasionArray[from_sq(move)]++;
