@@ -947,16 +947,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int EvasionArray[SQUARE_NB] = 
-        { 0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0,
-          0, 0, 0, 0, 0, 0, 0, 0};
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1174,12 +1164,9 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Dicrease reduction if we move a threatened piece (~1 Elo)
-          if (   depth > 6 + EvasionArray[from_sq(move)]
+          if (   depth > 9
               && (mp.threatenedPieces & from_sq(move)))
-              {
-                  EvasionArray[from_sq(move)]++;
-                  r--;
-              }
+              r--;
 
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
@@ -1363,6 +1350,10 @@ moves_loop: // When in check, search starts here
                           || bestValue < alpha - 62 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
+
+        if (excludedMove)
+            update_all_stats(pos, ss, excludedMove, beta, beta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
 
     if (PvNode)
