@@ -554,7 +554,7 @@ namespace {
 
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove;
+    Move ttMove, move, excludedMove, bestMove, goodPcMove;
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, priorCapture, singularQuietLMR;
@@ -721,6 +721,8 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    goodPcMove = MOVE_NONE;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -882,8 +884,7 @@ namespace {
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                 {
-                    if (!ss->ttHit || tte->depth() <= 1)
-                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, 1, move, ss->staticEval);
+                    goodPcMove = move;
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
                 }
 
@@ -934,6 +935,9 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    if (!ttMove && goodPcMove != MOVE_NONE)
+        ttMove = goodPcMove;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
