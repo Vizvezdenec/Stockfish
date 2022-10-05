@@ -937,7 +937,10 @@ moves_loop: // When in check, search starts here
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
 
     if (!ttMove && goodPcMove != MOVE_NONE)
+    {
         ttMove = goodPcMove;
+        ttCapture = true;
+    }
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
