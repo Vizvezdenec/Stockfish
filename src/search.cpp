@@ -1104,6 +1104,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && move == ttMove
                    && move == ss->killers[0]
+                   && tte->bound() != BOUND_UPPER
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
       }
@@ -1350,10 +1351,6 @@ moves_loop: // When in check, search starts here
                           || bestValue < alpha - 62 * depth;
 
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * (1 + extraBonus));
-
-        if (excludedMove)
-            update_all_stats(pos, ss, excludedMove, beta, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
     }
 
     if (PvNode)
