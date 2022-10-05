@@ -882,6 +882,7 @@ namespace {
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                 {
+                    if (!ss->ttHit)
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, 1, move, ss->staticEval);
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
                 }
