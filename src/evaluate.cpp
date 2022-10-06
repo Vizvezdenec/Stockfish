@@ -1058,7 +1058,7 @@ Value Eval::evaluate(const Position& pos, int* complexity, Depth depth) {
   // option is set to false. Otherwise we use the NNUE eval unless the
   // PSQ advantage is decisive and several pieces remain (~3 Elo)
   bool useClassical = !useNNUE || (pos.count<ALL_PIECES>() > 7 && abs(psq) > 1760);
-  useClassical &= depth < 11;
+  useClassical &= depth < 11 || !useNNUE;
   if (useClassical)
       v = Evaluation<NO_TRACE>(pos).value();
   else
