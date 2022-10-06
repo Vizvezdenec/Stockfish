@@ -554,9 +554,9 @@ namespace {
 
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, excludedMove, bestMove;
+    Move ttMove, move, excludedMove, bestMove, bestPcCapture;
     Depth extension, newDepth;
-    Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
+    Value bestValue, value, ttValue, eval, maxValue, probCutBeta, bestPcValue;
     bool givesCheck, improving, priorCapture, singularQuietLMR;
     bool capture, moveCountPruning, ttCapture;
     Piece movedPiece;
@@ -720,6 +720,8 @@ namespace {
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    bestPcCapture = MOVE_NONE;
+    bestPcValue = - VALUE_INFINITE;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -879,9 +881,14 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
+                bool passedQs = false;
+
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    passedQs = true;
+                }
 
                 pos.undo_move(move);
 
@@ -890,6 +897,14 @@ namespace {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
+                }
+                else if (passedQs)
+                {
+                    if (value > bestPcValue)
+                    {
+                        bestPcValue = value;
+                        bestPcCapture = move;
+                    }
                 }
             }
     }
@@ -930,6 +945,12 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+
+    if (!ttMove && bestPcCapture)
+    {
+        ttMove = bestPcCapture;
+        ttCapture = true;
+    }
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
