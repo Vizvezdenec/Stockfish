@@ -26,7 +26,7 @@ namespace Stockfish {
 namespace {
 
   enum Stages {
-    MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
+    MAIN_TT, PCCAPTURE, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
@@ -61,9 +61,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
+                                                             Move pcc,
                                                              const Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+             ttMove(ttm), pccapture(pcc), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -185,6 +186,11 @@ top:
       ++stage;
       return ttMove;
 
+  case PCCAPTURE:
+      ++stage;
+      if (pccapture != MOVE_NONE)
+          return pccapture;
+
   case CAPTURE_INIT:
   case PROBCUT_INIT:
   case QCAPTURE_INIT:
@@ -198,7 +204,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ?
+                       return *cur != pccapture && pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
