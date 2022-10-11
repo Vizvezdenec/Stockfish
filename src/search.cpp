@@ -781,10 +781,10 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        else if (value >= beta && eval >= ss->staticEval)
+        else if (value >= beta)
         {
-            value = qsearch<NonPV>(pos, ss, beta - 1, beta);
-            if (value >= beta)
+            value = qsearch<NonPV>(pos, ss, beta, beta + 1);
+            if (value > beta)
                 return value;
         }
     }
