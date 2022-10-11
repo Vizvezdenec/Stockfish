@@ -781,6 +781,12 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        else if (value >= beta && eval >= ss->staticEval)
+        {
+            value = qsearch<NonPV>(pos, ss, beta - 1, beta);
+            if (value >= beta)
+                return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
