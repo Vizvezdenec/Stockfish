@@ -174,9 +174,9 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   +     (  type_of(pos.moved_piece(m)) == ROOK   && (safeRookAttacksOnQueen   & to_sq(m)) && !(attacks_bb<ROOK>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
-                          : type_of(pos.moved_piece(m)) == BISHOP && (safeBishopAttacksOnQueen & to_sq(m)) && !(attacks_bb<BISHOP>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
-                          : type_of(pos.moved_piece(m)) == KNIGHT && (safeKnightAttacksOnQueen & to_sq(m)) && !(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
+                   +     (  type_of(pos.moved_piece(m)) == ROOK   && (safeRookAttacksOnQueen   & to_sq(m)) && !(attacks_bb<ROOK>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 40000
+                          : type_of(pos.moved_piece(m)) == BISHOP && (safeBishopAttacksOnQueen & to_sq(m)) && !(attacks_bb<BISHOP>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 40000
+                          : type_of(pos.moved_piece(m)) == KNIGHT && (safeKnightAttacksOnQueen & to_sq(m)) && !(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 40000
                           :                                                                                  0)
                    +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384;
       else // Type == EVASIONS
