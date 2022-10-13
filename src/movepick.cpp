@@ -107,7 +107,8 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook;
+  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook,
+                            safeKnightAttacksOnQueen, safeBishopAttacksOnQueen, safeRookAttacksOnQueen;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -120,6 +121,40 @@ void MovePicker::score() {
       threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
                        | (pos.pieces(us, ROOK)  & threatenedByMinor)
                        | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
+
+      safeKnightAttacksOnQueen = 0;
+      safeBishopAttacksOnQueen = 0;
+      safeRookAttacksOnQueen = 0;
+      Bitboard b = pos.pieces(~us, QUEEN);
+      while (b)
+      {
+          Square sq = pop_lsb(b);
+          safeKnightAttacksOnQueen |=  attacks_bb<KNIGHT>(sq)
+                                     & pos.attacks_by<KNIGHT>(us)
+                                     & ~threatenedByRook
+                                     & (  pos.attacks_by<PAWN>(us)
+                                        | pos.attacks_by<KNIGHT>(us)
+                                        | pos.attacks_by<ROOK>(us)
+                                        | pos.attacks_by<QUEEN>(us)
+                                        | pos.attacks_by<KING>(us)
+                                        | ~pos.attacks_by<KING>(~us));
+          safeBishopAttacksOnQueen |=  attacks_bb<BISHOP>(sq, pos.pieces())
+                                     & pos.attacks_by<BISHOP>(us)
+                                     & ~threatenedByRook
+                                     & (  pos.attacks_by<PAWN>(us)
+                                        | pos.attacks_by<KNIGHT>(us)
+                                        | pos.attacks_by<ROOK>(us)
+                                        | pos.attacks_by<QUEEN>(us)
+                                        | pos.attacks_by<KING>(us));
+          safeRookAttacksOnQueen |=  attacks_bb<ROOK>(sq, pos.pieces())
+                                   & pos.attacks_by<ROOK>(us)
+                                   & ~threatenedByRook
+                                   & (  pos.attacks_by<PAWN>(us)
+                                      | pos.attacks_by<KNIGHT>(us)
+                                      | pos.attacks_by<BISHOP>(us)
+                                      | pos.attacks_by<QUEEN>(us)
+                                      | pos.attacks_by<KING>(us));
+      }
   }
 
   for (auto& m : *this)
@@ -139,6 +174,10 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
+                   +     (  type_of(pos.moved_piece(m)) == ROOK   && (safeRookAttacksOnQueen   & to_sq(m)) && !(attacks_bb<ROOK>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
+                          : type_of(pos.moved_piece(m)) == BISHOP && (safeBishopAttacksOnQueen & to_sq(m)) && !(attacks_bb<BISHOP>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
+                          : type_of(pos.moved_piece(m)) == KNIGHT && (safeKnightAttacksOnQueen & to_sq(m)) && !(attacks_bb<KNIGHT>(from_sq(m), pos.pieces()) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 10000
+                          :                                                                                  0)
                    +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384;
       else // Type == EVASIONS
       {
