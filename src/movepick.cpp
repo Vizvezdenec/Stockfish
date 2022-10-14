@@ -29,7 +29,7 @@ namespace {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
-    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
+    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, KILLER, QCHECK_INIT, QCHECK
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -76,8 +76,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
+                                                             Move kl,
                                                              Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), killer(kl), recaptureSquare(rs), depth(d)
 {
   assert(d <= 0);
 
@@ -279,6 +280,12 @@ top:
       ++stage;
       [[fallthrough]];
 
+  case KILLER:
+      ++stage;
+      if (killer != MOVE_NONE && !pos.capture(killer) && pos.pseudo_legal(killer))
+          return killer;
+      [[fallthrough]];
+
   case QCHECK_INIT:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
@@ -287,7 +294,8 @@ top:
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([](){ return true; });
+      if (select<Next>([&](){ return *cur != killer; }))
+          return *(cur - 1);
   }
 
   assert(false);
