@@ -300,7 +300,8 @@ top:
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([](){ return true; });
+      return select<Next>([&](){ return *cur != killerss[0].move
+                                     && *cur != killerss[1].move; });
   }
 
   assert(false);
