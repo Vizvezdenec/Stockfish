@@ -1480,14 +1480,6 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
-    Move killers[2] = {ss->killers[0], ss->killers[1]};
-
-    if (depth < 0)
-    {
-        killers[0] = MOVE_NONE;
-        killers[1] = MOVE_NONE;
-    }
-
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
@@ -1496,7 +1488,6 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      killers,
                                       prevSq);
 
     int quietCheckEvasions = 0;

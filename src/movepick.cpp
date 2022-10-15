@@ -29,7 +29,7 @@ namespace {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
-    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, KILLERS, QCHECK_INIT, QCHECK
+    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -76,9 +76,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             const Move* killers,
                                                              Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), killerss{{killers[0], 0}, {killers[1], 0}}, recaptureSquare(rs), depth(d)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
 {
   assert(d <= 0);
 
@@ -239,9 +238,9 @@ top:
 
   case QUIET:
       if (   !skipQuiets
-          && select<Next>([&](){return   *cur != refutations[0].move
+          && select<Next>([&](){return  (*cur != refutations[0].move
                                       && *cur != refutations[1].move
-                                      && *cur != refutations[2].move;}))
+                                      && *cur != refutations[2].move) || pos.gives_check(*cur);}))
           return *(cur - 1);
 
       // Prepare the pointers to loop over the bad captures
@@ -277,18 +276,6 @@ top:
       if (depth != DEPTH_QS_CHECKS)
           return MOVE_NONE;
 
-      cur = std::begin(killerss);
-      endMoves = std::end(killerss);
-
-      ++stage;
-      [[fallthrough]];
-
-  case KILLERS:
-      if (select<Next>([&](){ return    *cur != MOVE_NONE
-                                    && !pos.capture(*cur)
-                                    &&  pos.pseudo_legal(*cur); }))
-          return *(cur - 1);
-
       ++stage;
       [[fallthrough]];
 
@@ -300,8 +287,7 @@ top:
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([&](){ return *cur != killerss[0].move
-                                     && *cur != killerss[1].move; });
+      return select<Next>([](){ return true; });
   }
 
   assert(false);
