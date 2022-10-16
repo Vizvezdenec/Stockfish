@@ -1456,10 +1456,15 @@ moves_loop: // When in check, search starts here
                 bestValue = ttValue;
         }
         else
-            // In case of null move search use previous static eval with a different sign
-            ss->staticEval = bestValue =
-            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos, &complexity)
-                                             : -(ss-1)->staticEval;
+        {
+            if ((ss-1)->currentMove == MOVE_NULL)
+            {
+                // In case of null move search use previous static eval with a different sign
+                ss->staticEval = bestValue = -(ss-1)->staticEval;
+                complexity = abs(ss->staticEval - pos.psq_eg_stm());
+            }
+            else ss->staticEval = bestValue = evaluate(pos, &complexity);
+        }
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
