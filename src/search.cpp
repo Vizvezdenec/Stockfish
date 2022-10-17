@@ -775,7 +775,7 @@ namespace {
     // Step 7. Razoring.
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
-    if (eval < alpha - 369 - 254 * depth * depth)
+    if (eval < alpha - complexity - 254 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1394,7 +1394,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
-    int moveCount, complexity;
+    int moveCount;
 
     if (PvNode)
     {
@@ -1438,7 +1438,6 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
-        complexity = 0;
     }
     else
     {
@@ -1446,9 +1445,7 @@ moves_loop: // When in check, search starts here
         {
             // Never assume anything about values stored in TT
             if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
-                ss->staticEval = bestValue = evaluate(pos, &complexity);
-            else
-                complexity = abs(ss->staticEval - pos.psq_eg_stm());
+                ss->staticEval = bestValue = evaluate(pos);
 
             // ttValue can be used as a better position evaluation (~7 Elo)
             if (    ttValue != VALUE_NONE
@@ -1456,15 +1453,10 @@ moves_loop: // When in check, search starts here
                 bestValue = ttValue;
         }
         else
-        {
-            if ((ss-1)->currentMove == MOVE_NULL)
-            {
-                // In case of null move search use previous static eval with a different sign
-                ss->staticEval = bestValue = -(ss-1)->staticEval;
-                complexity = abs(ss->staticEval - pos.psq_eg_stm());
-            }
-            else ss->staticEval = bestValue = evaluate(pos, &complexity);
-        }
+            // In case of null move search use previous static eval with a different sign
+            ss->staticEval = bestValue =
+            (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+                                             : -(ss-1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
@@ -1521,7 +1513,7 @@ moves_loop: // When in check, search starts here
           &&  type_of(move) != PROMOTION)
       {
 
-          if (moveCount > 2 + (complexity > 800))
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
