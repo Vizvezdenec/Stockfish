@@ -76,14 +76,15 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
+                                                             Square rs,
+                                                             bool pn)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), PvNode(pn), depth(d)
 {
   assert(d <= 0);
 
   stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) +
           !(   ttm
-            && (pos.checkers() || depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare)
+            && (pos.checkers() || PvNode || depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare)
             && pos.pseudo_legal(ttm));
 }
 
