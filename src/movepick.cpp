@@ -84,7 +84,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
   stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) +
           !(   ttm
-            && (pos.checkers() || PvNode || depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare)
+            && (pos.checkers() || depth > DEPTH_QS_RECAPTURES || to_sq(ttm) == recaptureSquare || (PvNode && pos.capture(ttm)))
             && pos.pseudo_legal(ttm));
 }
 
