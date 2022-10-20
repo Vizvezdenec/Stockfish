@@ -1284,10 +1284,9 @@ moves_loop: // When in check, search starts here
                   if (   depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth -= 2;
+                     depth -= 1 + capture;
 
-                  if (depth <= 0)
-                      return qsearch<PV>(pos, ss, alpha, beta);
+                  depth = std::max(depth, 1);
 
                   assert(depth > 0);
               }
