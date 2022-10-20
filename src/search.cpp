@@ -1284,7 +1284,7 @@ moves_loop: // When in check, search starts here
                   if (   depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth--;
+                     depth -= 2;
 
                   if (depth <= 0)
                       return qsearch<PV>(pos, ss, alpha, beta);
