@@ -1158,7 +1158,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 11 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR)
+          if (singularQuietLMR && !(mp.threatenedPieces & from_sq(ttMove)))
               r--;
 
           // Dicrease reduction if we move a threatened piece (~1 Elo)
@@ -1283,13 +1283,10 @@ moves_loop: // When in check, search starts here
                   // Reduce other moves if we have found at least one score improvement
                   if (   depth > 1
                       && depth < 6
-                      && capture
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                     depth -= 2;
+                     depth -= 1;
 
-                  if (depth <= 0)
-                      depth = 1;
                   assert(depth > 0);
               }
               else
