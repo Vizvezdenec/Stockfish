@@ -94,7 +94,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const Cap
   assert(!pos.checkers());
 
   stage = PROBCUT_TT + !(ttm && pos.capture(ttm)
-                             && pos.pseudo_legal(ttm));
+                             && pos.pseudo_legal(ttm)
+                             && pos.see_ge(ttm, threshold));
 }
 
 /// MovePicker::score() assigns a numerical value to each move in a list, used
@@ -271,7 +272,7 @@ top:
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
-      if (depth != DEPTH_QS_CHECKS)
+      if (depth < DEPTH_QS_CHECKS)
           return MOVE_NONE;
 
       ++stage;
