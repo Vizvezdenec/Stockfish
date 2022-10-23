@@ -93,7 +93,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, Depth d, const Cap
 {
   assert(!pos.checkers());
 
-  stage = PROBCUT_TT + !(ttm 
+  stage = PROBCUT_TT + !(ttm && pos.capture(ttm)
                              && pos.pseudo_legal(ttm));
 }
 
