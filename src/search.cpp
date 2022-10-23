@@ -635,7 +635,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > depth - (tte->bound() == BOUND_EXACT)
+        && tte->depth() > depth - (tte->bound() == BOUND_EXACT || abs(ttValue - beta) > 400)
         && ttValue != VALUE_NONE // Possible in case of TT access race
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -1158,7 +1158,7 @@ moves_loop: // When in check, search starts here
               r -= 1 + 11 / (3 + depth);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-          if (singularQuietLMR && !(mp.threatenedPieces & from_sq(ttMove)))
+          if (singularQuietLMR)
               r--;
 
           // Dicrease reduction if we move a threatened piece (~1 Elo)
