@@ -1166,7 +1166,7 @@ moves_loop: // When in check, search starts here
               && (mp.threatenedPieces & from_sq(move)))
               r--;
 
-          if ((PvNode || cutNode) && !ttMove && moveCount < 4)
+          if ((PvNode || cutNode) && !ttMove && moveCount < 3)
               r--;
 
           // Increase reduction if next ply has a lot of fail high
