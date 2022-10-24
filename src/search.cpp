@@ -913,6 +913,7 @@ moves_loop: // When in check, search starts here
     probCutBeta = beta + 417;
     if (   ss->inCheck
         && !PvNode
+        && depth >= 2
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 3
@@ -1163,6 +1164,9 @@ moves_loop: // When in check, search starts here
           // Dicrease reduction if we move a threatened piece (~1 Elo)
           if (   depth > 9
               && (mp.threatenedPieces & from_sq(move)))
+              r--;
+
+          if ((PvNode || cutNode) && !ttMove)
               r--;
 
           // Increase reduction if next ply has a lot of fail high
