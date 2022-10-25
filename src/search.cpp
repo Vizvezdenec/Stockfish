@@ -314,6 +314,8 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
+  int stabilityCount = 0;
+
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -322,6 +324,8 @@ void Thread::search() {
       // Age out PV variability metric
       if (mainThread)
           totBestMoveChanges /= 2;
+
+      rootDepth += (stabilityCount > 3);
 
       // Save the last iteration's scores before first PV line is searched and
       // all the move scores except the (new) PV are set to -VALUE_INFINITE.
@@ -407,6 +411,7 @@ void Thread::search() {
                   alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
                   failedHighCnt = 0;
+                  stabilityCount = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
               }
@@ -414,9 +419,13 @@ void Thread::search() {
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
+                  stabilityCount = 0;
               }
               else
+              {
+                  stabilityCount++;
                   break;
+              }
 
               delta += delta / 4 + 2;
 
@@ -1177,7 +1186,7 @@ moves_loop: // When in check, search starts here
                          - 4433;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-          r -= ss->statScore / (16628 - 3000 / (depth - 1));
+          r -= ss->statScore / 13628;
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
