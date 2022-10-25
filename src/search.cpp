@@ -1533,6 +1533,7 @@ moves_loop: // When in check, search starts here
 
       // Do not search moves with negative SEE values (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && move != ttMove
           && !pos.see_ge(move))
           continue;
 
@@ -1548,7 +1549,6 @@ moves_loop: // When in check, search starts here
       // Continuation history based pruning (~2 Elo)
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && move != ttMove
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
