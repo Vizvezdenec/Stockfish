@@ -313,7 +313,6 @@ void Thread::search() {
   optimism[us] = optimism[~us] = VALUE_ZERO;
 
   int searchAgainCounter = 0;
-
   int stabilityCount = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
@@ -325,7 +324,7 @@ void Thread::search() {
       if (mainThread)
           totBestMoveChanges /= 2;
 
-      rootDepth += (stabilityCount > 4);
+      rootDepth += (stabilityCount > 5);
 
       // Save the last iteration's scores before first PV line is searched and
       // all the move scores except the (new) PV are set to -VALUE_INFINITE.
@@ -411,9 +410,9 @@ void Thread::search() {
                   alpha = std::max(bestValue - delta, -VALUE_INFINITE);
 
                   failedHighCnt = 0;
-                  stabilityCount = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
+                  stabilityCount = 0;
               }
               else if (bestValue >= beta)
               {
