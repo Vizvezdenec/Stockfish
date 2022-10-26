@@ -324,7 +324,7 @@ void Thread::search() {
       if (mainThread)
           totBestMoveChanges /= 2;
 
-      rootDepth += (stabilityCount > 5);
+      rootDepth += (stabilityCount > 6);
 
       // Save the last iteration's scores before first PV line is searched and
       // all the move scores except the (new) PV are set to -VALUE_INFINITE.
