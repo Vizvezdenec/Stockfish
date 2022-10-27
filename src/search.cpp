@@ -372,9 +372,9 @@ void Thread::search() {
           // high/low, re-search with a bigger window until we don't fail
           // high/low anymore.
           int failedHighCnt = 0;
-          if (currentStability == 6)
+          if (currentStability == 4)
           {
-              currentStability--;
+              currentStability -= 2;
               stabilityCount++;
           }
           while (true)
