@@ -876,10 +876,7 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                if (depth >= 8)
-                    value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-                else
-                    value = probCutBeta;
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -1010,6 +1007,9 @@ moves_loop: // When in check, search starts here
                   && !ss->inCheck
                   && ss->staticEval + 180 + 201 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
+                  continue;
+
+              if (lmrDepth == 0 && !capture && (*contHist[0])[movedPiece][to_sq(move)] < 0 && (*contHist[1])[movedPiece][to_sq(move)] < 0)
                   continue;
 
               // SEE based pruning (~9 Elo)
