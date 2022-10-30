@@ -1105,7 +1105,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
 
-          else if (!PvNode && !capture && move == ttMove && move == countermove && depth > 3)
+          else if (!PvNode && !capture && move == ttMove && move == countermove && depth > 6)
               extension = 1;
       }
 
