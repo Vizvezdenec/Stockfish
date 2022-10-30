@@ -1009,7 +1009,7 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
-              if (lmrDepth == 0 && !capture && (*contHist[0])[movedPiece][to_sq(move)] < -5000 && (*contHist[1])[movedPiece][to_sq(move)] < -5000)
+              if (lmrDepth == 0 && !capture && (*contHist[0])[movedPiece][to_sq(move)] < -10000 && (*contHist[1])[movedPiece][to_sq(move)] < -10000)
                   continue;
 
               // SEE based pruning (~9 Elo)
