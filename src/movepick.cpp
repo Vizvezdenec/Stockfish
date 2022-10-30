@@ -283,7 +283,7 @@ top:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
 
-      if (countermove && !pos.capture(countermove) && pos.pseudo_legal(countermove) && pos.gives_check(countermove))
+      if (countermove && !pos.capture(countermove) && pos.pseudo_legal(countermove))
       {
           ++stage;
           return countermove;
