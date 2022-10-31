@@ -76,9 +76,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             Square rs,
-                                                             Move cm)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), countermove(cm), depth(d)
+                                                             Square rs)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
 {
   assert(d <= 0);
 
@@ -283,17 +282,11 @@ top:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
 
-      if (countermove && !pos.capture(countermove) && pos.pseudo_legal(countermove))
-      {
-          ++stage;
-          return countermove;
-      }
-
       ++stage;
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([&](){ return *cur != countermove; });
+      return select<Next>([](){ return true; });
   }
 
   assert(false);
