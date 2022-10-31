@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 25 - 5 * ss->ttPv
+                      && value < singularBeta - 25
                       && ss->doubleExtensions <= 9)
                       extension = 2;
               }
@@ -1563,7 +1563,12 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      if (!capture && !ss->inCheck && PvNode)
+          value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
+      else
+          value = alpha + 1;
+      if (value >= alpha + 1)
+          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
