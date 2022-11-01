@@ -1536,15 +1536,6 @@ moves_loop: // When in check, search starts here
           && !pos.see_ge(move))
           continue;
 
-      // Speculative prefetch as early as possible
-      prefetch(TT.first_entry(pos.key_after(move)));
-
-      ss->currentMove = move;
-      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [capture]
-                                                                [pos.moved_piece(move)]
-                                                                [to_sq(move)];
-
       // Continuation history based pruning (~2 Elo)
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
@@ -1561,14 +1552,18 @@ moves_loop: // When in check, search starts here
 
       quietCheckEvasions += !capture && ss->inCheck;
 
+      // Speculative prefetch as early as possible
+      prefetch(TT.first_entry(pos.key_after(move)));
+
+      ss->currentMove = move;
+      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                [capture]
+                                                                [pos.moved_piece(move)]
+                                                                [to_sq(move)];
+
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (!capture && PvNode)
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
-      else
-          value = alpha + 1;
-      if (value >= alpha + 1)
-          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
