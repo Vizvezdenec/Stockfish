@@ -1536,6 +1536,15 @@ moves_loop: // When in check, search starts here
           && !pos.see_ge(move))
           continue;
 
+      // Speculative prefetch as early as possible
+      prefetch(TT.first_entry(pos.key_after(move)));
+
+      ss->currentMove = move;
+      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                [capture]
+                                                                [pos.moved_piece(move)]
+                                                                [to_sq(move)];
+
       // Continuation history based pruning (~2 Elo)
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
@@ -1551,15 +1560,6 @@ moves_loop: // When in check, search starts here
           continue;
 
       quietCheckEvasions += !capture && ss->inCheck;
-
-      // Speculative prefetch as early as possible
-      prefetch(TT.first_entry(pos.key_after(move)));
-
-      ss->currentMove = move;
-      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [capture]
-                                                                [pos.moved_piece(move)]
-                                                                [to_sq(move)];
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
