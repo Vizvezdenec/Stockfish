@@ -191,8 +191,11 @@ top:
       if (depth <= DEPTH_QS_RECAPTURES)
       {
           Color us = pos.side_to_move();
-          if (!(pos.attacks_by<PAWN>(us) & recaptureSquare) && !(pos.attacks_by<KING>(us) & recaptureSquare) && !(pos.attacks_by<KNIGHT>(us) & recaptureSquare)
-           && !(pos.attacks_by<BISHOP>(us) & recaptureSquare) && !(pos.attacks_by<ROOK>(us) & recaptureSquare) && !(pos.attacks_by<QUEEN>(us) & recaptureSquare))
+          if ( !((attacks_bb<ROOK>(recaptureSquare, pos.pieces()) & pos.pieces(us, ROOK, QUEEN)) 
+              || (attacks_bb<BISHOP>(recaptureSquare, pos.pieces()) & pos.pieces(us, BISHOP, QUEEN))
+              || (pawn_attacks_bb(~us, recaptureSquare) & pos.pieces(us, PAWN))
+              || (attacks_bb<KNIGHT>(recaptureSquare, pos.pieces()) & pos.pieces(us, KNIGHT))
+              || (attacks_bb<KING>(recaptureSquare, pos.pieces()) & pos.pieces(us, KING))))
               return MOVE_NONE;
       }
       endMoves = generate<CAPTURES>(pos, cur);
