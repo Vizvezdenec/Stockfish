@@ -188,6 +188,13 @@ top:
   case PROBCUT_INIT:
   case QCAPTURE_INIT:
       cur = endBadCaptures = moves;
+      if (depth <= DEPTH_QS_RECAPTURES)
+      {
+          Color us = pos.side_to_move();
+          if (!(pos.attacks_by<PAWN>(us) & recaptureSquare) && !(pos.attacks_by<KING>(us) & recaptureSquare) && !(pos.attacks_by<KNIGHT>(us) & recaptureSquare)
+           && !(pos.attacks_by<BISHOP>(us) & recaptureSquare) && !(pos.attacks_by<ROOK>(us) & recaptureSquare) && !(pos.attacks_by<QUEEN>(us) & recaptureSquare))
+              return MOVE_NONE;
+      }
       endMoves = generate<CAPTURES>(pos, cur);
 
       score<CAPTURES>();
@@ -268,8 +275,7 @@ top:
 
   case QCAPTURE:
       if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
-                                    || to_sq(*cur) == recaptureSquare
-                                    || (pos.check_squares(type_of(pos.moved_piece(*cur))) & to_sq(*cur)); }))
+                                    || to_sq(*cur) == recaptureSquare; }))
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
