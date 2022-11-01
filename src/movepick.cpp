@@ -188,16 +188,6 @@ top:
   case PROBCUT_INIT:
   case QCAPTURE_INIT:
       cur = endBadCaptures = moves;
-      if (depth <= DEPTH_QS_RECAPTURES)
-      {
-          Color us = pos.side_to_move();
-          if ( !((attacks_bb<ROOK>(recaptureSquare, pos.pieces()) & pos.pieces(us, ROOK, QUEEN)) 
-              || (attacks_bb<BISHOP>(recaptureSquare, pos.pieces()) & pos.pieces(us, BISHOP, QUEEN))
-              || (pawn_attacks_bb(~us, recaptureSquare) & pos.pieces(us, PAWN))
-              || (attacks_bb<KNIGHT>(recaptureSquare, pos.pieces()) & pos.pieces(us, KNIGHT))
-              || (attacks_bb<KING>(recaptureSquare, pos.pieces()) & pos.pieces(us, KING))))
-              return MOVE_NONE;
-      }
       endMoves = generate<CAPTURES>(pos, cur);
 
       score<CAPTURES>();
@@ -267,11 +257,12 @@ top:
       endMoves = generate<EVASIONS>(pos, cur);
 
       score<EVASIONS>();
+      partial_insertion_sort(cur, endMoves, -3000 * depth);
       ++stage;
       [[fallthrough]];
 
   case EVASION:
-      return select<Best>([](){ return true; });
+      return select<Next>([&](){ return true; });
 
   case PROBCUT:
       return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
