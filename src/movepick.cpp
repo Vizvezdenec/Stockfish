@@ -257,7 +257,7 @@ top:
       endMoves = generate<EVASIONS>(pos, cur);
 
       score<EVASIONS>();
-      partial_insertion_sort(cur, endMoves, -2200 * depth);
+      partial_insertion_sort(cur, endMoves, -4100 * depth);
 
       ++stage;
       [[fallthrough]];
