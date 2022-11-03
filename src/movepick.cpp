@@ -255,10 +255,9 @@ top:
   case EVASION_INIT:
       cur = moves;
       endMoves = generate<EVASIONS>(pos, cur);
+      partial_insertion_sort(cur, endMoves, -750 * depth);
 
       score<EVASIONS>();
-      partial_insertion_sort(cur, endMoves, -4100 * depth);
-
       ++stage;
       [[fallthrough]];
 
