@@ -257,13 +257,11 @@ top:
       endMoves = generate<EVASIONS>(pos, cur);
 
       score<EVASIONS>();
-      partial_insertion_sort(cur, endMoves, std::min(0, -3000 * depth));
-
       ++stage;
       [[fallthrough]];
 
   case EVASION:
-      return select<Next>([&](){ return true; });
+      return select<Best>([](){ return true; });
 
   case PROBCUT:
       return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
