@@ -1028,7 +1028,7 @@ moves_loop: // When in check, search starts here
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
-                  && lmrDepth < 13 - 6 * (pos.count<ALL_PIECES>() > 7 && abs(pos.psq_eg_stm()) > 1760)
+                  && lmrDepth < 13
                   && ss->staticEval + 106 + 145 * lmrDepth + history / 52 <= alpha)
                   continue;
 
@@ -1433,6 +1433,8 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
 
+    bool ttAdjust = false;
+
     // Evaluate the position statically
     if (ss->inCheck)
     {
@@ -1450,7 +1452,7 @@ moves_loop: // When in check, search starts here
             // ttValue can be used as a better position evaluation (~7 Elo)
             if (    ttValue != VALUE_NONE
                 && (tte->bound() & (ttValue > bestValue ? BOUND_LOWER : BOUND_UPPER)))
-                bestValue = ttValue;
+                bestValue = ttValue, ttAdjust = true;
         }
         else
             // In case of null move search use previous static eval with a different sign
@@ -1548,6 +1550,7 @@ moves_loop: // When in check, search starts here
       // Continuation history based pruning (~2 Elo)
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && !(ttAdjust && move == ttMove)
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
