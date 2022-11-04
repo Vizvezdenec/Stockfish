@@ -610,6 +610,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
+    ss->bestMove = MOVE_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -780,6 +781,15 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        else if (!ttMove && ss->bestMove)
+        {
+            ss->ttHit = true;
+            //tte->bound() = BOUND_LOWER;
+            //ttValue = alpha;
+            ttMove = ss->bestMove;
+            ttCapture = pos.capture(ss->bestMove);
+        }
+
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1395,6 +1405,7 @@ moves_loop: // When in check, search starts here
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
     int moveCount;
+    ss->bestMove = MOVE_NONE;
 
     if (PvNode)
     {
@@ -1433,8 +1444,6 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
 
-    bool ttAdjust = false;
-
     // Evaluate the position statically
     if (ss->inCheck)
     {
@@ -1452,7 +1461,7 @@ moves_loop: // When in check, search starts here
             // ttValue can be used as a better position evaluation (~7 Elo)
             if (    ttValue != VALUE_NONE
                 && (tte->bound() & (ttValue > bestValue ? BOUND_LOWER : BOUND_UPPER)))
-                bestValue = ttValue, ttAdjust = true;
+                bestValue = ttValue;
         }
         else
             // In case of null move search use previous static eval with a different sign
@@ -1550,7 +1559,6 @@ moves_loop: // When in check, search starts here
       // Continuation history based pruning (~2 Elo)
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !(ttAdjust && move == ttMove)
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
@@ -1578,7 +1586,7 @@ moves_loop: // When in check, search starts here
 
           if (value > alpha)
           {
-              bestMove = move;
+              bestMove = ss->bestMove = move;
 
               if (PvNode) // Update pv even in fail-high case
                   update_pv(ss->pv, move, (ss+1)->pv);
