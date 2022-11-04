@@ -51,6 +51,7 @@ struct Stack {
   bool ttHit;
   bool raz;
   Move bestMove;
+  Value bestValue;
   int doubleExtensions;
   int cutoffCnt;
 };

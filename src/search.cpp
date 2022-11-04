@@ -611,6 +611,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
     ss->bestMove = MOVE_NONE;
+    bool noRed = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -783,11 +784,8 @@ namespace {
             return value;
         else if (!ttMove && ss->bestMove)
         {
-            ss->ttHit = true;
-            //tte->bound() = BOUND_LOWER;
-            //ttValue = alpha;
             ttMove = ss->bestMove;
-            ttCapture = pos.capture(ss->bestMove);
+            noRed = true;
         }
 
     }
@@ -906,7 +904,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
-        && !ttMove)
+        && (!ttMove || noRed))
         depth -= 3;
 
     if (depth <= 0)
