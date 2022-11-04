@@ -43,15 +43,13 @@ struct Stack {
   Move currentMove;
   Move excludedMove;
   Move killers[2];
+  Move bestMove;
   Value staticEval;
   int statScore;
   int moveCount;
   bool inCheck;
   bool ttPv;
   bool ttHit;
-  bool raz;
-  Move bestMove;
-  Value bestValue;
   int doubleExtensions;
   int cutoffCnt;
 };

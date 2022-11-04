@@ -611,6 +611,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
     ss->bestMove = MOVE_NONE;
+    bool wasNoTtMove = false;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -783,9 +784,10 @@ namespace {
             return value;
         else if (ss->bestMove)
         {
+            wasNoTtMove = !ttMove;
+            dbg_mean_of(PvNode && !ttMove);
             ttMove = ss->bestMove;
         }
-
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -902,7 +904,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
-        && !ttMove)
+        && (!ttMove || wasNoTtMove))
         depth -= 3;
 
     if (depth <= 0)
