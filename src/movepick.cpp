@@ -28,8 +28,8 @@ namespace {
   enum Stages {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
-    PROBCUT_TT, PROBCUT_INIT, PROBCUT, BADPROBCUT,
-    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
+    PROBCUT_TT, PROBCUT_INIT, PROBCUT,
+    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK, BADQSEARCH
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -264,39 +264,38 @@ top:
       return select<Best>([](){ return true; });
 
   case PROBCUT:
-      if (select<Next>([&](){
-                       return pos.see_ge(*cur, threshold) && (pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ?
-                              // Move losing capture to endBadCaptures to be tried later
-                              true : (*endBadCaptures++ = *cur, false)); }))
-          return *(cur - 1);
-
-      ++stage;
-      [[fallthrough]];
-
-  case BADPROBCUT:
-      return select<Next>([&](){ return true; });
+      return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
 
   case QCAPTURE:
-      if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
-                                    || to_sq(*cur) == recaptureSquare; }))
+      if (select<Next>([&](){ return   (depth > DEPTH_QS_RECAPTURES
+                                    || to_sq(*cur) == recaptureSquare) && (pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ? true : (*endBadCaptures++ = *cur, false)); }))
           return *(cur - 1);
-
-      // If we did not find any move and we do not try checks, we have finished
-      if (depth != DEPTH_QS_CHECKS)
-          return MOVE_NONE;
 
       ++stage;
       [[fallthrough]];
 
   case QCHECK_INIT:
-      cur = moves;
-      endMoves = generate<QUIET_CHECKS>(pos, cur);
+      if (depth >= DEPTH_QS_CHECKS)
+      {
+          cur = moves;
+          endMoves = generate<QUIET_CHECKS>(pos, cur);
+      }
 
       ++stage;
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([](){ return true; });
+      if (depth >= DEPTH_QS_CHECKS)
+          return select<Next>([](){ return true; });
+      else
+      {
+          ++stage;
+          [[fallthrough]];
+      }
+
+  case BADQSEARCH:
+      return select<Next>([&](){ return true; });
+      // If we did not find any move and we do not try checks, we have finished
   }
 
   assert(false);
