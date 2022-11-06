@@ -28,7 +28,7 @@ namespace {
   enum Stages {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
-    PROBCUT_TT, PROBCUT_INIT, PROBCUT,
+    PROBCUT_TT, PROBCUT_INIT, PROBCUT, BADPROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
   };
 
@@ -264,7 +264,17 @@ top:
       return select<Best>([](){ return true; });
 
   case PROBCUT:
-      return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
+      if (select<Next>([&](){
+                       return pos.see_ge(*cur, threshold) && (pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ?
+                              // Move losing capture to endBadCaptures to be tried later
+                              true : (*endBadCaptures++ = *cur, false)); }))
+          return *(cur - 1);
+
+      ++stage;
+      [[fallthrough]];
+
+  case BADPROBCUT:
+      return select<Next>([&](){ return true; });
 
   case QCAPTURE:
       if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
