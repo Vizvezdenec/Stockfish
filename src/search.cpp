@@ -860,10 +860,6 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        int captureCountPc = 0;
-        Move capturesSearchedPc[8];
-
-
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -878,11 +874,9 @@ namespace {
                                                                           [to_sq(move)];
 
                 pos.do_move(move, st);
-                bool passedQs = false;
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-                passedQs = value >= probCutBeta;
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -894,17 +888,8 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
-                    for (int i = 0; i < captureCountPc; ++i)
-                    {
-                        Piece moved_piece = pos.moved_piece(capturesSearchedPc[i]);
-                        PieceType captured = type_of(pos.piece_on(to_sq(capturesSearchedPc[i])));
-                        captureHistory[moved_piece][to_sq(capturesSearchedPc[i])][captured] << -stat_bonus(depth - 2);
-                    }
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
-                else if (passedQs && captureCountPc < 8)
-                    capturesSearched[captureCount++] = move;
             }
     }
 
@@ -1063,7 +1048,7 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 4 - (thisThread->previousDepth > 24) + 2 * (PvNode && tte->is_pv())
+              &&  depth >= 3 - (thisThread->previousDepth > 24) + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
@@ -1192,7 +1177,7 @@ moves_loop: // When in check, search starts here
                          - 4433;
 
           // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
-          r -= ss->statScore / (13628 + 4000 * (depth > 7 && depth < 19));
+          r -= ss->statScore / (13628 + 4000 * (depth > 7 && depth < 19) - 2000 * (depth < 5));
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
