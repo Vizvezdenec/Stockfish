@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 9)
                       extension = 2;
 
-                  else if (PvNode && !tte->is_pv() && ss->doubleExtensions <= 9 && value < singularBeta - 50)
+                  else if (PvNode && !tte->is_pv() && ss->doubleExtensions <= 9 && value < singularBeta - 100)
                       extension = 2;
               }
 
