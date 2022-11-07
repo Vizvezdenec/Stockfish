@@ -29,7 +29,7 @@ namespace {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
-    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK, BADQSEARCH
+    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -267,36 +267,26 @@ top:
       return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
 
   case QCAPTURE:
-      if (select<Next>([&](){ return   (depth > DEPTH_QS_RECAPTURES
-                                    || to_sq(*cur) == recaptureSquare) 
-                                    && (pos.see_ge(*cur, Value(-69 * cur->value / 1024)) ? true : (*endBadCaptures++ = *cur, false)); }))
+      if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
+                                    || to_sq(*cur) == recaptureSquare; }))
           return *(cur - 1);
+
+      // If we did not find any move and we do not try checks, we have finished
+      if (depth != DEPTH_QS_CHECKS)
+          return MOVE_NONE;
 
       ++stage;
       [[fallthrough]];
 
   case QCHECK_INIT:
-      if (depth >= DEPTH_QS_CHECKS)
-      {
-          cur = moves;
-          endMoves = generate<QUIET_CHECKS>(pos, cur);
-      }
+      cur = moves;
+      endMoves = generate<QUIET_CHECKS>(pos, cur);
 
       ++stage;
       [[fallthrough]];
 
   case QCHECK:
-      if (depth >= DEPTH_QS_CHECKS)
-          return select<Next>([](){ return true; });
-      else
-          ++stage;
-      cur = moves;
-      endMoves = endBadCaptures;
-      [[fallthrough]];
-
-  case BADQSEARCH:
-      return select<Next>([&](){ return true; });
-      // If we did not find any move and we do not try checks, we have finished
+      return select<Next>([](){ return true; });
   }
 
   assert(false);
