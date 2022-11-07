@@ -772,7 +772,7 @@ namespace {
                   :                                    168;
 
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -std::clamp(improvement, -1000, 1000), true);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -std::clamp(improvement / 2, -1000, 1000), true);
     improving = improvement > 0;
 
     // Step 7. Razoring.
