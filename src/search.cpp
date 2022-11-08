@@ -899,7 +899,7 @@ namespace {
                     return value;
                 }
                 else if (passedQs && captureCountPc < 8)
-                    capturesSearched[captureCountPc++] = move;
+                    capturesSearchedPc[captureCountPc++] = move;
             }
     }
 
