@@ -855,9 +855,6 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        int captureCountPc = 0;
-        Move capturesSearchedPc[8];
-
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, depth - 3, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -889,17 +886,11 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
-                    for (int i = 0; i < captureCountPc; ++i)
-                    {
-                        Piece moved_piece = pos.moved_piece(capturesSearchedPc[i]);
-                        PieceType captured = type_of(pos.piece_on(to_sq(capturesSearchedPc[i])));
-                        captureHistory[moved_piece][to_sq(capturesSearchedPc[i])][captured] << -stat_bonus(depth - 2);
-                    }
                     captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
-                else if (passedQs && captureCountPc < 8)
-                    capturesSearchedPc[captureCountPc++] = move;
+                else if (passedQs)
+                    capturesSearched[captureCount++] = move;
             }
     }
 
