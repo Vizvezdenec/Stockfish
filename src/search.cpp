@@ -862,6 +862,8 @@ namespace {
             {
                 assert(pos.capture(move) || promotion_type(move) == QUEEN);
 
+                bool passedQs = false;
+
                 ss->currentMove = move;
                 ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                           [true]
@@ -870,10 +872,9 @@ namespace {
 
                 pos.do_move(move, st);
 
-                bool passedQs = false;
-
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+
                 passedQs = value >= probCutBeta;
 
                 // If the qsearch held, perform the regular search
@@ -886,7 +887,6 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
                 else if (passedQs)
