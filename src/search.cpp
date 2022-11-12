@@ -1185,7 +1185,7 @@ moves_loop: // When in check, search starts here
           if (value > alpha && d < newDepth)
           {
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doShallowerSearch = value < bestValue + 12;
+              int doShallowerSearch = 16 / (value - bestValue);
               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, std::max(1, newDepth + doDeeperSearch - doShallowerSearch), !cutNode);
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
