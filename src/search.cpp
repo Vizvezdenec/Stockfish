@@ -593,9 +593,13 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
+        ss->specCnt = (ss-1)->specCnt;
     }
     else
+    {
         thisThread->rootDelta = beta - alpha;
+        ss->specCnt = 0;
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -807,7 +811,11 @@ namespace {
 
         pos.do_null_move(st);
 
+        ss->specCnt++;
+
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+
+        ss->specCnt--;
 
         pos.undo_null_move();
 
@@ -875,7 +883,11 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
+                    ss->specCnt++;
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    ss->specCnt--;
+                }
 
                 pos.undo_move(move);
 
@@ -1165,6 +1177,9 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
+          if (ss->specCnt > 1)
+              r++;
+
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1185,8 +1200,7 @@ moves_loop: // When in check, search starts here
           if (value > alpha && d < newDepth)
           {
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doShallowerSearch = value < bestValue + 4 * newDepth;
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch - doShallowerSearch, !cutNode);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
