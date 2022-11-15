@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
 
-          if (ss->specCnt > 1)
+          if (ss->specCnt > 2)
               r++;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
@@ -1194,7 +1194,13 @@ moves_loop: // When in check, search starts here
           // beyond the first move depth. This may lead to hidden double extensions.
           Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
+          if (d < newDepth)
+              ss->specCnt++;
+
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (d < newDepth)
+              ss->specCnt--;
 
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
