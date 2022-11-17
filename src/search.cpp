@@ -1184,11 +1184,8 @@ moves_loop: // When in check, search starts here
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
           {
-              // Adjust full depth search based on LMR results - if result
-              // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doShallowerSearch = value < bestValue + newDepth;
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch - doShallowerSearch, !cutNode);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1388,7 +1385,7 @@ moves_loop: // When in check, search starts here
 
     TTEntry* tte;
     Key posKey;
-    Move ttMove, move, bestMove;
+    Move ttMove, move, bestMove, excludedMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
@@ -1412,13 +1409,16 @@ moves_loop: // When in check, search starts here
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
+    (ss+1)->excludedMove = MOVE_NONE;
+
     // Decide whether or not to include checks: this fixes also the type of
     // TT entry depth that we are going to use. Note that in qsearch we use
     // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
     ttDepth = ss->inCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS
                                                   : DEPTH_QS_NO_CHECKS;
     // Transposition table lookup
-    posKey = pos.key();
+    excludedMove = ss->excludedMove;
+    posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
@@ -1460,7 +1460,7 @@ moves_loop: // When in check, search starts here
         if (bestValue >= beta)
         {
             // Save gathered info in transposition table
-            if (!ss->ttHit)
+            if (!ss->ttHit && !excludedMove)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
                           DEPTH_NONE, MOVE_NONE, ss->staticEval);
 
@@ -1493,6 +1493,9 @@ moves_loop: // When in check, search starts here
     while ((move = mp.next_move()) != MOVE_NONE)
     {
       assert(is_ok(move));
+
+      if (move == excludedMove)
+          continue;
 
       // Check for legality
       if (!pos.legal(move))
@@ -1559,9 +1562,29 @@ moves_loop: // When in check, search starts here
 
       quietCheckEvasions += !capture && ss->inCheck;
 
+      int extension = 0;
+
+      if (        depth >= 0
+              &&  move == ttMove
+              && !excludedMove // Avoid recursive singular search
+           /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
+              &&  abs(ttValue) < VALUE_KNOWN_WIN
+              && (tte->bound() & BOUND_LOWER))
+      {
+          Value singularBeta = ttValue - 3 * depth;
+          Depth singularDepth = DEPTH_QS_RECAPTURES;
+
+          ss->excludedMove = move;
+          value = qsearch<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth);
+          ss->excludedMove = MOVE_NONE;
+
+          if (value < singularBeta)
+              extension = 1;
+      }
+
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + extension);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
@@ -1591,11 +1614,13 @@ moves_loop: // When in check, search starts here
     if (ss->inCheck && bestValue == -VALUE_INFINITE)
     {
         assert(!MoveList<LEGAL>(pos).size());
-
-        return mated_in(ss->ply); // Plies to mate from the root
+        bestValue = excludedMove ? alpha :
+                                   mated_in(ss->ply);
+        return bestValue; // Plies to mate from the root
     }
 
     // Save gathered info in transposition table
+    if (!excludedMove)
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
