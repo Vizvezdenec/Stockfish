@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts here
               && (mp.threatenedPieces & from_sq(move)))
               r--;
 
-          if (more_than_one(mp.threatenedPieces))
+          if (ss->staticEval <= alpha && more_than_one(mp.threatenedPieces))
               r++;
 
           // Increase reduction if next ply has a lot of fail high
