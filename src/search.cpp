@@ -1141,7 +1141,7 @@ moves_loop: // When in check, search starts here
               r--;
 
           // Increase reduction for cut nodes (~3 Elo)
-          if (cutNode)
+          if (cutNode && !capture)
               r += 2;
 
           // Increase reduction if ttMove is a capture (~3 Elo)
@@ -1160,9 +1160,6 @@ moves_loop: // When in check, search starts here
           if (   depth > 9
               && (mp.threatenedPieces & from_sq(move)))
               r--;
-
-          if  (!(capture || givesCheck) && more_than_one(mp.threatenedPieces) && !(mp.threatenedPieces & from_sq(move)))
-              r++;
 
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
