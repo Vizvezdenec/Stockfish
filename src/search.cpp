@@ -1161,7 +1161,7 @@ moves_loop: // When in check, search starts here
               && (mp.threatenedPieces & from_sq(move)))
               r--;
 
-          if  (!capture && more_than_one(mp.threatenedPieces) && !(mp.threatenedPieces & from_sq(move)))
+          if  (!(capture || givesCheck) && more_than_one(mp.threatenedPieces) && !(mp.threatenedPieces & from_sq(move)))
               r++;
 
           // Increase reduction if next ply has a lot of fail high
