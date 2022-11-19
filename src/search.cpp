@@ -1069,7 +1069,7 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 9)
                       extension = 2;
 
-                  if (likelyFailLow && value < singularBeta - 50 && ss->doubleExtensions <= 9)
+                  if (likelyFailLow && value < singularBeta - 200 && ss->doubleExtensions <= 9)
                       extension = 2;
               }
 
