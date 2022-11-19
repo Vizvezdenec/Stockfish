@@ -1051,7 +1051,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 + (ss->ttPv && !PvNode)) * depth;
+              Value singularBeta = ttValue - (3 + (ss->ttPv && !PvNode) + likelyFailLow) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1163,9 +1163,6 @@ moves_loop: // When in check, search starts here
 
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
-              r++;
-
-          if (!capture && ss->staticEval <= alpha && !(mp.threatenedPieces & from_sq(move)) && more_than_one(mp.threatenedPieces))
               r++;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
