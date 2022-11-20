@@ -118,9 +118,9 @@ namespace {
   Value value_from_tt(Value v, int ply, int r50c);
   void update_pv(Move* pv, Move move, const Move* childPv);
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, bool rootNode, Move ttMove);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool rootNode, Move ttMove);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -593,14 +593,9 @@ namespace {
         beta = std::min(mate_in(ss->ply+1), beta);
         if (alpha >= beta)
             return alpha;
-        if (ss->ply > thisThread->maxPly)
-            thisThread->maxPly = ss->ply;
     }
     else
-    {
         thisThread->rootDelta = beta - alpha;
-        thisThread->maxPly = 0;
-    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -646,7 +641,7 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~3 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth), rootNode, ttMove);
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo)
                 if ((ss-1)->moveCount <= 2 && !priorCapture)
@@ -1336,7 +1331,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, rootNode, ttMove);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 5 || PvNode)
@@ -1666,7 +1661,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool rootNode, Move ttMove) {
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
@@ -1681,7 +1676,7 @@ moves_loop: // When in check, search starts here
                                             : stat_bonus(depth);   // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus2, rootNode, ttMove);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1728,13 +1723,21 @@ moves_loop: // When in check, search starts here
 
   // update_quiet_stats() updates move sorting heuristics
 
-  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
+  void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus, bool rootNode, Move ttMove) {
 
     // Update killers
     if (ss->killers[0] != move)
     {
-        ss->killers[1] = ss->killers[0];
-        ss->killers[0] = move;
+        if (!rootNode)
+        {
+            ss->killers[1] = ss->killers[0];
+            ss->killers[0] = move;
+        }
+        else if (move != ttMove && !pos.capture(ttMove))
+        {
+            ss->killers[1] = ss->killers[0];
+            ss->killers[0] = ttMove;
+        }
     }
 
     Color us = pos.side_to_move();
