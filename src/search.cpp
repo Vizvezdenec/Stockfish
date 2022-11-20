@@ -1154,7 +1154,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
-              r--;
+              r -= 1 + (capture && moveCount == 2);
 
           // Dicrease reduction if we move a threatened piece (~1 Elo)
           if (   depth > 9
@@ -1164,9 +1164,6 @@ moves_loop: // When in check, search starts here
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
               r++;
-
-          if (ttMove && !ttCapture && capture && moveCount == 2)
-              r--;
 
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
