@@ -1052,7 +1052,7 @@ moves_loop: // When in check, search starts here
               &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - (3 + (ss->ttPv && !PvNode)) * depth;
-              Depth singularDepth = (depth - 1 + 3 * (ss->ttPv && !PvNode)) / 2;
+              Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
               value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
@@ -1061,7 +1061,7 @@ moves_loop: // When in check, search starts here
               if (value < singularBeta)
               {
                   extension = 1;
-                  singularQuietLMR = !ttCapture;
+                  singularQuietLMR = !ttCapture && !(ss->ttPv && !PvNode);
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
