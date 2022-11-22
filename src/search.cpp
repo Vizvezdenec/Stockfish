@@ -1118,6 +1118,8 @@ moves_loop: // When in check, search starts here
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
+      bool depthDiff = false;
+
       // Step 17. Late moves reduction / extension (LMR, ~98 Elo)
       // We use various heuristics for the sons of a node after the first son has
       // been searched. In general we would like to reduce them, but there are many
@@ -1192,7 +1194,11 @@ moves_loop: // When in check, search starts here
               newDepth += doDeeperSearch - doShallowerSearch;
 
               if (newDepth > d)
+              {
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+                  if (value > alpha + 80)
+                      depthDiff = true;
+              }
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1219,7 +1225,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth), false);
+                              std::min(maxNextDepth, newDepth + depthDiff), false);
       }
 
       // Step 19. Undo move
