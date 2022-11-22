@@ -1693,7 +1693,7 @@ moves_loop: // When in check, search starts here
     {
         // Increase stats for the best move in case it was a capture move
         captureHistory[moved_piece][to_sq(bestMove)][captured] << bonus1;
-        if (ttMove && !pos.capture(ttMove))
+        if (ttMove && quietCount >= 1 && ttMove == quietsSearched[1])
             update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), -stat_bonus(depth));
     }
 
