@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
               if (newDepth > d)
               {
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-                  if (value > alpha + 80)
+                  if (value < bestValue + newDepth)
                       depthDiff = true;
               }
 
@@ -1225,7 +1225,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + depthDiff), false);
+                              std::min(maxNextDepth, newDepth - depthDiff), false);
       }
 
       // Step 19. Undo move
