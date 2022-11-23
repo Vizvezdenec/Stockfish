@@ -536,7 +536,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, depth);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -1334,7 +1334,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (PvNode || depth >= 6 - 2 * cutNode)
+    else if (   (depth >= 5 || PvNode)
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
