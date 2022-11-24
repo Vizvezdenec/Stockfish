@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
               if (newDepth > d)
               {
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-                  depthAdj = value > alpha + 75 ? 1 : value < bestValue + newDepth ? -1 : 0;
+                  depthAdj = value > alpha + 75 / 2 ? 1 : value < bestValue + newDepth * 2 ? -1 : 0;
               }
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
