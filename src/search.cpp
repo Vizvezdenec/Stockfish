@@ -536,7 +536,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, depth / 2);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -1191,21 +1191,14 @@ moves_loop: // When in check, search starts here
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
-              int depthAdj = 0;
-
               if (newDepth > d)
-              {
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-                  depthAdj = value > alpha + 75 / 2 ? 1 : value < bestValue + newDepth * 2 ? -1 : 0;
-              }
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               if (capture)
                   bonus /= 6;
-
-              newDepth += depthAdj;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
