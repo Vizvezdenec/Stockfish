@@ -1340,7 +1340,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (PvNode || depth >= 5 - cutNode)
+    else if (   (PvNode || depth >= 6 - 2 * cutNode)
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
