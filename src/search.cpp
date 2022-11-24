@@ -1192,7 +1192,10 @@ moves_loop: // When in check, search starts here
               newDepth += doDeeperSearch - doShallowerSearch;
 
               if (newDepth > d)
+              {
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+                  newDepth += value > alpha + 75 ? 1 : value < bestValue + newDepth ? -1 : 0;
+              }
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
@@ -1340,7 +1343,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (PvNode || depth >= 6 - 2 * cutNode)
+    else if (   (depth >= 5 || PvNode)
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
