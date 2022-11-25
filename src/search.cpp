@@ -159,7 +159,7 @@ void Search::init() {
 
   for (int i = 1; i < MAX_MOVES; ++i)
       for (int j = 0; j < 2; ++j)
-      Reductions[i][j] = int((20.26 + (j == 0 ? 0 : std::log(Threads.size()))) * std::log(i));
+      Reductions[i][j] = int((20.26 + (j == 0 ? std::log(Threads.size()) / 4 : 3 * std::log(Threads.size()) / 4)) * std::log(i));
 }
 
 
