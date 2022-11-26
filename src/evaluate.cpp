@@ -1070,11 +1070,6 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       Value nnue = NNUE::evaluate(pos, true, &nnueComplexity);
 
-      if (more_than_one(pos.pieces(stm, BISHOP) & DarkSquares) || more_than_one(pos.pieces(stm, BISHOP) & ~DarkSquares))
-          nnue -= 300;
-      else if (more_than_one(pos.pieces(~stm, BISHOP) & DarkSquares) || more_than_one(pos.pieces(~stm, BISHOP) & ~DarkSquares))
-          nnue += 300;
-
       // Blend nnue complexity with (semi)classical complexity
       nnueComplexity = (  416 * nnueComplexity
                         + 424 * abs(psq - nnue)
