@@ -536,7 +536,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, depth / 4);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -1159,7 +1159,7 @@ moves_loop: // When in check, search starts here
           // Dicrease reduction if we move a threatened piece (~1 Elo)
           if (   depth > 9
               && (mp.threatenedPieces & from_sq(move)))
-              r--;
+              r -= 1 + capture;
 
           // Increase reduction if next ply has a lot of fail high
           if ((ss+1)->cutoffCnt > 3 && !PvNode)
