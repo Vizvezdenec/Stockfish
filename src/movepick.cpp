@@ -138,7 +138,8 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384;
+                   +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384
+                   + (pos.non_pawn_material() <= 2 * QueenValueMg && type_of(pos.moved_piece(m)) == PAWN) * 5000;
       else // Type == EVASIONS
       {
           if (pos.capture(m))
