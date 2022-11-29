@@ -1099,6 +1099,10 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
+          else if (  (PvNode || cutNode)
+                   && !ttCapture
+                   && capture)
+              extension = 1;
       }
 
       // Add extension to new depth
@@ -1188,6 +1192,8 @@ moves_loop: // When in check, search starts here
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
               const bool doShallowerSearch = value < bestValue + newDepth;
+
+              dbg_mean_of(doShallowerSearch);
 
               newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1340,7 +1346,7 @@ moves_loop: // When in check, search starts here
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (   (PvNode || depth >= 7 - 4 * cutNode)
+    else if (   (depth >= 5 || PvNode)
              && !priorCapture)
     {
         //Assign extra bonus if current node is PvNode or cutNode
