@@ -1193,8 +1193,6 @@ moves_loop: // When in check, search starts here
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
               const bool doShallowerSearch = value < bestValue + newDepth;
 
-              dbg_mean_of(doShallowerSearch);
-
               newDepth += doDeeperSearch - doShallowerSearch;
 
               if (newDepth > d)
