@@ -139,7 +139,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0)
                    +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384
-                   + (pos.non_pawn_material() <= 2 * QueenValueMg && type_of(pos.moved_piece(m)) == PAWN) * 20000;
+                   + (pos.non_pawn_material() <= 2 * QueenValueMg && type_of(pos.moved_piece(m)) == PAWN) * 500 * relative_rank(pos.side_to_move(), to_sq(m));
       else // Type == EVASIONS
       {
           if (pos.capture(m))
