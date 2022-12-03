@@ -1150,7 +1150,7 @@ moves_loop: // When in check, search starts here
 
           // Decrease reduction for PvNodes based on depth
           if (PvNode)
-              r -= 1 + 11 / (3 + depth);
+              r -= 1 + 11 / (3 + depth) + ((ss+1)->cutoffCnt == 0);
 
           // Decrease reduction if ttMove has been singularly extended (~1 Elo)
           if (singularQuietLMR)
@@ -1165,7 +1165,6 @@ moves_loop: // When in check, search starts here
           if ((ss+1)->cutoffCnt > 3)
               r++;
 
-          if (!capture)
           ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                          + (*contHist[0])[movedPiece][to_sq(move)]
                          + (*contHist[1])[movedPiece][to_sq(move)]
