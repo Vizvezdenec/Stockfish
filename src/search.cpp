@@ -775,6 +775,17 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        else if (value > alpha && !ttMove)
+        {
+            posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
+            tte = TT.probe(posKey, ss->ttHit);
+            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
+            : ss->ttHit    ? tte->move() : MOVE_NONE;
+            ttCapture = ttMove && pos.capture(ttMove);
+            if (!excludedMove)
+            ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1584,10 +1595,7 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
-              {
-                  ss->cutoffCnt++;
                   break; // Fail high
-              }
           }
        }
     }
