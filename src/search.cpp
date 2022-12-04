@@ -785,6 +785,7 @@ namespace {
             ttCapture = ttMove && pos.capture(ttMove);
             if (!excludedMove)
             ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+            eval = ttValue;
         }
     }
 
