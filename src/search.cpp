@@ -773,8 +773,10 @@ namespace {
     if (eval < alpha - 369 - 254 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        ss->ttMove = MOVE_NONE;
         if (value < alpha)
             return value;
+        else ttMove = ss->ttMove;
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
@@ -1584,7 +1586,10 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  ss->ttMove = move;
                   break; // Fail high
+              }
           }
        }
     }
