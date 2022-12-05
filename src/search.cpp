@@ -776,7 +776,11 @@ namespace {
         ss->ttMove = MOVE_NONE;
         if (value < alpha)
             return value;
-        else ttMove = ss->ttMove;
+        else 
+        {
+            ttMove = ss->ttMove;
+            eval = value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~25 Elo).
