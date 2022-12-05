@@ -1358,7 +1358,7 @@ moves_loop: // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree.
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && depth > 3);
+        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && (cutNode || depth > 3));
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
@@ -1395,7 +1395,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool givesCheck, capture;
+    bool pvHit, givesCheck, capture;
     int moveCount;
 
     if (PvNode)
@@ -1426,7 +1426,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
+    pvHit = ss->ttHit && tte->is_pv();
 
     if (  !PvNode
         && ss->ttHit
@@ -1599,7 +1599,7 @@ moves_loop: // When in check, search starts here
     }
 
     // Save gathered info in transposition table
-    tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
+    tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
 
