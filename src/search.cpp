@@ -71,7 +71,7 @@ namespace {
 
   Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, int complexity) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1642 - int(delta) * 1024 / int(rootDelta) - complexity * 2) / 1024 + (!i && r > 916);
+    return (r + 1642 - int(delta) * 1024 / int(rootDelta) - complexity) / 1024 + (!i && r > 916);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -723,7 +723,7 @@ namespace {
         ss->staticEval = eval = VALUE_NONE;
         improving = false;
         improvement = 0;
-        complexity = 0;
+        complexity = 530;
         goto moves_loop;
     }
     else if (ss->ttHit)
@@ -990,7 +990,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta, complexity - 322), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta, complexity - 530), 0);
 
           if (   capture
               || givesCheck)
@@ -1128,7 +1128,7 @@ moves_loop: // When in check, search starts here
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
-          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, complexity - 322);
+          Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, complexity - 530);
 
           // Decrease reduction if position is or has been on the PV
           // and node is not likely to fail low. (~3 Elo)
