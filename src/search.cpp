@@ -836,7 +836,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 191 + 40 * PvNode - 54 * improving;
+    probCutBeta = beta + 191 + 160 * PvNode - 54 * improving;
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
