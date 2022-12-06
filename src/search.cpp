@@ -892,7 +892,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3;
+        depth -= 3 - ((ss-1)->moveCount > 10);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -900,7 +900,7 @@ namespace {
     if (    cutNode
         &&  depth >= 9
         && !ttMove)
-        depth -= 2 - tte->is_pv();
+        depth -= 2;
 
 moves_loop: // When in check, search starts here
 
