@@ -892,7 +892,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3;
+        depth -= 3 - tte->is_pv();
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1358,7 +1358,7 @@ moves_loop: // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree.
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && (cutNode || depth > 5));
+        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && depth > 3);
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
