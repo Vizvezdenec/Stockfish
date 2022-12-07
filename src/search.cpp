@@ -1103,8 +1103,7 @@ moves_loop: // When in check, search starts here
           else if (move == ttMove
                    && ttCapture
                    && !PvNode
-                   && depth < 6
-                   && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
+                   && depth < 6)
               extension = 1;
       }
 
