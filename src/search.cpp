@@ -565,7 +565,6 @@ namespace {
     moveCount          = captureCount = quietCount = ss->moveCount = 0;
     bestValue          = -VALUE_INFINITE;
     maxValue           = VALUE_INFINITE;
-    ss->depth = depth;
 
     // Check for the available remaining time
     if (thisThread == Threads.main())
@@ -1100,6 +1099,13 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
+
+          else if (move == ttMove
+                   && ttCapture
+                   && !PvNode
+                   && depth > 6
+                   && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
+              extension = 1;
       }
 
       // Add extension to new depth
@@ -1398,7 +1404,6 @@ moves_loop: // When in check, search starts here
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
     int moveCount;
-    ss->depth = depth;
 
     if (PvNode)
     {
@@ -1566,7 +1571,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth == DEPTH_QS_NO_CHECKS && ss->inCheck && (ss-2)->depth != DEPTH_QS_NO_CHECKS ? 0 : depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
