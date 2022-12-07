@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts here
           else if (move == ttMove
                    && ttCapture
                    && !PvNode
-                   && depth < 6)
+                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 2000 * depth)
               extension = 1;
       }
 
