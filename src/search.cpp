@@ -1099,12 +1099,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
-
-          else if (move == ttMove
-                   && ttCapture
-                   && !PvNode
-                   && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] > 2000 * depth)
-              extension = 1;
       }
 
       // Add extension to new depth
@@ -1213,6 +1207,12 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped
       else if (!PvNode || moveCount > 1)
       {
+              if (PvNode && capture && moveCount > 1)
+              {
+                  value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
+                  if (value > alpha)
+                      newDepth++;
+              }
               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
       }
 
