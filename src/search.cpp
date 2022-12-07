@@ -836,12 +836,12 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 191 + 160 * PvNode - 54 * improving;
+    probCutBeta = beta + 191 - 54 * improving;
 
     // Step 10. ProbCut (~4 Elo)
     // If we have a good enough capture and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (    !rootNode 
+    if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -1426,7 +1426,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    pvHit = ss->ttHit && tte->is_pv();
+    pvHit = (PvNode && depth == 0) || (ss->ttHit && tte->is_pv());
 
     if (  !PvNode
         && ss->ttHit
