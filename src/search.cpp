@@ -1102,7 +1102,7 @@ moves_loop: // When in check, search starts here
 
           else if (move == ttMove
                    && ttCapture
-                   && PvNode
+                   && !PvNode
                    && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
               extension = 1;
       }
