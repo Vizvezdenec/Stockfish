@@ -1426,7 +1426,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    pvHit = (PvNode && depth == 0) || (ss->ttHit && tte->is_pv());
+    pvHit = (PvNode && depth == 0 && ttMove) || (ss->ttHit && tte->is_pv());
 
     if (  !PvNode
         && ss->ttHit
