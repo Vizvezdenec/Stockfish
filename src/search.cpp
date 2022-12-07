@@ -1099,6 +1099,11 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
               extension = 1;
+
+          else if (move == ttMove
+                   && ttCapture
+                   && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
+              extension = 1;
       }
 
       // Add extension to new depth
@@ -1426,7 +1431,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    pvHit = (PvNode && ttMove) || (ss->ttHit && tte->is_pv());
+    pvHit = ss->ttHit && tte->is_pv();
 
     if (  !PvNode
         && ss->ttHit
