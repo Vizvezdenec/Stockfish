@@ -1115,6 +1115,8 @@ moves_loop: // When in check, search starts here
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
+      bool dds = PvNode && capture && moveCount > 1 && !ss->inCheck && pos.see_ge(move, alpha - ss->staticEval);
+
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
@@ -1207,14 +1209,7 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped
       else if (!PvNode || moveCount > 1)
       {
-              bool doDeeperSearch = false;
-              if (PvNode && capture && ss->staticEval + PieceValue[MG][type_of(pos.captured_piece())] > alpha)
-              {
-                  value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha);
-                  if (value > alpha)
-                      doDeeperSearch = true;
-              }
-              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + doDeeperSearch, !cutNode);
+              value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + dds, !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
