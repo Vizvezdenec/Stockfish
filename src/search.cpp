@@ -1067,7 +1067,11 @@ moves_loop: // When in check, search starts here
                   if (  !PvNode
                       && value < singularBeta - 25
                       && ss->doubleExtensions <= 9)
-                      extension = 2;
+                      {
+                          extension = 2;
+                          if (!ttCapture)
+                              depth++;
+                      }
               }
 
               // Multi-cut pruning
@@ -1098,12 +1102,6 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5177)
-              extension = 1;
-
-          else if (   PvNode
-                   && moveCount > 1
-                   && capture
-                   && pos.see_ge(move))
               extension = 1;
       }
 
