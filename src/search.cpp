@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts here
           else if (   PvNode
                    && moveCount > 1
                    && capture
-                   && pos.see_ge(move, alpha + 1 - ss->staticEval))
+                   && pos.see_ge(move))
               extension = 1;
       }
 
