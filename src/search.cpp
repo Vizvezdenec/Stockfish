@@ -604,6 +604,7 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->doDeeperSearches = (ss-1)->doDeeperSearches;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -1088,8 +1089,6 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
-              else if (value >= ttValue)
-                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
@@ -1192,8 +1191,10 @@ moves_loop: // When in check, search starts here
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
-              const bool doEvenDeeperSearch = value > alpha + 582;
+              const bool doEvenDeeperSearch = value > alpha + 582 && ss->doDeeperSearches <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
+
+              ss->doDeeperSearches = (ss-1)->doDeeperSearches + doEvenDeeperSearch;
 
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
