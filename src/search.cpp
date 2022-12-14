@@ -893,7 +893,7 @@ namespace {
     if (    PvNode
         && !ttMove)
         depth -= 3;
-    else if (PvNode && ttMove && eval < ss->staticEval - 100)
+    else if (PvNode && ttMove && eval < ss->staticEval - 50 * depth)
         depth--;
 
     if (depth <= 0)
