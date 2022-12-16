@@ -891,7 +891,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~4 Elo)
     if (PvNode)
-        depth -= !ttMove ? 3 : eval < ss->staticEval - 25 * depth * depth? 1 : 0;
+        depth -= !ttMove ? 3 : eval < ss->staticEval - 10 * depth * depth ? 1 : 0;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
