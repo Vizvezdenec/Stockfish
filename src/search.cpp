@@ -1485,9 +1485,7 @@ moves_loop: // When in check, search starts here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        Value delta = beta - alpha;
-
-        futilityBase = bestValue + 139 + 64 * delta / thisThread->rootDelta;
+        futilityBase = bestValue + 163 + 5 * depth;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
