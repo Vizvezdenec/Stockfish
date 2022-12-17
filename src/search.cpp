@@ -1070,7 +1070,7 @@ moves_loop: // When in check, search starts here
                   {
                       extension = 2;
                       depth += depth < 12;
-                      if (value < singularBeta - 250)
+                      if (value < singularBeta - 500)
                           extension = 3;
                   }
               }
