@@ -1441,7 +1441,7 @@ moves_loop: // When in check, search starts here
 
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() > ttDepth - (tte->bound() == BOUND_EXACT)
+        && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
@@ -1485,7 +1485,9 @@ moves_loop: // When in check, search starts here
         if (PvNode && bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = bestValue + 153;
+        Value delta = beta - alpha;
+
+        futilityBase = bestValue + 149 + 128 * delta / thisThread->rootDelta;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
