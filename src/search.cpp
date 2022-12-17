@@ -1487,7 +1487,7 @@ moves_loop: // When in check, search starts here
 
         Value delta = beta - alpha;
 
-        futilityBase = bestValue + 149 + 64 * delta / thisThread->rootDelta;
+        futilityBase = bestValue + 139 + 64 * delta / thisThread->rootDelta;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
