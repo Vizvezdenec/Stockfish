@@ -755,7 +755,7 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int staticDiff = int((ss-1)->staticEval + ss->staticEval);
-        int bonus = std::clamp(-(15 + abs(staticDiff) / 16) * staticDiff, -1914, 1914);
+        int bonus = std::clamp(-19 * staticDiff, -1914 - abs(staticDiff) / 16, 1914 + abs(staticDiff) / 16);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
