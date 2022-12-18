@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving, bool ttpv) {
-    return Value((165 + 100 * ttpv) * (d - (improving && !ttpv)));
+  Value futility_margin(Depth d, bool improving) {
+    return Value(165 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -754,7 +754,8 @@ namespace {
     // Use static evaluation difference to improve quiet move ordering (~3 Elo)
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
-        int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1914, 1914);
+        int staticDiff = int((ss-1)->staticEval + ss->staticEval);
+        int bonus = std::clamp(-(16 + staticDiff / 16) * staticDiff, -1914, 1914);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -779,9 +780,9 @@ namespace {
 
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
-    if (   !PvNode
+    if (   !ss->ttPv
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving, ss->ttPv) - (ss-1)->statScore / 303 >= beta
+        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 303 >= beta
         &&  eval >= beta
         &&  eval < 28031) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
         return eval;
