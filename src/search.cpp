@@ -941,6 +941,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool extraDepth = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -977,7 +979,7 @@ moves_loop: // When in check, search starts here
       givesCheck = pos.gives_check(move);
 
       // Calculate new depth for this move
-      newDepth = depth - 1;
+      newDepth = depth - 1 + (extraDepth && moveCount < 6);
 
       Value delta = beta - alpha;
 
@@ -1069,9 +1071,7 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 9)
                   {
                       extension = 2;
-                      depth += depth < 12;
-                      if (value < singularBeta - 800 - 30 * depth)
-                          extension = 3;
+                      extraDepth = depth < 12;
                   }
               }
 
@@ -1108,7 +1108,7 @@ moves_loop: // When in check, search starts here
 
       // Add extension to new depth
       newDepth += extension;
-      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2) + 4 * (extension == 3);
+      ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
