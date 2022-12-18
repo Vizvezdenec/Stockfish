@@ -62,8 +62,8 @@ namespace {
   enum NodeType { NonPV, PV, Root };
 
   // Futility margin
-  Value futility_margin(Depth d, bool improving) {
-    return Value(165 * (d - improving));
+  Value futility_margin(Depth d, bool improving, bool ttpv) {
+    return Value(165 * (d - improving + ttpv));
   }
 
   // Reductions lookup table, initialized at startup
@@ -779,9 +779,9 @@ namespace {
 
     // Step 8. Futility pruning: child node (~25 Elo).
     // The depth condition is important for mate finding.
-    if (   !ss->ttPv
+    if (   !PvNode
         &&  depth < 8
-        &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 303 >= beta
+        &&  eval - futility_margin(depth, improving, ss->ttPv) - (ss-1)->statScore / 303 >= beta
         &&  eval >= beta
         &&  eval < 28031) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
         return eval;
@@ -941,8 +941,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool extraDepth = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -979,7 +977,7 @@ moves_loop: // When in check, search starts here
       givesCheck = pos.gives_check(move);
 
       // Calculate new depth for this move
-      newDepth = depth - 1 + (extraDepth && moveCount < 24);
+      newDepth = depth - 1;
 
       Value delta = beta - alpha;
 
@@ -1071,7 +1069,7 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 9)
                   {
                       extension = 2;
-                      extraDepth = depth < 12;
+                      depth += depth < 12;
                   }
               }
 
