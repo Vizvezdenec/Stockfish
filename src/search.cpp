@@ -1564,8 +1564,13 @@ moves_loop: // When in check, search starts here
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
 
+      int history =   (*contHist[0])[pos.moved_piece(move)][to_sq(move)]
+                    + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
+                    + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]
+                    + 2 * thisThread->mainHistory[pos.side_to_move()][from_to(move)];
+
       if (!capture && !givesCheck && !ss->inCheck && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-           && ss->staticEval + 600 < alpha)
+           && ss->staticEval + 800 + 30 * depth + history / 64 < alpha)
            continue;
 
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
