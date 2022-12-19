@@ -756,7 +756,6 @@ namespace {
     {
         int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1914, 1914);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus / 32);
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -1020,7 +1019,7 @@ moves_loop: // When in check, search starts here
                   && history < -3875 * (depth - 1))
                   continue;
 
-              history += 2 * thisThread->mainHistory[us][from_to(move)];
+              history += 4 * thisThread->mainHistory[us][from_to(move)];
 
               // Futility pruning: parent node (~9 Elo)
               if (   !ss->inCheck
