@@ -1471,12 +1471,6 @@ moves_loop: // When in check, search starts here
             (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                              : -(ss-1)->staticEval;
 
-        if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !pos.captured_piece())
-        {
-            int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1914, 1914);
-            thisThread->mainHistory[~pos.side_to_move()][from_to((ss-1)->currentMove)] << bonus;
-        }
-
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
@@ -1569,6 +1563,10 @@ moves_loop: // When in check, search starts here
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
+
+      if (!capture && !givesCheck && !ss->inCheck && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+           && ss->staticEval + 600 < alpha)
+           continue;
 
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
       // and being a 'quiet' apart from being a tt move is assumed after an increment because captures are pushed ahead.
