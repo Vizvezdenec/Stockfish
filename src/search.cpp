@@ -619,6 +619,10 @@ namespace {
     excludedMove = ss->excludedMove;
     posKey = excludedMove == MOVE_NONE ? pos.key() : pos.key() ^ make_key(excludedMove);
     tte = TT.probe(posKey, ss->ttHit);
+    if (   ss->ttHit && tte->move() 
+        && (    pos.piece_on(from_sq(tte->move())) == NO_PIECE
+            || (pos.pieces(us) & to_sq(tte->move()))))
+            ss->ttHit = false;
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
@@ -1437,6 +1441,10 @@ moves_loop: // When in check, search starts here
     // Transposition table lookup
     posKey = pos.key();
     tte = TT.probe(posKey, ss->ttHit);
+    if (   ss->ttHit && tte->move() 
+        && (    pos.piece_on(from_sq(tte->move())) == NO_PIECE
+            || (pos.pieces(pos.side_to_move()) & to_sq(tte->move()))))
+            ss->ttHit = false;
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
     pvHit = ss->ttHit && tte->is_pv();
