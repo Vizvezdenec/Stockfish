@@ -1224,7 +1224,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha,
-                              std::min(maxNextDepth, newDepth + (moveCount > 1 && value > (alpha + beta) / 2)), false);
+                              std::min(maxNextDepth, newDepth + (moveCount > 1 && value > (alpha + 3 * beta) / 4)), false);
       }
 
       // Step 19. Undo move
