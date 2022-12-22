@@ -795,6 +795,7 @@ namespace {
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && !pos.blockers_for_king(us)
+        && !pos.blockers_for_king(~us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
     {
         assert(eval - beta >= 0);
