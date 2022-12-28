@@ -940,8 +940,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int quietCheckEvasions = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1159,9 +1157,6 @@ moves_loop: // When in check, search starts here
       if ((ss+1)->cutoffCnt > 3)
           r++;
 
-      if (ss->inCheck && !capture && quietCheckEvasions > 1)
-          r++;
-
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1188,22 +1183,19 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          quietCheckEvasions += ss->inCheck && !capture && d >= newDepth;
-
           // Do full depth search when reduced LMR search fails high
-          if (value > alpha && d < newDepth)
-          {
+
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (alpha + 64 + 11 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 582 && ss->doubleExtensions <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
 
-              quietCheckEvasions += ss->inCheck && !capture;
-
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
+          if (value > alpha && d < newDepth)
+          {
 
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
@@ -1222,7 +1214,6 @@ moves_loop: // When in check, search starts here
       else if (!PvNode || moveCount > 1)
       {
                value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
-               quietCheckEvasions += ss->inCheck && !capture;
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
