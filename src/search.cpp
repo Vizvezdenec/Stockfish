@@ -1206,6 +1206,9 @@ moves_loop: // When in check, search starts here
                   bonus /= 6;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+
+              if (doShallowerSearch && value >= bestValue + 5 + newDepth)
+                  newDepth++;
           }
       }
 
