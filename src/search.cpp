@@ -764,7 +764,7 @@ namespace {
     improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
                   : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
                   :                                    168;
-    improving = improvement > 3 * depth;
+    improving = improvement > 0;
 
     // Step 7. Razoring (~1 Elo).
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
@@ -1693,8 +1693,10 @@ moves_loop: // When in check, search starts here
         int bonus2 = bestValue > beta + 137 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
+        bool extraBonus = bestValue > ss->staticEval + 50 * depth;
+
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus2 * (1 + extraBonus));
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
