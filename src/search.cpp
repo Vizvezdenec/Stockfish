@@ -603,6 +603,7 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
+    ss->r                = 0;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -789,6 +790,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18200
+        && (ss-1)->r >= -2
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24
@@ -1165,6 +1167,8 @@ moves_loop: // When in check, search starts here
 
       // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
       r -= ss->statScore / (12800 + 4410 * (depth > 7 && depth < 19));
+
+      ss->r = r;
 
       // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
       // We use various heuristics for the sons of a node after the first son has
