@@ -603,7 +603,6 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    ss->r                = 0;
     Square prevSq        = to_sq((ss-1)->currentMove);
 
     // Initialize statScore to zero for the grandchildren of the current position.
@@ -790,7 +789,6 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18200
-        && (ss-1)->r >= -1
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24
@@ -855,6 +853,9 @@ namespace {
              && ttValue < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE);
+
+        if (ss->ttHit && tte->bound() == BOUND_EXACT && tte->depth() >= depth - 3 && ttCapture && ttValue >= probCutBeta)
+            return ttValue;
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
@@ -1183,11 +1184,7 @@ moves_loop: // When in check, search starts here
           // beyond the first move depth. This may lead to hidden double extensions.
           Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
-          ss->r = r;
-
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
-
-          ss->r = 0;
 
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
@@ -1202,12 +1199,8 @@ moves_loop: // When in check, search starts here
 
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
-              ss->r = -1 - doDeeperSearch;
-
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-
-              ss->r = 0;
 
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
