@@ -1166,9 +1166,6 @@ moves_loop: // When in check, search starts here
                      + (*contHist[3])[movedPiece][to_sq(move)]
                      - 4467;
 
-      if (move == ttMove && (tte->bound() & BOUND_LOWER) && ttValue > alpha)
-          r--;
-
       // Decrease/increase reduction for moves with a good/bad history (~30 Elo)
       r -= ss->statScore / (12800 + 4410 * (depth > 7 && depth < 19));
 
@@ -1218,7 +1215,7 @@ moves_loop: // When in check, search starts here
       // Step 18. Full depth search when LMR is skipped. If expected reduction is high, reduce its depth by 1.
       else if (!PvNode || moveCount > 1)
       {
-               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
+               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4 && !(move == ttMove && extension)), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
