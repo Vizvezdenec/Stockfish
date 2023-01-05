@@ -894,7 +894,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3 + (ss->ply == 1 && (ss-1)->moveCount == 1);
+        depth -= 3 + (ss-1)->mainline;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -965,6 +965,8 @@ moves_loop: // When in check, search starts here
           continue;
 
       ss->moveCount = ++moveCount;
+
+      ss->mainline = (rootNode || (ss-1)->mainline) && moveCount == 1;
 
       if (rootNode && thisThread == Threads.main() && Time.elapsed() > 3000)
           sync_cout << "info depth " << depth
