@@ -943,11 +943,11 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool forceMcp = false;
+    bool badCapturesPruning = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning || forceMcp)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning, badCapturesPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -992,6 +992,8 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
+
+          badCapturesPruning = moveCount >= futility_move_count(improving, depth) * 2;
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1307,10 +1309,7 @@ moves_loop: // When in check, search starts here
                       && depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                      {
                       depth -= 1;
-                      forceMcp = capture;
-                      }
 
                   assert(depth > 0);
               }

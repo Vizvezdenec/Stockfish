@@ -129,7 +129,7 @@ public:
                                            const PieceToHistory**,
                                            Square);
   MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
-  Move next_move(bool skipQuiets = false);
+  Move next_move(bool skipQuiets = false, bool skipCaptures = false);
 
   Bitboard threatenedPieces;
 

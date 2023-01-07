@@ -172,7 +172,7 @@ Move MovePicker::select(Pred filter) {
 /// MovePicker::next_move() is the most important method of the MovePicker class. It
 /// returns a new pseudo-legal move every time it is called until there are no more
 /// moves left, picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+Move MovePicker::next_move(bool skipQuiets, bool skipCaptures) {
 
 top:
   switch (stage) {
@@ -250,6 +250,8 @@ top:
       [[fallthrough]];
 
   case BAD_CAPTURE:
+      if (skipCaptures)
+          return MOVE_NONE;
       return select<Next>([](){ return true; });
 
   case EVASION_INIT:
