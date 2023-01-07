@@ -1309,7 +1309,7 @@ moves_loop: // When in check, search starts here
                       && alpha > -VALUE_KNOWN_WIN)
                       {
                       depth -= 1;
-                      forceMcp = true;
+                      forceMcp = capture;
                       }
 
                   assert(depth > 0);
