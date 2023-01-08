@@ -268,7 +268,7 @@ top:
       return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
 
   case QCAPTURE:
-      if (select<Next>([&](){ return   (depth > DEPTH_QS_RECAPTURES + nonPv)
+      if (select<Next>([&](){ return   (depth > DEPTH_QS_RECAPTURES + 2 * nonPv)
                                     || to_sq(*cur) == recaptureSquare; }))
           return *(cur - 1);
 
