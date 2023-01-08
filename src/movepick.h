@@ -123,13 +123,13 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
-                                           const Move*);
+                                           const Move*,
+                                           Square);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square,
-                                           bool);
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+                                           Square);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, Square);
   Move next_move(bool skipQuiets = false);
 
   Bitboard threatenedPieces;
@@ -148,7 +148,6 @@ private:
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
   Square recaptureSquare;
-  bool nonPv;
   Value threshold;
   Depth depth;
   ExtMove moves[MAX_MOVES];
