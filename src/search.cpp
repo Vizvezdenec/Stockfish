@@ -758,6 +758,7 @@ namespace {
     {
         int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1940, 1940);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+        (ss-1)->statScore += bonus;
     }
 
     // Set up the improvement variable, which is the difference between the current
@@ -1123,7 +1124,7 @@ moves_loop: // When in check, search starts here
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
-      Depth r = reduction(improving, depth, std::max(1 + capture, moveCount), delta, thisThread->rootDelta);
+      Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
       // Decrease reduction if position is or has been on the PV
       // and node is not likely to fail low. (~3 Elo)
