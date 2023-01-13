@@ -74,10 +74,9 @@ namespace {
     return (r + 1460 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 937);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth, bool ttCapture) {
-    return improving ? (3 + depth * depth) :
-           !ttCapture ? (3 + depth * depth) / 2
-                     : (3 + depth * depth) / 4;
+  constexpr int futility_move_count(bool improving, Depth depth) {
+    return improving ? (3 + depth * depth)
+                     : (3 + depth * depth) / 2;
   }
 
   // History and stats update bonus, based on depth
@@ -665,6 +664,26 @@ namespace {
             return ttValue;
     }
 
+    Bitboard lostDefence = 0;
+    if (is_ok((ss-1)->currentMove))
+    {
+        Square from = from_sq((ss-1)->currentMove);
+        Square to = to_sq((ss-1)->currentMove);
+        PieceType moved = type_of(pos.moved_piece((ss-1)->currentMove));
+        if (moved == KING)
+            lostDefence = attacks_bb<KING>(from, pos.pieces()) & ~attacks_bb<KING>(to, pos.pieces());
+        else if (moved == KNIGHT)
+            lostDefence = attacks_bb<KNIGHT>(from, pos.pieces());
+        else if (moved == BISHOP)
+            lostDefence = attacks_bb<BISHOP>(from, pos.pieces()) & ~attacks_bb<BISHOP>(to, pos.pieces());
+        else if (moved == ROOK)
+            lostDefence = attacks_bb<ROOK>(from, pos.pieces()) & ~attacks_bb<ROOK>(to, pos.pieces());
+        else if (moved == QUEEN)
+            lostDefence = attacks_bb<QUEEN>(from, pos.pieces()) & ~attacks_bb<QUEEN>(to, pos.pieces());
+        else if (moved == PAWN)
+            lostDefence = pawn_attacks_bb(us, from);
+    }
+
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
     {
@@ -858,7 +877,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, lostDefence);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -932,7 +951,8 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      lostDefence);
 
     value = bestValue;
     moveCountPruning = singularQuietLMR = false;
@@ -990,7 +1010,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth, ttCapture);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1494,6 +1514,26 @@ moves_loop: // When in check, search starts here
         futilityBase = bestValue + 158;
     }
 
+    Bitboard lostDefence = 0;
+    if (is_ok((ss-1)->currentMove))
+    {
+        Square from = from_sq((ss-1)->currentMove);
+        Square to = to_sq((ss-1)->currentMove);
+        PieceType moved = type_of(pos.moved_piece((ss-1)->currentMove));
+        if (moved == KING)
+            lostDefence = attacks_bb<KING>(from, pos.pieces()) & ~attacks_bb<KING>(to, pos.pieces());
+        else if (moved == KNIGHT)
+            lostDefence = attacks_bb<KNIGHT>(from, pos.pieces());
+        else if (moved == BISHOP)
+            lostDefence = attacks_bb<BISHOP>(from, pos.pieces()) & ~attacks_bb<BISHOP>(to, pos.pieces());
+        else if (moved == ROOK)
+            lostDefence = attacks_bb<ROOK>(from, pos.pieces()) & ~attacks_bb<ROOK>(to, pos.pieces());
+        else if (moved == QUEEN)
+            lostDefence = attacks_bb<QUEEN>(from, pos.pieces()) & ~attacks_bb<QUEEN>(to, pos.pieces());
+        else if (moved == PAWN)
+            lostDefence = pawn_attacks_bb(pos.side_to_move(), from);
+    }
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -1506,7 +1546,8 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      lostDefence);
 
     int quietCheckEvasions = 0;
 

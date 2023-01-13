@@ -123,12 +123,14 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Move,
-                                           const Move*);
+                                           const Move*,
+                                           Bitboard);
   MovePicker(const Position&, Move, Depth, const ButterflyHistory*,
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
-                                           Square);
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+                                           Square,
+                                           Bitboard);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, Bitboard);
   Move next_move(bool skipQuiets = false);
 
   Bitboard threatenedPieces;
@@ -148,6 +150,7 @@ private:
   int stage;
   Square recaptureSquare;
   Value threshold;
+  Bitboard lostDefence;
   Depth depth;
   ExtMove moves[MAX_MOVES];
 };
