@@ -74,9 +74,10 @@ namespace {
     return (r + 1460 - int(delta) * 1024 / int(rootDelta)) / 1024 + (!i && r > 937);
   }
 
-  constexpr int futility_move_count(bool improving, Depth depth) {
-    return improving ? (3 + depth * depth)
-                     : (3 + depth * depth) / 2;
+  constexpr int futility_move_count(bool improving, Depth depth, bool ttCapture) {
+    return improving ? (3 + depth * depth) :
+           !ttCapture ? (3 + depth * depth) / 2
+                     : 3 * (3 + depth * depth) / 8;
   }
 
   // History and stats update bonus, based on depth
@@ -989,7 +990,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth, ttCapture);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
@@ -1219,7 +1220,7 @@ moves_loop: // When in check, search starts here
                if (!ttMove && cutNode)
                          r += 2;
 
-               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4 && ss->doubleExtensions != (ss-1)->doubleExtensions), !cutNode);
+               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
