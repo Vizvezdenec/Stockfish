@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta) - ttCapture, 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
               || givesCheck)
@@ -1218,6 +1218,9 @@ moves_loop: // When in check, search starts here
                // Increase reduction for cut nodes and not ttMove (~1 Elo)
                if (!ttMove && cutNode)
                          r += 2;
+
+               if (ss->doubleExtensions > (ss-1)->doubleExtensions)
+                   r--;
 
                value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
