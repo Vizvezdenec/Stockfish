@@ -989,10 +989,10 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth) - 3 * ttCapture;
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta) - ttCapture, 0);
 
           if (   capture
               || givesCheck)
