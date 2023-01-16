@@ -900,9 +900,9 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        &&  depth >= 9 - 4 * ss->ttHit
+        &&  depth >= 9
         && !ttMove)
-        depth--;
+        depth -= 2;
 
 moves_loop: // When in check, search starts here
 
@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
           if (   capture
               || givesCheck)
@@ -1028,6 +1028,8 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 13
                   && ss->staticEval + 103 + 136 * lmrDepth + history / 53 <= alpha)
                   continue;
+
+              lmrDepth = std::max(lmrDepth, 0);
 
               // Prune moves with negative SEE (~4 Elo)
               if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 16 * lmrDepth)))
