@@ -989,15 +989,14 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth) - 2 * ttCapture;
 
           // Reduced depth of the next LMR search
-          int lmrDepth = newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
               || givesCheck)
           {
-              lmrDepth = std::max(lmrDepth, 0);
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && !PvNode
@@ -1024,12 +1023,10 @@ moves_loop: // When in check, search starts here
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth = std::max(lmrDepth + history / 7208, 0);
-
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 13
-                  && ss->staticEval + 103 + 136 * lmrDepth <= alpha)
+                  && ss->staticEval + 103 + 136 * lmrDepth + history / 53 <= alpha)
                   continue;
 
               // Prune moves with negative SEE (~4 Elo)
