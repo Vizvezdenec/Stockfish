@@ -997,7 +997,7 @@ moves_loop: // When in check, search starts here
                             + 2 * thisThread->mainHistory[us][from_to(move)];
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth + history / 7208 - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth + history / 8192 - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
               || givesCheck)
