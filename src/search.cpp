@@ -1023,9 +1023,9 @@ moves_loop: // When in check, search starts here
 
               if (!ss->inCheck
                   && lmrDepth < 2
-                  && (*contHist[1])[movedPiece][to_sq(move)]
-                   + (*contHist[3])[movedPiece][to_sq(move)]
-                   + (*contHist[5])[movedPiece][to_sq(move)] < - 5000 * (depth - 1))
+                  && (*contHist[1])[movedPiece][to_sq(move)] < - 5000 * (depth - 1)
+                  && (*contHist[3])[movedPiece][to_sq(move)] < - 5000 * (depth - 1)
+                  && (*contHist[5])[movedPiece][to_sq(move)] < - 5000 * (depth - 1))
                   continue;
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
