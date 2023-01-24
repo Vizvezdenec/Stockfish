@@ -747,7 +747,10 @@ namespace {
     }
     else
     {
-        ss->staticEval = eval = evaluate(pos, &complexity);
+        if (!excludedMove)
+            ss->staticEval = eval = evaluate(pos, &complexity);
+        else
+            eval = ss->staticEval;
 
         // Save static evaluation into transposition table
         if (!excludedMove)
@@ -896,7 +899,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
-        && (!ttMove || !pos.piece_on(from_sq(ttMove)) || (pos.pieces(us) & to_sq(ttMove))))
+        && !ttMove)
         depth -= 3;
 
     if (depth <= 0)
