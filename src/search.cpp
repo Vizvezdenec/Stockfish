@@ -946,6 +946,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool failedExt = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1010,7 +1012,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, Value(-252 + std::min(depth - lmrDepth, 6) * 13) * depth))
+              if (!pos.see_ge(move, Value(-220) * depth))
                   continue;
           }
           else
@@ -1083,16 +1085,20 @@ moves_loop: // When in check, search starts here
               // search without the ttMove. So we assume this expected Cut-node is not singular,
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
-              else if (singularBeta >= beta)
-                  return singularBeta;
+              else 
+              {
+                   if (singularBeta >= beta)
+                       return singularBeta;
 
-              // If the eval of ttMove is greater than beta, we reduce it (negative extension)
-              else if (ttValue >= beta)
-                  extension = -2;
+                   // If the eval of ttMove is greater than beta, we reduce it (negative extension)
+                   else if (ttValue >= beta)
+                       extension = -2;
 
-              // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
-              else if (ttValue <= alpha && ttValue <= value)
-                  extension = -1;
+                   // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
+                   else if (ttValue <= alpha && ttValue <= value)
+                       extension = -1;
+                   failedExt = true;
+              }
           }
 
           // Check extensions (~1 Elo)
@@ -1161,6 +1167,9 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high
       if ((ss+1)->cutoffCnt > 3)
+          r++;
+
+      if (moveCount == 1 && failedExt)
           r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
