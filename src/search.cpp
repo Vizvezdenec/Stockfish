@@ -123,7 +123,7 @@ namespace {
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
   void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus);
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth);
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool extrafkinbns);
 
   // perft() is our utility to verify move generation. All the leaf nodes up
   // to the given depth are generated and counted, and the sum is returned.
@@ -946,6 +946,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool extrafkinbns = ss->ttHit && !ttMove;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1227,9 +1229,6 @@ moves_loop: // When in check, search starts here
                if (!ttMove && cutNode)
                          r += 2;
 
-               if (!capture && ss->statScore < -50000)
-                   r++;
-
                value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
 
@@ -1368,7 +1367,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth, extrafkinbns);
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 5 || PvNode || bestValue < alpha - 65 * depth)
@@ -1692,7 +1691,7 @@ moves_loop: // When in check, search starts here
   // update_all_stats() updates stats at the end of search() when a bestMove is found
 
   void update_all_stats(const Position& pos, Stack* ss, Move bestMove, Value bestValue, Value beta, Square prevSq,
-                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth) {
+                        Move* quietsSearched, int quietCount, Move* capturesSearched, int captureCount, Depth depth, bool extrafkinbns) {
 
     Color us = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
@@ -1706,8 +1705,10 @@ moves_loop: // When in check, search starts here
         int bonus2 = bestValue > beta + 146 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
+        int bonus3 = extrafkinbns ? bonus2 == bonus1 ? stat_bonus(depth + 2) : stat_bonus(depth + 1) : stat_bonus(depth);
+
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, bonus2);
+        update_quiet_stats(pos, ss, bestMove, bonus3);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
