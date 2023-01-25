@@ -946,7 +946,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool failedExt = false;
+    int failedExt = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1097,7 +1097,7 @@ moves_loop: // When in check, search starts here
                    // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
                    else if (ttValue <= alpha && ttValue <= value)
                        extension = -1;
-                   failedExt = value >= singularBeta + 50;
+                   failedExt = value - singularBeta;
               }
           }
 
@@ -1169,8 +1169,8 @@ moves_loop: // When in check, search starts here
       if ((ss+1)->cutoffCnt > 3)
           r++;
 
-      if (moveCount == 1 && failedExt)
-          r++;
+      if (moveCount == 1)
+          r += failedExt / 64;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
