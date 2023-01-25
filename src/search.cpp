@@ -1010,7 +1010,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, Value(-270 + std::min(depth - lmrDepth, 6) * 20) * depth))
+              if (!pos.see_ge(move, Value(-252 + std::min(depth - lmrDepth, 6) * 13) * depth))
                   continue;
           }
           else
