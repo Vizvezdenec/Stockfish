@@ -1315,7 +1315,7 @@ moves_loop: // When in check, search starts here
                       && depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                      depth -= 1 - (value < (7 * alpha + beta) / 8) + (depth > 1 && (value < (alpha + 7 * beta) / 8));
+                      depth -= 1 - (depth > 1 && ss->ttHit && !ttMove);
 
                   alpha = value;
 
