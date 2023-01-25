@@ -946,6 +946,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool depthRed = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1310,14 +1312,17 @@ moves_loop: // When in check, search starts here
 
               if (PvNode && value < beta) // Update alpha! Always alpha < beta
               {
+                  alpha = value;
+
                   // Reduce other moves if we have found at least one score improvement
                   if (   depth > 1
                       && depth < 6
                       && beta  <  VALUE_KNOWN_WIN
                       && alpha > -VALUE_KNOWN_WIN)
-                      depth -= 1 - (value < (7 * alpha + beta) / 8) + (depth > 2 && (value < (alpha + 7 * beta) / 8));
-
-                  alpha = value;
+                  {
+                      depth -= 1;
+                      depthRed = true;
+                  }
 
                   assert(depth > 0);
               }
@@ -1365,7 +1370,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (depthRed && bestValue < beta));
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 5 || PvNode || bestValue < alpha - 65 * depth)
