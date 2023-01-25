@@ -1097,7 +1097,7 @@ moves_loop: // When in check, search starts here
                    // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
                    else if (ttValue <= alpha && ttValue <= value)
                        extension = -1;
-                   failedExt = true;
+                   failedExt = value >= singularBeta + 50;
               }
           }
 
@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
           r++;
 
       if (moveCount == 1 && failedExt)
-          r += 2;
+          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
