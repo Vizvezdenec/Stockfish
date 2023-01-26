@@ -946,6 +946,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int failedExt = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1098,6 +1100,8 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
+
+              failedExt = value - singularBeta;
           }
 
           // Check extensions (~1 Elo)
@@ -1142,6 +1146,9 @@ moves_loop: // When in check, search starts here
       // Decrease reduction if opponent's move count is high (~1 Elo)
       if ((ss-1)->moveCount > 7)
           r--;
+
+      if (moveCount == 1)
+          r += failedExt / 64;
 
       // Increase reduction for cut nodes (~3 Elo)
       if (cutNode)
