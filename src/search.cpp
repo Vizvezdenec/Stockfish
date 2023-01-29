@@ -1298,7 +1298,8 @@ moves_loop: // When in check, search starts here
       {
           bestValue = value;
 
-          pseudoBestMove = move;
+          if (value > alpha - 50)
+              pseudoBestMove = move;
 
           if (value > alpha)
           {
