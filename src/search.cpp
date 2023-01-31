@@ -1700,7 +1700,7 @@ moves_loop: // When in check, search starts here
         int bonus2 = bestValue > beta + 146 ? bonus1               // larger bonus
                                             : stat_bonus(depth);   // smaller bonus
 
-        int bonus3 = bonus2 * (1 + extrabonus);
+        int bonus3 = bonus2 * (2 + extrabonus) / 2;
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus3);
