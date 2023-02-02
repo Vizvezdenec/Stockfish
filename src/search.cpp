@@ -663,7 +663,7 @@ namespace {
             return ttValue;
     }
 
-    bool extrabonus = !ttMove;
+    bool extrabonus = ss->ttHit && !ttMove;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
@@ -1701,6 +1701,8 @@ moves_loop: // When in check, search starts here
                                             : stat_bonus(depth);   // smaller bonus
 
         int bonus3 = extrabonus ? bonus2 == bonus1 ? stat_bonus(depth + 2) : stat_bonus(depth + 1) : stat_bonus(depth);
+
+        bonus3 = (bonus3 + bonus2) / 2;
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus3);
