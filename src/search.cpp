@@ -1558,7 +1558,7 @@ moves_loop: // When in check, search starts here
 
       // Do not search moves with bad enough SEE values (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !pos.see_ge(move, Value(-200 - 10 * depth)))
+          && !pos.see_ge(move, Value(-200 - 20 * depth)))
           continue;
 
       // Speculative prefetch as early as possible
