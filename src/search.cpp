@@ -663,7 +663,7 @@ namespace {
             return ttValue;
     }
 
-    bool extrabonus = ss->ttHit && !ttMove && !cutNode;
+    bool extrabonus = !ttMove;
 
     // Step 5. Tablebases probe
     if (!rootNode && TB::Cardinality)
