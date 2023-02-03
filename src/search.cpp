@@ -1423,7 +1423,6 @@ moves_loop: // When in check, search starts here
     int moveCount;
 
     // Step 1. Initialize node
-
     if (PvNode)
     {
         (ss+1)->pv = pv;
