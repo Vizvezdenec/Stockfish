@@ -1556,12 +1556,6 @@ moves_loop: // When in check, search starts here
           }
       }
 
-      ss->currentMove = move;
-      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                [capture]
-                                                                [pos.moved_piece(move)]
-                                                                [to_sq(move)];
-
     if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
     {
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
@@ -1582,6 +1576,12 @@ moves_loop: // When in check, search starts here
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
+
+      ss->currentMove = move;
+      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                [capture]
+                                                                [pos.moved_piece(move)]
+                                                                [to_sq(move)];
 
       quietCheckEvasions += !capture && ss->inCheck;
 
