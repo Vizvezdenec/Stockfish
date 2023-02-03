@@ -1531,9 +1531,10 @@ moves_loop: // When in check, search starts here
 
       moveCount++;
 
+    if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+    {
       // Futility pruning and moveCount pruning (~10 Elo)
-      if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !givesCheck
+      if (   !givesCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
@@ -1556,8 +1557,6 @@ moves_loop: // When in check, search starts here
           }
       }
 
-    if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
-    {
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
       // and being a 'quiet' apart from being a tt move is assumed after an increment because captures are pushed ahead.
       if (   quietCheckEvasions > 1)
