@@ -787,7 +787,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~40 Elo).
     // The depth condition is important for mate finding.
-    if (   (!ss->ttPv || (!PvNode && ttCapture))
+    if (   !ss->ttPv
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 304 >= beta
         &&  eval >= beta
@@ -1041,7 +1041,7 @@ moves_loop: // When in check, search starts here
               lmrDepth = std::max(lmrDepth, 0);
 
               // Prune moves with negative SEE (~4 Elo)
-              if (!pos.see_ge(move, Value(-25 * lmrDepth * lmrDepth - 16 * lmrDepth)))
+              if (!pos.see_ge(move, Value(std::min(-108, -25 * lmrDepth * lmrDepth - 16 * lmrDepth))))
                   continue;
           }
       }
