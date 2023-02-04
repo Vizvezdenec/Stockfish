@@ -1014,8 +1014,10 @@ moves_loop: // When in check, search starts here
                   && ss->staticEval + 185 + 203 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] < alpha)
                   continue;
 
+              lmrDepth = std::max(lmrDepth, 0);
+
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, Value(-220) * depth))
+              if (!pos.see_ge(move, Value(-220) * lmrDepth))
                   continue;
           }
           else
