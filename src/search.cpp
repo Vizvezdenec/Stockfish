@@ -787,7 +787,7 @@ namespace {
 
     // Step 8. Futility pruning: child node (~40 Elo).
     // The depth condition is important for mate finding.
-    if (   !ss->ttPv
+    if (   (!ss->ttPv || (!PvNode && ttCapture))
         &&  depth < 8
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 304 >= beta
         &&  eval >= beta
@@ -1003,21 +1003,17 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              lmrDepth += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 1218;
-              lmrDepth = std::max(lmrDepth, -2);
-
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && !PvNode
                   && lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 185 + 203 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] < alpha)
+                  && ss->staticEval + 185 + 203 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
-              lmrDepth = std::max(lmrDepth, 0);
-
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, Value(-220) * lmrDepth))
+              if (!pos.see_ge(move, Value(-220) * depth))
                   continue;
           }
           else
