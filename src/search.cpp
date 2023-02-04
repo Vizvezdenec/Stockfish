@@ -1003,7 +1003,7 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              lmrDepth += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 1024;
+              lmrDepth += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 1218;
 
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
