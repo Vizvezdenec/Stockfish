@@ -1563,7 +1563,8 @@ moves_loop: // When in check, search starts here
 
       // Do not search moves with bad enough SEE values (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && !pos.see_ge(move, Value(-108)))
+          && depth < -1
+          && !pos.see_ge(move))
           continue;
 
       // Speculative prefetch as early as possible
@@ -1592,15 +1593,7 @@ moves_loop: // When in check, search starts here
 
       // Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (depth >= -2 && moveCount > 1 && (!capture || !(pvHit || PvNode)))
-      {
-          value = -qsearch<NonPV>(pos, ss+1, -alpha - 1, -alpha, DEPTH_QS_RECAPTURES);
-          if (value > alpha)
-              value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
-      }
-      else
-          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
-
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
