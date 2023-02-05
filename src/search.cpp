@@ -1584,7 +1584,7 @@ moves_loop: // When in check, search starts here
 
       if (   !capture
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && ss->staticEval + 200 + 100 * depth <= alpha)
+          && ss->staticEval + 150 + 150 * depth <= alpha)
           continue;
 
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
