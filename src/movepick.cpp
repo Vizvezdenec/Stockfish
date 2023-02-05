@@ -29,7 +29,7 @@ namespace {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
-    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK, GOOD_CAPTURE1, QCHECK_INIT1, QCHECK1, BAD_CAPTURE1
+    QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
   };
 
   // partial_insertion_sort() sorts moves in descending order up to and including
@@ -267,20 +267,16 @@ top:
       return select<Next>([&](){ return pos.see_ge(*cur, threshold); });
 
   case QCAPTURE:
-      if (depth != DEPTH_QS_CHECKS)
-      {
       if (select<Next>([&](){ return   depth > DEPTH_QS_RECAPTURES
                                     || to_sq(*cur) == recaptureSquare; }))
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
+      if (depth != DEPTH_QS_CHECKS)
           return MOVE_NONE;
-      }
-      else
-      {
-          stage = GOOD_CAPTURE1;
-          goto top;
-      }
+
+      ++stage;
+      [[fallthrough]];
 
   case QCHECK_INIT:
       cur = moves;
@@ -290,36 +286,6 @@ top:
       [[fallthrough]];
 
   case QCHECK:
-      return select<Next>([](){ return true; });
-
-  case GOOD_CAPTURE1:
-      if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(-cur->value)) ?
-                              // Move losing capture to endBadCaptures to be tried later
-                              true : (*endBadCaptures++ = *cur, false); }))
-          return *(cur - 1);
-
-      ++stage;
-      [[fallthrough]];
-
-  case QCHECK_INIT1:
-      cur = moves;
-      endMoves = generate<QUIET_CHECKS>(pos, cur);
-
-      ++stage;
-      [[fallthrough]];
-
-  case QCHECK1:
-      return select<Next>([](){ return true; });
-
-      // Prepare the pointers to loop over the bad captures
-      cur = moves;
-      endMoves = endBadCaptures;
-
-      ++stage;
-      [[fallthrough]];
-
-  case BAD_CAPTURE1:
       return select<Next>([](){ return true; });
   }
 
