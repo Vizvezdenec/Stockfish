@@ -1564,7 +1564,7 @@ moves_loop: // When in check, search starts here
       if (   !capture
           && !givesCheck
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && ss->staticEval + 300 + 100 * depth <= alpha)
+          && ss->staticEval + 200 <= alpha)
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
