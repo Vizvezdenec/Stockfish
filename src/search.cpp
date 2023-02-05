@@ -800,7 +800,7 @@ namespace {
         && (ss-1)->statScore < 18200
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24 + (int(thisThread->complexityAverage.value()) - 380) / 36
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -809,10 +809,6 @@ namespace {
 
         // Null move dynamic reduction based on depth, eval and complexity of position
         Depth R = std::min(int(eval - beta) / 165, 6) + depth / 3 + 4 - (complexity > 800);
-
-        int cmplx = complexity - int(thisThread->complexityAverage.value());
-
-        R += cmplx > 1000 ? -1 : cmplx < -1000 ? 1 : 0;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
