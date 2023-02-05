@@ -747,8 +747,7 @@ namespace {
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (    ttValue != VALUE_NONE
-            && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER))
-            && ((cutNode && (tte->bound() & BOUND_LOWER)) || (!cutNode && (tte->bound() & BOUND_UPPER))))
+            && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
     else
@@ -1562,6 +1561,12 @@ moves_loop: // When in check, search starts here
           }
       }
 
+      if (   !capture
+          && !givesCheck
+          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+          && ss->staticEval + 150 + 150 * depth <= alpha)
+          continue;
+
       // Do not search moves with bad enough SEE values (~5 Elo)
       if (    bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && !pos.see_ge(move, Value(-108)))
@@ -1581,12 +1586,6 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
-          continue;
-
-      if (   !capture
-          && !givesCheck
-          && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
-          && ss->staticEval + 150 + 150 * depth <= alpha)
           continue;
 
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
