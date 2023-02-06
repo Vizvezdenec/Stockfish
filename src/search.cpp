@@ -933,7 +933,7 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & BOUND_LOWER)
         && ttValue != VALUE_NONE
         && abs(ttValue) <= 25000
-        && ttValue >= beta + 500 + 200 * depth)
+        && ttValue >= beta + 320 * depth)
         return ttValue;
 
 
