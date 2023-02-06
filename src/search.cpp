@@ -1086,7 +1086,7 @@ moves_loop: // When in check, search starts here
                       depth += depth < 12;
                   }
 
-                  if (!ttCapture && value < singularBeta - 64)
+                  if (!ttCapture && value < singularBeta - 256)
                       update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
               }
 
