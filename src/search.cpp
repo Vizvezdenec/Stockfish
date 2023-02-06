@@ -800,7 +800,7 @@ namespace {
         && (ss-1)->statScore < 18200
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24 + (int(thisThread->complexityAverage.value()) - 380) / 36
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -925,6 +925,16 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
+
+    if (   ss->inCheck
+        && !PvNode
+        && depth <= 5
+        && ttMove
+        && (tte->bound() & BOUND_LOWER)
+        && ttValue != VALUE_NONE
+        && abs(ttValue) <= 25000
+        && ttValue >= beta + 500 + 200 * depth)
+        return ttValue;
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
