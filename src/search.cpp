@@ -926,16 +926,6 @@ moves_loop: // When in check, search starts here
        )
         return probCutBeta;
 
-    if (   ss->inCheck
-        && !PvNode
-        && depth <= 5
-        && ttMove
-        && (tte->bound() & BOUND_LOWER)
-        && ttValue != VALUE_NONE
-        && abs(ttValue) <= 25000
-        && ttValue >= beta + 300 + 300 * depth)
-        return ttValue;
-
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1095,6 +1085,9 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 12;
                   }
+
+                  if (!ttCapture && value < singularBeta - 128)
+                      update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
               }
 
               // Multi-cut pruning
