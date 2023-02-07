@@ -1085,9 +1085,6 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 12;
                   }
-
-                  if (!ttCapture && value < singularBeta - 16 * depth)
-                      update_continuation_histories(ss, movedPiece, to_sq(move), stat_bonus(singularDepth));
               }
 
               // Multi-cut pruning
@@ -1178,6 +1175,9 @@ moves_loop: // When in check, search starts here
       // Decrease reduction if move is a killer and we have a good history
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3600)
+          r--;
+
+      if (move == countermove && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
           r--;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
