@@ -1233,9 +1233,10 @@ moves_loop: // When in check, search starts here
                if (!ttMove && cutNode)
                          r += 2;
 
-               newDepth -= (r > 4);
-
-               value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+               if (cutNode && newDepth == 0)
+                  value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, -1);
+               else
+                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
