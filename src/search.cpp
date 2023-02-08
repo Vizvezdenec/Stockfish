@@ -1008,6 +1008,7 @@ moves_loop: // When in check, search starts here
                   && !PvNode
                   && lmrDepth < 7
                   && !ss->inCheck
+                  && mp.stage > 3
                   && ss->staticEval + 185 + 203 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
@@ -1194,7 +1195,6 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || (!tte->is_pv() && mp.stage > 3)
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           // In general we want to cap the LMR depth search at newDepth, but when
