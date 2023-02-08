@@ -1233,7 +1233,7 @@ moves_loop: // When in check, search starts here
                if (!ttMove && cutNode)
                          r += 2;
 
-               if (!cutNode && !PvNode && newDepth == 0)
+               if (!cutNode && !PvNode && newDepth == 0 && moveCount < 5)
                   value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, -1);
                else
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
