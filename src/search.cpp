@@ -1194,7 +1194,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
-              || mp.stage == 7
+              || mp.stage > 3
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           // In general we want to cap the LMR depth search at newDepth, but when
@@ -1240,7 +1240,7 @@ moves_loop: // When in check, search starts here
       // For PV nodes only, do a full PV search on the first move or after a fail
       // high (in the latter case search only if value < beta), otherwise let the
       // parent node fail low with value <= alpha and try another move.
-      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta - std::clamp(ss->ply - thisThread->rootDepth / 2, 0, int(delta) / 2)))))
+      if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta))))
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
