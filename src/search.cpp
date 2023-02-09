@@ -1546,7 +1546,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 3 + depth / 2)
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1576,7 +1576,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(-108)))
+      if (move != ttMove && !pos.see_ge(move, Value(-108)))
           continue;
 
     }
