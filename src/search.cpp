@@ -1192,6 +1192,7 @@ moves_loop: // When in check, search starts here
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
+              || (!tte->is_pv() && mp.stage > 3)
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           // In general we want to cap the LMR depth search at newDepth, but when
@@ -1571,7 +1572,6 @@ moves_loop: // When in check, search starts here
 
       // Continuation history based pruning (~3 Elo)
       if (   !capture
-          && move != ttMove
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
           && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
           continue;
