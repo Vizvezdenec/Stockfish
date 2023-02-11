@@ -148,7 +148,7 @@ void MovePicker::score() {
           {
               m.value =  PieceValue[MG][pos.piece_on(to_sq(m))]
                        - Value(type_of(pos.moved_piece(m)))
-                       + (1 << 28) * (count < 3);
+                       + (1 << 28) * (count < 4);
               count++;
           }
           else
