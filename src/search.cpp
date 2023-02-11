@@ -842,7 +842,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 160 - 54 * improving + 80 * ss->ttPv;
+    probCutBeta = beta + 180 - 54 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture and a reduced search returns a value
@@ -911,7 +911,7 @@ namespace {
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 402;
+    probCutBeta = beta + 402 + 100 * ss->ttPv;
     if (   ss->inCheck
         && !PvNode
         && depth >= 2
