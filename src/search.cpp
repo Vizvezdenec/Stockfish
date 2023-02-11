@@ -798,7 +798,7 @@ namespace {
         && (ss-1)->statScore < 18200
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24
+        &&  ss->staticEval >= beta - 20 * depth - improvement / 14 + 235 + complexity / 24 + 50 * ss->ttPv
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1191,7 +1191,6 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
-              || (!tte->is_pv() && mp.stage > 3 && moveCount > 15)
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
