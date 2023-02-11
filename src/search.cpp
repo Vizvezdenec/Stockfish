@@ -1190,9 +1190,8 @@ moves_loop: // When in check, search starts here
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
-          && (   !ss->ttPv
+          && (   (!tte->is_pv() && mp.stage > 3)
               || !capture
-              || (!tte->is_pv() && mp.stage > 3)
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           // In general we want to cap the LMR depth search at newDepth, but when
