@@ -911,7 +911,7 @@ namespace {
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 402 + 100 * ss->ttPv;
+    probCutBeta = beta + 352 + 300 * ss->ttPv;
     if (   ss->inCheck
         && !PvNode
         && depth >= 2
