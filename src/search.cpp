@@ -1191,7 +1191,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
-              || (!tte->is_pv() && mp.stage > 3 && moveCount > 5)
+              || (!tte->is_pv() && mp.stage > 3 && moveCount > 15)
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
