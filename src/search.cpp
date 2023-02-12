@@ -1195,7 +1195,7 @@ moves_loop: // When in check, search starts here
               || (cutNode && (ss-1)->moveCount > 1)))
       {
           if (likelyFailLow && bestMove == ttMove)
-              r += 2;
+              r++;
 
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
