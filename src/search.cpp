@@ -911,9 +911,9 @@ namespace {
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 372;
+    probCutBeta = beta + 402;
     if (   ss->inCheck
-        && !ss->ttPv
+        && !PvNode
         && depth >= 2
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
@@ -1173,6 +1173,9 @@ moves_loop: // When in check, search starts here
       // Decrease reduction if move is a killer and we have a good history
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3600)
+          r--;
+
+      if (move == countermove && (*contHist[1])[movedPiece][to_sq(move)] >= 15000)
           r--;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
