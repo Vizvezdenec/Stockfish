@@ -1375,7 +1375,7 @@ moves_loop: // When in check, search starts here
              && !priorCapture)
     {
         // Extra bonuses for PV/Cut nodes or bad fail lows
-        int bonus = 1 + (PvNode || cutNode) + (bestValue < alpha - 88 * depth) + ((ss-1)->moveCount > 18);
+        int bonus = 1 + (PvNode || cutNode) + (bestValue < alpha - 88 * depth);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
@@ -1576,7 +1576,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(-108)))
+      if (!pos.see_ge(move, Value(givesCheck ? -300 : -108)))
           continue;
 
     }
