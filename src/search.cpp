@@ -1569,7 +1569,7 @@ moves_loop: // When in check, search starts here
       if (quietCheckEvasions > 1)
           break;
 
-      if (!ss->inCheck && !capture && moveCount > 4)
+      if (!ss->inCheck && !capture && moveCount > 5)
           break;
 
       // Continuation history based pruning (~3 Elo)
