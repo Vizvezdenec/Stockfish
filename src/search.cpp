@@ -1521,6 +1521,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    int quietChecks = 0;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1557,7 +1558,7 @@ moves_loop: // When in check, search starts here
               continue;
           }
 
-          if (futilityBase <= alpha && !pos.see_ge(move))
+          if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
@@ -1567,6 +1568,9 @@ moves_loop: // When in check, search starts here
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
       // and being a 'quiet' apart from being a tt move is assumed after an increment because captures are pushed ahead.
       if (quietCheckEvasions > 1)
+          break;
+
+      if (quietChecks > 1)
           break;
 
       // Continuation history based pruning (~3 Elo)
@@ -1592,6 +1596,7 @@ moves_loop: // When in check, search starts here
                                                                 [to_sq(move)];
 
       quietCheckEvasions += !capture && ss->inCheck;
+      quietChecks += givesCheck && !capture;
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
