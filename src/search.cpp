@@ -1576,7 +1576,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(givesCheck && capture ? -200 : -108)))
+      if ((!givesCheck || !capture) && !pos.see_ge(move, Value(-108)))
           continue;
 
     }
