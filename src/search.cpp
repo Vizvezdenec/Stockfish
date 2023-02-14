@@ -1570,7 +1570,7 @@ moves_loop: // When in check, search starts here
       if (quietCheckEvasions > 1)
           break;
 
-      if (quietChecks > 1)
+      if (quietChecks > 3)
           break;
 
       // Continuation history based pruning (~3 Elo)
