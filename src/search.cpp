@@ -1557,7 +1557,7 @@ moves_loop: // When in check, search starts here
               continue;
           }
 
-          if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
+          if (futilityBase <= alpha && !pos.see_ge(move))
           {
               bestValue = std::max(bestValue, futilityBase);
               continue;
@@ -1576,7 +1576,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if ((!givesCheck || !capture) && !pos.see_ge(move, Value(-108)))
+      if (!pos.see_ge(move, Value(-108)))
           continue;
 
     }
