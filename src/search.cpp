@@ -1176,7 +1176,7 @@ moves_loop: // When in check, search starts here
           r--;
 
       if ((ss-1)->currentMove == (ss-1)->killers[0]
-          && (*contHist[0])[movedPiece][to_sq(move)] <= -4000)
+          && (*contHist[0])[movedPiece][to_sq(move)] <= -10000)
           r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
