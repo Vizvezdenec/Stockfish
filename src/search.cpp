@@ -1153,6 +1153,9 @@ moves_loop: // When in check, search starts here
       if (ttCapture)
           r++;
 
+      if (move == ttMove && tte->depth() >= depth - 3)
+          r--;
+
       // Decrease reduction for PvNodes based on depth
       if (PvNode)
           r -= 1 + 11 / (3 + depth);
@@ -1174,11 +1177,6 @@ moves_loop: // When in check, search starts here
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3600)
           r--;
-
-      if ((ss-1)->currentMove == (ss-1)->killers[0]
-          && (ss-1)->moveCount == 1
-          && (*contHist[0])[movedPiece][to_sq(move)] <= -7000)
-          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
