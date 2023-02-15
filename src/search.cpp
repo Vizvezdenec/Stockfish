@@ -947,8 +947,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool singExt = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1076,7 +1074,6 @@ moves_loop: // When in check, search starts here
               {
                   extension = 1;
                   singularQuietLMR = !ttCapture;
-                  singExt = true;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1177,6 +1174,10 @@ moves_loop: // When in check, search starts here
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3600)
           r--;
+
+      if ((ss-1)->currentMove == (ss-1)->killers[0]
+          && (*contHist[0])[movedPiece][to_sq(move)] <= -4000)
+          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1375,10 +1376,10 @@ moves_loop: // When in check, search starts here
 
     // Bonus for prior countermove that caused the fail low
     else if (   (depth >= 5 || PvNode || bestValue < alpha - 65 * depth)
-             && !priorCapture && !excludedMove)
+             && !priorCapture)
     {
         // Extra bonuses for PV/Cut nodes or bad fail lows
-        int bonus = 1 + (PvNode || cutNode) + (bestValue < alpha - 88 * depth) + singExt;
+        int bonus = 1 + (PvNode || cutNode) + (bestValue < alpha - 88 * depth);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
