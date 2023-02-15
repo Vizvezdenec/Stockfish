@@ -1153,7 +1153,7 @@ moves_loop: // When in check, search starts here
       if (ttCapture)
           r++;
 
-      if (move == ttMove && tte->depth() >= depth - 3)
+      if (move == ttMove && tte->depth() >= depth - 2)
           r--;
 
       // Decrease reduction for PvNodes based on depth
