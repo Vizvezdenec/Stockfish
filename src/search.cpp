@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta) - moveCountPruning, 0);
 
           if (   capture
               || givesCheck)
@@ -1006,12 +1006,12 @@ moves_loop: // When in check, search starts here
                   && !PvNode
                   && lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 185 + 203 * std::max(lmrDepth, 0) + PieceValue[EG][pos.piece_on(to_sq(move))]
+                  && ss->staticEval + 185 + 203 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 6 < alpha)
                   continue;
 
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, Value(-220 + 100 * (lmrDepth < 0)) * depth))
+              if (!pos.see_ge(move, Value(-220) * depth))
                   continue;
           }
           else
