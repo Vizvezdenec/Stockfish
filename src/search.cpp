@@ -1632,10 +1632,13 @@ moves_loop: // When in check, search starts here
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
-              bestValue >= beta ? BOUND_LOWER : PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
+              bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+
+    if (bestMove && is_ok((ss-1)->currentMove) && !pos.capture(bestMove))
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
 
     return bestValue;
   }
