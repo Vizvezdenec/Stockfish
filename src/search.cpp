@@ -1640,7 +1640,9 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
-
+    if (ss->inCheck && is_ok((ss-1)->currentMove) && bestMove && !pos.capture(bestMove))
+        thisThread->counterEvasions[pos.piece_on(prevSq)][prevSq] = bestMove;
+        
     return bestValue;
   }
 
