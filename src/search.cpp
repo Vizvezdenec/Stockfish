@@ -930,12 +930,14 @@ moves_loop: // When in check, search starts here
                                           nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = thisThread->counterMoves[pos.piece_on(prevSq)][prevSq];
+    Move counterevasion = thisThread->counterEvasions[pos.piece_on(prevSq)][prevSq];
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers);
+                                      ss->killers,
+                                      counterevasion);
 
     value = bestValue;
     moveCountPruning = singularQuietLMR = false;
@@ -1027,7 +1029,7 @@ moves_loop: // When in check, search starts here
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth += (history - 10000 * ttCapture) / 7208;
+              lmrDepth += history / 7208;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
@@ -1515,10 +1517,12 @@ moves_loop: // When in check, search starts here
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square prevSq = to_sq((ss-1)->currentMove);
+    Move counterevasion = thisThread->counterEvasions[pos.piece_on(prevSq)][prevSq];
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      counterevasion);
 
     int quietCheckEvasions = 0;
 
@@ -1779,6 +1783,8 @@ moves_loop: // When in check, search starts here
     {
         Square prevSq = to_sq((ss-1)->currentMove);
         thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        if (ss->inCheck)
+            thisThread->counterEvasions[pos.piece_on(prevSq)][prevSq] = move;
     }
   }
 
