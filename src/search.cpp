@@ -1784,9 +1784,9 @@ moves_loop: // When in check, search starts here
     if (is_ok((ss-1)->currentMove))
     {
         Square prevSq = to_sq((ss-1)->currentMove);
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
         if (ss->inCheck)
             thisThread->counterEvasions[pos.piece_on(prevSq)][prevSq] = move;
+        else thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
   }
 
