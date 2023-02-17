@@ -1637,6 +1637,17 @@ moves_loop: // When in check, search starts here
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
+    if (bestMove && !pos.capture(bestMove))
+    {
+        if (is_ok((ss-1)->currentMove))
+            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
+        if (ss->killers[0] != move)
+        {
+            ss->killers[1] = ss->killers[0];
+            ss->killers[0] = move;
+        }
+    }
+
     return bestValue;
   }
 
