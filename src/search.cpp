@@ -998,7 +998,6 @@ moves_loop: // When in check, search starts here
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
-          lmrDepth += ss->ttPv && !likelyFailLow;
           if (   capture
               || givesCheck)
           {
@@ -1029,6 +1028,7 @@ moves_loop: // When in check, search starts here
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
               lmrDepth += history / 7208;
+              lmrDepth -= ttCapture;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
