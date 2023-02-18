@@ -1100,7 +1100,7 @@ moves_loop: // When in check, search starts here
               {
                   extension = -2;
                   if (singularBeta > alpha)
-                      depth += depth < 12;
+                      depth += 1;
               }
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
