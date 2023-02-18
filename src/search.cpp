@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
+          int lmrDepth = std::max(newDepth + ss->ttPv - reduction(improving, depth, moveCount, delta, thisThread->rootDelta), 0);
 
           if (   capture
               || givesCheck)
@@ -1636,17 +1636,6 @@ moves_loop: // When in check, search starts here
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
-
-    if (bestMove && !pos.capture(bestMove))
-    {
-        if (is_ok((ss-1)->currentMove))
-            thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = bestMove;
-        if (ss->killers[0] != move)
-        {
-            ss->killers[1] = ss->killers[0];
-            ss->killers[0] = move;
-        }
-    }
 
     return bestValue;
   }
