@@ -999,6 +999,7 @@ moves_loop: // When in check, search starts here
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - r, 0);
+          lmrDepth += ss->ttPv;
 
           if (   capture
               || givesCheck)
@@ -1097,11 +1098,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
               else if (ttValue >= beta)
-              {
                   extension = -2;
-                  if (value > ttValue + 100)
-                      depth += 1;
-              }
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
