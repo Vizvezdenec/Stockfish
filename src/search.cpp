@@ -901,7 +901,7 @@ namespace {
         depth -= 3;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta, depth);
+        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 9
@@ -1101,6 +1101,8 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
+                  extension = -1;
+              else if (value >= beta && value >= ttValue)
                   extension = -1;
           }
 
