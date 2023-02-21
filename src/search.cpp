@@ -1103,7 +1103,7 @@ moves_loop: // When in check, search starts here
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
               else if (value >= beta && value >= ttValue)
-                  extension = -2;
+                  depth++;
           }
 
           // Check extensions (~1 Elo)
