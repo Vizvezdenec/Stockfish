@@ -1102,8 +1102,6 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha and value, we reduce it (negative extension)
               else if (ttValue <= alpha && ttValue <= value)
                   extension = -1;
-              else if (value >= beta && value >= ttValue + 25)
-                  depth++;
           }
 
           // Check extensions (~1 Elo)
@@ -1522,6 +1520,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    bool quietTt = false;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1537,6 +1536,7 @@ moves_loop: // When in check, search starts here
       capture = pos.capture(move);
 
       moveCount++;
+      quietTt |= move == ttMove && !capture && !givesCheck;
 
     // Step 6. Pruning.
     if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
@@ -1547,7 +1547,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2)
+          if (moveCount > 2 + quietTt)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
