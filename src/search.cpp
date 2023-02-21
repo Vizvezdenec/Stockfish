@@ -1547,7 +1547,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2 + quietTt)
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1567,7 +1567,7 @@ moves_loop: // When in check, search starts here
 
       // We prune after 2nd quiet check evasion where being 'in check' is implicitly checked through the counter
       // and being a 'quiet' apart from being a tt move is assumed after an increment because captures are pushed ahead.
-      if (quietCheckEvasions > 1)
+      if (quietCheckEvasions > 1 + quietTt)
           break;
 
       // Continuation history based pruning (~3 Elo)
