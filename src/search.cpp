@@ -902,8 +902,8 @@ namespace {
 
     if (depth <= 0)
     {
-        if (ss->staticEval >= beta)
-            return ss->staticEval;
+        if (eval >= beta)
+            return eval;
         return qsearch<PV>(pos, ss, alpha, beta);
     }
 
