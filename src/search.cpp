@@ -901,7 +901,7 @@ namespace {
         depth -= 3;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta, depth / 2);
 
     if (    cutNode
         &&  depth >= 9
@@ -1168,10 +1168,6 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high
       if ((ss+1)->cutoffCnt > 3)
-          r++;
-
-      if (ttMove && depth > 9 &&  (mp.threatenedPieces & from_sq(ttMove))
-                 && !(mp.threatenedPieces & from_sq(move)))
           r++;
 
       // Decrease reduction if move is a killer and we have a good history
