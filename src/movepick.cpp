@@ -217,6 +217,7 @@ top:
   case REFUTATION:
       if (select<Next>([&](){ return    *cur != MOVE_NONE
                                     && !pos.capture(*cur)
+                                    && !((type_of(*cur) == PROMOTION && promotion_type(*cur) == QUEEN))
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
       ++stage;
