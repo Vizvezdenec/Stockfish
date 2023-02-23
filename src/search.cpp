@@ -904,7 +904,7 @@ namespace {
     {
         if (eval >= beta)
             return eval;
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta, depth);
     }
 
     if (    cutNode
