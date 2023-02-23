@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
       if ((ss+1)->cutoffCnt > 3)
           r++;
 
-      if (ttMove && depth > 5 &&  (mp.threatenedPieces & from_sq(ttMove))
+      if (ttMove && depth > 9 &&  (mp.threatenedPieces & from_sq(ttMove))
                  && !(mp.threatenedPieces & from_sq(move)))
           r++;
 
