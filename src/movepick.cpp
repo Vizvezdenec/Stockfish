@@ -200,7 +200,10 @@ top:
                        return pos.see_ge(*cur, Value(-cur->value)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
+      {
+          dbg_mean_of(pos.capture(*(cur - 1)));
           return *(cur - 1);
+      }
 
       // Prepare the pointers to loop over the refutations array
       cur = std::begin(refutations);

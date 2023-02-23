@@ -947,9 +947,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Move move1 = MOVE_NONE;
-    Move move2 = MOVE_NONE;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -984,10 +981,6 @@ moves_loop: // When in check, search starts here
       capture = pos.capture(move);
       movedPiece = pos.moved_piece(move);
       givesCheck = pos.gives_check(move);
-
-      move2 = move1;
-      move1 = move;
-      dbg_mean_of(move1 == move2);
 
       // Calculate new depth for this move
       newDepth = depth - 1;
