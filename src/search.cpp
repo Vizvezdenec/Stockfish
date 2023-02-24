@@ -945,7 +945,8 @@ moves_loop: // When in check, search starts here
     bool likelyFailLow =    PvNode
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
-                         && tte->depth() >= depth;
+                         && tte->depth() >= depth
+                         && (ttValue < beta || tte->bound() == BOUND_UPPER);
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1142,7 +1143,7 @@ moves_loop: // When in check, search starts here
           r -= 2;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
-      if ((ss-1)->moveCount > 7 - 3 * ((ss-2)->moveCount == 1))
+      if ((ss-1)->moveCount > 7)
           r--;
 
       // Increase reduction for cut nodes (~3 Elo)
