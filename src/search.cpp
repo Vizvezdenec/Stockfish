@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts here
 
       // Decrease reduction if we move a threatened piece (~1 Elo)
       if (   depth > 7
-          && !capture
+          && capture
           && (mp.threatenedPieces & from_sq(move)))
           r--;
 
