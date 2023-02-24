@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
           r -= 2;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
-      if ((ss-1)->moveCount > 8 - 2 * ((ss-2)->moveCount == 1))
+      if ((ss-1)->moveCount > 7 - 3 * ((ss-2)->moveCount == 1))
           r--;
 
       // Increase reduction for cut nodes (~3 Elo)
