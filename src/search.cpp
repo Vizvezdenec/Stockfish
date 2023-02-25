@@ -776,7 +776,7 @@ namespace {
     // Step 7. Razoring (~1 Elo).
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
-    if (eval < alpha - 426 - 252 * depth * depth)
+    if (eval < alpha - 426 - 252 * depth * depth + 200 * ttCapture)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -1115,9 +1115,6 @@ moves_loop: // When in check, search starts here
                    && move == ttMove
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5705)
-              extension = 1;
-          else if (PvNode && move == ttMove && ss->inCheck && move == countermove
-                  && (*contHist[1])[movedPiece][to_sq(move)] >= 10000)
               extension = 1;
       }
 
