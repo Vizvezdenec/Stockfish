@@ -606,7 +606,6 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = to_sq((ss-1)->currentMove);
-    int staticDiff = 0;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -762,7 +761,6 @@ namespace {
     if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1920, 1920);
-        staticDiff = - bonus * 2;
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
     }
 
@@ -1029,7 +1027,7 @@ moves_loop: // When in check, search starts here
                   && history < -4405 * (depth - 1))
                   continue;
 
-              history += 2 * thisThread->mainHistory[us][from_to(move)] + staticDiff;
+              history += 2 * thisThread->mainHistory[us][from_to(move)];
 
               lmrDepth += history / 7278;
               lmrDepth = std::max(lmrDepth, -2);
@@ -1177,7 +1175,10 @@ moves_loop: // When in check, search starts here
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
 
-      ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)] + staticDiff
+      if (ss->inCheck && move == countermove)
+          r--;
+
+      ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
                      + (*contHist[3])[movedPiece][to_sq(move)]
