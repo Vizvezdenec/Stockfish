@@ -665,10 +665,6 @@ namespace {
             return ttValue;
     }
 
-    if (!PvNode && ss->inCheck && depth == 1 && !excludedMove && tte->depth() >= DEPTH_QS_NO_CHECKS
-        && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 500)
-        return ttValue;
-
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && TB::Cardinality)
     {
@@ -782,6 +778,8 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
+        if (eval < alpha - 3500 - 1500 * depth && eval > -20000)
+            return eval;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
