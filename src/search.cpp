@@ -925,11 +925,11 @@ moves_loop: // When in check, search starts here
         return probCutBeta;
 
     if (   ss->inCheck
-        && !PvNode
+        && PvNode
         && depth <= 3
         && (tte->bound() & BOUND_UPPER)
         && ttValue <= alpha - 300 - 258 * depth * depth)
-        return qsearch<NonPV>(pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta);
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
