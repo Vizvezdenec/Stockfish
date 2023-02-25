@@ -930,7 +930,7 @@ moves_loop: // When in check, search starts here
         && (tte->bound() & BOUND_UPPER)
         && ttValue <= alpha - 400 - 358 * depth * depth)
         {
-            value = qsearch<NonPV>(pos, ss, alpha, alpha + 1);
+            value = qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
             if (value <= alpha)
                 return value;
         }
