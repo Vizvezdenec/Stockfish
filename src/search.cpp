@@ -776,7 +776,7 @@ namespace {
     // Step 7. Razoring (~1 Elo).
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
-    if (eval < alpha - 426 - 252 * depth * depth + 300 * ttCapture)
+    if (eval < alpha - 426 - 252 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -923,6 +923,13 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
+
+    if (   ss->inCheck
+        && !PvNode
+        && depth <= 3
+        && (tte->bound() & BOUND_UPPER)
+        && ttValue <= alpha - 300 - 258 * depth * depth)
+        return qsearch<NonPV>(pos, ss, alpha, beta);
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
