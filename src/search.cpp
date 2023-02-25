@@ -665,6 +665,10 @@ namespace {
             return ttValue;
     }
 
+    if (!PvNode && ss->inCheck && depth == 1 && !excludedMove && tte->depth() >= DEPTH_QS_NO_CHECKS
+        && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 200)
+        return ttValue;
+
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && TB::Cardinality)
     {
@@ -923,17 +927,6 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN
        )
         return probCutBeta;
-
-    if (   ss->inCheck
-        && PvNode
-        && depth <= 4
-        && (tte->bound() & BOUND_UPPER)
-        && ttValue <= alpha - 400 - 358 * depth * depth)
-        {
-            value = qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
-            if (value <= alpha)
-                return value;
-        }
 
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
