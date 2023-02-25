@@ -666,7 +666,7 @@ namespace {
     }
 
     if (!PvNode && ss->inCheck && depth == 1 && !excludedMove && tte->depth() >= DEPTH_QS_NO_CHECKS
-        && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 200)
+        && (tte->bound() & BOUND_UPPER) && ttValue <= alpha - 300)
         return ttValue;
 
     // Step 5. Tablebases probe
