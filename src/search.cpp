@@ -778,10 +778,12 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
+        bool tthit = ss->ttHit;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        eval = value;
+        if (!tthit)
+            eval = value;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo).
