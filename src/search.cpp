@@ -782,7 +782,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        if (!tthit || tte->depth() <= DEPTH_QS_CHECKS)
+        if (!tthit || tte->depth() <= 4)
             eval = value;
     }
 
