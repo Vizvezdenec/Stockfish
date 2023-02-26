@@ -781,6 +781,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        eval = value;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo).
@@ -878,16 +879,6 @@ namespace {
 
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
-
-                if (!ss->ttPv
-                 &&  depth < 9
-                 &&  value - futility_margin(depth, improving) - (ss-1)->statScore / 280 >= beta
-                 &&  value >= beta
-                 &&  value < 25128)
-                 {
-                    pos.undo_move(move);
-                    return value;
-                 }
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
