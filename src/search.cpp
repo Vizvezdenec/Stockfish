@@ -56,9 +56,7 @@ using namespace Search;
 namespace {
 
     int FM1 = 154, RE1 = 1449, RE2 = 1032, RE3 = 941, FMC1 = 3, FMC2 = 3, FMC3 = 2, SB1 = 340, SB2 = 470;
-    int SB3 = 1855, RED4 = 1947, CMPLX1 = 153, DLT1 = 10, DLT2 = 16502, OPT1 = 120, OPT2 = 161, DLT3 = 4, DLT4 = 2;
-    int TM1 = 69, TM2 = 13, TM3 = 6, TM4 = 6196, TM5 = 50, TM6 = 150, TM7 = 8, TM8 = 157, TM9 = 65, TM10 = 140;
-    int TM11 = 208, TM12 = 180, TM13 = 103, TM14 = 241, TM15 = 15520, TM16 = 145, TM17 = 50, TTC1 = 2, IMP1 = 156;
+    int SB3 = 1855, RED4 = 1947, CMPLX1 = 153, DLT1 = 10, DLT2 = 16502, OPT1 = 120, OPT2 = 161, DLT3 = 4, DLT4 = 2, TTC1 = 2, IMP1 = 156;
     int QMO1 = 19, QMO2 = 1920, RZR1 = 426, RZR2 = 252, FP1 = 9, FP2 = 280, FP3 = 25128, NMP1 = 18755, NMP2 = 19;
     int NMP3 = 13, NMP4 = 253, NMP5 = 25, NMP6 = 168, NMP7 = 6, NMP8 = 3, NMP9 = 4, NMP10 = 825, PC1 = 186, PC2 = 54;
     int DR1 = 3, DR2 = 7, DR3 = 2, PC3 = 391, PC4 = 2, PC5 = 3, PC6 = 10000, PR1 = 6, PR2 = 182, PR3 = 230, PR4 = 7;
@@ -70,9 +68,7 @@ namespace {
 
     auto f1 = [](int m){return Range(0, std::max(m * 2, 10));};
     TUNE(SetRange(f1),FM1, RE1, RE2, RE3, FMC1, FMC2, FMC3, SB1, SB2);
-    TUNE(SetRange(f1),SB3, RED4, CMPLX1, DLT1, DLT2, OPT1, OPT2, DLT3, DLT4);
-    TUNE(SetRange(f1),TM1, TM2, TM3, TM4, TM5, TM6, TM7, TM8, TM9, TM10);
-    TUNE(SetRange(f1),TM11, TM12, TM13, TM14, TM15, TM16, TM17, TTC1, IMP1);
+    TUNE(SetRange(f1),SB3, RED4, CMPLX1, DLT1, DLT2, OPT1, OPT2, DLT3, DLT4, TTC1, IMP1);
     TUNE(SetRange(f1),QMO1, QMO2, RZR1, RZR2, FP1, FP2, FP3, NMP1, NMP2);
     TUNE(SetRange(f1),NMP3, NMP4, NMP5, NMP6, NMP7, NMP8, NMP9, NMP10, PC1, PC2);
     TUNE(SetRange(f1),DR1, DR2, DR3, PC3, PC4, PC5, PC6, PR1, PR2, PR3, PR4);
@@ -486,16 +482,16 @@ void Thread::search() {
           && !Threads.stop
           && !mainThread->stopOnPonderhit)
       {
-          double fallingEval = (TM1 + TM2 * (mainThread->bestPreviousAverageScore - bestValue)
-                                    +  TM3 * (mainThread->iterValue[iterIdx] - bestValue)) / (TM4 / 10.0);
-          fallingEval = std::clamp(fallingEval, TM5 / 100.0, TM6 / 100.0);
+double fallingEval = (69 + 13 * (mainThread->bestPreviousAverageScore - bestValue)
+                                    +  6 * (mainThread->iterValue[iterIdx] - bestValue)) / 619.6;
+          fallingEval = std::clamp(fallingEval, 0.5, 1.5);
 
           // If the bestMove is stable over several iterations, reduce time accordingly
-          timeReduction = lastBestMoveDepth + TM7 < completedDepth ? TM8 / 100.0 : TM9 / 100.0;
-          double reduction = (TM10 / 100.0 + mainThread->previousTimeReduction) / ((TM11 / 100.0) * timeReduction);
-          double bestMoveInstability = 1 + (TM12 / 100.0) * totBestMoveChanges / Threads.size();
+          timeReduction = lastBestMoveDepth + 8 < completedDepth ? 1.57 : 0.65;
+          double reduction = (1.4 + mainThread->previousTimeReduction) / (2.08 * timeReduction);
+          double bestMoveInstability = 1 + 1.8 * totBestMoveChanges / Threads.size();
           int complexity = mainThread->complexityAverage.value();
-          double complexPosition = std::min(TM13 / 100.0 + (complexity - TM14) / (TM15 / 10.0), TM16 / 100.0);
+          double complexPosition = std::min(1.03 + (complexity - 241) / 1552.0, 1.45);
 
           double totalTime = Time.optimum() * fallingEval * reduction * bestMoveInstability * complexPosition;
 
@@ -515,7 +511,7 @@ void Thread::search() {
                   Threads.stop = true;
           }
           else if (   !mainThread->ponder
-                   && Time.elapsed() > totalTime * TM17 / 100.0)
+                   && Time.elapsed() > totalTime * 0.50)
               Threads.increaseDepth = false;
           else
               Threads.increaseDepth = true;
