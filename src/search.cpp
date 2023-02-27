@@ -778,12 +778,9 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
-        bool tthit = ss->ttHit;
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        if (!tthit || tte->depth() <= 4)
-            eval = value;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo).
@@ -947,8 +944,8 @@ moves_loop: // When in check, search starts here
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
                          && ttMove
-                         && (tte->bound() & BOUND_UPPER)
-                         && tte->depth() >= depth;
+                         && tte->depth() >= depth
+                         && (ttValue <= alpha || tte->bound() == BOUND_UPPER);
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
