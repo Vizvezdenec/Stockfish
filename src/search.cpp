@@ -848,7 +848,7 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
-        else strangeNmp = nullValue < beta - 500;
+        else strangeNmp = nullValue < beta - 250;
     }
 
     probCutBeta = beta + 186 - 54 * improving;
