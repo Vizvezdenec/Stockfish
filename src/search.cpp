@@ -624,6 +624,7 @@ namespace {
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
     ttCapture = ttMove && pos.capture(ttMove);
+    bool strangeNmp = false;
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
@@ -785,7 +786,7 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha, -2 * !ss->ttHit);
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
     }
@@ -847,6 +848,7 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+        else strangeNmp = nullValue < beta - 500;
     }
 
     probCutBeta = beta + 186 - 54 * improving;
@@ -1181,6 +1183,9 @@ moves_loop: // When in check, search starts here
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
+
+      if (strangeNmp)
+          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
