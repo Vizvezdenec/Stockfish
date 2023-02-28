@@ -785,9 +785,8 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
-        int offset = 100;
-        value = qsearch<NonPV>(pos, ss, alpha - offset, alpha - offset + 1);
-        if (value <= alpha - offset)
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
             return value;
     }
 
@@ -1239,7 +1238,7 @@ moves_loop: // When in check, search starts here
           if (!ttMove && cutNode)
               r += 2;
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4) + (PvNode && capture && depth < 4), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
