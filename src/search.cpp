@@ -919,6 +919,14 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    if (    PvNode
+        && ss->inCheck
+        && !ttMove)
+        depth--;
+
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
+
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 391;
     if (   ss->inCheck
@@ -1603,14 +1611,7 @@ moves_loop: // When in check, search starts here
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (PvNode && moveCount > 1 + capture)
-      {
-          value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
-          if (value > alpha)
-              value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
-      }
-      else
-          value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
