@@ -785,8 +785,9 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha)
+        int offset = 5;
+        value = qsearch<NonPV>(pos, ss, alpha - offset, alpha - offset + 1);
+        if (value <= alpha - offset)
             return value;
     }
 
@@ -1384,8 +1385,7 @@ moves_loop: // When in check, search starts here
     else if (!priorCapture)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10);
-        bool doBonus = PvNode || cutNode || bestValue < alpha - 12 || (ss-1)->moveCount > 1;
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus * doBonus);
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
     if (PvNode)
