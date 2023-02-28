@@ -1603,7 +1603,7 @@ moves_loop: // When in check, search starts here
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
-      if (PvNode && moveCount > 2)
+      if (PvNode && moveCount > 1 + capture)
       {
           value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha, depth - 1);
           if (value > alpha)
