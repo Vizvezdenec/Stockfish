@@ -1384,7 +1384,7 @@ moves_loop: // When in check, search starts here
     else if (!priorCapture)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10);
-        bool doBonus = PvNode || cutNode || bestValue < alpha - 50 || (ss-1)->moveCount > 3;
+        bool doBonus = PvNode || cutNode || bestValue < alpha - 12 || (ss-1)->moveCount > 1;
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus * doBonus);
     }
 
