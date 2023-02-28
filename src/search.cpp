@@ -919,12 +919,6 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (    PvNode
-        && depth >= 9
-        && ss->inCheck
-        && !ttMove)
-        depth--;
-
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 391;
     if (   ss->inCheck
@@ -1389,7 +1383,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture)
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10);
+        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10) + ((ss-2)->moveCount == 1);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
