@@ -785,8 +785,9 @@ namespace {
     // return a fail low.
     if (eval < alpha - 426 - 252 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha)
+        int offset = 2;
+        value = qsearch<NonPV>(pos, ss, alpha - offset, alpha - offset + 1);
+        if (value <= alpha - offset)
             return value;
     }
 
@@ -931,14 +932,6 @@ moves_loop: // When in check, search starts here
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
-
-    if (   ss->inCheck
-        && !PvNode
-        && depth <= 5
-        && (tte->bound() && BOUND_UPPER)
-        && ttValue <= alpha - 500 - 300 * depth * depth
-        && abs(ttValue) <= VALUE_KNOWN_WIN)
-        return ttValue;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
