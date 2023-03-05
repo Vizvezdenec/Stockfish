@@ -1048,7 +1048,7 @@ moves_loop: // When in check, search starts here
               lmrDepth = std::max(lmrDepth, 0);
 
               // Prune moves with negative SEE (~4 Elo)
-              if (!pos.see_ge(move, Value(-24 * lmrDepth * lmrDepth - 15 * lmrDepth)))
+              if (!pos.see_ge(move, Value(std::min(-108, -24 * lmrDepth * lmrDepth - 15 * lmrDepth))))
                   continue;
           }
       }
@@ -1103,15 +1103,12 @@ moves_loop: // When in check, search starts here
                   return singularBeta;
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension)
-              else 
-              {
-                if (ttValue >= beta)
+              else if (ttValue >= beta)
                   extension = -2;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension)
-                if (ttValue <= value)
-                  extension -= 1;
-              }
+              else if (ttValue <= value)
+                  extension = -1;
           }
 
           // Check extensions (~1 Elo)
