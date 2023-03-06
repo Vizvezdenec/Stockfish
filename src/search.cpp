@@ -907,7 +907,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3;
+        depth -= 3 + (ss->ttHit &&  ttValue <= alpha);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1048,7 +1048,7 @@ moves_loop: // When in check, search starts here
               lmrDepth = std::max(lmrDepth, 0);
 
               // Prune moves with negative SEE (~4 Elo)
-              if (!pos.see_ge(move, Value(std::min(-162, -24 * lmrDepth * lmrDepth - 15 * lmrDepth))))
+              if (!pos.see_ge(move, Value(-24 * lmrDepth * lmrDepth - 15 * lmrDepth)))
                   continue;
           }
       }
