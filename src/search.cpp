@@ -907,7 +907,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3;
+        depth -= 3 + (ss->ttHit &&  tte->depth() >= depth && tte->is_pv());
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1108,10 +1108,6 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than value, we reduce it (negative extension)
               else if (ttValue <= value)
-                  extension = -1;
-
-              // If the eval of ttMove is less than alpha, we reduce it (negative extension)
-              else if (ttValue <= alpha)
                   extension = -1;
           }
 
