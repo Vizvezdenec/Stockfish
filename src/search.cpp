@@ -1016,7 +1016,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 182 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
+                   + std::max(-500, captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7) < alpha)
                   continue;
 
               // SEE based pruning (~11 Elo)
@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
+              Value singularBeta = ttValue - (2 + (ss->ttPv && !PvNode)) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
