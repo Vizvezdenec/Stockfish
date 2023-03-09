@@ -1016,7 +1016,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 6
                   && !ss->inCheck
                   && ss->staticEval + 182 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
-                   + std::clamp(captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7, -1000, 1000) < alpha)
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
               // SEE based pruning (~11 Elo)
@@ -1183,6 +1183,7 @@ moves_loop: // When in check, search starts here
 
       // Decrease reduction if move is a killer and we have a good history
       if (move == ss->killers[0]
+          && !capture
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
 
