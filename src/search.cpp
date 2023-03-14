@@ -1071,7 +1071,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
+              Value singularBeta = ttValue - (2 + (ss->ttPv && !PvNode)) * depth;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
@@ -1108,7 +1108,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than value, we reduce it (negative extension)
               else if (ttValue <= value)
-                  extension = -1 - (!PvNode && ss->ttPv);
+                  extension = -1;
 
               // If the eval of ttMove is less than alpha, we reduce it (negative extension)
               else if (ttValue <= alpha)
@@ -1217,7 +1217,7 @@ moves_loop: // When in check, search starts here
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
-              const bool doDeeperSearch = value > (alpha + 58 + 12 * (newDepth - d));
+              const bool doDeeperSearch = value > (alpha + 58 + 12 * (newDepth - d) - 10 * (move == ss->killers[0]));
               const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
 
