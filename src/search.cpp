@@ -1188,7 +1188,7 @@ moves_loop: // When in check, search starts here
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
 
-      if (delta < initDelta / 2)
+      if (delta < initDelta / 4)
           r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
