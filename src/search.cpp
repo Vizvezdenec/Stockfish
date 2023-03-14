@@ -1716,7 +1716,7 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
     int bonus1 = stat_bonus(depth + 1);
-    int bonus3 = bestValue > beta + 200 ? stat_bonus(depth + 2) : bonus1;
+    int bonus3 = bestValue > beta + 800 ? stat_bonus(depth + 2) : bonus1;
 
     if (!pos.capture_stage(bestMove))
     {
