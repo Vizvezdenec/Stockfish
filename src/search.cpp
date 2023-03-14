@@ -1104,16 +1104,12 @@ moves_loop: // When in check, search starts here
               else if (ttValue >= beta)
                   extension = -2 - !PvNode;
 
-              // If the eval of ttMove is less than alpha, we reduce it (negative extension)
-              else if (ttValue <= alpha)
-              {
-                  extension = -1;
-                  if (value <= alpha)
-                      depth--;
-              }
-
               // If the eval of ttMove is less than value, we reduce it (negative extension)
               else if (ttValue <= value)
+                  extension = -1;
+
+              // If the eval of ttMove is less than alpha, we reduce it (negative extension)
+              else if (ttValue <= alpha)
                   extension = -1;
           }
 
@@ -1720,6 +1716,7 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
     int bonus1 = stat_bonus(depth + 1);
+    int bonus3 = bestValue > beta + 400 ? stat_bonus(depth + 2) : bonus1;
 
     if (!pos.capture_stage(bestMove))
     {
@@ -1744,7 +1741,7 @@ moves_loop: // When in check, search starts here
     // main killer move in previous ply when it gets refuted.
     if (   ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus3);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
