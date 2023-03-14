@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts here
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth += (history - 1500 * (initDelta - delta) / initDelta) / 7278;
+              lmrDepth += (history - 9000 * (initDelta - delta) / initDelta) / 7278;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
