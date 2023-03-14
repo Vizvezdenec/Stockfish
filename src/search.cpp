@@ -954,8 +954,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    int initDelta = beta - alpha;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1038,7 +1036,7 @@ moves_loop: // When in check, search starts here
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth += (history - 9000 * (initDelta - delta) / initDelta) / 7278;
+              lmrDepth += history / 7278;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
@@ -1114,7 +1112,11 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than alpha, we reduce it (negative extension)
               else if (ttValue <= alpha)
+              {
                   extension = -1;
+                  if (value <= alpha)
+                      depth--;
+              }
           }
 
           // Check extensions (~1 Elo)
