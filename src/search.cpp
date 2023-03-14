@@ -953,6 +953,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int initDelta = beta - alpha;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1183,6 +1185,9 @@ moves_loop: // When in check, search starts here
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
+
+      if (delta < initDelta / 2)
+          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
