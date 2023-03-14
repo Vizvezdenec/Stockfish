@@ -1038,7 +1038,7 @@ moves_loop: // When in check, search starts here
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
-              lmrDepth += history / 7278;
+              lmrDepth += (history - 3000 * (initDelta - delta) / initDelta) / 7278;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
@@ -1187,9 +1187,6 @@ moves_loop: // When in check, search starts here
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
           r--;
-
-      if (delta < initDelta / 8)
-          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
