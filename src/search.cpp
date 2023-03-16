@@ -555,7 +555,7 @@ namespace {
     Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, priorCapture, singularQuietLMR;
-    bool capture, moveCountPruning, ttCapture, moveCountCPruning;
+    bool capture, moveCountPruning, ttCapture;
     Piece movedPiece;
     int moveCount, captureCount, quietCount, improvement, complexity;
 
@@ -867,7 +867,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, ttValue != VALUE_NONE && ttValue >= probCutBeta);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -944,7 +944,7 @@ moves_loop: // When in check, search starts here
                                       ss->killers);
 
     value = bestValue;
-    moveCountPruning = singularQuietLMR = moveCountCPruning = false;
+    moveCountPruning = singularQuietLMR = false;
 
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
@@ -955,7 +955,7 @@ moves_loop: // When in check, search starts here
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning, moveCountCPruning)) != MOVE_NONE)
+    while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
     {
       assert(is_ok(move));
 
@@ -1002,7 +1002,6 @@ moves_loop: // When in check, search starts here
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
-          moveCountCPruning = moveCount >= futility_move_count(improving, depth + 2);
 
           // Reduced depth of the next LMR search
           int lmrDepth = std::max(newDepth - r, 0);

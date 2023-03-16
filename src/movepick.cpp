@@ -88,14 +88,14 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
-           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th)
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph, bool pt)
+           : pos(p), captureHistory(cph), pcTt(pt), ttMove(ttm), threshold(th)
 {
   assert(!pos.checkers());
 
   stage = PROBCUT_TT + !(ttm && pos.capture_stage(ttm)
                              && pos.pseudo_legal(ttm)
-                             && pos.see_ge(ttm, threshold));
+                             && pcTt);
 }
 
 /// MovePicker::score() assigns a numerical value to each move in a list, used
@@ -172,7 +172,7 @@ Move MovePicker::select(Pred filter) {
 /// MovePicker::next_move() is the most important method of the MovePicker class. It
 /// returns a new pseudo-legal move every time it is called until there are no more
 /// moves left, picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets, bool skipBadCaptures) {
+Move MovePicker::next_move(bool skipQuiets) {
 
 top:
   switch (stage) {
@@ -250,9 +250,7 @@ top:
       [[fallthrough]];
 
   case BAD_CAPTURE:
-      if (!skipBadCaptures)
-          return select<Next>([](){ return true; });
-      else return MOVE_NONE;
+      return select<Next>([](){ return true; });
 
   case EVASION_INIT:
       cur = moves;
