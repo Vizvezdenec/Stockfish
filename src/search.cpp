@@ -867,7 +867,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, ttValue != VALUE_NONE && ttValue >= probCutBeta);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory, eval >= probCutBeta);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
