@@ -273,7 +273,7 @@ top:
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
-      if (depth < DEPTH_QS_CHECKS - 2 * pvnode)
+      if (depth != DEPTH_QS_CHECKS || !pvnode)
           return MOVE_NONE;
 
       ++stage;
