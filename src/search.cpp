@@ -1090,7 +1090,7 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
-                  else if (PvNode && value > singularBeta - 5)
+                  else if (PvNode && value > singularBeta - 20)
                       depth--;
               }
 
