@@ -1090,6 +1090,8 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
+                  else if (PvNode && value > singularBeta - 10)
+                      depth--;
               }
 
               // Multi-cut pruning
@@ -1250,9 +1252,6 @@ moves_loop: // When in check, search starts here
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
-
-          if (r > 3 && moveCount != 1 && value < bestValue + newDepth)
-              newDepth--;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
