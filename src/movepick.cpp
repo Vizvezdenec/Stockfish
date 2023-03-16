@@ -76,8 +76,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
-                                                             Square rs)
-           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
+                                                             Square rs,
+                                                             bool pn)
+           : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), pvnode(pn), depth(d)
 {
   assert(d <= 0);
 
@@ -272,7 +273,7 @@ top:
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
-      if (depth != DEPTH_QS_CHECKS)
+      if (depth < DEPTH_QS_CHECKS - pvnode)
           return MOVE_NONE;
 
       ++stage;
