@@ -995,9 +995,10 @@ moves_loop: // When in check, search starts here
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-      // Increase reduction if next ply has a lot of fail high
-      if ((ss+1)->cutoffCnt > 3)
-          r++;
+      // Decrease reduction if move is a killer and we have a good history
+      if (move == ss->killers[0]
+          && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
+          r--;
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1179,12 +1180,11 @@ moves_loop: // When in check, search starts here
           && (mp.threatenedPieces & from_sq(move)))
           r--;
 
+      // Increase reduction if next ply has a lot of fail high
+      if ((ss+1)->cutoffCnt > 3)
+          r++;
 
 
-      // Decrease reduction if move is a killer and we have a good history
-      if (move == ss->killers[0]
-          && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
-          r--;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
