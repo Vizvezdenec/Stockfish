@@ -995,9 +995,9 @@ moves_loop: // When in check, search starts here
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-      // Decrease reduction for PvNodes based on depth
-      if (PvNode)
-          r -= 1 + 12 / (3 + depth);
+      // Decrease reduction if ttMove has been singularly extended (~1 Elo)
+      if (singularQuietLMR)
+          r--;
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1166,11 +1166,9 @@ moves_loop: // When in check, search starts here
       if (ttCapture)
           r++;
 
-
-
-      // Decrease reduction if ttMove has been singularly extended (~1 Elo)
-      if (singularQuietLMR)
-          r--;
+      // Decrease reduction for PvNodes based on depth
+      if (PvNode)
+          r -= 1 + 12 / (3 + depth);
 
       // Decrease reduction if we move a threatened piece (~1 Elo)
       if (   depth > 9
