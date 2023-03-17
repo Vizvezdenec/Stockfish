@@ -995,11 +995,9 @@ moves_loop: // When in check, search starts here
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-      // Decrease reduction if position is or has been on the PV
-      // and node is not likely to fail low. (~3 Elo)
-      if (   ss->ttPv
-          && !likelyFailLow)
-          r -= 2;
+      // Decrease reduction if opponent's move count is high (~1 Elo)
+      if ((ss-1)->moveCount > 7)
+          r--;
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1150,9 +1148,13 @@ moves_loop: // When in check, search starts here
       // Step 16. Make the move
       pos.do_move(move, st, givesCheck);
 
-      // Decrease reduction if opponent's move count is high (~1 Elo)
-      if ((ss-1)->moveCount > 7)
-          r--;
+      // Decrease reduction if position is or has been on the PV
+      // and node is not likely to fail low. (~3 Elo)
+      if (   ss->ttPv
+          && !likelyFailLow)
+          r -= 2;
+
+
 
       // Increase reduction for cut nodes (~3 Elo)
       if (cutNode)
