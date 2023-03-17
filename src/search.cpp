@@ -995,9 +995,9 @@ moves_loop: // When in check, search starts here
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-      // Increase reduction for cut nodes (~3 Elo)
-      if (cutNode)
-          r += 2;
+      // Increase reduction if ttMove is a capture (~3 Elo)
+      if (ttCapture)
+          r++;
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1158,11 +1158,11 @@ moves_loop: // When in check, search starts here
       if ((ss-1)->moveCount > 7)
           r--;
 
+      // Increase reduction for cut nodes (~3 Elo)
+      if (cutNode)
+          r += 2;
 
 
-      // Increase reduction if ttMove is a capture (~3 Elo)
-      if (ttCapture)
-          r++;
 
       // Decrease reduction for PvNodes based on depth
       if (PvNode)
