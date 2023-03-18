@@ -1517,9 +1517,6 @@ moves_loop: // When in check, search starts here
         futilityBase = bestValue + 168;
     }
 
-    if (PvNode && !ss->inCheck && !ttMove && pvHit && tte->depth() >= ttDepth)
-        depth--;
-
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -1535,6 +1532,9 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+
+    if (PvNode && !ss->inCheck && !ttMove && pvHit && tte->depth() >= ttDepth)
+        depth--;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
