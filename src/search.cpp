@@ -1005,7 +1005,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - r + 3 * cutNode, 0);
+          int lmrDepth = std::max(newDepth - r, 0);
 
           if (   capture
               || givesCheck)
@@ -1034,9 +1034,9 @@ moves_loop: // When in check, search starts here
                   && history < -4405 * (depth - 1))
                   continue;
 
-              history += 2 * thisThread->mainHistory[us][from_to(move)];
+              history += 2 * thisThread->mainHistory[us][from_to(move)] + (*contHist[5])[movedPiece][to_sq(move)];
 
-              lmrDepth += history / 7278;
+              lmrDepth += history / 8278;
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
