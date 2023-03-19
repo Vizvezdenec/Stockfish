@@ -821,7 +821,7 @@ namespace {
 
         ss->nmp = true;
 
-        Value nullValue = search<NonPV>(pos, ss, alpha - 15 * depth, beta - 15 * depth, depth-R, cutNode);
+        Value nullValue = search<NonPV>(pos, ss, alpha - 122, beta - 122, depth-R-2, cutNode);
 
         ss->nmp = false;
 
