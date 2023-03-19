@@ -802,7 +802,6 @@ namespace {
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (   !PvNode
-        && !ss->nmp
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18755
         &&  eval >= beta
@@ -822,7 +821,7 @@ namespace {
 
         ss->nmp = true;
 
-        Value nullValue = search<NonPV>(pos, ss, alpha, beta, depth-R+1, cutNode);
+        Value nullValue = search<NonPV>(pos, ss, alpha - 15 * depth, beta - 15 * depth, depth-R, cutNode);
 
         ss->nmp = false;
 
