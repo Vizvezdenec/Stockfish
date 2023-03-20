@@ -932,7 +932,7 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    probCutBeta = beta + 350 - 80 * improving;
+    probCutBeta = beta + 250 - 40 * improving;
     if (!ss->inCheck
         && !PvNode
         && ttCapture
