@@ -606,8 +606,7 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
-    (ss+1)->nmp = false;
+    Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : is_ok((ss-3)->currentMove) ? to_sq((ss-3)->currentMove) : SQ_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -819,20 +818,11 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
-        ss->nmp = true;
+        pos.do_null_move(st);
 
-        Value nullValue = search<NonPV>(pos, ss, alpha - 122, beta - 122, depth-R-2, cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
-        ss->nmp = false;
-
-        if (nullValue >= beta)
-        {
-            pos.do_null_move(st);
-
-            nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
-
-            pos.undo_null_move();
-        }
+        pos.undo_null_move();
 
         if (nullValue >= beta)
         {
