@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts here
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && ((tte->bound() & BOUND_LOWER) || (ttCapture && ttValue >= beta + 50 * depth))
+              && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
@@ -1238,7 +1238,7 @@ moves_loop: // When in check, search starts here
       else if (!PvNode || moveCount > 1)
       {
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
-          if (!ttMove && cutNode)
+          if (!ttMove && cutNode && !(move == ss->killers[0] && move == countermove))
               r += 2;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
