@@ -907,7 +907,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3 + 3 * (ss->ttHit && tte->is_pv() && tte->depth() >= depth + 1);
+        depth -= 3;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1068,7 +1068,7 @@ moves_loop: // When in check, search starts here
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && (tte->bound() & BOUND_LOWER)
+              && ((tte->bound() & BOUND_LOWER) || ttValue >= beta)
               &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
