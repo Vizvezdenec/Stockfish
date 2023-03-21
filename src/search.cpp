@@ -1238,8 +1238,11 @@ moves_loop: // When in check, search starts here
       else if (!PvNode || moveCount > 1)
       {
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
-          if (!ttMove && cutNode && !(move == ss->killers[0] && move == countermove))
+          if (!ttMove && cutNode)
               r += 2;
+
+          if (move == ss->killers[0] && move == countermove)
+              r--;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
