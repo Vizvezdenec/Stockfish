@@ -607,6 +607,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
+    int statScore = ss->statScore;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -1177,7 +1178,7 @@ moves_loop: // When in check, search starts here
           r--;
 
       // Increase reduction if next ply has a lot of fail high
-      if ((ss+1)->cutoffCnt > 1)
+      if ((ss+1)->cutoffCnt > 3)
           r++;
 
       // Decrease reduction if move is a killer and we have a good history
@@ -1405,10 +1406,10 @@ moves_loop: // When in check, search starts here
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
 
-    if (!bestMove)
-        ss->cutoffCnt = std::max(ss->cutoffCnt - 1, -1);
-
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
+
+    if (excludedMove)
+        ss->statScore = statScore;
 
     return bestValue;
   }
