@@ -1406,7 +1406,7 @@ moves_loop: // When in check, search starts here
                   depth, bestMove, ss->staticEval);
 
     if (!bestMove)
-        ss->cutoffCnt = std::max(ss->cutoffCnt - 1, 0);
+        ss->cutoffCnt = std::max(ss->cutoffCnt - 1, -1);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
