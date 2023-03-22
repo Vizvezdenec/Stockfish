@@ -917,7 +917,7 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    if (!PvNode && !cutNode && depth >= 9 && !ttMove)
+    if (!PvNode && !cutNode && depth >= 11 && !ttMove)
         depth--;
 
 moves_loop: // When in check, search starts here
