@@ -906,7 +906,7 @@ namespace {
     // Step 11. If the position is not in TT, decrease depth by 3.
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
-        && (!ttMove || (tte->bound() == BOUND_UPPER && ttValue <= alpha && tte->is_pv())))
+        && (!ttMove || (tte->bound() == BOUND_UPPER && ttValue <= alpha)))
         depth -= 3;
 
     if (depth <= 0)
