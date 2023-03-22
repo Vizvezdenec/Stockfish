@@ -1156,7 +1156,7 @@ moves_loop: // When in check, search starts here
           r--;
 
       // Increase reduction for cut nodes (~3 Elo)
-      if (cutNode)
+      if (cutNode && (ss-1)->moveCount != 1)
           r += 2;
 
       // Increase reduction if ttMove is a capture (~3 Elo)
@@ -1396,7 +1396,7 @@ moves_loop: // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree.
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && (depth > 3 || bestValue < alpha - 97 * depth));
+        ss->ttPv = ss->ttPv || ((ss-1)->ttPv && depth > 3);
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
