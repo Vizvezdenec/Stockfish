@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts here
           r--;
 
       // Increase reduction if next ply has a lot of fail high
-      if ((ss+1)->cutoffCnt > 2)
+      if ((ss+1)->cutoffCnt > 1)
           r++;
 
       // Decrease reduction if move is a killer and we have a good history
