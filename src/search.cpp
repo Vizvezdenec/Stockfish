@@ -932,7 +932,7 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+    const PieceToHistory* contHist[] = { (ss-1)->currentMove == MOVE_NULL ? (ss-3)->continuationHistory : (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
 
@@ -1406,9 +1406,6 @@ moves_loop: // When in check, search starts here
                   depth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
-
-    if (excludedMove)
-        ss->moveCount = 1;
 
     return bestValue;
   }
