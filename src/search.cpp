@@ -613,7 +613,8 @@ namespace {
     // starts with statScore = 0. Later grandchildren start with the last calculated
     // statScore of the previous grandchild. This influences the reduction rules in
     // LMR which are based on the statScore of parent position.
-    ss->statScore = 0;
+    if (!rootNode)
+        (ss+2)->statScore = 0;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -913,8 +914,9 @@ namespace {
 
     if (    cutNode
         &&  depth >= 7
+        && ss->ttHit
         && !ttMove)
-        depth -= 2;
+        depth -= 3;
 
 moves_loop: // When in check, search starts here
 
