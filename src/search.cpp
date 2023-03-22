@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction for cut nodes (~3 Elo)
       if (cutNode)
-          r += 2 - ((ss-1)->moveCount == 1);
+          r += 2;
 
       // Increase reduction if ttMove is a capture (~3 Elo)
       if (ttCapture)
@@ -1238,7 +1238,7 @@ moves_loop: // When in check, search starts here
       else if (!PvNode || moveCount > 1)
       {
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
-          if (!ttMove && cutNode)
+          if (!ttMove && cutNode && (ss-1)->moveCount != 1)
               r += 2;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
