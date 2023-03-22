@@ -917,9 +917,6 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    if (!PvNode && !cutNode && depth >= 11 && !ttMove)
-        depth--;
-
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
@@ -1407,6 +1404,9 @@ moves_loop: // When in check, search starts here
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
+
+    if (!bestMove)
+        ss->cutoffCnt = std::max(ss->cutoffCnt - 1, 0);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
