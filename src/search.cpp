@@ -1091,7 +1091,7 @@ moves_loop: // When in check, search starts here
                   {
                       extension = 2;
                       depth += depth < 13;
-                      singularQuietLMR++;
+                      singularQuietLMR += !ttCapture;
                   }
               }
 
