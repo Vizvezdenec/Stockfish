@@ -1074,7 +1074,7 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              if (moveCount >= futility_move_count(improving, std::max(depth - r / 4, 0)))
+              if (moveCount >= futility_move_count(improving, std::max(depth - r / 8, 0)))
                   continue;
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
