@@ -313,7 +313,8 @@ void Thread::search() {
 
   complexityAverage.set(153, 1);
 
-  optimism[us] = optimism[~us] = VALUE_ZERO;
+  optimism[us] = Value(5);
+  optimism[~us] = -Value(5);
 
   int searchAgainCounter = 0;
 
@@ -907,7 +908,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3 + (ss->ttHit && tte->is_pv() && tte->depth() >= depth + 1);
+        depth -= 3;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
