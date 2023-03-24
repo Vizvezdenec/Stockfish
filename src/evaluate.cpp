@@ -1077,7 +1077,7 @@ Value Eval::evaluate(const Position& pos, int* complexity) {
 
       // Return hybrid NNUE complexity to caller
       if (complexity)
-          *complexity = nnueComplexity + 25 * pos.blockers_for_king(stm);
+          *complexity = nnueComplexity + 100 * pos.blockers_for_king(stm);
 
       optimism = optimism * (272 + nnueComplexity) / 256;
       v = (nnue * scale + optimism * (scale - 748)) / 1024;
