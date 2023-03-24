@@ -606,9 +606,7 @@ namespace {
     (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
-    Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : 
-                           is_ok((ss-3)->currentMove) && to_sq((ss-2)->currentMove) != to_sq((ss-3)->currentMove) ? to_sq((ss-3)->currentMove)
-                           : SQ_NONE;
+    Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
 
     // Initialize statScore to zero for the grandchildren of the current position.
     // So statScore is shared between all grandchildren and only the first grandchild
@@ -1536,6 +1534,8 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
+    bool ttQuiet = false;
+
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1548,6 +1548,8 @@ moves_loop: // When in check, search starts here
 
       givesCheck = pos.gives_check(move);
       capture = pos.capture_stage(move);
+      if (move == ttMove && !capture)
+          ttQuiet = true;
 
       moveCount++;
 
@@ -1560,7 +1562,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2)
+          if (!ttQuiet && moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
