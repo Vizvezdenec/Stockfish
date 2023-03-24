@@ -1562,7 +1562,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (!ttQuiet && moveCount > 2)
+          if (moveCount > 2 + 2 * ttQuiet)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
