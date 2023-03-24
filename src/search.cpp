@@ -1548,7 +1548,7 @@ moves_loop: // When in check, search starts here
 
       givesCheck = pos.gives_check(move);
       capture = pos.capture_stage(move);
-      if (move == ttMove && !capture)
+      if (move == ttMove && !capture && !givesCheck)
           ttQuiet = true;
 
       moveCount++;
