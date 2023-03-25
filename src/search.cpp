@@ -1534,8 +1534,6 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
-    bool ttQuiet = false;
-
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1548,8 +1546,6 @@ moves_loop: // When in check, search starts here
 
       givesCheck = pos.gives_check(move);
       capture = pos.capture_stage(move);
-      if (move == ttMove && !capture && !givesCheck)
-          ttQuiet = true;
 
       moveCount++;
 
@@ -1562,7 +1558,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2 + 2 * ttQuiet)
+          if (moveCount > 2)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
@@ -1592,7 +1588,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(-110)))
+      if (!pos.see_ge(move, std::min(alpha - ss->staticEval, Value(-110))))
           continue;
     }
 
