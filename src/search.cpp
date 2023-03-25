@@ -1601,7 +1601,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, occupied, Value(std::max(-300 + 50 * moveCount, -100))))
+      if (!pos.see_ge(move, occupied, Value(-110 - std::max(6 - moveCount, 0) * (6 - moveCount) * 10)))
           continue;
     }
 
