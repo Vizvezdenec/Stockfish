@@ -607,7 +607,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
-    ss->statScore        = 0;
+    ss->statScore        = 20000;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -1601,7 +1601,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, occupied, Value(-110 - std::max(6 - moveCount, 0) * (6 - moveCount) * 10)))
+      if (!pos.see_ge(move, occupied, Value(-110)))
           continue;
     }
 
