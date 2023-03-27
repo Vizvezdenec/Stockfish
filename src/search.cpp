@@ -947,7 +947,7 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool zeroFH = false;
+    bool noTtpvSave = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1246,9 +1246,6 @@ moves_loop: // When in check, search starts here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
-
-          if (PvNode && value >= beta && !rootNode)
-              zeroFH = true;
       }
 
       // Step 18. Full depth search when LMR is skipped. If expected reduction is high, reduce its depth by 1.
@@ -1259,9 +1256,6 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
-
-          if (PvNode && value >= beta && !rootNode)
-              zeroFH = true;
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -1273,6 +1267,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+          noTtpvSave = moveCount == 1 && value <= alpha;
       }
 
       // Step 19. Undo move
@@ -1420,7 +1415,7 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
-        tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv && !zeroFH,
+        tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv && (!PvNode || !noTtpvSave),
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
