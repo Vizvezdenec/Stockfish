@@ -128,7 +128,7 @@ public:
                                            const CapturePieceToHistory*,
                                            const PieceToHistory**,
                                            Square);
-  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
+  MovePicker(const Position&, Move, Value, const CapturePieceToHistory*, bool goodtt);
   Move next_move(bool skipQuiets = false);
 
   Bitboard threatenedPieces;
@@ -143,6 +143,7 @@ private:
   const ButterflyHistory* mainHistory;
   const CapturePieceToHistory* captureHistory;
   const PieceToHistory** continuationHistory;
+  bool goodtt;
   Move ttMove;
   ExtMove refutations[3], *cur, *endMoves, *endBadCaptures;
   int stage;
