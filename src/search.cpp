@@ -659,6 +659,17 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta
+        && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+    {
+        int margin = 300;
+        pos.do_move(ttMove, st);
+        value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 1, !cutNode);
+        pos.undo_move(ttMove);
+        if (value >= beta + margin)
+            return value;
+    }
+
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && TB::Cardinality)
     {
