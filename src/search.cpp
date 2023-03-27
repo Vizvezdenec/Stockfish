@@ -659,6 +659,17 @@ namespace {
             return ttValue;
     }
 
+    if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta
+        && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+    {
+        int margin = 300;
+        pos.do_move(ttMove, st);
+        value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 1, !cutNode);
+        pos.undo_move(ttMove);
+        if (value >= beta + margin)
+            return value;
+    }
+
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && TB::Cardinality)
     {
@@ -946,8 +957,6 @@ moves_loop: // When in check, search starts here
                          && ttMove
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
-
-    bool noTtpvSave = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1267,7 +1276,6 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
-          noTtpvSave = moveCount == 1 && value <= alpha;
       }
 
       // Step 19. Undo move
@@ -1415,7 +1423,7 @@ moves_loop: // When in check, search starts here
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
-        tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv && (!PvNode || !noTtpvSave),
+        tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
