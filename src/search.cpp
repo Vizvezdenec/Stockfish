@@ -662,7 +662,7 @@ namespace {
     if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta
         && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
     {
-        int margin = 300;
+        int margin = 200;
         ss->currentMove = ttMove;
         ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                   [ttCapture]
