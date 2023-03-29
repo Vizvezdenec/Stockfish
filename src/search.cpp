@@ -659,7 +659,7 @@ namespace {
             return ttValue;
     }
 
-    int margin = 300;
+    int margin = 500;
     if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta + 300
         && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
     {
@@ -671,6 +671,7 @@ namespace {
         pos.do_move(ttMove, st);
         value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 1, !cutNode);
         pos.undo_move(ttMove);
+        dbg_mean_of(value >= beta + margin);
         if (value >= beta + margin)
             return value;
     }
