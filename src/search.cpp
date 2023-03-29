@@ -720,7 +720,7 @@ namespace {
                                                                   [pos.moved_piece(ttMove)]
                                                                   [to_sq(ttMove)];
         pos.do_move(ttMove, st);
-        value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth + 2, !cutNode);
+        value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth + 1, !cutNode);
         pos.undo_move(ttMove);
         if (value >= beta)
             return value;
