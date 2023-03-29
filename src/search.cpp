@@ -659,23 +659,6 @@ namespace {
             return ttValue;
     }
 
-    int margin = 500;
-    if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta + 300
-        && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
-    {
-        ss->currentMove = ttMove;
-        ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
-                                                                  [ttCapture]
-                                                                  [pos.moved_piece(ttMove)]
-                                                                  [to_sq(ttMove)];
-        pos.do_move(ttMove, st);
-        value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 1, !cutNode);
-        pos.undo_move(ttMove);
-        dbg_mean_of(value >= beta + margin);
-        if (value >= beta + margin)
-            return value;
-    }
-
     // Step 5. Tablebases probe
     if (!rootNode && !excludedMove && TB::Cardinality)
     {
@@ -804,6 +787,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 9
+        && eval >= ss->staticEval
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 280 >= beta
         &&  eval >= beta
         &&  eval < 25128) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
