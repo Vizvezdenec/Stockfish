@@ -659,17 +659,17 @@ namespace {
             return ttValue;
     }
 
-    if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta
+    int margin = 300;
+    if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta + 300
         && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
     {
-        int margin = 0;
         ss->currentMove = ttMove;
         ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
                                                                   [ttCapture]
                                                                   [pos.moved_piece(ttMove)]
                                                                   [to_sq(ttMove)];
         pos.do_move(ttMove, st);
-        value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 3, !cutNode);
+        value = -search<NonPV>(pos, ss+1, -(beta + margin), -(beta + margin)+1, depth + 1, !cutNode);
         pos.undo_move(ttMove);
         if (value >= beta + margin)
             return value;
