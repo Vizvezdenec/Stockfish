@@ -711,6 +711,21 @@ namespace {
         }
     }
 
+    if (PvNode && !rootNode && ttMove && tte->depth() >= depth && (tte->bound() & BOUND_LOWER) && tte->is_pv() && ttValue >= beta
+        && pos.pseudo_legal(ttMove) && pos.legal(ttMove))
+    {
+        ss->currentMove = ttMove;
+        ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                  [ttCapture]
+                                                                  [pos.moved_piece(ttMove)]
+                                                                  [to_sq(ttMove)];
+        pos.do_move(ttMove, st);
+        value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth + 2, !cutNode);
+        pos.undo_move(ttMove);
+        if (value >= beta)
+            return value;
+    }
+
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
     // Step 6. Static evaluation of the position
@@ -787,7 +802,6 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 9
-        && eval >= (ss->staticEval + beta) / 2
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 280 >= beta
         &&  eval >= beta
         &&  eval < 25128) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
