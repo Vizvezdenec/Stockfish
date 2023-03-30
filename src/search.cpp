@@ -787,7 +787,6 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 9
-        &&  eval >= ss->staticEval - 400
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 280 >= beta
         &&  eval >= beta
         &&  eval < 25128) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
@@ -1008,7 +1007,7 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 182 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                  && ss->staticEval + 182 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] + 50 * PvNode
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
