@@ -419,7 +419,7 @@ void Thread::search() {
               }
               else
               {
-                  inbounds++;
+                  inbounds += rootDepth >= 4;
                   break;
               }
 
