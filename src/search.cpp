@@ -1007,7 +1007,7 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 6
                   && !ss->inCheck
-                  && ss->staticEval + 162 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] + 133 * PvNode
+                  && ss->staticEval + 182 + 230 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
@@ -1443,7 +1443,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, capture;
+    bool pvHit, givesCheck, capture, improving;
     int moveCount;
 
     // Step 1. Initialize node
@@ -1491,6 +1491,7 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
+        improving = false;
     }
     else
     {
@@ -1526,6 +1527,8 @@ moves_loop: // When in check, search starts here
             alpha = bestValue;
 
         futilityBase = bestValue + 168;
+
+        improving = (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval > 0 : false;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1568,7 +1571,7 @@ moves_loop: // When in check, search starts here
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2)
+          if (moveCount > 2 + improving)
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
