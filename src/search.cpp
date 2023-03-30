@@ -1263,6 +1263,9 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+
+          if (moveCount > 1 && newDepth >= depth && !capture)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 19. Undo move
@@ -1598,7 +1601,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(capture || givesCheck || ss->inCheck ? -212 : 0)))
+      if (!pos.see_ge(move, Value(-110)))
           continue;
     }
 
