@@ -1264,8 +1264,8 @@ moves_loop: // When in check, search starts here
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
 
-          if (moveCount > 1 && !capture && value < alpha - 50 * newDepth)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth + 1));
+          if (moveCount > 1 && !capture && (value < alpha - 50 * newDepth || value > beta + 50 * depth))
+              update_continuation_histories(ss, movedPiece, to_sq(move), (1 - 2 * (value < alpha)) * stat_bonus(newDepth + 1));
       }
 
       // Step 19. Undo move
