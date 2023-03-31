@@ -316,7 +316,6 @@ void Thread::search() {
   optimism[us] = optimism[~us] = VALUE_ZERO;
 
   int searchAgainCounter = 0;
-  int inbounds = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -356,7 +355,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(10) + int(prev) * prev / 16502 - Value(std::min(inbounds / 4, 3));
+              delta = Value(10) + int(prev) * prev / 16502;
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -409,19 +408,14 @@ void Thread::search() {
                   failedHighCnt = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
-                  inbounds = 0;
               }
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
-                  inbounds = 0;
               }
               else
-              {
-                  inbounds += rootDepth >= 4;
                   break;
-              }
 
               delta += delta / 4 + 2;
 
@@ -1269,6 +1263,9 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+
+          if (moveCount > 1 && !capture && value < alpha - 50 * newDepth)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth + 1));
       }
 
       // Step 19. Undo move
