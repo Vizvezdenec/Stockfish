@@ -904,10 +904,10 @@ namespace {
     if (    PvNode
         && !ttMove)
     {
+        depth -= 2 + 2 * (ss->ttHit &&  tte->depth() >= depth);
         value = search<NonPV>(pos, ss, alpha, alpha+1, depth, true);
             if (value <= alpha)
                 return value;
-        depth -= 2 + 2 * (ss->ttHit &&  tte->depth() >= depth);
     }
 
     if (depth <= 0)
