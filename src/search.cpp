@@ -316,7 +316,6 @@ void Thread::search() {
   optimism[us] = optimism[~us] = VALUE_ZERO;
 
   int searchAgainCounter = 0;
-  int inbounds = 0;
 
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
@@ -356,7 +355,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(10) + int(prev) * prev / 16502 - Value(std::min((inbounds - 2) / 2, 3));
+              delta = Value(10) + int(prev) * prev / 16502;
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -409,19 +408,14 @@ void Thread::search() {
                   failedHighCnt = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
-                  inbounds = -1;
               }
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
-                  inbounds = -1;
               }
               else
-              {
-                  inbounds++;
                   break;
-              }
 
               delta += delta / 4 + 2;
 
@@ -912,9 +906,12 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        &&  depth >= 7
+        && (depth >= 7 || (ss->ttHit && tte->depth() >= depth - 2))
         && !ttMove)
         depth -= 2;
+
+    if (depth <= 0)
+        return qsearch<NonPV>(pos, ss, alpha, beta);
 
 moves_loop: // When in check, search starts here
 
