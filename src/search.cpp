@@ -409,13 +409,13 @@ void Thread::search() {
                   failedHighCnt = 0;
                   if (mainThread)
                       mainThread->stopOnPonderhit = false;
-                  inbounds = 0;
+                  inbounds = -1;
               }
               else if (bestValue >= beta)
               {
                   beta = std::min(bestValue + delta, VALUE_INFINITE);
                   ++failedHighCnt;
-                  inbounds = 0;
+                  inbounds = -1;
               }
               else
               {
