@@ -356,7 +356,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(10) + int(prev) * prev / 16502 - Value(std::min((inbounds - 4) / 2, 3));
+              delta = Value(10) + int(prev) * prev / 16502 - Value(std::min((inbounds - 2) / 2, 3));
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
