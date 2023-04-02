@@ -903,12 +903,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-    {
         depth -= 2 + 2 * (ss->ttHit &&  tte->depth() >= depth);
-        value = search<NonPV>(pos, ss, alpha, alpha+1, depth, true);
-            if (value <= alpha)
-                return value;
-    }
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1253,6 +1248,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
           if (!ttMove && cutNode)
               r += 2;
+
+          if (extension)
+              r--;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
