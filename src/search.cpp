@@ -915,15 +915,6 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (    ss->inCheck
-         && !ss->ttPv
-         && depth <= 3
-         && ss->ttHit
-         && (tte->bound() & BOUND_LOWER)
-         && ttValue >= beta + 422 * depth
-         && ttValue < 25000)
-         return ttValue;
-
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 391;
     if (   ss->inCheck
@@ -1093,7 +1084,7 @@ moves_loop: // When in check, search starts here
               && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
-              Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
+              Value singularBeta = ttValue - (5 + 4 * (ss->ttPv && !PvNode)) * depth / 4;
               Depth singularDepth = (depth - 1) / 2;
 
               ss->excludedMove = move;
