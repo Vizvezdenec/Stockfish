@@ -917,10 +917,10 @@ moves_loop: // When in check, search starts here
 
     if (    ss->inCheck
          && !ss->ttPv
-         && depth <= 5
+         && depth <= 3
          && ss->ttHit
          && (tte->bound() & BOUND_LOWER)
-         && ttValue >= beta + 222 * depth
+         && ttValue >= beta + 422 * depth
          && ttValue < 25000)
          return ttValue;
 
