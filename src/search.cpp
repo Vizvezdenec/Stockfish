@@ -915,6 +915,15 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    if (    ss->inCheck
+         && !ss->ttPv
+         && depth <= 4
+         && ss->ttHit
+         && (tte->bound() & BOUND_LOWER)
+         && ttValue >= beta + 322 * depth
+         && ttValue < 25000)
+         return ttValue;
+
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 391;
     if (   ss->inCheck
@@ -1116,7 +1125,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-                  extension = -3 - !PvNode + 2 * ss->ttPv;
+                  extension = -2 - !PvNode;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
