@@ -950,6 +950,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    bool negext = false;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1116,10 +1118,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-              {
-                  extension = -2 - !PvNode;
-                  depth += !PvNode;
-              }
+                  extension = -2 - !PvNode, negext = true;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
@@ -1194,6 +1193,9 @@ moves_loop: // When in check, search starts here
       // Decrease reduction if move is a killer and we have a good history (~1 Elo)
       if (move == ss->killers[0]
           && (*contHist[0])[movedPiece][to_sq(move)] >= 3722)
+          r--;
+
+      if (moveCount > 1 && negext)
           r--;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
