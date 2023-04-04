@@ -799,7 +799,6 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18755
-        && ttValue >= ss->staticEval - 144
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 19 * depth - improvement / 13 + 253 + complexity / 25
@@ -1034,6 +1033,15 @@ moves_loop: // When in check, search starts here
                           attacks = 0;
                   }
                   if (!attacks)
+                      continue;
+              }
+
+              if (!givesCheck && lmrDepth < 5 && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] <= alpha)
+              {
+                  pos.do_move(move, st, givesCheck);
+                  value = -qsearch<NonPV>(pos, ss+1, -alpha-1, -alpha);
+                  pos.undo_move(move);
+                  if (value <= alpha)
                       continue;
               }
           }
