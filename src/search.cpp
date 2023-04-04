@@ -950,8 +950,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    bool negExt = false;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1118,11 +1116,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-              {
                   extension = -2 - !PvNode;
-                  negExt = true;
-                  depth += depth <= 10;
-              }
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
@@ -1192,9 +1186,6 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
-          r++;
-
-      if (moveCount > 1 && negExt)
           r++;
 
       // Decrease reduction if move is a killer and we have a good history (~1 Elo)
@@ -1270,6 +1261,9 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+
+          if (moveCount > 1 && newDepth >= depth && !capture)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 19. Undo move
