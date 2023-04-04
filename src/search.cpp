@@ -801,7 +801,7 @@ namespace {
         && (ss-1)->statScore < 18755
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 19 * depth - improvement / 13 + 253 + complexity / 25
+        &&  ss->staticEval >= beta - 19 * depth - improvement / 13 + 253 + complexity / 25 - thisThread->optimism[us] / 8
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly || us != thisThread->nmpColor))
@@ -1261,9 +1261,6 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv[0] = MOVE_NONE;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
-
-          if (moveCount > 1 && newDepth >= depth && !capture)
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
       }
 
       // Step 19. Undo move
