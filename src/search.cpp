@@ -1036,7 +1036,7 @@ moves_loop: // When in check, search starts here
                       continue;
               }
 
-              if (!givesCheck && lmrDepth < 5 && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 133 <= alpha)
+              if (!givesCheck && lmrDepth < 5 && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 90 + 100 * lmrDepth <= alpha)
               {
                   pos.do_move(move, st, givesCheck);
                   value = -qsearch<NonPV>(pos, ss+1, -alpha-1, -alpha);
