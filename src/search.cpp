@@ -1035,15 +1035,6 @@ moves_loop: // When in check, search starts here
                   if (!attacks)
                       continue;
               }
-
-              if (!givesCheck && lmrDepth < 5 && !ss->inCheck && ss->staticEval + PieceValue[EG][pos.piece_on(to_sq(move))] + 90 + 100 * lmrDepth <= alpha)
-              {
-                  pos.do_move(move, st, givesCheck);
-                  value = -qsearch<NonPV>(pos, ss+1, -alpha-1, -alpha);
-                  pos.undo_move(move);
-                  if (value <= alpha)
-                      continue;
-              }
           }
           else
           {
@@ -1125,7 +1116,10 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
+              {
                   extension = -2 - !PvNode;
+                  depth++;
+              }
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
