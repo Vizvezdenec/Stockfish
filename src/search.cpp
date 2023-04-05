@@ -1114,12 +1114,12 @@ moves_loop: // When in check, search starts here
               else if (ttValue >= beta)
                   extension = -2 - !PvNode;
 
-              // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
-              else if (ttValue <= alpha)
-                  extension = -1 - (cutNode && ss->ttPv);
-
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
+                  extension = -1;
+
+              // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
+              else if (ttValue <= alpha)
                   extension = -1;
           }
 
@@ -1223,18 +1223,22 @@ moves_loop: // When in check, search starts here
               const bool doDeeperSearch = value > (alpha + 58 + 12 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
+              const bool doEvenShallowerSearch = value == bestValue + 1;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
-              newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
+              newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch - doEvenShallowerSearch;
 
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
+              if (newDepth > 0)
+              {
               int bonus = value > alpha ?  stat_bonus(newDepth)
                                         : -stat_bonus(newDepth);
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+              }
           }
       }
 
