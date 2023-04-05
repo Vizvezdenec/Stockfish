@@ -907,7 +907,7 @@ namespace {
     if (    cutNode
         &&  depth >= 7
         && !ttMove)
-        depth -= 2;
+        depth -= 1 - 3 * (ss->ttHit && tte->depth() >= depth / 2);
 
 moves_loop: // When in check, search starts here
 
@@ -1112,7 +1112,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-                  extension = -2 - !PvNode - 3 * (cutNode && ss->ttPv);
+                  extension = -2 - !PvNode;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
