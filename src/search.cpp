@@ -1057,7 +1057,7 @@ moves_loop: // When in check, search starts here
                   && lmrDepth < 13
                   && ss->staticEval + 103 + 138 * lmrDepth <= alpha)
                   {
-                      moveCountPruning = !PvNode;
+                      moveCountPruning = moveCount > 5;
                       continue;
                   }
 
