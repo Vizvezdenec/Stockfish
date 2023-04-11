@@ -782,13 +782,14 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        else if (depth == 1)
+        else if (value >= alpha + 50 * depth)
         {
             tte = TT.probe(posKey, ss->ttHit);
             ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
             ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
                     : ss->ttHit    ? tte->move() : MOVE_NONE;
             ttCapture = ttMove && pos.capture_stage(ttMove);
+            eval = value;
         }
     }
 
