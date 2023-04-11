@@ -611,7 +611,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->extended = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -783,6 +782,14 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        else if (depth == 1)
+        {
+            tte = TT.probe(posKey, ss->ttHit);
+            ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
+            ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
+                    : ss->ttHit    ? tte->move() : MOVE_NONE;
+            ttCapture = ttMove && pos.capture_stage(ttMove);
+        }
     }
 
     // Step 8. Futility pruning: child node (~40 Elo).
@@ -798,7 +805,6 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18755
-        && (cutNode || !(ss-1)->extended)
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 20 * depth - improvement / 13 + 253 + complexity / 25
@@ -1097,7 +1103,6 @@ moves_loop: // When in check, search starts here
               {
                   extension = 1;
                   singularQuietLMR = !ttCapture;
-                  ss->extended = true;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1147,8 +1152,6 @@ moves_loop: // When in check, search starts here
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
-      if (moveCount > 1)
-          ss->extended = false;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
