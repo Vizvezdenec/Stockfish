@@ -782,7 +782,7 @@ namespace {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        else if (value >= alpha + 50 * depth)
+        else if (value >= alpha + 1)
         {
             tte = TT.probe(posKey, ss->ttHit);
             ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
