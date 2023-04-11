@@ -322,9 +322,6 @@ void Thread::search() {
 
   int searchAgainCounter = 0;
 
-  Value prevBV = VALUE_ZERO;
-  Value jump = VALUE_ZERO;
-
   // Iterative deepening loop until requested to stop or the target depth is reached
   while (   ++rootDepth < MAX_PLY
          && !Threads.stop
@@ -363,7 +360,7 @@ void Thread::search() {
           if (rootDepth >= 4)
           {
               Value prev = rootMoves[pvIdx].averageScore;
-              delta = Value(8) + int(prev) * prev / 16502 + int(jump) * jump / 32768;
+              delta = Value(10) + int(prev) * prev / 16502;
               alpha = std::max(prev - delta,-VALUE_INFINITE);
               beta  = std::min(prev + delta, VALUE_INFINITE);
 
@@ -423,11 +420,7 @@ void Thread::search() {
                   ++failedHighCnt;
               }
               else
-              {
-                  jump = Value(std::abs(prevBV - bestValue));
-                  prevBV = bestValue;
                   break;
-              }
 
               delta += delta / 4 + 2;
 
@@ -804,6 +797,7 @@ namespace {
     if (   !PvNode
         && (ss-1)->currentMove != MOVE_NULL
         && (ss-1)->statScore < 18755
+        && (cutNode || (ss-1)->moveCount > 1)
         &&  eval >= beta
         &&  eval >= ss->staticEval
         &&  ss->staticEval >= beta - 20 * depth - improvement / 13 + 253 + complexity / 25
