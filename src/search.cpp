@@ -1120,7 +1120,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= alpha)
-                  extension = -1 - 2 * (cutNode && ss->ttPv);
+                  extension = -1 - 3 * (cutNode && ss->ttPv);
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
