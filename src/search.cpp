@@ -1056,10 +1056,7 @@ moves_loop: // When in check, search starts here
               if (   !ss->inCheck
                   && lmrDepth < 13
                   && ss->staticEval + 103 + 138 * lmrDepth <= alpha)
-                  {
-                      moveCountPruning = moveCount > 5;
-                      continue;
-                  }
+                  continue;
 
               lmrDepth = std::max(lmrDepth, 0);
 
@@ -1122,11 +1119,11 @@ moves_loop: // When in check, search starts here
                   extension = -2 - !PvNode;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
-              else if (ttValue <= value)
-                  extension = -1;
-
-              // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= alpha)
+                  extension = -1 - 2 * (cutNode && ss->ttPv);
+
+              // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
+              else if (ttValue <= value)
                   extension = -1;
           }
 
