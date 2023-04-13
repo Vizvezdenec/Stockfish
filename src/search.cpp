@@ -1485,7 +1485,7 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
-        Value probCutBeta = beta + 391;
+        Value probCutBeta = beta + 491;
         if (   ss->inCheck
             && ttMove
             && pos.capture(ttMove)
