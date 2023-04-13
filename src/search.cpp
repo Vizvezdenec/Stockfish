@@ -1485,15 +1485,6 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
-        Value probCutBeta = beta + 491;
-        if (   ss->inCheck
-            && ttMove
-            && pos.capture(ttMove)
-            && (tte->bound() & BOUND_LOWER)
-            && tte->depth() >= depth - 3
-            && ttValue >= probCutBeta
-            && probCutBeta < VALUE_TB_WIN_IN_MAX_PLY)
-            return probCutBeta;
     }
     else
     {
@@ -1567,6 +1558,7 @@ moves_loop: // When in check, search starts here
     {
       // Futility pruning and moveCount pruning (~10 Elo)
       if (   !givesCheck
+          && !ss->inCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
