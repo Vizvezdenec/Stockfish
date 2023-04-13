@@ -1485,8 +1485,15 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
-        if (ss->ttHit && ttValue != VALUE_NONE)
-            futilityBase = ttValue + 268;
+        Value probCutBeta = beta + 391;
+        if (   ss->inCheck
+            && ttMove
+            && pos.capture(ttMove)
+            && (tte->bound() & BOUND_LOWER)
+            && tte->depth() >= depth - 3
+            && ttValue >= probCutBeta
+            && probCutBeta < VALUE_TB_WIN_IN_MAX_PLY)
+            return probCutBeta;
     }
     else
     {
