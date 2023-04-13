@@ -1485,13 +1485,8 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
-        if (ss->ttHit && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER))
-        {
-            bestValue = ttValue;
-            if (bestValue >= beta)
-                return bestValue;
-            futilityBase = bestValue + 268;
-        }
+        if (ss->ttHit && ttValue != VALUE_NONE)
+            futilityBase = ttValue + 268;
     }
     else
     {
