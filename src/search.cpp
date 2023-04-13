@@ -1490,7 +1490,7 @@ moves_loop: // When in check, search starts here
             bestValue = ttValue;
             if (bestValue >= beta)
                 return bestValue;
-            futilityBase = bestValue + 168;
+            futilityBase = bestValue + 268;
         }
     }
     else
