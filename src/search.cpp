@@ -1485,6 +1485,13 @@ moves_loop: // When in check, search starts here
     {
         ss->staticEval = VALUE_NONE;
         bestValue = futilityBase = -VALUE_INFINITE;
+        if (ss->ttHit && ttValue != VALUE_NONE && (tte->bound() & BOUND_LOWER))
+        {
+            bestValue = ttValue;
+            if (bestValue >= beta)
+                return bestValue;
+            futilityBase = bestValue + 168;
+        }
     }
     else
     {
@@ -1726,7 +1733,7 @@ moves_loop: // When in check, search starts here
     if (!pos.capture_stage(bestMove))
     {
         int bonus2 = bestValue > beta + 153 ? bonus1               // larger bonus
-                   : bestValue > beta       ? stat_bonus(depth) : 0;   // smaller bonus
+                                            : stat_bonus(depth);   // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2);
