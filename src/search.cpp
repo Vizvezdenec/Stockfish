@@ -1245,6 +1245,8 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
+          if (value < bestValue + newDepth)
+              newDepth--;
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
@@ -1558,7 +1560,6 @@ moves_loop: // When in check, search starts here
     {
       // Futility pruning and moveCount pruning (~10 Elo)
       if (   !givesCheck
-          && !ss->inCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
