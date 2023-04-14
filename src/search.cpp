@@ -1124,6 +1124,9 @@ moves_loop: // When in check, search starts here
               // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= alpha)
                   extension = -1;
+
+              if (extension < 0 && cutNode && ss->ttPv)
+                  extension -= 2;
           }
 
           // Check extensions (~1 Elo)
@@ -1726,8 +1729,7 @@ moves_loop: // When in check, search starts here
     if (!pos.capture_stage(bestMove))
     {
         int bonus2 = bestValue > beta + 153 ? bonus1               // larger bonus
-                   : bestValue >= beta      ? stat_bonus(depth)
-                                            : stat_bonus(depth) / 2;   // smaller bonus
+                                            : stat_bonus(depth);   // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bonus2);
