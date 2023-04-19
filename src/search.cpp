@@ -901,7 +901,7 @@ namespace {
     if (    PvNode
         && !ttMove)
         depth -= 2 + 2 * (ss->ttHit &&  tte->depth() >= depth);
-    else if (PvNode && tte->bound() == BOUND_UPPER && tte->depth() >= depth + 1 && ttValue <= alpha)
+    else if (PvNode && tte->bound() == BOUND_UPPER && tte->depth() >= depth + 1 && ttValue <= alpha && tte->is_pv())
         depth--;
 
     if (depth <= 0)
