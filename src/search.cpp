@@ -1111,7 +1111,14 @@ moves_loop: // When in check, search starts here
               // that multiple moves fail high, and we can prune the whole subtree by returning
               // a soft bound.
               else if (singularBeta >= beta)
+              {
+                  if (!ttCapture && ss->killers[0] != move)
+                  {
+                      ss->killers[1] = ss->killers[0];
+                      ss->killers[0] = move;
+                  }
                   return singularBeta;
+              }
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
@@ -1384,13 +1391,8 @@ moves_loop: // When in check, search starts here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
-    {
-        if (bestValue >= beta)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
-        else if (!pos.capture_stage(bestMove))
-            update_quiet_stats(pos, ss, bestMove, 0);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
