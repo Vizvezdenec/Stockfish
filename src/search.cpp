@@ -1080,7 +1080,7 @@ moves_loop: // When in check, search starts here
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && ((tte->bound() & BOUND_LOWER) || ttValue >= beta)
+              && (tte->bound() & BOUND_LOWER)
               &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - (3 + 2 * (ss->ttPv && !PvNode)) * depth / 2;
@@ -1384,8 +1384,11 @@ moves_loop: // When in check, search starts here
 
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
+    {
+        if (bestValue >= beta)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+    }
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
