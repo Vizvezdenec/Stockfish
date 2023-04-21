@@ -1113,10 +1113,7 @@ moves_loop: // When in check, search starts here
               else if (singularBeta >= beta)
               {
                   if (!ttCapture && ss->killers[0] != move)
-                  {
-                      ss->killers[1] = ss->killers[0];
-                      ss->killers[0] = move;
-                  }
+                      ss->killers[1] = move;
                   return singularBeta;
               }
 
