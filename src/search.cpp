@@ -1388,6 +1388,8 @@ moves_loop: // When in check, search starts here
         if (bestValue >= beta)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
                          quietsSearched, quietCount, capturesSearched, captureCount, depth);
+        else if (!pos.capture_stage(bestMove))
+            update_quiet_stats(pos, ss, bestMove, 0);
     }
 
     // Bonus for prior countermove that caused the fail low
