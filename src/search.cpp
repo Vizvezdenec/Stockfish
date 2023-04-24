@@ -890,7 +890,7 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        && depth >= 7 - 2 * (ss->ttHit && tte->bound() == BOUND_UPPER)
+        && depth >= 8 - 4 * (ss->ttHit && tte->bound() == BOUND_UPPER)
         && !ttMove)
         depth -= 2;
 
