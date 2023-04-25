@@ -796,15 +796,13 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
-        int margin = 10;
-
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta-margin, -beta+1-margin, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
-        if (nullValue >= beta+margin)
+        if (nullValue >= beta)
         {
             // Do not return unproven mate or TB scores
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
@@ -1374,7 +1372,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10);
+        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10) + (PvNode && depth >= 7);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
