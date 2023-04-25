@@ -791,18 +791,18 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 172, 6) + depth / 3 + 3 + 4 * priorCapture;
+        Depth R = std::min(int(eval - beta) / 172, 6) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta-2, -beta+1-2, depth-R, !cutNode);
 
         pos.undo_null_move();
 
-        if (nullValue >= beta)
+        if (nullValue >= beta+2)
         {
             // Do not return unproven mate or TB scores
             if (nullValue >= VALUE_TB_WIN_IN_MAX_PLY)
