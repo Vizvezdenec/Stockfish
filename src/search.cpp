@@ -796,7 +796,7 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
-        int margin = 5;
+        int margin = 10;
 
         pos.do_null_move(st);
 
