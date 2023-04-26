@@ -1730,7 +1730,7 @@ moves_loop: // When in check, search starts here
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (   prevSq != SQ_NONE
-        && (bestValue >= beta + 50 * depth || (ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
+        && ((bestValue >= beta + 100 * depth) || ((ss-1)->moveCount == 1 + (ss-1)->ttHit) || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -bonus1);
 
