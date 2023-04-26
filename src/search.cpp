@@ -1174,8 +1174,6 @@ moves_loop: // When in check, search starts here
       else if (move == ttMove)
           r--;
 
-      r += reducedD;
-
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
@@ -1216,7 +1214,7 @@ moves_loop: // When in check, search starts here
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
               if (newDepth > d)
-                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
+                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth + reducedD, !cutNode);
 
               int bonus = value <= alpha ? -stat_bonus(newDepth)
                         : value >= beta  ?  stat_bonus(newDepth)
