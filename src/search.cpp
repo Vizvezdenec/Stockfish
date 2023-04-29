@@ -791,7 +791,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 172, 6) + (depth + ss->ttPv) / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 172, 6) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1079,7 +1079,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 25
+                      && value < singularBeta - 23 - 10 * ss->ttPv
                       && ss->doubleExtensions <= 10)
                   {
                       extension = 2;
