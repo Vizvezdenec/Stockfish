@@ -773,9 +773,9 @@ namespace {
     if (   !ss->ttPv
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 280 >= beta
-        &&  eval >= beta
+        &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         &&  eval < 25128) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
-        return eval;
+        return std::max(eval, beta);
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (   !PvNode
@@ -1078,8 +1078,8 @@ moves_loop: // When in check, search starts here
                   singularQuietLMR = !ttCapture;
 
                   // Avoid search explosion by limiting the number of double extensions
-                  if (  !ss->ttPv
-                      && value < singularBeta - 20
+                  if (  !PvNode
+                      && value < singularBeta - 25
                       && ss->doubleExtensions <= 10)
                   {
                       extension = 2;
