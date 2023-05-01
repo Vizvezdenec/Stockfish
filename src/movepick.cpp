@@ -138,7 +138,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0)
                    +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384
-                   + (type_of(pos.moved_piece(m)) == PAWN && pos.pawn_passed(pos.side_to_move(), to_sq(m))) * 5000;
+                   + (type_of(pos.moved_piece(m)) == PAWN && pos.pawn_passed(pos.side_to_move(), to_sq(m))) * 2500;
       else // Type == EVASIONS
       {
           if (pos.capture_stage(m))
