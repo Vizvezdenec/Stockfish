@@ -123,6 +123,7 @@ void MovePicker::score() {
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
           m.value =  (7 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
+                   + (type_of(m) == PROMOTION && promotion_type(m) == QUEEN) * 5 * QueenValueMg
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
 
       else if constexpr (Type == QUIETS)
@@ -137,8 +138,7 @@ void MovePicker::score() {
                           :                                         !(to_sq(m) & threatenedByPawn)  ? 15000
                           :                                                                           0)
                           :                                                                           0)
-                   + (type_of(pos.moved_piece(m)) == PAWN && relative_rank(pos.side_to_move(), to_sq(m)) >= RANK_5 
-                   && pos.pawn_passed(pos.side_to_move(), to_sq(m))) * 7500;
+                   +     bool(pos.check_squares(type_of(pos.moved_piece(m))) & to_sq(m)) * 16384;
       else // Type == EVASIONS
       {
           if (pos.capture_stage(m))
