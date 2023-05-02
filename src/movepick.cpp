@@ -138,7 +138,7 @@ void MovePicker::score() {
                           :                                                                           0)
                           :                                                                           0)
                    + (type_of(pos.moved_piece(m)) == PAWN && relative_rank(pos.side_to_move(), to_sq(m)) >= RANK_5 
-                   && pos.pawn_passed(pos.side_to_move(), to_sq(m))) * 10000;
+                   && pos.pawn_passed(pos.side_to_move(), to_sq(m))) * 7500;
       else // Type == EVASIONS
       {
           if (pos.capture_stage(m))
