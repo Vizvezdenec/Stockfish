@@ -1085,8 +1085,6 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
-                  if (PvNode && tte->depth() >= depth - 2)
-                      depth++;
               }
 
               // Multi-cut pruning
@@ -1124,6 +1122,8 @@ moves_loop: // When in check, search starts here
               extension = 1;
       }
 
+      if (move == ttMove && PvNode)
+          depth++;
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
