@@ -886,9 +886,6 @@ namespace {
         && !ttMove)
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
-    if (PvNode && ttMove && tte->depth() >= 2 * depth)
-        depth++;
-
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
 
@@ -1088,6 +1085,8 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
+                  if (PvNode && tte->depth() >= depth)
+                      depth++;
               }
 
               // Multi-cut pruning
