@@ -1085,7 +1085,7 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
-                  if (PvNode)
+                  if (PvNode && tte->depth() >= depth + 1)
                       depth++;
               }
 
