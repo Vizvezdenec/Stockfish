@@ -1168,7 +1168,7 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
-          r += 1 + ((ss+1)->cutoffCnt > 11);
+          r++;
 
       else if (move == ttMove)
           r--;
@@ -1204,7 +1204,7 @@ moves_loop: // When in check, search starts here
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
-              const bool doDeeperSearch = value > (alpha + 58 + 12 * (newDepth - d));
+              const bool doDeeperSearch = value > (bestValue + 58 + 12 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
 
