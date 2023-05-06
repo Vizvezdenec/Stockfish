@@ -1122,8 +1122,6 @@ moves_loop: // When in check, search starts here
               extension = 1;
       }
 
-      if (move == ttMove && PvNode)
-          depth++;
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
@@ -1615,7 +1613,10 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
+              {
+                  ss->cutoffCnt++;
                   break; // Fail high
+              }
           }
        }
     }
