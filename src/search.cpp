@@ -1168,7 +1168,7 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
-          r++;
+          r += 1 + ((ss+1)->cutoffCnt > 7);
 
       else if (move == ttMove)
           r--;
@@ -1613,10 +1613,7 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
                   alpha = value;
               else
-              {
-                  ss->cutoffCnt += 1 + !ttMove;
                   break; // Fail high
-              }
           }
        }
     }
