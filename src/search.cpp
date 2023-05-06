@@ -1614,7 +1614,7 @@ moves_loop: // When in check, search starts here
                   alpha = value;
               else
               {
-                  ss->cutoffCnt++;
+                  ss->cutoffCnt += 1 + !ttMove;
                   break; // Fail high
               }
           }
