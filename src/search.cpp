@@ -1238,9 +1238,6 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          if (moveCount > 1 && value < bestValue + newDepth / 4)
-              newDepth--;
-
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
 
@@ -1374,6 +1371,7 @@ moves_loop: // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 97 * depth) + ((ss-1)->moveCount > 10);
+        bonus = std::max(0, bonus - (!(PvNode || cutNode) && bestValue > alpha - 10));
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
