@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
-      if (initDelta >= delta * 8)
+      if (initDelta >= delta * 16)
           alpha = beta - 1, delta = Value(1);
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
