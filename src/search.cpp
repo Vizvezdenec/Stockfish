@@ -1202,7 +1202,7 @@ moves_loop: // When in check, search starts here
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (bestValue + 68 + 12 * (newDepth - d));
-              const bool doEvenDeeperSearch = (value > bestValue + 588 + 80 * (newDepth - d)) && ss->doubleExtensions <= 5;
+              const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
               const bool doShallowerSearch = value < bestValue + newDepth;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
@@ -1227,7 +1227,7 @@ moves_loop: // When in check, search starts here
           if (!ttMove && cutNode)
               r += 2;
 
-          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
+          value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4) + (moveCount > 1 && r < 0), !cutNode);
       }
 
       // For PV nodes only, do a full PV search on the first move or after a fail
