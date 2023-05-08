@@ -928,8 +928,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Value initDelta = beta - alpha;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -969,8 +967,6 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
-      if (initDelta >= delta * 32)
-          alpha = beta - 1, delta = Value(1);
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
@@ -1241,6 +1237,9 @@ moves_loop: // When in check, search starts here
       {
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
+
+          if (value < bestValue + newDepth)
+              newDepth--;
 
           value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
