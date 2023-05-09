@@ -1098,7 +1098,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
-                  extension = -1 - (ttValue < value - 64 * depth);
+                  extension = -1;
 
               // If the eval of ttMove is less than alpha, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= alpha)
@@ -1217,6 +1217,8 @@ moves_loop: // When in check, search starts here
                                          :  0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+              if (!capture)
+                  thisThread->mainHistory[us][from_to(move)] << bonus;
           }
       }
 
