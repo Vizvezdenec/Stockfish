@@ -1365,7 +1365,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (moveCount == 1 && extension));
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth + (moveCount == 1 && extension > 0));
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
