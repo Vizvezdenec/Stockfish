@@ -1217,8 +1217,6 @@ moves_loop: // When in check, search starts here
                                          :  0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-              if (!capture)
-                  thisThread->mainHistory[us][from_to(move)] << bonus * 2;
           }
       }
 
@@ -1502,6 +1500,11 @@ moves_loop: // When in check, search starts here
             alpha = bestValue;
 
         futilityBase = bestValue + 168;
+        if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !pos.captured_piece())
+        {
+            int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1920, 1920);
+            thisThread->mainHistory[~pos.side_to_move()][from_to((ss-1)->currentMove)] << bonus;
+        }
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
