@@ -1186,6 +1186,7 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
+              || (!PvNode && !ttMove)
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
@@ -1217,7 +1218,6 @@ moves_loop: // When in check, search starts here
                                          :  0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-              thisThread->mainHistory[us][from_to(move)] << bonus;
           }
       }
 
