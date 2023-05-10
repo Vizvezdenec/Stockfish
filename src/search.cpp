@@ -1165,7 +1165,7 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
-          r++;
+          r += 1 + (cutNode && (ss+1)->cutoffCnt > 5);
 
       else if (move == ttMove)
           r--;
@@ -1186,7 +1186,6 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
-              || (!ttMove && ss->ttHit && tte->depth() >= depth + 4)
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
