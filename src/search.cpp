@@ -1320,10 +1320,9 @@ moves_loop: // When in check, search starts here
               {
                   // Reduce other moves if we have found at least one score improvement (~1 Elo)
                   if (   depth > 1
-                      && !ttMove
                       && beta  <  12535
                       && value > -12535)
-                      depth -= 1;
+                      depth = std::max(1, depth - 1 - !!ttMove);
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
