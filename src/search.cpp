@@ -1322,7 +1322,7 @@ moves_loop: // When in check, search starts here
                   if (   depth > 1
                       && beta  <  12535
                       && value > -12535)
-                      depth = std::max(1, depth - 1 - !ttMove);
+                      depth -= 1;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
