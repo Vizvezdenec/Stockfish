@@ -646,14 +646,7 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-            if (!ss->inCheck && tte->eval() != VALUE_NONE && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
-            {
-                int bonus = std::clamp(-19 * int((ss-1)->staticEval + tte->eval()), -1920, 1920);
-                thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
-            }
             return ttValue;
-        }
     }
 
     // Step 5. Tablebases probe
@@ -747,7 +740,7 @@ namespace {
     }
 
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && (!ss->ttHit || tte->eval() == VALUE_NONE))
     {
         int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1920, 1920);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
