@@ -740,7 +740,7 @@ namespace {
     }
 
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
-    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture && !excludedMove)
+    if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1920, 1920);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
@@ -1320,6 +1320,7 @@ moves_loop: // When in check, search starts here
               {
                   // Reduce other moves if we have found at least one score improvement (~1 Elo)
                   if (   depth > 1
+                      && ttMove
                       && beta  <  12535
                       && value > -12535)
                       depth -= 1;
