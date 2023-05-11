@@ -646,7 +646,14 @@ namespace {
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (!ss->inCheck && tte->eval() != VALUE_NONE && is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !priorCapture)
+            {
+                int bonus = std::clamp(-19 * int((ss-1)->staticEval + tte->eval()), -1920, 1920);
+                thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << bonus;
+            }
             return ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -1500,11 +1507,6 @@ moves_loop: // When in check, search starts here
             alpha = bestValue;
 
         futilityBase = bestValue + 168;
-        if (is_ok((ss-1)->currentMove) && !(ss-1)->inCheck && !pos.captured_piece())
-        {
-            int bonus = std::clamp(-19 * int((ss-1)->staticEval + ss->staticEval), -1920, 1920);
-            thisThread->mainHistory[~pos.side_to_move()][from_to((ss-1)->currentMove)] << bonus;
-        }
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
