@@ -1082,7 +1082,7 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
-                  if (value > singularBeta - singularDepth)
+                  if (value > singularBeta - 4)
                       depth--;
               }
 
