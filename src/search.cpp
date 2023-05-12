@@ -1082,8 +1082,6 @@ moves_loop: // When in check, search starts here
                       extension = 2;
                       depth += depth < 13;
                   }
-                  if (value > singularBeta - 4)
-                      depth--;
               }
 
               // Multi-cut pruning
@@ -1096,7 +1094,10 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
+              {
                   extension = -2 - !PvNode;
+                  depth++;
+              }
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
