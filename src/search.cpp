@@ -979,7 +979,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = std::max(newDepth - r, 0);
+          int lmrDepth = newDepth - r;
 
           if (   capture
               || givesCheck)
@@ -1094,7 +1094,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-                  extension = -2 - !PvNode - (!PvNode && value >= beta + 50);
+                  extension = -2 - !PvNode;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
