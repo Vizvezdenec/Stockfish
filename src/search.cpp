@@ -1170,7 +1170,7 @@ moves_loop: // When in check, search starts here
       else if (move == ttMove)
           r--;
 
-      else if (!ttMove && (ss+1)->cutoffCnt < 2 && move == ss->killers[0])
+      else if (!ttMove && move == ss->killers[0])
           r--;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
