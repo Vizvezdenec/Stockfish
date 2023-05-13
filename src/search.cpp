@@ -1408,7 +1408,7 @@ moves_loop: // When in check, search starts here
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
 
-    Move pv[MAX_PLY+1], capturesSearched[32];
+    Move pv[MAX_PLY+1];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1418,7 +1418,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
-    int moveCount, captureCount;
+    int moveCount;
 
     // Step 1. Initialize node
     if (PvNode)
@@ -1430,7 +1430,7 @@ moves_loop: // When in check, search starts here
     Thread* thisThread = pos.this_thread();
     bestMove = MOVE_NONE;
     ss->inCheck = pos.checkers();
-    moveCount = captureCount = 0;
+    moveCount = 0;
 
     // Step 2. Check for an immediate draw or maximum ply reached
     if (   pos.is_draw(ss->ply)
@@ -1455,7 +1455,7 @@ moves_loop: // When in check, search starts here
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && tte->depth() >= ttDepth
+        && (tte->depth() >= ttDepth || pvHit)
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
@@ -1612,8 +1612,6 @@ moves_loop: // When in check, search starts here
               else
                   break; // Fail high
           }
-          else if (capture && captureCount < 32)
-              capturesSearched[captureCount++] = move;
        }
     }
 
@@ -1631,21 +1629,6 @@ moves_loop: // When in check, search starts here
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
-
-    if (bestMove && !pos.capture(bestMove))
-    {
-        int bonus = 120;
-        Color us = pos.side_to_move();
-        thisThread->mainHistory[us][from_to(bestMove)] << bonus;
-        update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus);
-        // Decrease stats for all non-best capture moves
-        for (int i = 0; i < captureCount; ++i)
-        {
-            Piece moved_piece = pos.moved_piece(capturesSearched[i]);
-            PieceType captured = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-            thisThread->captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -bonus;
-        }
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
