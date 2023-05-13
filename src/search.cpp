@@ -1455,7 +1455,7 @@ moves_loop: // When in check, search starts here
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && ss->ttHit
-        && (tte->depth() >= ttDepth || pvHit)
+        && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE // Only in case of TT access race
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
@@ -1627,7 +1627,8 @@ moves_loop: // When in check, search starts here
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
-              bestValue >= beta ? BOUND_LOWER : BOUND_UPPER,
+              bestValue >= beta ? BOUND_LOWER :
+              PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
               ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
