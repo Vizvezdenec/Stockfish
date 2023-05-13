@@ -1634,7 +1634,7 @@ moves_loop: // When in check, search starts here
 
     if (bestMove && !pos.capture(bestMove))
     {
-        int bonus = 40;
+        int bonus = 120;
         Color us = pos.side_to_move();
         thisThread->mainHistory[us][from_to(bestMove)] << bonus;
         update_continuation_histories(ss, pos.moved_piece(bestMove), to_sq(bestMove), bonus);
