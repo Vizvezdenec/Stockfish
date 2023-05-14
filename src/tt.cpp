@@ -40,9 +40,8 @@ void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) 
       move16 = (uint16_t)m;
 
   // Overwrite less valuable entries (cheapest checks first)
-  if (   b == BOUND_EXACT
-      || (uint16_t)k != key16
-      || d - DEPTH_OFFSET + 2 * pv > depth8 - 4)
+  if (   (uint16_t)k != key16
+      || d - DEPTH_OFFSET + 2 * pv + 4 * (b == BOUND_EXACT) > depth8 - 4)
   {
       assert(d > DEPTH_OFFSET);
       assert(d < 256 + DEPTH_OFFSET);
