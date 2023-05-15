@@ -870,6 +870,8 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    if (!ttMove)
+                        ss->cutoffCnt++;
                     return value;
                 }
             }
@@ -1186,7 +1188,6 @@ moves_loop: // When in check, search starts here
       if (    depth >= 2
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
-              || r > 5
               || !capture
               || (cutNode && (ss-1)->moveCount > 1)))
       {
