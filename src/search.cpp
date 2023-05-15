@@ -828,7 +828,7 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
+    if (   !ss->ttPv
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -1203,7 +1203,7 @@ moves_loop: // When in check, search starts here
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (bestValue + 68 + 12 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
-              const bool doShallowerSearch = value < bestValue + newDepth / (1 + capture);
+              const bool doShallowerSearch = value < bestValue + newDepth;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
