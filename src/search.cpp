@@ -823,12 +823,12 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 186 - 54 * improving + 150 * PvNode;
+    probCutBeta = beta + 186 - 54 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (  (!PvNode || !ttMove)
+    if (   (!ss->ttPv || !ttMove)
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
