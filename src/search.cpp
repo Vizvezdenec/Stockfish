@@ -828,7 +828,7 @@ namespace {
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   (!ss->ttPv || !ttMove)
+    if (   !PvNode
         &&  depth > 4
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -1195,6 +1195,9 @@ moves_loop: // When in check, search starts here
           Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+
+          if (!capture && value < bestValue - 80 * depth)
+              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d));
 
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
