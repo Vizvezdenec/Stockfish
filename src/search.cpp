@@ -928,8 +928,6 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
-    Move bm = MOVE_NONE;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1198,9 +1196,6 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          if (!capture && value < bestValue - 400 - 100 * d && bm && !pos.capture(bm))
-              update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d));
-
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
           {
@@ -1208,7 +1203,7 @@ moves_loop: // When in check, search starts here
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (bestValue + 68 + 12 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 588 && ss->doubleExtensions <= 5;
-              const bool doShallowerSearch = value < bestValue + newDepth;
+              const bool doShallowerSearch = !capture && (value < bestValue + newDepth);
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
@@ -1307,8 +1302,6 @@ moves_loop: // When in check, search starts here
       if (value > bestValue)
       {
           bestValue = value;
-
-          bm = move;
 
           if (value > alpha)
           {
