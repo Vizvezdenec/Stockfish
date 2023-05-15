@@ -1196,7 +1196,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          if (!capture && value < bestValue - 80 * depth)
+          if (!capture && value < bestValue - 400)
               update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(d));
 
           // Do full depth search when reduced LMR search fails high
