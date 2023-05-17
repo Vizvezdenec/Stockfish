@@ -1209,7 +1209,7 @@ moves_loop: // When in check, search starts here
 
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
-              if (newDepth > d && value <= beta + 1000 + (newDepth - d) * 200)
+              if (newDepth > d && !(capture && !PvNode && depth - d <= 3 && value >= beta + 500))
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
               int bonus = value <= alpha ? -stat_bonus(newDepth)
