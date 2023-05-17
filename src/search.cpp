@@ -1117,19 +1117,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5705)
               extension = 1;
-
-          else if (!rootNode && depth >= 8 && move == ttMove && !PvNode && tte->depth() >= depth - 6 &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && (tte->bound() & BOUND_LOWER))
-          {
-              Value singularBeta = ttValue - (3 + 2 * ss->ttPv) * depth / 2;
-              Depth singularDepth = (depth - 1) / 2;
-
-              ss->excludedMove = move;
-              value = search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
-              ss->excludedMove = MOVE_NONE;
-              if (value >= singularBeta)
-                  extension = -1 - (ttValue >= beta);
-          }
       }
 
       // Add extension to new depth
@@ -1239,6 +1226,9 @@ moves_loop: // When in check, search starts here
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
           if (!ttMove && cutNode)
               r += 2;
+
+          if (PvNode && !ttMove && ss->ttHit && tte->depth() >= depth)
+              r += 4;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
