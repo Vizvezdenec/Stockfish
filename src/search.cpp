@@ -1517,7 +1517,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    bool di = depth >= -1 && ss->inCheck;
+    bool di = depth >= -1 && ss->inCheck && pos.captured_piece();
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
