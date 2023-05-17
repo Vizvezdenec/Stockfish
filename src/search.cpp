@@ -1118,7 +1118,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5705)
               extension = 1;
 
-          else if (!rootNode && depth >= 3 && move == ttMove && !PvNode && tte->depth() >= depth - 6)
+          else if (!rootNode && depth >= 8 && move == ttMove && !PvNode && tte->depth() >= depth - 6)
           {
               Value singularBeta = ttValue - (3 + 2 * ss->ttPv) * depth / 2;
               Depth singularDepth = (depth - 1) / 2;
