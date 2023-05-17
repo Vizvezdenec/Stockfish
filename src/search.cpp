@@ -1228,7 +1228,7 @@ moves_loop: // When in check, search starts here
               r += 2;
 
           if (PvNode && !ttMove && ss->ttHit && tte->depth() >= depth)
-              r += 5;
+              r += 6;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 4), !cutNode);
       }
