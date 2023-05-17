@@ -1177,7 +1177,10 @@ moves_loop: // When in check, search starts here
                      - 4082;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
-      r -= ss->statScore / (11079 + 4926 * (depth > 6 && depth < 19) - 6000 / depth);
+      r -= ss->statScore / (11079 + 4626 * (depth > 6 && depth < 19));
+
+      if (depth <= 5 && (ss-1)->statScore > 50000 && ss->statScore < -50000)
+          r++;
 
       // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
       // We use various heuristics for the sons of a node after the first son has
