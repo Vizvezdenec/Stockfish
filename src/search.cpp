@@ -1177,7 +1177,7 @@ moves_loop: // When in check, search starts here
                      - 4082;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
-      r -= ss->statScore / (11079 + 4626 * (depth > 6 && depth < 19));
+      r -= ss->statScore / (11079 + 4926 * (depth > 6 && depth < 19) - 4000 / depth);
 
       // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
       // We use various heuristics for the sons of a node after the first son has
@@ -1192,7 +1192,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1 + (PvNode && ss->ply <= 8));
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
