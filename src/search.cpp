@@ -1517,7 +1517,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    bool di = depth >= -1 && ss->inCheck && pos.captured_piece();
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1540,7 +1539,7 @@ moves_loop: // When in check, search starts here
       // Futility pruning and moveCount pruning (~10 Elo)
       if (   !givesCheck
           &&  to_sq(move) != prevSq
-          &&  futilityBase > -VALUE_KNOWN_WIN
+          &&  futilityBase > -12000
           &&  type_of(move) != PROMOTION)
       {
           if (moveCount > 2)
@@ -1591,7 +1590,7 @@ moves_loop: // When in check, search starts here
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
-      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + di);
+      value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
       pos.undo_move(move);
 
       assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
