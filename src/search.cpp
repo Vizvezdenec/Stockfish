@@ -1569,7 +1569,7 @@ moves_loop: // When in check, search starts here
       if (   !capture
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)]
              + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
-             + (*contHist[3])[pos.moved_piece(move)][to_sq(move)] < 4000 * (1 - depth))
+             + (*contHist[3])[pos.moved_piece(move)][to_sq(move)] < 4000 * depth)
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
