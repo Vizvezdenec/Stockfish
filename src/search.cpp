@@ -1539,7 +1539,7 @@ moves_loop: // When in check, search starts here
       // Futility pruning and moveCount pruning (~10 Elo)
       if (   !givesCheck
           &&  to_sq(move) != prevSq
-          &&  futilityBase > -12000
+          &&  futilityBase > -VALUE_KNOWN_WIN
           &&  type_of(move) != PROMOTION)
       {
           if (moveCount > 2)
@@ -1567,8 +1567,8 @@ moves_loop: // When in check, search starts here
 
       // Continuation history based pruning (~3 Elo)
       if (   !capture
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
-          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -1000
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -1000)
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
