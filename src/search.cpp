@@ -1567,8 +1567,8 @@ moves_loop: // When in check, search starts here
 
       // Continuation history based pruning (~3 Elo)
       if (   !capture
-          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -100
-          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -100)
+          && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 1
+          && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 1)
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
