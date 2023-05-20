@@ -985,7 +985,7 @@ moves_loop: // When in check, search starts here
               || givesCheck)
           {
               lmrDepth += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 1448;
-              lmrDepth = std::max(lmrDepth, -1);
+              lmrDepth = std::max(lmrDepth, -5);
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
