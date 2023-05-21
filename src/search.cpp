@@ -1310,7 +1310,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
               {
-                  ss->cutoffCnt += 1 + !ttMove - ((ss-1)->moveCount > 10);
+                  ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
                   break;
               }
@@ -1368,7 +1368,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 100 * depth) + ((ss-1)->moveCount > 11);
+        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 100 * depth) + ((ss-1)->moveCount > 11) + ((ss-1)->statScore < -50000);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
     }
 
