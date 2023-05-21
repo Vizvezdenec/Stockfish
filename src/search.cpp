@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               if (!givesCheck && !ss->inCheck && to_sq(move) != prevSq && type_of(move) != PROMOTION 
-                   && moveCount >= 2 * futility_move_count(improving, depth))
+                   && moveCount >= futility_move_count(improving, depth))
                   continue;
 
               Bitboard occupied;
