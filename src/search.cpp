@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               if (   !givesCheck && !ss->inCheck && type_of(move) != PROMOTION && lmrDepth < 7
-                  && ss->staticEval + 250 + 250 * std::max(lmrDepth, 0) < alpha && !pos.see_ge(move, VALUE_ZERO + 1))
+                  && ss->staticEval + 650 + 650 * std::max(lmrDepth, 0) < alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                   continue;
 
               Bitboard occupied;
