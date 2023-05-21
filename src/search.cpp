@@ -984,13 +984,16 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              lmrDepth += captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 1448;
-              lmrDepth = std::max(lmrDepth, 0);
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 207 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))] < alpha)
+                  && ss->staticEval + 207 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] * 1078 / 7000 < alpha)
+                  continue;
+
+              if (   !givesCheck && !ss->inCheck && type_of(move) != PROMOTION && lmrDepth < 7
+                  && ss->staticEval + 307 + 323 * lmrDepth < alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                   continue;
 
               Bitboard occupied;
