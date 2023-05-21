@@ -887,9 +887,9 @@ namespace {
         return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
-        &&  depth >= 8
+        &&  depth >= 4
         && !ttMove)
-        depth -= 2;
+        depth -= 1 + (depth >= 8);
 
 moves_loop: // When in check, search starts here
 
@@ -990,10 +990,6 @@ moves_loop: // When in check, search starts here
                   && !ss->inCheck
                   && ss->staticEval + 207 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] * 1078 / 7000 < alpha)
-                  continue;
-
-              if (!givesCheck && !ss->inCheck && to_sq(move) != prevSq && type_of(move) != PROMOTION 
-                   && moveCount >= futility_move_count(improving, depth + 1))
                   continue;
 
               Bitboard occupied;
