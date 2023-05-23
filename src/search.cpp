@@ -708,7 +708,7 @@ namespace {
     {
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
-        improving = false;
+        ss->improving = improving = false;
         improvement = 0;
         goto moves_loop;
     }
@@ -753,7 +753,7 @@ namespace {
     improvement =   (ss-2)->staticEval != VALUE_NONE ? ss->staticEval - (ss-2)->staticEval
                   : (ss-4)->staticEval != VALUE_NONE ? ss->staticEval - (ss-4)->staticEval
                   :                                    163;
-    improving = improvement > 0;
+    ss->improving = improving = improvement > 0;
 
     // Step 7. Razoring (~1 Elo).
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
@@ -771,7 +771,6 @@ namespace {
         &&  depth < 9
         &&  eval - futility_margin(depth, improving) - (ss-1)->statScore / 306 >= beta
         &&  eval >= beta
-        &&  eval >= ss->staticEval - 28 * depth
         &&  eval < 22761) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
         return eval;
 
@@ -895,7 +894,7 @@ namespace {
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 430;
+    probCutBeta = beta + 400 + 100 * (ss-1)->improving;
     if (   ss->inCheck
         && !PvNode
         && depth >= 2
