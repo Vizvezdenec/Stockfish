@@ -992,7 +992,7 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] * 1078 / 7000 < alpha)
                   continue;
 
-              if (   !givesCheck && lmrDepth <= 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0 && !pos.see_ge(move, Value(1)))
+              if (   !givesCheck && lmrDepth <= 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0 && !pos.see_ge(move, Value(0)))
                   continue;
 
               Bitboard occupied;
