@@ -823,7 +823,7 @@ namespace {
         }
     }
 
-    probCutBeta = beta + 174 - 60 * improving + 50 * (ss->ttPv && eval != ss->staticEval);
+    probCutBeta = beta + 174 - 60 * improving;
 
     // Step 10. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
@@ -990,6 +990,9 @@ moves_loop: // When in check, search starts here
                   && !ss->inCheck
                   && ss->staticEval + 207 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] * 1078 / 7000 < alpha)
+                  continue;
+
+              if (   !givesCheck && lmrDepth <= 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < 0 && !pos.see_ge(move, Value(1)))
                   continue;
 
               Bitboard occupied;
