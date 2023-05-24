@@ -1194,21 +1194,21 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-              const bool doDeeperSearch = value > (bestValue + 63 + 11 * (newDepth - d));
+              const bool doShallowerSearch = value < bestValue + newDepth;
 
-              newDepth += doDeeperSearch;
+              newDepth -= doShallowerSearch;
 
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
           {
               // Adjust full depth search based on LMR results - if result
               // was good enough search deeper, if it was bad enough search shallower
+              const bool doDeeperSearch = value > (bestValue + 63 + 11 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 662 && ss->doubleExtensions <= 6;
-              const bool doShallowerSearch = value < bestValue + newDepth;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
-              newDepth += doShallowerSearch + doEvenDeeperSearch;
+              newDepth += doDeeperSearch + doEvenDeeperSearch;
 
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
