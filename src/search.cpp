@@ -1194,8 +1194,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          const bool doShallowerSearch = value < bestValue + newDepth;
-
+          const bool doShallowerSearch = value < bestValue + newDepth / 2;
           newDepth -= doShallowerSearch;
 
           // Do full depth search when reduced LMR search fails high
@@ -1323,7 +1322,7 @@ moves_loop: // When in check, search starts here
                   if (   depth > 1
                       && beta  <  14001
                       && value > -12754)
-                      depth -= depth > 3 && depth < 12 ? 2 : 1;
+                      depth -= 1;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
