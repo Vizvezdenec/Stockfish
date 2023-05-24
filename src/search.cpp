@@ -1194,10 +1194,6 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-              const bool doShallowerSearch = value < bestValue + newDepth;
-
-              newDepth -= doShallowerSearch;
-
           // Do full depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
           {
@@ -1205,10 +1201,11 @@ moves_loop: // When in check, search starts here
               // was good enough search deeper, if it was bad enough search shallower
               const bool doDeeperSearch = value > (bestValue + 63 + 11 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 662 && ss->doubleExtensions <= 6;
+              const bool doShallowerSearch = value < bestValue + newDepth;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
-              newDepth += doDeeperSearch + doEvenDeeperSearch;
+              newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
@@ -1323,7 +1320,7 @@ moves_loop: // When in check, search starts here
                   if (   depth > 1
                       && beta  <  14001
                       && value > -12754)
-                      depth -= 1;
+                      depth -= depth > 3 && depth < 12 ? 2 : 1;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
