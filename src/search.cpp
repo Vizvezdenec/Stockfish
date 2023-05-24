@@ -1194,7 +1194,7 @@ moves_loop: // When in check, search starts here
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
-          const bool doShallowerSearch = value < bestValue + newDepth / 2;
+          const bool doShallowerSearch = value < bestValue + newDepth * 2;
           newDepth -= doShallowerSearch;
 
           // Do full depth search when reduced LMR search fails high
