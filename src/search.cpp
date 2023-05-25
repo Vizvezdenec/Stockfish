@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
           r -= cutNode && tte->depth() >= depth + 3 ? 3 : 2;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
-      if ((ss-1)->moveCount > 8)
+      if ((ss-1)->statScore < -3333)
           r--;
 
       // Increase reduction for cut nodes (~3 Elo)
@@ -1222,8 +1222,8 @@ moves_loop: // When in check, search starts here
       else if (!PvNode || moveCount > 1)
       {
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
-          if (cutNode)
-              r -= 1 - 3 * !ttMove;
+          if (!ttMove && cutNode)
+              r += 2;
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth - (r > 3), !cutNode);
       }
