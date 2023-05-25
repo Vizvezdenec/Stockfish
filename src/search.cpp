@@ -1014,19 +1014,20 @@ moves_loop: // When in check, search starts here
           }
           else
           {
+              bool refutation = move == ss->killers[0] || move == ss->killers[1] || move == countermove;
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 6
-                  && history < -3792 * depth)
+                  && history < -3792 * (depth - refutation))
                   continue;
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
               lmrDepth += history / 7019;
-              lmrDepth = std::max(lmrDepth - (move == ss->killers[0]), -2);
+              lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
