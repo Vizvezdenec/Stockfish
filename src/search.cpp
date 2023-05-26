@@ -969,7 +969,7 @@ moves_loop: // When in check, search starts here
 
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, (ss-1)->refut);
 
-      ss->refut = move == ss->killers[0] || move == ss->killers[1] || move == countermove;
+      ss->refut = move == ss->killers[0];
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
