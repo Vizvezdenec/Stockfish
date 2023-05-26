@@ -598,6 +598,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
+    ss->refut = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -966,6 +967,8 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
+      ss->refut = move == ss->killers[0] || move == ss->killers[1] || move == countermove;
+
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
@@ -977,7 +980,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = newDepth - r;
+          int lmrDepth = newDepth - r - (ss-1)->refut;
 
           if (   capture
               || givesCheck)
