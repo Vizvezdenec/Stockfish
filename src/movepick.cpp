@@ -211,7 +211,7 @@ top:
           --endMoves;
 
       score<QUIETS>();
-      partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
+      partial_insertion_sort(cur, endMoves, 0);
 
       ++stage;
       [[fallthrough]];
