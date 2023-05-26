@@ -211,7 +211,7 @@ top:
           --endMoves;
 
       score<QUIETS>();
-      partial_insertion_sort(cur, endMoves, 0);
+      partial_insertion_sort(cur, endMoves, 50000);
 
       ++stage;
       [[fallthrough]];
