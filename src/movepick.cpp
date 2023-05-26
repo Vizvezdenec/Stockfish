@@ -210,6 +210,9 @@ top:
           || refutations[1].move == refutations[2].move)
           --endMoves;
 
+      score<QUIETS>();
+      partial_insertion_sort(cur, endMoves, std::numeric_limits<int>::min());
+
       ++stage;
       [[fallthrough]];
 
