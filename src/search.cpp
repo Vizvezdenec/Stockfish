@@ -70,9 +70,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
+  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, bool refutation) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1356 - int(delta) * 983 / int(rootDelta)) / 1024 + (!i && r > 901);
+    return (r + 1356 - int(delta) * 983 / int(rootDelta) - 322 * refutation) / 1024 + (!i && r > 901);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -965,8 +965,9 @@ moves_loop: // When in check, search starts here
       newDepth = depth - 1;
 
       Value delta = beta - alpha;
+      bool refutation = move == ss->killers[0] || move == ss->killers[1] || move == countermove;
 
-      Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
+      Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, refutation);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
@@ -1012,15 +1013,13 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              bool refutation = move == ss->killers[0] || move == ss->killers[1] || move == countermove;
-              lmrDepth += refutation;
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 6
-                  && history < -3792 * (depth - refutation))
+                  && history < -3792 * depth)
                   continue;
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
