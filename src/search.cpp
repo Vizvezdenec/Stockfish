@@ -70,9 +70,9 @@ namespace {
   // Reductions lookup table, initialized at startup
   int Reductions[MAX_MOVES]; // [depth or moveNumber]
 
-  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, bool refut) {
+  Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta, bool killer) {
     int r = Reductions[d] * Reductions[mn];
-    return (r + 1356 - int(delta) * 983 / int(rootDelta) + 250 * refut) / 1024 + (!i && r > 901);
+    return (r + 1356 - int(delta) * 983 / int(rootDelta) + 128 * killer) / 1024 + (!i && r > 901);
   }
 
   constexpr int futility_move_count(bool improving, Depth depth) {
@@ -598,7 +598,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->refut = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -967,9 +966,7 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
-      Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, (ss-1)->refut);
-
-      ss->refut = move == ss->killers[0];
+      Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta, (ss-1)->currentMove == (ss-1)->killers[0] && prevSq != SQ_NONE);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
       if (  !rootNode
