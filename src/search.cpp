@@ -1115,7 +1115,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5480)
               extension = 1;
       }
-      ss->refut = extension == 2;
+      ss->refut = extension == 2 && move == ss->killers[0];
 
       // Add extension to new depth
       newDepth += extension;
