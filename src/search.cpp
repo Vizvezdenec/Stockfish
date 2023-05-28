@@ -598,7 +598,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->refut = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -755,6 +754,20 @@ namespace {
                   :                                    163;
     improving = improvement > 0;
 
+    // Step 11. If the position is not in TT, decrease depth by 2 (or by 4 if the TT entry for the current position was hit and the stored depth is greater than or equal to the current depth).
+    // Use qsearch if depth is equal or below zero (~9 Elo)
+    if (    PvNode
+        && !ttMove)
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
+
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
+
+    if (    cutNode
+        &&  depth >= 8
+        && !ttMove)
+        depth -= 2;
+
     // Step 7. Razoring (~1 Elo).
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -875,20 +888,6 @@ namespace {
 
         Eval::NNUE::hint_common_parent_position(pos);
     }
-
-    // Step 11. If the position is not in TT, decrease depth by 2 (or by 4 if the TT entry for the current position was hit and the stored depth is greater than or equal to the current depth).
-    // Use qsearch if depth is equal or below zero (~9 Elo)
-    if (    PvNode
-        && !ttMove)
-        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
-
-    if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
-
-    if (    cutNode
-        &&  depth >= 8
-        && !ttMove)
-        depth -= 2;
 
 moves_loop: // When in check, search starts here
 
@@ -1115,7 +1114,6 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5480)
               extension = 1;
       }
-      ss->refut = extension == 2 && move == ss->killers[0];
 
       // Add extension to new depth
       newDepth += extension;
@@ -1167,9 +1165,6 @@ moves_loop: // When in check, search starts here
 
       else if (move == ttMove)
           r--;
-
-      if ((ss-1)->refut)
-          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
