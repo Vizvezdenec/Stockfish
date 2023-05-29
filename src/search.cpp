@@ -977,7 +977,7 @@ moves_loop: // When in check, search starts here
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
-          int lmrDepth = newDepth - r;
+          int lmrDepth = newDepth - r - likelyFailLow;
 
           if (   capture
               || givesCheck)
@@ -1170,8 +1170,7 @@ moves_loop: // When in check, search starts here
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
                      + (*contHist[3])[movedPiece][to_sq(move)]
-                     + (*contHist[5])[movedPiece][to_sq(move)]
-                     - 3935;
+                     - 3755;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
       r -= ss->statScore / (10445 + 4762 * (depth > 6 && depth < 21));
