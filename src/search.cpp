@@ -1166,13 +1166,11 @@ moves_loop: // When in check, search starts here
       else if (move == ttMove)
           r--;
 
-      if (ss->staticEval <= beta && ss->staticEval >= alpha)
-          r -= 2;
-
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
                      + (*contHist[3])[movedPiece][to_sq(move)]
+                     + (*contHist[5])[movedPiece][to_sq(move)]
                      - 3755;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
