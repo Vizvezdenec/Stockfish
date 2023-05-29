@@ -1014,8 +1014,7 @@ moves_loop: // When in check, search starts here
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
-                            + (*contHist[3])[movedPiece][to_sq(move)]
-                            + (*contHist[5])[movedPiece][to_sq(move)];
+                            + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 6
@@ -1171,7 +1170,8 @@ moves_loop: // When in check, search starts here
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
                      + (*contHist[3])[movedPiece][to_sq(move)]
-                     - 3755;
+                     + (*contHist[5])[movedPiece][to_sq(move)]
+                     - 3935;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
       r -= ss->statScore / (10445 + 4762 * (depth > 6 && depth < 21));
