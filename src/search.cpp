@@ -1581,7 +1581,7 @@ moves_loop: // When in check, search starts here
                                                                 [pos.moved_piece(move)]
                                                                 [to_sq(move)];
 
-      quietCheckEvasions += (!capture && ss->inCheck) * (1 + ((*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -17000));
+      quietCheckEvasions += (!capture && ss->inCheck) * (1 + ((*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -3000));
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
