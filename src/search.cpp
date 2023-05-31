@@ -543,7 +543,7 @@ namespace {
     TTEntry* tte;
     Key posKey;
     Move ttMove, move, excludedMove, bestMove;
-    Depth extension, newDepth, startDepth;
+    Depth extension, newDepth;
     Value bestValue, value, ttValue, eval, maxValue, probCutBeta;
     bool givesCheck, improving, priorCapture, singularQuietLMR;
     bool capture, moveCountPruning, ttCapture;
@@ -754,18 +754,6 @@ namespace {
                   :                                    163;
     improving = improvement > 0;
 
-    // Step 7. Razoring (~1 Elo).
-    // If eval is really low check with qsearch if it can exceed alpha, if it can't,
-    // return a fail low.
-    if (eval < alpha - 467 - 266 * depth * depth)
-    {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha)
-            return value;
-    }
-
-    startDepth = depth;
-
     // Step 11. If the position is not in TT, decrease depth by 2 (or by 4 if the TT entry for the current position was hit and the stored depth is greater than or equal to the current depth).
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
@@ -779,6 +767,16 @@ namespace {
         &&  depth >= 8
         && !ttMove)
         depth -= 2;
+
+    // Step 7. Razoring (~1 Elo).
+    // If eval is really low check with qsearch if it can exceed alpha, if it can't,
+    // return a fail low.
+    if (eval < alpha - 467 - 266 * depth * depth)
+    {
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
+            return value;
+    }
 
     // Step 8. Futility pruning: child node (~40 Elo).
     // The depth condition is important for mate finding.
@@ -795,7 +793,7 @@ namespace {
         && (ss-1)->statScore < 18404
         &&  eval >= beta
         &&  eval >= ss->staticEval
-        &&  ss->staticEval >= beta - 19 * startDepth - improvement / 13 + 257
+        &&  ss->staticEval >= beta - 19 * depth - improvement / 13 + 257
         && !excludedMove
         &&  pos.non_pawn_material(us)
         && (ss->ply >= thisThread->nmpMinPly))
