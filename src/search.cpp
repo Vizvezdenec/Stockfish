@@ -64,7 +64,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(138 * (d - improving));
+    return Value(148 * (d - improving));
   }
 
   // Reductions lookup table, initialized at startup
@@ -985,7 +985,7 @@ moves_loop: // When in check, search starts here
               if (   !givesCheck
                   && lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 207 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
+                  && ss->staticEval + 187 + 223 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
