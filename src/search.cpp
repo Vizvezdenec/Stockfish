@@ -1535,7 +1535,8 @@ moves_loop: // When in check, search starts here
       if (   !givesCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
-          &&  type_of(move) != PROMOTION)
+          &&  type_of(move) != PROMOTION
+          && !pos.see_ge(move, PieceValue[MG][pos.piece_on(to_sq(move))]))
       {
           if (moveCount > 2)
               continue;
@@ -1567,7 +1568,7 @@ moves_loop: // When in check, search starts here
           continue;
 
       // Do not search moves with bad enough SEE values (~5 Elo)
-      if (!pos.see_ge(move, Value(capture || givesCheck || ss->inCheck ? -94 : 0)))
+      if (!pos.see_ge(move, Value(-94)))
           continue;
     }
 
