@@ -1535,10 +1535,9 @@ moves_loop: // When in check, search starts here
       if (   !givesCheck
           &&  to_sq(move) != prevSq
           &&  futilityBase > -VALUE_KNOWN_WIN
-          &&  type_of(move) != PROMOTION
-          && !pos.see_ge(move, PieceValue[MG][pos.piece_on(to_sq(move))]))
+          &&  type_of(move) != PROMOTION)
       {
-          if (moveCount > 2)
+          if (moveCount > 2 && !pos.see_ge(move, PieceValue[MG][pos.piece_on(to_sq(move))]))
               continue;
 
           futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
