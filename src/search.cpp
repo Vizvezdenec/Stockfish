@@ -1152,7 +1152,7 @@ moves_loop: // When in check, search starts here
 
       // Decrease reduction for PvNodes based on depth (~2 Elo)
       if (PvNode)
-          r -= 1 + capture * 11 / (3 + depth);
+          r -= 1 + 11 / (3 + depth);
 
       // Decrease reduction if ttMove has been singularly extended (~1 Elo)
       if (singularQuietLMR)
@@ -1216,7 +1216,7 @@ moves_loop: // When in check, search starts here
       }
 
       // Step 18. Full depth search when LMR is skipped. If expected reduction is high, reduce its depth by 1.
-      else if (!PvNode || moveCount > 1)
+      else if (!PvNode || moveCount > 1 || !ttMove)
       {
           // Increase reduction for cut nodes and not ttMove (~1 Elo)
           if (!ttMove && cutNode)
