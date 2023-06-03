@@ -1414,7 +1414,7 @@ moves_loop: // When in check, search starts here
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
     bool pvHit, givesCheck, capture;
-    int moveCount;
+    int moveCount, qck;
 
     // Step 1. Initialize node
     if (PvNode)
@@ -1512,6 +1512,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    qck = 0;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1560,6 +1561,9 @@ moves_loop: // When in check, search starts here
       if (quietCheckEvasions > 1)
           break;
 
+      if (qck > 1)
+          break;
+
       // Continuation history based pruning (~3 Elo)
       if (   !capture
           && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
@@ -1582,6 +1586,7 @@ moves_loop: // When in check, search starts here
                                                                 [to_sq(move)];
 
       quietCheckEvasions += !capture && ss->inCheck;
+      qck += !capture && !ss->inCheck && givesCheck;
 
       // Step 7. Make and search the move
       pos.do_move(move, st, givesCheck);
