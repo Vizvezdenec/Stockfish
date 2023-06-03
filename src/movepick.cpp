@@ -103,10 +103,10 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePiece
 template<GenType Type>
 void MovePicker::score() {
 
-  static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
+  static_assert(Type == CAPTURES || Type == QUIETS || Type == QUIET_CHECKS || Type == EVASIONS, "Wrong type");
 
   [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
-  if constexpr (Type == QUIETS)
+  if constexpr (Type == QUIETS || Type == QUIET_CHECKS)
   {
       Color us = pos.side_to_move();
 
@@ -125,7 +125,7 @@ void MovePicker::score() {
           m.value =  (7 * int(PieceValue[MG][pos.piece_on(to_sq(m))])
                    +     (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
 
-      else if constexpr (Type == QUIETS)
+      else if constexpr (Type == QUIETS || Type == QUIET_CHECKS)
           m.value =  2 * (*mainHistory)[pos.side_to_move()][from_to(m)]
                    + 2 * (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                    +     (*continuationHistory[1])[pos.moved_piece(m)][to_sq(m)]
@@ -280,6 +280,8 @@ top:
   case QCHECK_INIT:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
+          score<QUIET_CHECKS>();
+          partial_insertion_sort(cur, endMoves, 0);
 
       ++stage;
       [[fallthrough]];
