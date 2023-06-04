@@ -281,7 +281,7 @@ top:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
       score<QUIET_CHECKS>();
-      partial_insertion_sort(cur, endMoves, 25000);
+      partial_insertion_sort(cur, endMoves, 50000);
 
       ++stage;
       [[fallthrough]];
