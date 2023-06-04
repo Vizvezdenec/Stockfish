@@ -107,7 +107,7 @@ void MovePicker::score() {
 
   [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
   if constexpr (Type == QUIETS || Type == QUIET_CHECKS)
-    {
+  {
       Color us = pos.side_to_move();
 
       threatenedByPawn  = pos.attacks_by<PAWN>(~us);
@@ -281,7 +281,7 @@ top:
       cur = moves;
       endMoves = generate<QUIET_CHECKS>(pos, cur);
       score<QUIET_CHECKS>();
-      partial_insertion_sort(cur, endMoves, 15000);
+      partial_insertion_sort(cur, endMoves, 25000);
 
       ++stage;
       [[fallthrough]];
