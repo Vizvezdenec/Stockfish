@@ -1142,7 +1142,7 @@ moves_loop: // When in check, search starts here
       if (singularQuietLMR)
           r--;
 
-      if (moveCount > 1 && !PvNode && bestValue < alpha - 50)
+      if (moveCount > 1 && !PvNode && bestValue < alpha - 25)
           r++;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
