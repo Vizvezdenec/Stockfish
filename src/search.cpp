@@ -1589,7 +1589,8 @@ moves_loop: // When in check, search starts here
               if (PvNode && value < beta) // Update alpha here!
               {
                   alpha = value;
-                  depth--;
+                  if (depth > -2)
+                      depth--;
               }
               else
                   break; // Fail high
