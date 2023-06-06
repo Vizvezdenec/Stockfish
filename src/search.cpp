@@ -607,22 +607,18 @@ namespace {
     ttMove =  rootNode ? thisThread->rootMoves[thisThread->pvIdx].pv[0]
             : ss->ttHit    ? tte->move() : MOVE_NONE;
     ttCapture = ttMove && pos.capture_stage(ttMove);
-    int ttDepth = tte->depth();
-    int ttBound = tte->bound();
-    int ttIsPv = tte->is_pv();
-    eval = tte->eval();
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
     if (!excludedMove)
-        ss->ttPv = PvNode || (ss->ttHit && ttIsPv);
+        ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && !excludedMove
-        && ttDepth > depth - (ttBound == BOUND_EXACT)
+        && tte->depth() > depth - (tte->bound() == BOUND_EXACT)
         && ttValue != VALUE_NONE // Possible in case of TT access race or if !ttHit
-        && (ttBound & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
+        && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit (~2 Elo)
         if (ttMove)
@@ -724,7 +720,7 @@ namespace {
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        ss->staticEval = eval;
+        ss->staticEval = eval = tte->eval();
         if (eval == VALUE_NONE)
             ss->staticEval = eval = evaluate(pos);
         else if (PvNode)
@@ -732,7 +728,7 @@ namespace {
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (    ttValue != VALUE_NONE
-            && (ttBound & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
+            && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
     }
     else
@@ -831,7 +827,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 2 + 2 * (ss->ttHit && ttDepth >= depth);
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -853,7 +849,7 @@ namespace {
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // so effective depth is equal to depth - 3
-        && !(   ttDepth >= depth - 3
+        && !(   tte->depth() >= depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
@@ -901,8 +897,8 @@ moves_loop: // When in check, search starts here
     if (   ss->inCheck
         && !PvNode
         && ttCapture
-        && (ttBound & BOUND_LOWER)
-        && ttDepth >= depth - 4
+        && (tte->bound() & BOUND_LOWER)
+        && tte->depth() >= depth - 4
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN)
@@ -927,8 +923,8 @@ moves_loop: // When in check, search starts here
     // at a depth equal or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
                          && ttMove
-                         && (ttBound & BOUND_UPPER)
-                         && ttDepth >= depth;
+                         && (tte->bound() & BOUND_UPPER)
+                         && tte->depth() >= depth;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1038,13 +1034,13 @@ moves_loop: // When in check, search starts here
           // a reduced search on all the other moves but the ttMove and if the
           // result is lower than ttValue minus a margin, then we will extend the ttMove.
           if (   !rootNode
-              &&  depth >= 4 - (thisThread->completedDepth > 22) + 2 * (PvNode && ttIsPv)
+              &&  depth >= 4 - (thisThread->completedDepth > 22) + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
            /* &&  ttValue != VALUE_NONE Already implicit in the next condition */
               &&  abs(ttValue) < VALUE_KNOWN_WIN
-              && (ttBound & BOUND_LOWER)
-              &&  ttDepth >= depth - 3)
+              && (tte->bound() & BOUND_LOWER)
+              &&  tte->depth() >= depth - 3)
           {
               Value singularBeta = ttValue - (82 + 65 * (ss->ttPv && !PvNode)) * depth / 64;
               Depth singularDepth = (depth - 1) / 2;
@@ -1124,7 +1120,7 @@ moves_loop: // When in check, search starts here
       // Decrease further on cutNodes. (~1 Elo)
       if (   ss->ttPv
           && !likelyFailLow)
-          r -= cutNode && ttDepth >= depth + 3 ? 3 : 2;
+          r -= cutNode && tte->depth() >= depth + 3 ? 3 : 2;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
       if ((ss-1)->moveCount > 8)
@@ -1306,7 +1302,7 @@ moves_loop: // When in check, search starts here
                   if (   depth > 1
                       && beta  <  14362
                       && value > -12393)
-                      depth -= depth > 3 && depth < 12 ? 2 : 1;
+                      depth -= depth > 6 && depth < 9 ? 3 : depth > 3 && depth < 12 ? 2 : 1;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
