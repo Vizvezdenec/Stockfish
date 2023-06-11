@@ -996,6 +996,11 @@ moves_loop: // When in check, search starts here
           }
           else
           {
+              if (   move != ss->killers[0]
+                  && move != ss->killers[1]
+                  && (*contHist[0])[movedPiece][to_sq(move)] < - 6000 * depth)
+                  continue;
+
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
@@ -1003,9 +1008,6 @@ moves_loop: // When in check, search starts here
               // Continuation history based pruning (~2 Elo)
               if (   lmrDepth < 6
                   && history < -3832 * depth)
-                  continue;
-
-              if (   lmrDepth < 3 && move != ss->killers[0] && move != ss->killers[1] && (*contHist[0])[movedPiece][to_sq(move)] < - 8000 * depth)
                   continue;
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
