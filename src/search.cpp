@@ -1005,7 +1005,7 @@ moves_loop: // When in check, search starts here
                   && history < -3832 * depth)
                   continue;
 
-              if (   lmrDepth < 3 && (*contHist[0])[movedPiece][to_sq(move)] < - 5000 - 5000 * depth)
+              if (   lmrDepth < 3 && (*contHist[0])[movedPiece][to_sq(move)] < - 10000 - 10000 * depth)
                   continue;
 
               history += 2 * thisThread->mainHistory[us][from_to(move)];
