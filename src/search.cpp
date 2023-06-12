@@ -1116,7 +1116,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
 
-          else if (   PvNode && priorCapture && to_sq(move) == prevSq)
+          else if (   PvNode && priorCapture && to_sq(move) == prevSq && moveCount > 1)
               extension = 1;
       }
 
