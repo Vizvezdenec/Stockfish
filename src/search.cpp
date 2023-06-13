@@ -926,6 +926,9 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int stupidStuff = 0;
+    int stupidCount = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1300,6 +1303,9 @@ moves_loop: // When in check, search starts here
               rm.score = -VALUE_INFINITE;
       }
 
+      stupidStuff += depth;
+      stupidCount++;
+
       if (value > bestValue)
       {
           bestValue = value;
@@ -1367,7 +1373,7 @@ moves_loop: // When in check, search starts here
     // If there is a move which produces search value greater than alpha we update stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq,
-                         quietsSearched, quietCount, capturesSearched, captureCount, depth);
+                         quietsSearched, quietCount, capturesSearched, captureCount, stupidStuff / stupidCount);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
