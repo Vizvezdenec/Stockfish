@@ -1015,6 +1015,11 @@ moves_loop: // When in check, search starts here
           }
           else
           {
+              if (   move != ss->killers[0]
+                  && move != ss->killers[1]
+                  && (*contHist[0])[movedPiece][to_sq(move)] < - 4500 * depth)
+                  continue;
+
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
