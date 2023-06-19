@@ -842,7 +842,7 @@ namespace {
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !rootNode
+    if (   !PvNode
         &&  depth > 3
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // if value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -1015,6 +1015,12 @@ moves_loop: // When in check, search starts here
           }
           else
           {
+              if (   move != ss->killers[0]
+                  && move != ss->killers[1]
+                  && depth == 1
+                  && (*contHist[0])[movedPiece][to_sq(move)] < - 20000)
+                  continue;
+
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
