@@ -1011,14 +1011,14 @@ moves_loop: // When in check, search starts here
                  }
                  if (!attacks)
                  {
-                    if (depth < 5)
+                    if (depth < 7)
                         continue;
                     else
                         {
                             pos.do_move(move, st);
-                            value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1), -alpha);
+                            value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1 - 200), -(alpha-200));
                             pos.undo_move(move);
-                            if (value <= alpha)
+                            if (value <= alpha - 200)
                                 continue;
                         }
                  }
