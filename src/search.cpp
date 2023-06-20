@@ -1571,7 +1571,7 @@ moves_loop: // When in check, search starts here
 
         Bitboard occupied;
         // Do not search moves with bad enough SEE values (~5 Elo)
-        if (!pos.see_ge(move, occupied, Value(-95)))
+        if (!pos.see_ge(move, occupied, Value(-145)))
             {
                 Color us = pos.side_to_move();
                 Bitboard leftEnemies = (pos.pieces(~us, KING, QUEEN, ROOK)) & occupied;
