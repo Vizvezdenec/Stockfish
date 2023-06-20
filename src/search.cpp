@@ -1016,9 +1016,9 @@ moves_loop: // When in check, search starts here
                     else
                         {
                             pos.do_move(move, st);
-                            value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1 - 200), -(alpha-200));
+                            value = -qsearch<NonPV>(pos, ss+1, -(alpha + 1 + 200), -(alpha+200));
                             pos.undo_move(move);
-                            if (value <= alpha - 200)
+                            if (value <= alpha + 200)
                                 continue;
                         }
                  }
