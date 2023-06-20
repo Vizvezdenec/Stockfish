@@ -1011,7 +1011,7 @@ moves_loop: // When in check, search starts here
                  }
                  if (!attacks)
                  {
-                    if (depth < 7)
+                    if (depth < 5)
                         continue;
                     else
                         {
