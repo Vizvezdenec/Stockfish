@@ -1569,9 +1569,25 @@ moves_loop: // When in check, search starts here
             && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
             continue;
 
+        Bitboard occupied;
         // Do not search moves with bad enough SEE values (~5 Elo)
-        if (!pos.see_ge(move, Value(-95)))
-            continue;
+        if (!pos.see_ge(move, occupied, Value(-95)))
+            {
+                Color us = pos.side_to_move();
+                Bitboard leftEnemies = (pos.pieces(~us, KING, QUEEN, ROOK)) & occupied;
+                Bitboard attacks = 0;
+                occupied |= to_sq(move);
+                while (leftEnemies && !attacks)
+                {
+                    Square sq = pop_lsb(leftEnemies);
+                    attacks |= pos.attackers_to(sq, occupied) & pos.pieces(us) & occupied;
+                    // don't consider pieces which were already threatened/hanging before SEE exchanges
+                    if (attacks && (sq != pos.square<KING>(~us) && (pos.attackers_to(sq, pos.pieces()) & pos.pieces(us))))
+                        attacks = 0;
+                }
+                if (!attacks)
+                    continue;
+        }
         }
 
         // Speculative prefetch as early as possible
