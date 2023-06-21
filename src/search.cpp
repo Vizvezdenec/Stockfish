@@ -599,6 +599,7 @@ namespace {
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
 
+
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
     posKey = pos.key();
@@ -828,9 +829,9 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 3 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 4 + 2 * (ss->ttHit && tte->depth() >= depth);
     else if (PvNode && !rootNode && !(ss-1)->ttm)
-        depth++;
+        depth += 2;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
