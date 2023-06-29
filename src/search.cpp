@@ -828,11 +828,11 @@ namespace {
     if (    PvNode
         && !ttMove)
     {
-        depth -= 3 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 4 + 2 * (ss->ttHit && tte->depth() >= depth);
         ss->dr = true;
     }
     else if (!rootNode && ttMove && (ss-1)->dr)
-        depth++;
+        depth += 2;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
