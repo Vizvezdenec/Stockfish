@@ -828,11 +828,11 @@ namespace {
     if (    PvNode
         && !ttMove)
     {
-        depth -= 5 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 4 + 2 * (ss->ttHit && tte->depth() >= depth);
         ss->dr = true;
     }
     else if (!rootNode && ttMove && (ss-1)->dr)
-        depth += 3;
+        depth += 2;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -840,7 +840,10 @@ namespace {
     if (    cutNode
         &&  depth >= 8
         && !ttMove)
-        depth -= 2;
+    {
+        depth -= 4;
+        ss->dr = true;
+    }
 
     probCutBeta = beta + 168 - 61 * improving;
 
