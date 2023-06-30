@@ -598,7 +598,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    bool depthRed = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -827,10 +826,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-    {
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
-        depthRed = true;
-    }
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1327,10 +1323,10 @@ moves_loop: // When in check, search starts here
                   if (   depth > 1
                       && beta  <  14362
                       && value > -12393)
+                  {
                       depth -= depth > 3 && depth < 12 ? 2 : 1;
-
-                  if (depthRed)
-                      depth += 2, depthRed = false;
+                      depth -= depth > 1 && ss->ttHit && !ttMove && tte->depth() >= depth;
+                  }
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
