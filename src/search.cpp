@@ -829,12 +829,12 @@ namespace {
         && !ttMove)
     {
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
-        if (depth >= 3)
-            depth -= 2;
+        if (depth >= 1)
+            depth = std::max(1, depth - 3);
         ss->dr = true;
     }
     else if (!rootNode && ttMove && (ss-1)->dr)
-        depth += 2;
+        depth += 3;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
