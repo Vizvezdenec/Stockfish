@@ -598,7 +598,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->dr               = false;
+    ss->extended         = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -827,14 +827,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-    {
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
-        if (depth >= 1)
-            depth = std::max(1, depth - 3);
-        ss->dr = true;
-    }
-    else if (!rootNode && ttMove && (ss-1)->dr)
-        depth += 3;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -973,6 +966,8 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
+      ss->extended = false;
+
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
@@ -1082,6 +1077,7 @@ moves_loop: // When in check, search starts here
               {
                   extension = 1;
                   singularQuietLMR = !ttCapture;
+                  ss->extended = true;
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
@@ -1177,6 +1173,9 @@ moves_loop: // When in check, search starts here
 
       else if (move == ttMove)
           r--;
+
+      if ((ss-1)->extended)
+          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
