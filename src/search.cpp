@@ -1330,7 +1330,7 @@ moves_loop: // When in check, search starts here
                       depth -= depth > 3 && depth < 12 ? 2 : 1;
 
                   if (depthRed)
-                      depth += 2;
+                      depth += 2, depthRed = false;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
