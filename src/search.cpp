@@ -598,7 +598,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->extended         = false;
+    bool depthRed = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -827,7 +827,10 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
+    {
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depthRed = true;
+    }
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -966,8 +969,6 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
-      ss->extended = false;
-
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
@@ -1084,7 +1085,6 @@ moves_loop: // When in check, search starts here
                       && ss->doubleExtensions <= 11)
                   {
                       extension = 2;
-                      ss->extended = true;
                       depth += depth < 13;
                   }
               }
@@ -1173,9 +1173,6 @@ moves_loop: // When in check, search starts here
 
       else if (move == ttMove)
           r--;
-
-      if ((ss-1)->extended)
-          r++;
 
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
@@ -1328,6 +1325,7 @@ moves_loop: // When in check, search starts here
                   // Reduce other moves if we have found at least one score improvement (~1 Elo)
                   // Reduce more for depth > 3 and depth < 12 (~1 Elo)
                   if (   depth > 1
+                      && !depthRed
                       && beta  <  14362
                       && value > -12393)
                       depth -= depth > 3 && depth < 12 ? 2 : 1;
