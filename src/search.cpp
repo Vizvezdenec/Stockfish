@@ -1238,11 +1238,12 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          if (beta > alpha + 1)
-              value = -search<PV>(pos, ss+1, -(beta + alpha) / 2, -alpha, newDepth - 1, false);
+          Value newAlpha = alpha;
 
-          if (beta == alpha + 1 || (value >= (alpha + beta) / 2 && value < beta))
-              value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+          if (moveCount > 1 && !rootNode)
+              newAlpha = (value + alpha) / 2;
+
+          value = -search<PV>(pos, ss+1, -beta, -newAlpha, newDepth, false);
       }
 
       // Step 19. Undo move
