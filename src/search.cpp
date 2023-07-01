@@ -1238,7 +1238,10 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
+          value = -search<PV>(pos, ss+1, -(beta + alpha) / 2, -alpha, newDepth - 1, false);
+
+          if (value >= (alpha + beta) / 2 && value < beta)
+              value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
 
       // Step 19. Undo move
@@ -1318,8 +1321,6 @@ moves_loop: // When in check, search starts here
               }
               else
               {
-                  ss->cutoffCnt += ss->ttHit && !ttMove && tte->depth() >= depth;
-
                   // Reduce other moves if we have found at least one score improvement (~1 Elo)
                   // Reduce more for depth > 3 and depth < 12 (~1 Elo)
                   if (   depth > 1
