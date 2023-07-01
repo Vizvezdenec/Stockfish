@@ -903,6 +903,10 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
+    Value futMargin = Value(420 * depth);
+    if (depth < 6 && ss->inCheck && !ss->ttPv && (tte->bound() & BOUND_LOWER) && ttValue >= beta + futMargin && ttValue < 25000)
+        return ttValue;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -1238,12 +1242,7 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          Value newAlpha = alpha;
-
-          if (moveCount > 1 && !rootNode)
-              newAlpha = (value + alpha) / 2;
-
-          value = -search<PV>(pos, ss+1, -beta, -newAlpha, newDepth, false);
+          value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
 
       // Step 19. Undo move
