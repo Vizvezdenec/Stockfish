@@ -1238,9 +1238,10 @@ moves_loop: // When in check, search starts here
           (ss+1)->pv = pv;
           (ss+1)->pv[0] = MOVE_NONE;
 
-          value = -search<PV>(pos, ss+1, -(beta + alpha) / 2, -alpha, newDepth - 1, false);
+          if (beta > alpha + 1)
+              value = -search<PV>(pos, ss+1, -(beta + alpha) / 2, -alpha, newDepth - 1, false);
 
-          if (value >= (alpha + beta) / 2 && value < beta)
+          if (beta == alpha + 1 || (value >= (alpha + beta) / 2 && value < beta))
               value = -search<PV>(pos, ss+1, -beta, -alpha, newDepth, false);
       }
 
