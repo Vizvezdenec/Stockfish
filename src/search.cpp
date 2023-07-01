@@ -1325,7 +1325,7 @@ moves_loop: // When in check, search starts here
                       && value > -12393)
                       depth -= depth > 3 && depth < 12 ? 2 : 1;
 
-                  ss->cutoffCnt += ss->ttHit && !ttMove;
+                  ss->cutoffCnt += ss->ttHit && !ttMove && tte->depth() >= depth;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
