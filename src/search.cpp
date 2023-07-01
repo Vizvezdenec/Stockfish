@@ -903,7 +903,7 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    Value futMargin = Value(320 * depth);
+    Value futMargin = Value(620 * depth);
     if (depth < 6 && ss->inCheck && !ss->ttPv && (tte->bound() & BOUND_LOWER) && ttValue >= beta + futMargin && ttValue < 25000)
         return ttValue;
 
