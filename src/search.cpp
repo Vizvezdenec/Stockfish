@@ -904,7 +904,7 @@ moves_loop: // When in check, search starts here
         return probCutBeta;
 
     Value futMargin = Value(420 * depth);
-    if (depth < 4 && ss->inCheck && !ss->ttPv && (tte->bound() & BOUND_LOWER) && ttValue >= beta + futMargin && ttValue < 25000)
+    if (depth < 8 && ss->inCheck && !ss->ttPv && (tte->bound() & BOUND_LOWER) && ttValue >= beta + futMargin && ttValue < 25000)
         return ttValue;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
