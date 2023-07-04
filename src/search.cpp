@@ -1032,7 +1032,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && ss->staticEval + 112 + 128 * lmrDepth <= alpha)
+                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
                   continue;
 
               lmrDepth = std::max(lmrDepth, 0);
@@ -1559,6 +1559,9 @@ moves_loop: // When in check, search starts here
                     bestValue = std::max(bestValue, futilityBase);
                     continue;
                 }
+
+                if (!capture && !ss->inCheck && ss->staticEval + 100 <= alpha)
+                    continue;
             }
 
             // We prune after the second quiet check evasion move, where being 'in check' is
