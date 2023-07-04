@@ -1560,7 +1560,7 @@ moves_loop: // When in check, search starts here
                     continue;
                 }
 
-                if (!capture && !ss->inCheck && ss->staticEval + 50 <= alpha)
+                if (!capture && !ss->inCheck && ss->staticEval + 150 <= alpha)
                     continue;
             }
 
