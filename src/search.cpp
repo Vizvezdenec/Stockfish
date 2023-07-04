@@ -1032,7 +1032,7 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && ss->staticEval + 112 + 98 * lmrDepth <= alpha)
+                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
                   continue;
 
               lmrDepth = std::max(lmrDepth, 0);
@@ -1413,6 +1413,16 @@ moves_loop: // When in check, search starts here
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
     assert(depth <= 0);
+
+    if (   ss->ply > 0
+        && pos.rule50_count() >= 3
+        && alpha < VALUE_DRAW
+        && pos.has_game_cycle(ss->ply))
+    {
+        alpha = value_draw(pos.this_thread());
+        if (alpha >= beta)
+            return alpha;
+    }
 
     Move pv[MAX_PLY+1];
     StateInfo st;
