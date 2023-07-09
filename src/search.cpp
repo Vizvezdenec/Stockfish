@@ -1573,7 +1573,7 @@ moves_loop: // When in check, search starts here
                 && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
                 continue;
 
-            if (!capture && moveCount > 5)
+            if (!capture && moveCount > 7)
                 break;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
