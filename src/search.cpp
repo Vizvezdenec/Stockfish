@@ -64,7 +64,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value(140 * (d - improving));
+    return Value((160 - 40 * improving) * (d - improving));
   }
 
   // Reductions lookup table initialized at startup
@@ -1572,9 +1572,6 @@ moves_loop: // When in check, search starts here
                 && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
                 && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
                 continue;
-
-            if (!capture && moveCount > 7)
-                break;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
             if (!pos.see_ge(move, Value(-95)))
