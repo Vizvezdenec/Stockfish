@@ -64,7 +64,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool improving) {
-    return Value((161 - 30 * improving) * (d - improving));
+    return Value((150 - 15 * improving) * (d - improving));
   }
 
   // Reductions lookup table initialized at startup
