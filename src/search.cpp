@@ -826,7 +826,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 1 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -1157,7 +1157,7 @@ moves_loop: // When in check, search starts here
 
       // Decrease reduction for PvNodes based on depth (~2 Elo)
       if (PvNode)
-          r -= 1 + (depth < 6) - 3 * !ttMove;
+          r -= 1 + (depth < 6);
 
       // Decrease reduction if ttMove has been singularly extended (~1 Elo)
       if (singularQuietLMR)
@@ -1542,6 +1542,12 @@ moves_loop: // When in check, search starts here
                     continue;
 
                 futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
+
+                if (!capture)
+                    futilityValue +=  (2 * thisThread->mainHistory[pos.side_to_move()][from_to(move)]
+                                    + (*contHist[0])[pos.moved_piece(move)][to_sq(move)]
+                                    + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
+                                    + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]) / 8192;
 
                 if (futilityValue <= alpha)
                 {
