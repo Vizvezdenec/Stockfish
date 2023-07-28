@@ -1547,7 +1547,7 @@ moves_loop: // When in check, search starts here
                     futilityValue +=  (2 * thisThread->mainHistory[pos.side_to_move()][from_to(move)]
                                     + (*contHist[0])[pos.moved_piece(move)][to_sq(move)]
                                     + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
-                                    + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]) / 8192;
+                                    + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]) / 4096;
 
                 if (futilityValue <= alpha)
                 {
