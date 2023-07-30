@@ -1099,7 +1099,7 @@ moves_loop: // When in check, search starts here
 
               // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
               else if (cutNode)
-                  extension = depth > 8 && depth < 17 ? -3 : ttValue <= alpha ? -3 : -1;
+                  extension = depth > 8 && depth < 17 ? -3 : -1;
 
               else if (ttValue <= alpha)
                   extension = -3;
