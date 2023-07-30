@@ -1099,7 +1099,10 @@ moves_loop: // When in check, search starts here
 
               // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
               else if (cutNode)
-                  extension = depth > 8 && depth < 17 ? -3 : -1;
+                  extension = depth > 8 && depth < 17 ? -3 : ttValue <= alpha ? -3 : -1;
+
+              else if (ttValue <= alpha)
+                  extension = -3;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
@@ -1542,12 +1545,6 @@ moves_loop: // When in check, search starts here
                     continue;
 
                 futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
-
-                if (!capture)
-                    futilityValue +=  (2 * thisThread->mainHistory[pos.side_to_move()][from_to(move)]
-                                    + (*contHist[0])[pos.moved_piece(move)][to_sq(move)]
-                                    + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
-                                    + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]) / 8192;
 
                 if (futilityValue <= alpha)
                 {
