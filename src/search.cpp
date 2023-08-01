@@ -1095,11 +1095,7 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
-              {
                   extension = -2 - !PvNode;
-                  if (!PvNode && tte->depth() - extension > depth)
-                      return ttValue;
-              }
 
               // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
               else if (cutNode)
@@ -1182,6 +1178,13 @@ moves_loop: // When in check, search starts here
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
       r -= ss->statScore / (11124 + 4740 * (depth > 5 && depth < 22));
+
+      if (  !rootNode
+            && pos.non_pawn_material(us)
+            && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
+            && !capture
+            && newDepth - r < -1)
+            moveCountPruning = true;
 
       // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
       // We use various heuristics for the sons of a node after the first son has
