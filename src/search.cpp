@@ -1183,7 +1183,7 @@ moves_loop: // When in check, search starts here
             && pos.non_pawn_material(us)
             && bestValue > VALUE_TB_LOSS_IN_MAX_PLY
             && !capture
-            && newDepth - r < -1)
+            && newDepth - r < -2)
             moveCountPruning = true;
 
       // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
