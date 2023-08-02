@@ -991,7 +991,7 @@ moves_loop: // When in check, search starts here
 
               Bitboard occupied;
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, occupied, Value(std::max(-205 * depth, -405 * (lmrDepth + 2)))))
+              if (!pos.see_ge(move, occupied, Value(-205) * depth))
               {
                  if (depth < 2 - capture)
                     continue;
@@ -1100,6 +1100,9 @@ moves_loop: // When in check, search starts here
               // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
               else if (cutNode)
                   extension = depth > 8 && depth < 17 ? -3 : -1;
+
+              else if (!PvNode)
+                  extension = -2;
 
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
