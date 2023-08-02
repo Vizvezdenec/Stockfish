@@ -991,7 +991,7 @@ moves_loop: // When in check, search starts here
 
               Bitboard occupied;
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, occupied, Value(std::max(-205 * depth, -322 * (lmrDepth + 2)))))
+              if (!pos.see_ge(move, occupied, Value(std::max(-205 * depth, -205 * (lmrDepth + 3)))))
               {
                  if (depth < 2 - capture)
                     continue;
