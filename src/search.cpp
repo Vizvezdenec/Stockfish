@@ -991,7 +991,7 @@ moves_loop: // When in check, search starts here
 
               Bitboard occupied;
               // SEE based pruning (~11 Elo)
-              if (!pos.see_ge(move, occupied, Value(-205) * depth))
+              if (!pos.see_ge(move, occupied, Value(std::max(-205 * depth, -322 * (lmrDepth + 2)))))
               {
                  if (depth < 2 - capture)
                     continue;
@@ -1175,9 +1175,6 @@ moves_loop: // When in check, search starts here
                      + (*contHist[1])[movedPiece][to_sq(move)]
                      + (*contHist[3])[movedPiece][to_sq(move)]
                      - 4006;
-
-      if (moveCountPruning)
-          r++;
 
       // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
       r -= ss->statScore / (11124 + 4740 * (depth > 5 && depth < 22));
