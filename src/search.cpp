@@ -1109,7 +1109,7 @@ moves_loop: // When in check, search starts here
                   extension = -1;
           }
 
-          else if ((ss-1)->research && moveCount == 1)
+          else if ((ss-1)->research && moveCount == 1 && cutNode)
               extension = -1;
 
           // Check extensions (~1 Elo)
