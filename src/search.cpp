@@ -598,7 +598,6 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
-    ss->research = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -966,8 +965,6 @@ moves_loop: // When in check, search starts here
 
       Value delta = beta - alpha;
 
-      ss->research = false;
-
       Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
       // Step 14. Pruning at shallow depth (~120 Elo). Depth conditions are important for mate finding.
@@ -1049,8 +1046,6 @@ moves_loop: // When in check, search starts here
       // We take care to not overdo to avoid search getting stuck.
       if (ss->ply < thisThread->rootDepth * 2)
       {
-          if ((ss-1)->research && moveCount == 1 && cutNode)
-              extension = -1;
           // Singular extension search (~94 Elo). If all moves but one fail low on a
           // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
           // then that move is singular and should be extended. To verify this we do
@@ -1059,7 +1054,7 @@ moves_loop: // When in check, search starts here
           // Depth margin and singularBeta margin are known for having non-linear scaling.
           // Their values are optimized to time controls of 180+1.8 and longer
           // so changing them requires tests at this type of time controls.
-          else if (   !rootNode
+          if (   !rootNode
               &&  depth >= 4 - (thisThread->completedDepth > 22) + 2 * (PvNode && tte->is_pv())
               &&  move == ttMove
               && !excludedMove // Avoid recursive singular search
@@ -1215,10 +1210,7 @@ moves_loop: // When in check, search starts here
               newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
 
               if (newDepth > d)
-              {
-                  ss->research = true;
-                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
-              }
+                  value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode && !PvNode);
 
               int bonus = value <= alpha ? -stat_bonus(newDepth)
                         : value >= beta  ?  stat_bonus(newDepth)
