@@ -758,8 +758,8 @@ namespace {
     // return a fail low.
     if (eval < alpha - 456 - 252 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
-        if (value < alpha)
+        value = qsearch<NonPV>(pos, ss, alpha - 1 - 4, alpha - 4);
+        if (value < alpha - 4)
             return value;
     }
 
@@ -1217,9 +1217,6 @@ moves_loop: // When in check, search starts here
                                          :  0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-              if (doDeeperSearch && value < bestValue + 11)
-                  newDepth--;
           }
       }
 
