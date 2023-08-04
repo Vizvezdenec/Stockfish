@@ -1218,7 +1218,7 @@ moves_loop: // When in check, search starts here
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
 
-              if (doDeeperSearch && value < bestValue + newDepth)
+              if (doDeeperSearch && value < bestValue + 11)
                   newDepth--;
           }
       }
