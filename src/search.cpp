@@ -758,9 +758,8 @@ namespace {
     // return a fail low.
     if (eval < alpha - 456 - 252 * depth * depth)
     {
-        int margin = 16;
-        value = qsearch<NonPV>(pos, ss, alpha - 1 - margin, alpha - margin);
-        if (value < alpha - margin)
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
             return value;
     }
 
@@ -1496,7 +1495,7 @@ moves_loop: // When in check, search starts here
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = bestValue + 200;
+        futilityBase = ss->staticEval + 200;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
