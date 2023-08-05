@@ -1495,7 +1495,7 @@ moves_loop: // When in check, search starts here
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 150;
+        futilityBase = ss->staticEval + 250;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
