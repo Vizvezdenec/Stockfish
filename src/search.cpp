@@ -616,7 +616,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && !excludedMove
-        && tte->depth() > depth
+        && tte->depth() > depth + 2 * !(cutNode || ttValue <= alpha)
         && ttValue != VALUE_NONE // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -1495,7 +1495,7 @@ moves_loop: // When in check, search starts here
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = std::min(ss->staticEval, bestValue) + 200;
+        futilityBase = bestValue + 200;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
