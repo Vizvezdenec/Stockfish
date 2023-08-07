@@ -1545,13 +1545,13 @@ moves_loop: // When in check, search starts here
 
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, futilityValue - 100);
+                    bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
 
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
-                    bestValue = std::max(bestValue, futilityBase);
+                    bestValue = std::max(bestValue, std::min(futilityBase, ss->staticEval));
                     continue;
                 }
             }
