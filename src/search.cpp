@@ -1544,13 +1544,13 @@ moves_loop: // When in check, search starts here
                 futilityValue = futilityBase + PieceValue[EG][pos.piece_on(to_sq(move))];
 
                 if (futilityValue <= alpha)
-                {
-                    bestValue = std::max(bestValue, futilityValue);
                     continue;
-                }
 
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
+                {
+                    bestValue = std::max(bestValue, futilityBase);
                     continue;
+                }
             }
 
             // We prune after the second quiet check evasion move, where being 'in check' is
