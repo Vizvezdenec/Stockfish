@@ -1545,7 +1545,7 @@ moves_loop: // When in check, search starts here
 
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, futilityValue - 200);
+                    bestValue = std::max(bestValue, futilityValue - 100);
                     continue;
                 }
 
