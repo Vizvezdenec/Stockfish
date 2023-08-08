@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth) + 2 * ss->ttPv;
 
           // Reduced depth of the next LMR search
           int lmrDepth = newDepth - r;
@@ -1559,7 +1559,7 @@ moves_loop: // When in check, search starts here
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 2 * (ttMove && !pos.capture(ttMove)))
+            if (quietCheckEvasions > 1)
                 break;
 
             // Continuation history based pruning (~3 Elo)
