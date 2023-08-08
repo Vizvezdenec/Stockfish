@@ -1559,7 +1559,7 @@ moves_loop: // When in check, search starts here
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 1 + (ttMove && !pos.capture(ttMove)))
+            if (quietCheckEvasions > (ttMove && !pos.capture(ttMove)))
                 break;
 
             // Continuation history based pruning (~3 Elo)
