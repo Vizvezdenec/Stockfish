@@ -996,7 +996,7 @@ moves_loop: // When in check, search starts here
               lmrDepth += history / 8192;
               lmrDepth = std::max(lmrDepth, 0);
 
-              if (   !capture && lmrDepth < 7 && !ss->inCheck && ss->staticEval + 322 + 233 * lmrDepth <= alpha)
+              if (   !capture && lmrDepth < 9 && !ss->inCheck && ss->staticEval + 522 + 433 * lmrDepth <= alpha)
                   continue;
 
               Bitboard occupied;
