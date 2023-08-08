@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth) + ss->ttPv;
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = newDepth - r;
@@ -987,6 +987,16 @@ moves_loop: // When in check, search starts here
                   && !ss->inCheck
                   && ss->staticEval + 197 + 248 * lmrDepth + PieceValue[EG][pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
+                  continue;
+
+              int history =   (*contHist[0])[movedPiece][to_sq(move)]
+                            + (*contHist[1])[movedPiece][to_sq(move)]
+                            + (*contHist[3])[movedPiece][to_sq(move)]
+                            + 2 * thisThread->mainHistory[us][from_to(move)];
+              lmrDepth += history / 8192;
+              lmrDepth = std::max(lmrDepth, -2);
+
+              if (   !capture && lmrDepth < 5 && !ss->inCheck && ss->staticEval + 422 + 133 * lmrDepth <= alpha)
                   continue;
 
               Bitboard occupied;
