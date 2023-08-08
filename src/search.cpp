@@ -989,16 +989,6 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
-              int history =   (*contHist[0])[movedPiece][to_sq(move)]
-                            + (*contHist[1])[movedPiece][to_sq(move)]
-                            + (*contHist[3])[movedPiece][to_sq(move)]
-                            + 2 * thisThread->mainHistory[us][from_to(move)];
-              lmrDepth += history / 8192;
-              lmrDepth = std::max(lmrDepth, 0);
-
-              if (   !capture && lmrDepth < 9 && !ss->inCheck && ss->staticEval + 522 + 433 * lmrDepth <= alpha)
-                  continue;
-
               Bitboard occupied;
               // SEE based pruning (~11 Elo)
               if (!pos.see_ge(move, occupied, Value(-205) * depth))
@@ -1569,7 +1559,7 @@ moves_loop: // When in check, search starts here
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 1)
+            if (quietCheckEvasions > 1 + (ttMove && !pos.capture(ttMove)))
                 break;
 
             // Continuation history based pruning (~3 Elo)
