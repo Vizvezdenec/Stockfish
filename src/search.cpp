@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth);
+          moveCountPruning = moveCount >= futility_move_count(improving, depth) + 3 * ss->ttPv;
 
           // Reduced depth of the next LMR search
           int lmrDepth = newDepth - r;
@@ -1373,8 +1373,6 @@ moves_loop: // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 113 * depth) + ((ss-1)->moveCount > 12);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
-        if (is_ok((ss-1)->currentMove))
-            thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth) * bonus / 8;
     }
 
     if (PvNode)
