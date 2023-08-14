@@ -872,7 +872,7 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                Depth marg = 4 + depth / 8;
+                Depth marg = 3 + depth / 8;
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
