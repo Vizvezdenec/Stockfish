@@ -23,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -872,18 +873,16 @@ namespace {
                 // Perform a preliminary qsearch to verify that the move holds
                 value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
-                Depth marg = 3 + depth / 8;
-
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - marg, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
                 if (value >= probCutBeta)
                 {
                     // Save ProbCut data into transposition table
-                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - marg + 1, move, ss->staticEval);
+                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
                 }
             }
@@ -1100,6 +1099,15 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
+
+          else if (!pos.non_pawn_material() && type_of(movedPiece) == PAWN)
+          {
+              Bitboard pawns = pos.pieces(~us, PAWN);
+              Bitboard attacks = us == WHITE ? pawn_attacks_bb<BLACK>(pawns)
+                                             : pawn_attacks_bb<WHITE>(pawns);
+              if (!(attacks & to_sq(move)))
+                  extension = 1;
+          }
       }
 
       // Add extension to new depth
