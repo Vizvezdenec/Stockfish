@@ -1100,7 +1100,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
 
-          else if (!pos.non_pawn_material() && type_of(movedPiece) == PAWN)
+          else if (PvNode && !pos.non_pawn_material() && type_of(movedPiece) == PAWN)
           {
               Bitboard pawns = pos.pieces(~us, PAWN);
               Bitboard attacks = us == WHITE ? pawn_attacks_bb<BLACK>(pawns)
