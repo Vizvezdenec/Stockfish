@@ -1105,7 +1105,7 @@ moves_loop: // When in check, search starts here
               Bitboard pawns = pos.pieces(~us, PAWN);
               Bitboard attacks = us == WHITE ? pawn_attacks_bb<BLACK>(pawns)
                                              : pawn_attacks_bb<WHITE>(pawns);
-              if (!(attacks & to_sq(move)))
+              if (capture || !(attacks & to_sq(move)))
                   extension = 1;
           }
       }
