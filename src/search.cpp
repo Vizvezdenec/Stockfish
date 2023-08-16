@@ -23,7 +23,6 @@
 #include <iostream>
 #include <sstream>
 
-#include "bitboard.h"
 #include "evaluate.h"
 #include "misc.h"
 #include "movegen.h"
@@ -926,6 +925,9 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    Move semiBest = MOVE_NONE;
+    Value ttSvalue = VALUE_NONE;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -1099,15 +1101,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
-
-          else if (PvNode && !pos.non_pawn_material() && type_of(movedPiece) == PAWN)
-          {
-              Bitboard pawns = pos.pieces(~us, PAWN);
-              Bitboard attacks = us == WHITE ? pawn_attacks_bb<BLACK>(pawns)
-                                             : pawn_attacks_bb<WHITE>(pawns);
-              if (capture || !(attacks & to_sq(move)))
-                  extension = 1;
-          }
       }
 
       // Add extension to new depth
@@ -1294,6 +1287,10 @@ moves_loop: // When in check, search starts here
       {
           bestValue = value;
 
+          if (move == ttMove)
+              ttSvalue = value;
+          else semiBest = move;
+
           if (value > alpha)
           {
               bestMove = move;
@@ -1380,7 +1377,7 @@ moves_loop: // When in check, search starts here
         tte->save(posKey, value_to_tt(bestValue, ss->ply), ss->ttPv,
                   bestValue >= beta ? BOUND_LOWER :
                   PvNode && bestMove ? BOUND_EXACT : BOUND_UPPER,
-                  depth, bestMove, ss->staticEval);
+                  depth, bestMove ? bestMove : bestValue > ttSvalue + 200 ? semiBest : bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
