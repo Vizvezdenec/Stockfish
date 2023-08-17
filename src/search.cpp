@@ -1507,7 +1507,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    bool searchedMove = false;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1533,7 +1532,7 @@ moves_loop: // When in check, search starts here
                 &&  futilityBase > -VALUE_KNOWN_WIN
                 &&  type_of(move) != PROMOTION)
             {
-                if (searchedMove && moveCount > 2)
+                if (moveCount > 2)
                     continue;
 
                 futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
@@ -1546,7 +1545,8 @@ moves_loop: // When in check, search starts here
 
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
-                    bestValue = std::max(bestValue, futilityBase);
+                    if (futilityBase > bestValue && pos.see_ge(move, bestValue - futilityBase))
+                        bestValue = futilityBase;
                     continue;
                 }
             }
@@ -1579,7 +1579,6 @@ moves_loop: // When in check, search starts here
                                                                   [to_sq(move)];
 
         quietCheckEvasions += !capture && ss->inCheck;
-        searchedMove = true;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
