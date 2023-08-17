@@ -973,7 +973,7 @@ moves_loop: // When in check, search starts here
           && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
       {
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-          moveCountPruning = moveCount >= futility_move_count(improving, depth) + 7 * ss->ttPv;
+          moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
           // Reduced depth of the next LMR search
           int lmrDepth = newDepth - r;
@@ -1507,6 +1507,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    bool searchedMove = false;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1532,7 +1533,7 @@ moves_loop: // When in check, search starts here
                 &&  futilityBase > -VALUE_KNOWN_WIN
                 &&  type_of(move) != PROMOTION)
             {
-                if (moveCount > 2)
+                if (searchedMove && moveCount > 2)
                     continue;
 
                 futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
@@ -1578,6 +1579,7 @@ moves_loop: // When in check, search starts here
                                                                   [to_sq(move)];
 
         quietCheckEvasions += !capture && ss->inCheck;
+        searchedMove = true;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
