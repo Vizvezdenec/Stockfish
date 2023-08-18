@@ -990,7 +990,7 @@ moves_loop: // When in check, search starts here
                   continue;
 
               // SEE based pruning for captures and checks (~11 Elo)
-              if (!pos.see_ge(move, Value(-205) * depth))
+              if ((ss->inCheck || ss->staticEval - 100 * depth < alpha) && !pos.see_ge(move, Value(-205) * depth))
                   continue;
           }
           else
@@ -1539,8 +1539,7 @@ moves_loop: // When in check, search starts here
 
                 if (futilityValue <= alpha)
                 {
-                    if (futilityValue > bestValue && pos.see_ge(move, bestValue - futilityValue))
-                        bestValue = futilityValue;
+                    bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
 
