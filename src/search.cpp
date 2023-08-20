@@ -1354,7 +1354,7 @@ moves_loop: // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 800) + ((ss-1)->moveCount > 12);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth) * bonus / 2;
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << std::clamp(3 * stat_bonus(depth) * bonus / 4, -7183, 7183);
     }
 
     if (PvNode)
@@ -1721,10 +1721,7 @@ moves_loop: // When in check, search starts here
     if (   prevSq != SQ_NONE
         && ((ss-1)->moveCount == 1 + (ss-1)->ttHit || ((ss-1)->currentMove == (ss-1)->killers[0]))
         && !pos.captured_piece())
-        {
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -quietMoveBonus);
-            thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << -2 * quietMoveBonus;
-        }
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
