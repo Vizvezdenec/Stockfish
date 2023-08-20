@@ -1354,7 +1354,7 @@ moves_loop: // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 800) + ((ss-1)->moveCount > 12);
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << std::clamp(3 * stat_bonus(depth) * bonus / 4, -7183, 7183);
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << std::clamp(5 * stat_bonus(depth) * bonus / 4, -7183, 7183);
     }
 
     if (PvNode)
