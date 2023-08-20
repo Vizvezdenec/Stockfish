@@ -1723,7 +1723,7 @@ moves_loop: // When in check, search starts here
         && !pos.captured_piece())
         {
             update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -quietMoveBonus);
-            thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << -quietMoveBonus / 2;
+            thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << -quietMoveBonus;
         }
 
     // Decrease stats for all non-best capture moves
