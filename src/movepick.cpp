@@ -161,7 +161,7 @@ void MovePicker::score() {
                        :                                                0 )
                        :                                                0 ;
 
-          m.value += type_of(pc) == KNIGHT && (attacks_bb<KNIGHT>(from) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 15000 : 0;
+          m.value += type_of(pc) == KNIGHT && (attacks_bb<KNIGHT>(from) & pos.pieces(~pos.side_to_move(), QUEEN)) ? 25000 : 0;
       }
       
       else // Type == EVASIONS
