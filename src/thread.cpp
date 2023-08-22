@@ -61,11 +61,12 @@ void Thread::clear() {
   mainHistory.fill(0);
   captureHistory.fill(0);
 
-  for (bool inCheck : { false, true })
-      for (StatsType c : { NoCaptures, Captures })
-          for (auto& to : continuationHistory[inCheck][c])
-              for (auto& h : to)
-                  h->fill(-71);
+for (PieceType Pt : { NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN })
+    for (bool inCheck : { false, true })
+        for (StatsType c : { NoCaptures, Captures })
+            for (auto& to : continuationHistory[inCheck][c][Pt])
+                for (auto& h : to)
+                    h->fill(-71);
 }
 
 

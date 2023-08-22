@@ -279,7 +279,7 @@ void Thread::search() {
   std::memset(ss-7, 0, 10 * sizeof(Stack));
   for (int i = 7; i > 0; --i)
   {
-      (ss-i)->continuationHistory = &this->continuationHistory[0][0][NO_PIECE][0]; // Use as a sentinel
+      (ss-i)->continuationHistory = &this->continuationHistory[0][0][0][NO_PIECE][0]; // Use as a sentinel
       (ss-i)->staticEval = VALUE_NONE;
   }
 
@@ -790,7 +790,7 @@ namespace {
         Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
 
         pos.do_null_move(st);
 
@@ -856,16 +856,14 @@ namespace {
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
-        Move probcutCaptures[32];
-        int probcutCount = 0;
-
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_stage(move));
 
                 ss->currentMove = move;
-                ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
+                                                                          [ss->inCheck]
                                                                           [true]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
@@ -877,11 +875,7 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
-                    if (value < probCutBeta)
-                        probcutCaptures[probcutCount++] = move;
-                }
 
                 pos.undo_move(move);
 
@@ -889,13 +883,6 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
-                    for (int i = 0; i < probcutCount; ++i)
-                    {
-                        Piece moved_piece = pos.moved_piece(probcutCaptures[i]);
-                        PieceType captured = type_of(pos.piece_on(to_sq(probcutCaptures[i])));
-                        captureHistory[moved_piece][to_sq(probcutCaptures[i])][captured] << -stat_bonus(depth - 2);
-                    }
-                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
             }
@@ -1123,7 +1110,8 @@ moves_loop: // When in check, search starts here
 
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
-      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+      ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
+                                                                [ss->inCheck]
                                                                 [capture]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
@@ -1160,7 +1148,6 @@ moves_loop: // When in check, search starts here
       
       // Increase reduction on repetition (~1 Elo)
       if (   move == (ss-4)->currentMove
-          && !capture
           && pos.has_repeated())
           r += 2;
 
@@ -1591,7 +1578,8 @@ moves_loop: // When in check, search starts here
 
         // Update the current move
         ss->currentMove = move;
-        ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+        ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
+                                                                  [ss->inCheck]
                                                                   [capture]
                                                                   [pos.moved_piece(move)]
                                                                   [to_sq(move)];
