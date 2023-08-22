@@ -862,8 +862,8 @@ namespace {
                 assert(pos.capture_stage(move));
 
                 ss->currentMove = move;
-                ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
-                                                                          [ss->inCheck]
+                ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                          [true]
                                                                           [pos.moved_piece(move)]
                                                                           [to_sq(move)];
 
@@ -1098,6 +1098,9 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
+
+          else if (ss->inCheck && depth < 2)
+              extension = 1;
       }
 
       // Add extension to new depth
@@ -1109,8 +1112,8 @@ moves_loop: // When in check, search starts here
 
       // Update the current move (this must be done after singular extension search)
       ss->currentMove = move;
-      ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
-                                                                [ss->inCheck]
+      ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                [capture]
                                                                 [movedPiece]
                                                                 [to_sq(move)];
 
@@ -1576,8 +1579,8 @@ moves_loop: // When in check, search starts here
 
         // Update the current move
         ss->currentMove = move;
-        ss->continuationHistory = &thisThread->continuationHistory[type_of(pos.piece_on(to_sq(move)))]
-                                                                  [ss->inCheck]
+        ss->continuationHistory = &thisThread->continuationHistory[ss->inCheck]
+                                                                  [capture]
                                                                   [pos.moved_piece(move)]
                                                                   [to_sq(move)];
 

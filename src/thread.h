@@ -68,7 +68,7 @@ public:
   CounterMoveHistory counterMoves;
   ButterflyHistory mainHistory;
   CapturePieceToHistory captureHistory;
-  ContinuationHistory continuationHistory[6][2];
+  ContinuationHistory continuationHistory[2][2];
 };
 
 
