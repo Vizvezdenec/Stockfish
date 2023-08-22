@@ -877,7 +877,11 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
                     value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    if (value < probCutBeta)
+                        probcutCaptures[probcutCount++] = move;
+                }
 
                 pos.undo_move(move);
 
@@ -894,8 +898,6 @@ namespace {
                     captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 2);
                     return value;
                 }
-                else 
-                    probcutCaptures[probcutCount++] = move;
             }
 
         Eval::NNUE::hint_common_parent_position(pos);
