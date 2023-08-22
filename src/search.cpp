@@ -856,6 +856,9 @@ namespace {
 
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
+        Move probcutCaptures[32];
+        int probcutCount = 0;
+
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
@@ -882,8 +885,17 @@ namespace {
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
+                    for (int i = 0; i < probcutCount; ++i)
+                    {
+                        Piece moved_piece = pos.moved_piece(probcutCaptures[i]);
+                        PieceType captured = type_of(pos.piece_on(to_sq(probcutCaptures[i])));
+                        captureHistory[moved_piece][to_sq(probcutCaptures[i])][captured] << -stat_bonus(depth - 3);
+                    }
+                    captureHistory[pos.moved_piece(move)][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] << stat_bonus(depth - 3);
                     return value;
                 }
+                else 
+                    probcutCaptures[probcutCount++] = move;
             }
 
         Eval::NNUE::hint_common_parent_position(pos);
@@ -1146,6 +1158,7 @@ moves_loop: // When in check, search starts here
       
       // Increase reduction on repetition (~1 Elo)
       if (   move == (ss-4)->currentMove
+          && !capture
           && pos.has_repeated())
           r += 2;
 
