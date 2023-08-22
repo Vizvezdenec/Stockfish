@@ -1099,7 +1099,7 @@ moves_loop: // When in check, search starts here
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
 
-          else if (ss->inCheck && depth < 2)
+          else if (PvNode && ss->inCheck && depth < 2)
               extension = 1;
       }
 
