@@ -63,10 +63,9 @@ void Thread::clear() {
 
 for (PieceType Pt : { NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN })
     for (bool inCheck : { false, true })
-        for (StatsType c : { NoCaptures, Captures })
-            for (auto& to : continuationHistory[inCheck][c][Pt])
-                for (auto& h : to)
-                    h->fill(-71);
+        for (auto& to : continuationHistory[inCheck][Pt])
+            for (auto& h : to)
+                h->fill(-71);
 }
 
 
