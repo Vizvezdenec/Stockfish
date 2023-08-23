@@ -989,6 +989,12 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
+              if (   !capture
+                  && lmrDepth < 4
+                  && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -3000 * depth
+                  && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -3000 * depth)
+                  continue;
+
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
                   continue;
@@ -1147,7 +1153,7 @@ moves_loop: // When in check, search starts here
       // Increase reduction on repetition (~1 Elo)
       if (   move == (ss-4)->currentMove
           && pos.has_repeated())
-          r += 2 + 2 * (move != ttMove && tte->depth() >= depth);
+          r += 2;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
