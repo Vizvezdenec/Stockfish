@@ -977,7 +977,7 @@ moves_loop: // When in check, search starts here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
-          if (quietEvasions > 2 + depth * 2)
+          if (quietEvasions > 2 + depth * depth / 4)
               break;
 
           // Reduced depth of the next LMR search
