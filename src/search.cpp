@@ -925,6 +925,8 @@ moves_loop: // When in check, search starts here
                          && (tte->bound() & BOUND_UPPER)
                          && tte->depth() >= depth;
 
+    int quietEvasions = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != MOVE_NONE)
@@ -975,6 +977,9 @@ moves_loop: // When in check, search starts here
           // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
           moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
+          if (quietEvasions > 1 + depth * depth / 2)
+              break;
+
           // Reduced depth of the next LMR search
           int lmrDepth = newDepth - r;
 
@@ -987,11 +992,6 @@ moves_loop: // When in check, search starts here
                   && !ss->inCheck
                   && ss->staticEval + 197 + 248 * lmrDepth + PieceValue[pos.piece_on(to_sq(move))]
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
-                  continue;
-
-              if (   !capture
-                  && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -8000 * depth
-                  && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -8000 * depth)
                   continue;
 
               // SEE based pruning for captures and checks (~11 Elo)
@@ -1108,6 +1108,7 @@ moves_loop: // When in check, search starts here
       // Add extension to new depth
       newDepth += extension;
       ss->doubleExtensions = (ss-1)->doubleExtensions + (extension == 2);
+      quietEvasions += !capture && ss->inCheck;
 
       // Speculative prefetch as early as possible
       prefetch(TT.first_entry(pos.key_after(move)));
