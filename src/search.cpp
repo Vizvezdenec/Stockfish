@@ -1098,9 +1098,6 @@ moves_loop: // When in check, search starts here
                    && move == ss->killers[0]
                    && (*contHist[0])[movedPiece][to_sq(move)] >= 5168)
               extension = 1;
-
-          else if (PvNode && ss->inCheck && depth < 2)
-              extension = 1;
       }
 
       // Add extension to new depth
@@ -1150,7 +1147,7 @@ moves_loop: // When in check, search starts here
       // Increase reduction on repetition (~1 Elo)
       if (   move == (ss-4)->currentMove
           && pos.has_repeated())
-          r += 2;
+          r += 2 + 2 * (move != ttMove);
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
