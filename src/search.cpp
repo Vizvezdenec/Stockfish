@@ -989,12 +989,6 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
-              if (   !capture
-                  && lmrDepth < 4
-                  && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -5000 * depth
-                  && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -5000 * depth)
-                  continue;
-
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
                   continue;
@@ -1196,10 +1190,11 @@ moves_loop: // When in check, search starts here
               const bool doDeeperSearch = value > (bestValue + 64 + 11 * (newDepth - d));
               const bool doEvenDeeperSearch = value > alpha + 711 && ss->doubleExtensions <= 6;
               const bool doShallowerSearch = value < bestValue + newDepth;
+              const bool evenShallower = !PvNode && value < bestValue + newDepth / 2;
 
               ss->doubleExtensions = ss->doubleExtensions + doEvenDeeperSearch;
 
-              newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
+              newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch - evenShallower;
 
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
@@ -1208,7 +1203,8 @@ moves_loop: // When in check, search starts here
                         : value >= beta  ?  stat_bonus(newDepth)
                                          :  0;
 
-              update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+              if (newDepth > 0)
+                  update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
           }
       }
 
