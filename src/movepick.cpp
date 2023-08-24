@@ -171,7 +171,7 @@ void MovePicker::score() {
                        :                                                0 )
                        :                                                0 ;
 
-          m.value -= bool(queenAttackers & from) * 20000;
+          m.value -= bool(queenAttackers & from) * 10000;
       }
       
       else // Type == EVASIONS
