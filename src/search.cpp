@@ -1297,7 +1297,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
               {
-                  ss->cutoffCnt += 1 + !ttMove + (value > beta + 400);
+                  ss->cutoffCnt += 1 + !ttMove + (value > beta + 900);
                   assert(value >= beta); // Fail high
                   break;
               }
