@@ -989,16 +989,6 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
-              if (   !capture
-                  && !ss->inCheck
-                  && lmrDepth < 8
-                  && ss->staticEval + 255 + 322 * (lmrDepth 
-                            + std::max((2 * thisThread->mainHistory[us][from_to(move)]
-                            +  (*contHist[0])[movedPiece][to_sq(move)]
-                            +  (*contHist[1])[movedPiece][to_sq(move)]
-                            +  (*contHist[3])[movedPiece][to_sq(move)]) / 8192, -2)) <= alpha)
-                  continue;
-
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
                   continue;
@@ -1307,7 +1297,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
               {
-                  ss->cutoffCnt += 1 + !ttMove;
+                  ss->cutoffCnt += 1 + !ttMove + (value > beta + 2000);
                   assert(value >= beta); // Fail high
                   break;
               }
