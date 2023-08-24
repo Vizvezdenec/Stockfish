@@ -989,6 +989,12 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
+              if (   !capture
+                  && lmrDepth < 4
+                  && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -6500 * depth
+                  && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -6500 * depth)
+                  continue;
+
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
                   continue;
@@ -1297,7 +1303,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
               {
-                  ss->cutoffCnt += 1 + !ttMove + (value > beta + 900);
+                  ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
                   break;
               }
