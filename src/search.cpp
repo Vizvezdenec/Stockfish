@@ -1297,7 +1297,7 @@ moves_loop: // When in check, search starts here
 
               if (value >= beta)
               {
-                  ss->cutoffCnt += 1 + !ttMove + (value > beta + 2000);
+                  ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
                   break;
               }
@@ -1567,7 +1567,7 @@ moves_loop: // When in check, search starts here
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, Value(-95)))
+            if (!pos.see_ge(move, Value(-95 - 255 * PvNode)))
                 continue;
         }
 
