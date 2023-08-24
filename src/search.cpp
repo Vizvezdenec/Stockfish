@@ -990,9 +990,13 @@ moves_loop: // When in check, search starts here
                   continue;
 
               if (   !capture
-                  && lmrDepth < 4
-                  && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < -6500 * depth
-                  && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < -6500 * depth)
+                  && !ss->inCheck
+                  && lmrDepth < 8
+                  && ss->staticEval + 255 + 322 * (lmrDepth 
+                            + std::max((2 * thisThread->mainHistory[us][from_to(move)]
+                            +  (*contHist[0])[movedPiece][to_sq(move)]
+                            +  (*contHist[1])[movedPiece][to_sq(move)]
+                            +  (*contHist[3])[movedPiece][to_sq(move)]) / 8192, -2)) <= alpha)
                   continue;
 
               // SEE based pruning for captures and checks (~11 Elo)
