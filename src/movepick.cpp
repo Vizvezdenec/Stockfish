@@ -105,7 +105,7 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces, queenAttackers;
+  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
@@ -118,16 +118,6 @@ void MovePicker::score() {
       threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
                        | (pos.pieces(us, ROOK)  & threatenedByMinor)
                        | (pos.pieces(us, KNIGHT, BISHOP) & threatenedByPawn);
-
-      queenAttackers = 0;
-      if (pos.count<QUEEN>(~us) == 1)
-      {
-          Square queenSquare = pos.square<QUEEN>(~us);
-          queenAttackers = pos.pieces(us, PAWN) & (us == WHITE ? pawn_attacks_bb<BLACK>(queenSquare) : pawn_attacks_bb<WHITE>(queenSquare));
-          queenAttackers |= pos.pieces(us, KNIGHT) & attacks_bb<KNIGHT>(queenSquare);
-          queenAttackers |= pos.pieces(us, BISHOP) & attacks_bb<BISHOP>(queenSquare, pos.pieces());
-          queenAttackers |= pos.pieces(us, ROOK) & attacks_bb<ROOK>(queenSquare, pos.pieces());
-      }
   }
 
   for (auto& m : *this)
@@ -170,8 +160,6 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
-
-          m.value -= bool(queenAttackers & from) * 40000;
       }
       
       else // Type == EVASIONS
