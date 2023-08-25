@@ -64,7 +64,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool noTtCutNode, bool cutoff, bool improving) {
-    return Value((140 - 40 * noTtCutNode - 40 * cutoff) * (d - improving));
+    return Value((140 - 40 * noTtCutNode - 20 * cutoff) * (d - improving));
   }
 
   // Reductions lookup table initialized at startup
@@ -767,7 +767,7 @@ namespace {
     // The depth condition is important for mate finding.
     if (   !ss->ttPv
         &&  depth < 9
-        &&  eval - futility_margin(depth, cutNode && !ss->ttHit, ss->cutoffCnt > 3, improving) - (ss-1)->statScore / 306 >= beta
+        &&  eval - futility_margin(depth, cutNode && !ss->ttHit, ss->cutoffCnt > 8, improving) - (ss-1)->statScore / 306 >= beta
         &&  eval >= beta
         &&  eval < 24923) // larger than VALUE_KNOWN_WIN, but smaller than TB wins
         return eval;
