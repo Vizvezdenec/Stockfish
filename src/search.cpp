@@ -64,7 +64,7 @@ namespace {
 
   // Futility margin
   Value futility_margin(Depth d, bool noTtCutNode, bool cutoff, bool improving) {
-    return Value((140 - 40 * noTtCutNode - 20 * cutoff) * (d - improving));
+    return Value((140 - 40 * noTtCutNode - 10 * cutoff) * (d - improving));
   }
 
   // Reductions lookup table initialized at startup
