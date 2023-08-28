@@ -105,14 +105,19 @@ void MovePicker::score() {
 
   static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
-  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook, threatenedPieces;
+  [[maybe_unused]] Bitboard threatenedByPawn, threatenedByKnight, threatenedByBishop, threatenedByRookR,
+                            threatenedByMinor, threatenedByRook, threatenedByQueen, threatenedPieces;
   if constexpr (Type == QUIETS)
   {
       Color us = pos.side_to_move();
 
       threatenedByPawn  = pos.attacks_by<PAWN>(~us);
-      threatenedByMinor = pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
-      threatenedByRook  = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
+      threatenedByKnight = pos.attacks_by<KNIGHT>(~us);
+      threatenedByBishop = pos.attacks_by<BISHOP>(~us);
+      threatenedByMinor = threatenedByKnight | threatenedByBishop | threatenedByPawn;
+      threatenedByRookR = pos.attacks_by<ROOK>(~us);
+      threatenedByRook  = threatenedByRookR | threatenedByMinor;
+      threatenedByQueen = pos.attacks_by<QUEEN>(~us);
 
       // Pieces threatened by pieces of lesser material value
       threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
@@ -161,10 +166,36 @@ void MovePicker::score() {
                        :                                                0 )
                        :                                                0 ;
 
-          if (   type_of(pc) == KING && pos.non_pawn_material() > 13000 
-              && rank_of(to) - rank_of(from) == (pos.side_to_move() == WHITE) * 2 - 1
-              && (file_of(to) < FILE_E ? file_of(to) - file_of(from) > 0 : file_of(to) - file_of(from) < 0))
-              m.value -= 35000;
+          if (pt == KING && pos.pieces(~pos.side_to_move(), QUEEN))
+          {
+              Bitboard kingRingFrom = attacks_bb<KING>(from);
+              if (relative_rank(pos.side_to_move(), from) == RANK_1)
+                  kingRingFrom |= pos.side_to_move() == WHITE ? shift<NORTH>(kingRingFrom) : shift<SOUTH>(kingRingFrom);
+              if (file_of(from) == FILE_H)
+                  kingRingFrom |= shift<WEST>(kingRingFrom);
+              else if (file_of(from) == FILE_A)
+                  kingRingFrom |= shift<EAST>(kingRingFrom);
+
+              Bitboard kingRingTo = attacks_bb<KING>(to);
+              if (relative_rank(pos.side_to_move(), to) == RANK_1)
+                  kingRingTo |= pos.side_to_move() == WHITE ? shift<NORTH>(kingRingTo) : shift<SOUTH>(kingRingTo);
+              if (file_of(from) == FILE_H)
+                  kingRingTo |= shift<WEST>(kingRingTo);
+              else if (file_of(from) == FILE_A)
+                  kingRingTo |= shift<EAST>(kingRingTo);
+
+              int attacksCountFrom = popcount(kingRingFrom & threatenedByKnight) +
+                                     popcount(kingRingFrom & threatenedByBishop) +
+                                     popcount(kingRingFrom & threatenedByRookR)  +
+                                     popcount(kingRingFrom & threatenedByQueen);
+
+              int attacksCountTo   = popcount(kingRingTo & threatenedByKnight)   +
+                                     popcount(kingRingTo & threatenedByBishop)   +
+                                     popcount(kingRingTo & threatenedByRookR)    +
+                                     popcount(kingRingTo & threatenedByQueen);
+
+              m.value += (attacksCountFrom - attacksCountTo) * 1000;
+          }
       }
       
       else // Type == EVASIONS
