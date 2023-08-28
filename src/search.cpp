@@ -1308,7 +1308,7 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  14362
                       && value > -12393)
-                      depth -= 2 + (ss->ttHit && !ttMove && tte->depth() >= depth);
+                      depth -= 2 + 2 * (ss->ttHit && !ttMove && tte->depth() >= depth);
                   depth = std::max(depth, 1);
 
                   assert(depth > 0);
