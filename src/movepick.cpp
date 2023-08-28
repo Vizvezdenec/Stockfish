@@ -160,6 +160,11 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
+
+          if (   type_of(pc) == KING && pos.non_pawn_material() > 14000 
+              && rank_of(to) - rank_of(from) == (pos.side_to_move() == WHITE) * 2 - 1
+              && (file_of(to) < FILE_E ? file_of(to) - file_of(from) > 0 : file_of(to) - file_of(from) < 0))
+              m.value -= 15000;
       }
       
       else // Type == EVASIONS
