@@ -194,7 +194,7 @@ void MovePicker::score() {
                                      popcount(kingRingTo & threatenedByRookR)    +
                                      popcount(kingRingTo & threatenedByQueen);
 
-              m.value += (attacksCountFrom - attacksCountTo) * 1000;
+              m.value += (attacksCountFrom * attacksCountFrom - attacksCountTo * attacksCountTo) * pos.non_pawn_material() / 128;
           }
       }
       
