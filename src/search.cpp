@@ -794,13 +794,7 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = beta - 1;
-
-        if (depth - R > 4)
-            nullValue = -qsearch<NonPV>(pos, ss+1, -beta, -beta+1);
-
-        if ((nullValue >= beta && depth - R > 0) || depth - R <= 4)
-            nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
@@ -1314,7 +1308,8 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  14362
                       && value > -12393)
-                      depth -= 2;
+                      depth -= 2 + (ss->ttHit && !ttMove && tte->depth() >= depth);
+                  depth = std::max(depth, 1);
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
