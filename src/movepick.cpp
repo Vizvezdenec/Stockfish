@@ -161,10 +161,10 @@ void MovePicker::score() {
                        :                                                0 )
                        :                                                0 ;
 
-          if (   type_of(pc) == KING && pos.non_pawn_material() > 14000 
+          if (   type_of(pc) == KING && pos.non_pawn_material() > 15000 
               && rank_of(to) - rank_of(from) == (pos.side_to_move() == WHITE) * 2 - 1
               && (file_of(to) < FILE_E ? file_of(to) - file_of(from) > 0 : file_of(to) - file_of(from) < 0))
-              m.value -= 15000;
+              m.value -= 5000;
       }
       
       else // Type == EVASIONS
