@@ -989,6 +989,9 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
+              if (!givesCheck && !ss->inCheck && ss->staticEval + 200 + 200 * depth * depth <= alpha && !pos.see_ge(move, Value(1)))
+                  continue;
+
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
                   continue;
@@ -1567,7 +1570,7 @@ moves_loop: // When in check, search starts here
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, Value(-95 - 405 * PvNode)))
+            if (!pos.see_ge(move, Value(-95)))
                 continue;
         }
 
