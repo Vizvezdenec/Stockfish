@@ -593,7 +593,7 @@ namespace {
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
     (ss+1)->excludedMove = bestMove = MOVE_NONE;
-    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captureKiller = MOVE_NONE;
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = (ss+2)->captureKiller[0] = (ss+2)->captureKiller[1] = MOVE_NONE;
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
@@ -628,7 +628,14 @@ namespace {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-                else ss->captureKiller = ttMove;
+                else 
+                    {
+                        if (ss->captureKiller[0] != ttMove)
+                        {
+                            ss->captureKiller[1] = ss->captureKiller[0];
+                            ss->captureKiller[0] = ttMove;
+                        }
+                    }
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo on STC, ~2 Elo on LTC)
                 if (prevSq != SQ_NONE && (ss-1)->moveCount <= 2 && !priorCapture)
@@ -1720,7 +1727,11 @@ moves_loop: // When in check, search starts here
         // Increase stats for the best move in case it was a capture move
         captured = type_of(pos.piece_on(to_sq(bestMove)));
         captureHistory[moved_piece][to_sq(bestMove)][captured] << quietMoveBonus;
-        ss->captureKiller = bestMove;
+        if (ss->captureKiller[0] != bestMove)
+        {
+            ss->captureKiller[1] = ss->captureKiller[0];
+            ss->captureKiller[0] = bestMove;
+        }
     }
 
     // Extra penalty for a quiet early move that was not a TT move or

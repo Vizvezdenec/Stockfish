@@ -26,7 +26,7 @@ namespace Stockfish {
 namespace {
 
   enum Stages {
-    MAIN_TT, CAPTKILL, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
+    MAIN_TT, CAPTKILLINIT, CAPTKILL, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
@@ -62,9 +62,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const PieceToHistory** ch,
                                                              Move cm,
                                                              const Move* killers,
-                                                             const Move ck)
+                                                             const Move* ck)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, captureKiller(ck), depth(d)
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, captureKiller{{ck[0], 0}, {ck[1], 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -208,13 +208,19 @@ top:
       ++stage;
       return ttMove;
 
-  case CAPTKILL:
+  case CAPTKILLINIT:
+      cur = std::begin(captureKiller);
+      endMoves = std::end(captureKiller);
       ++stage;
-      if (    captureKiller != MOVE_NONE 
-           && captureKiller != ttMove
-           && pos.capture_stage(captureKiller)
-           && pos.pseudo_legal(captureKiller))
-          return captureKiller;
+      [[fallthrough]];
+
+  case CAPTKILL:
+      if (select<Next>([&](){ return    *cur != MOVE_NONE
+                                    &&  *cur != ttMove
+                                    &&  pos.capture_stage(*cur)
+                                    &&  pos.pseudo_legal(*cur); }))
+          return *(cur - 1);
+      ++stage;
       [[fallthrough]];
 
   case CAPTURE_INIT:
@@ -232,7 +238,7 @@ top:
       if (select<Next>([&](){
                        return pos.see_ge(*cur, Value(-cur->value)) ?
                               // Move losing capture to endBadCaptures to be tried later
-                              *cur != captureKiller : *cur != captureKiller ? (*endBadCaptures++ = *cur, false) : false; }))
+                              *cur != captureKiller[0].move && *cur != captureKiller[1].move : *cur != captureKiller[0].move && *cur != captureKiller[1].move ? (*endBadCaptures++ = *cur, false) : false; }))
           return *(cur - 1);
 
       // Prepare the pointers to loop over the refutations array
