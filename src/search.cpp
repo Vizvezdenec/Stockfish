@@ -1554,6 +1554,9 @@ moves_loop: // When in check, search starts here
                 }
             }
 
+            if (depth <= DEPTH_QS_RECAPTURES && !ss->inCheck && moveCount > 1)
+                break;
+
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
