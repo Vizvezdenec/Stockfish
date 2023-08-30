@@ -989,7 +989,7 @@ moves_loop: // When in check, search starts here
                    + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
                   continue;
 
-              if (!givesCheck && !ss->inCheck && ss->staticEval + 300 + 300 * depth * depth <= alpha && !pos.see_ge(move, Value(1)))
+              if (!givesCheck && !ss->inCheck && ss->staticEval + 400 + 400 * depth <= alpha && !pos.see_ge(move, Value(1)))
                   continue;
 
               // SEE based pruning for captures and checks (~11 Elo)
