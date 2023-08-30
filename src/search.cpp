@@ -981,7 +981,7 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              if (capture && lmrDepth < 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -2000 * depth)
+              if (capture && lmrDepth <= 0 && captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] < -4000 * depth)
                   continue;
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
