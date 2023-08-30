@@ -28,7 +28,7 @@ namespace {
   enum Stages {
     MAIN_TT, CAPTKILL, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
-    PROBCUT_TT, PROBCUTCK, PROBCUT_INIT, PROBCUT,
+    PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
   };
 
@@ -88,8 +88,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
 
 /// MovePicker constructor for ProbCut: we generate captures with SEE greater
 /// than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph, const Move ck)
-           : pos(p), captureHistory(cph), ttMove(ttm), captureKiller(ck), threshold(th)
+MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph)
+           : pos(p), captureHistory(cph), ttMove(ttm), threshold(th)
 {
   assert(!pos.checkers());
 
@@ -211,17 +211,9 @@ top:
   case CAPTKILL:
       ++stage;
       if (    captureKiller != MOVE_NONE 
+           && captureKiller != ttMove
            && pos.capture_stage(captureKiller)
            && pos.pseudo_legal(captureKiller))
-          return captureKiller;
-      [[fallthrough]];
-
-  case PROBCUTCK:
-      ++stage;
-      if (    captureKiller != MOVE_NONE 
-           && pos.capture_stage(captureKiller)
-           && pos.pseudo_legal(captureKiller)
-           && pos.see_ge(captureKiller, threshold))
           return captureKiller;
       [[fallthrough]];
 
