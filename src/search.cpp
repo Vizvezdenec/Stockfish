@@ -588,10 +588,7 @@ namespace {
             return alpha;
     }
     else
-    {
         thisThread->rootDelta = beta - alpha;
-        ss->ttms = 0;
-    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -790,7 +787,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4 + (cutNode && !ss->ttHit);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1026,11 +1023,6 @@ moves_loop: // When in check, search starts here
           }
       }
 
-      if (move == ttMove)
-          ss->ttms = rootNode ? 1 : (ss-1)->ttms + 1;
-      else 
-          ss->ttms = 0;
-
       // Step 15. Extensions (~100 Elo)
       // We take care to not overdo to avoid search getting stuck.
       if (ss->ply < thisThread->rootDepth * 2)
@@ -1066,7 +1058,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 21 + 3 * (ss-1)->ttms
+                      && value < singularBeta - 21
                       && ss->doubleExtensions <= 11)
                   {
                       extension = 2;
