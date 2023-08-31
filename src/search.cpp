@@ -588,7 +588,10 @@ namespace {
             return alpha;
     }
     else
+    {
         thisThread->rootDelta = beta - alpha;
+        ss->ttms = 0;
+    }
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -891,12 +894,6 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (ss->inCheck && PvNode && ss->ttHit && !ttMove && tte->depth() >= depth)
-        depth -= 2;
-
-    if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
-
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 413;
     if (   ss->inCheck
@@ -1029,6 +1026,11 @@ moves_loop: // When in check, search starts here
           }
       }
 
+      if (move == ttMove)
+          ss->ttms = rootNode ? 1 : (ss-1)->ttms + 1;
+      else 
+          ss->ttms = 0;
+
       // Step 15. Extensions (~100 Elo)
       // We take care to not overdo to avoid search getting stuck.
       if (ss->ply < thisThread->rootDepth * 2)
@@ -1064,7 +1066,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 21
+                      && value < singularBeta - 21 + 10 * ((ss-1)->ttms > 3)
                       && ss->doubleExtensions <= 11)
                   {
                       extension = 2;
