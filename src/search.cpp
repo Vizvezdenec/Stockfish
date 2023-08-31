@@ -891,6 +891,9 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    if (ss->inCheck && PvNode && ss->ttHit && !ttMove && tte->depth() >= depth && depth >= 5)
+        depth--;
+
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 413;
     if (   ss->inCheck
@@ -1459,16 +1462,15 @@ moves_loop: // When in check, search starts here
         return ttValue;
 
     // Step 4. Static evaluation of the position
+    if (ss->inCheck)
+        bestValue = futilityBase = -VALUE_INFINITE;
+    else
+    {
         if (ss->ttHit)
         {
-            if (!ss->inCheck)
-            {
-                // Never assume anything about values stored in TT
-                if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
-                    ss->staticEval = bestValue = evaluate(pos);
-            }
-            else
-                ss->staticEval = bestValue = -VALUE_INFINITE;
+            // Never assume anything about values stored in TT
+            if ((ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
+                ss->staticEval = bestValue = evaluate(pos);
 
             // ttValue can be used as a better position evaluation (~13 Elo)
             if (    ttValue != VALUE_NONE
@@ -1477,7 +1479,7 @@ moves_loop: // When in check, search starts here
         }
         else
             // In case of null move search use previous static eval with a different sign
-            ss->staticEval = bestValue = ss->inCheck? -VALUE_INFINITE : (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
+            ss->staticEval = bestValue = (ss-1)->currentMove != MOVE_NULL ? evaluate(pos)
                                                                           : -(ss-1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
@@ -1495,6 +1497,7 @@ moves_loop: // When in check, search starts here
             alpha = bestValue;
 
         futilityBase = std::min(ss->staticEval, bestValue) + 200;
+    }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
