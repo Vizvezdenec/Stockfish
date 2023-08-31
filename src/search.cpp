@@ -891,7 +891,7 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    if (ss->inCheck && PvNode && ss->ttHit && !ttMove && tte->depth() >= depth && depth >= 5)
+    if (ss->inCheck && PvNode && ss->ttHit && !ttMove && tte->depth() >= depth && depth >= 3)
         depth--;
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
