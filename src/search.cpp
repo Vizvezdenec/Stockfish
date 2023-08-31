@@ -1066,7 +1066,7 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 21 + 10 * ((ss-1)->ttms > 3)
+                      && value < singularBeta - 23 + 2 * (ss-1)->ttms
                       && ss->doubleExtensions <= 11)
                   {
                       extension = 2;
