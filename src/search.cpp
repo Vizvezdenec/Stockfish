@@ -787,7 +787,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 173, 6) + (depth + (cutNode && !ss->ttHit)) / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -891,13 +891,14 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
+    int extra = std::max(depth - tte->depth() - 4, 0);
+
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 413;
+    probCutBeta = beta + 413 + 200 * extra * extra;
     if (   ss->inCheck
         && !PvNode
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 4
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN)
