@@ -826,7 +826,7 @@ namespace {
     // Use qsearch if depth is equal or below zero (~9 Elo)
     if (    PvNode
         && !ttMove)
-        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth) + ((beta - alpha) * 2 < thisThread->rootDelta);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
@@ -891,14 +891,13 @@ namespace {
 
 moves_loop: // When in check, search starts here
 
-    int extra = std::max(depth - tte->depth() - 4, 0);
-
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 413 + 200 * extra * extra;
+    probCutBeta = beta + 413;
     if (   ss->inCheck
         && !PvNode
         && ttCapture
         && (tte->bound() & BOUND_LOWER)
+        && tte->depth() >= depth - 4
         && ttValue >= probCutBeta
         && abs(ttValue) <= VALUE_KNOWN_WIN
         && abs(beta) <= VALUE_KNOWN_WIN)
