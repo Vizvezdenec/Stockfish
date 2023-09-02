@@ -116,7 +116,7 @@ namespace {
   Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode);
 
   template <NodeType nodeType>
-  Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, bool fromIIR, Depth depth = 0);
+  Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth = 0);
 
   Value value_to_tt(Value v, int ply);
   Value value_from_tt(Value v, int ply, int r50c);
@@ -529,7 +529,7 @@ namespace {
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta, false);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
@@ -758,7 +758,7 @@ namespace {
     // return a fail low.
     if (eval < alpha - 456 - 252 * depth * depth)
     {
-        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha, false);
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
     }
@@ -787,7 +787,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4 + 2 * (cutNode && !ss->ttHit);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -829,7 +829,7 @@ namespace {
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta, true);
+        return qsearch<PV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 8
@@ -870,7 +870,7 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, false);
+                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
@@ -1386,7 +1386,7 @@ moves_loop: // When in check, search starts here
   // function with zero depth, or recursively with further decreasing depth per call.
   // (~155 Elo)
   template <NodeType nodeType>
-  Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, bool fromIIR, Depth depth) {
+  Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     static_assert(nodeType != Root);
     constexpr bool PvNode = nodeType == PV;
@@ -1512,9 +1512,6 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
-    if (!ss->inCheck && PvNode && !ttMove && !fromIIR)
-        depth--;
-
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != MOVE_NONE)
@@ -1588,7 +1585,7 @@ moves_loop: // When in check, search starts here
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, false, depth - 1);
+        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
