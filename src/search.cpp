@@ -787,7 +787,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4 + (!ss->ttHit);
+        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 4;
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1495,6 +1495,9 @@ moves_loop: // When in check, search starts here
 
         futilityBase = std::min(ss->staticEval, bestValue) + 200;
     }
+
+    if (PvNode && !ss->inCheck && !ttMove)
+        depth--;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
