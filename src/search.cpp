@@ -912,6 +912,10 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
+    Value pseudoEval = ss->staticEval;
+    if (ss->inCheck && ss->ttHit && (tte->bound() & BOUND_UPPER))
+        pseudoEval = ttValue;
+
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -1019,9 +1023,8 @@ moves_loop: // When in check, search starts here
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
-              if (   !ss->inCheck
-                  && lmrDepth < 12
-                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
+              if (   lmrDepth < 12
+                  && std::min(ss->staticEval, pseudoEval) + 112 + 138 * lmrDepth <= alpha)
                   continue;
 
               lmrDepth = std::max(lmrDepth, 0);
@@ -1519,9 +1522,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-
-    if (PvNode && !ss->inCheck && !ttMove)
-        depth -= 3;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
