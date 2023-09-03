@@ -1520,6 +1520,9 @@ moves_loop: // When in check, search starts here
 
     int quietCheckEvasions = 0;
 
+    if (PvNode && !ss->inCheck && !ttMove)
+        depth -= 2;
+
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != MOVE_NONE)
