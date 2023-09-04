@@ -914,7 +914,7 @@ moves_loop: // When in check, search starts here
 
     Value pseudoEval = ss->staticEval;
     if (ss->inCheck && ss->ttHit && (tte->bound() & BOUND_UPPER))
-        pseudoEval = ttValue + 200 * depth;
+        pseudoEval = ttValue + 1000;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
