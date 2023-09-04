@@ -912,9 +912,9 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    Value pseudoEval = ss->staticEval;
-    if (ss->inCheck && ss->ttHit && (tte->bound() & BOUND_UPPER))
-        pseudoEval = ttValue + 1000;
+    Value pseudoEval = VALUE_NONE;
+    if (ss->inCheck && !priorCapture && !(ss-1)->inCheck)
+        pseudoEval = -(ss-1)->staticEval + 500;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
