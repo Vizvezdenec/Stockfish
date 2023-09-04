@@ -1091,6 +1091,9 @@ moves_loop: // When in check, search starts here
               else if (cutNode)
                   extension = depth < 17 ? -3 : -1;
 
+              else if (!PvNode)
+                  extension = -1;
+
               // If the eval of ttMove is less than value, we reduce it (negative extension) (~1 Elo)
               else if (ttValue <= value)
                   extension = -1;
@@ -1132,9 +1135,6 @@ moves_loop: // When in check, search starts here
       if (   ss->ttPv
           && !likelyFailLow)
           r -= cutNode && tte->depth() >= depth + 3 ? 3 : 2;
-
-      if (!ss->inCheck && !capture && !givesCheck && ss->staticEval + 100 + 50 * (depth - r) <= alpha)
-          r++;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
       if ((ss-1)->moveCount > 8)
