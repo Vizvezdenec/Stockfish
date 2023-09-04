@@ -912,10 +912,6 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    Value pseudoEval = ss->staticEval;
-    if (ss->inCheck && ss->ttHit && (tte->bound() & BOUND_UPPER))
-        pseudoEval = ttValue + 2000;
-
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
                                           nullptr                   , (ss-6)->continuationHistory };
@@ -1023,8 +1019,10 @@ moves_loop: // When in check, search starts here
               lmrDepth = std::max(lmrDepth, -2);
 
               // Futility pruning: parent node (~13 Elo)
-              if (   lmrDepth < 12
-                  && std::min(ss->staticEval, pseudoEval) + 112 + 138 * lmrDepth <= alpha)
+              if (   !ss->inCheck
+                  && lmrDepth < 12
+                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
+                  continue;
 
               lmrDepth = std::max(lmrDepth, 0);
 
@@ -1134,6 +1132,9 @@ moves_loop: // When in check, search starts here
       if (   ss->ttPv
           && !likelyFailLow)
           r -= cutNode && tte->depth() >= depth + 3 ? 3 : 2;
+
+      if (!ss->inCheck && !capture && !givesCheck && ss->staticEval + 100 + 50 * (depth - r) <= alpha)
+          r++;
 
       // Decrease reduction if opponent's move count is high (~1 Elo)
       if ((ss-1)->moveCount > 8)
