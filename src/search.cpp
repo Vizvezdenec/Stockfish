@@ -912,9 +912,9 @@ moves_loop: // When in check, search starts here
         && abs(beta) <= VALUE_KNOWN_WIN)
         return probCutBeta;
 
-    Value pseudoEval = VALUE_NONE;
-    if (ss->inCheck && !priorCapture && !(ss-1)->inCheck)
-        pseudoEval = -(ss-1)->staticEval + 500;
+    Value pseudoEval = ss->staticEval;
+    if (ss->inCheck && ss->ttHit && (tte->bound() & BOUND_UPPER))
+        pseudoEval = ttValue + 2000;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
@@ -1025,7 +1025,6 @@ moves_loop: // When in check, search starts here
               // Futility pruning: parent node (~13 Elo)
               if (   lmrDepth < 12
                   && std::min(ss->staticEval, pseudoEval) + 112 + 138 * lmrDepth <= alpha)
-                  continue;
 
               lmrDepth = std::max(lmrDepth, 0);
 
