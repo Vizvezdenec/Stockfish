@@ -796,7 +796,7 @@ namespace {
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 3 + 2 * !ss->ttHit;
+        Depth R = std::min(int(eval - beta) / 173, 6) + depth / 3 + 3 + 2 * (cutNode && !ss->ttHit);
 
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
