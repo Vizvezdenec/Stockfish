@@ -66,11 +66,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
                                                              Move cm,
-                                                             const Move* killers,
-                                                             Value se,
-                                                             Value aa)
+                                                             const Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, staticEval(se), alpha(aa), depth(d)
+             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -227,7 +225,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return pos.see_ge(*cur, Value(std::max(-cur->value, int(alpha - staticEval)))) ?
+                       return pos.see_ge(*cur, Value(-cur->value)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
@@ -302,7 +300,7 @@ top:
           return *(cur - 1);
 
       // If we did not find any move and we do not try checks, we have finished
-      if (depth != DEPTH_QS_CHECKS)
+      if (depth < DEPTH_QS_CHECKS)
           return MOVE_NONE;
 
       ++stage;

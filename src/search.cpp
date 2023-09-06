@@ -922,9 +922,7 @@ moves_loop: // When in check, search starts here
                                       &captureHistory,
                                       contHist,
                                       countermove,
-                                      ss->killers,
-                                      ss->staticEval,
-                                      alpha);
+                                      ss->killers);
 
     value = bestValue;
     moveCountPruning = singularQuietLMR = false;
@@ -1451,7 +1449,7 @@ moves_loop: // When in check, search starts here
     // Decide whether or not to include checks: this fixes also the type of
     // TT entry depth that we are going to use. Note that in qsearch we use
     // only two types of depth in TT: DEPTH_QS_CHECKS or DEPTH_QS_NO_CHECKS.
-    ttDepth = ss->inCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS
+    ttDepth = ss->inCheck || depth >= DEPTH_QS_CHECKS ? depth
                                                       : DEPTH_QS_NO_CHECKS;
 
     // Step 3. Transposition table lookup
