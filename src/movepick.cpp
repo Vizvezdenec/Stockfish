@@ -301,10 +301,6 @@ top:
                                     || to_sq(*cur) == recaptureSquare; }))
           return *(cur - 1);
 
-      // If we did not find any move and we do not try checks, we have finished
-      if (depth != DEPTH_QS_CHECKS)
-          return MOVE_NONE;
-
       // Prepare the pointers to loop over the refutations array
       cur = std::begin(refutations);
       endMoves = std::end(refutations);
@@ -319,6 +315,11 @@ top:
                                     &&  pos.gives_check(*cur)
                                     &&  pos.pseudo_legal(*cur); }))
           return *(cur - 1);
+
+    // If we did not find any move and we do not try checks, we have finished
+      if (depth != DEPTH_QS_CHECKS)
+          return MOVE_NONE;
+
       ++stage;
       [[fallthrough]];
 
