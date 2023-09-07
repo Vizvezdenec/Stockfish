@@ -1458,6 +1458,7 @@ moves_loop: // When in check, search starts here
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
     pvHit = ss->ttHit && tte->is_pv();
+    (ss+2)->killers[0]   = (ss+2)->killers[1] = MOVE_NONE;
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -1516,10 +1517,10 @@ moves_loop: // When in check, search starts here
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory,
                                       &thisThread->captureHistory,
                                       contHist,
-                                      prevSq);
+                                      prevSq,
+                                      ss->killers);
 
     int quietCheckEvasions = 0;
-    bool ttQuiet = ttMove && !pos.capture_stage(ttMove);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1566,7 +1567,7 @@ moves_loop: // When in check, search starts here
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 1 + ttQuiet)
+            if (quietCheckEvasions > 1)
                 break;
 
             // Continuation history based pruning (~3 Elo)
@@ -1617,6 +1618,12 @@ moves_loop: // When in check, search starts here
                     break; // Fail high
             }
         }
+    }
+
+    if (bestMove && !pos.capture_stage(bestMove) && ss->killers[0] != bestMove)
+    {
+        ss->killers[1] = ss->killers[0];
+        ss->killers[0] = bestMove;
     }
 
     // Step 9. Check for mate
