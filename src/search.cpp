@@ -901,7 +901,7 @@ namespace {
 moves_loop: // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 423 - 50 * !priorCapture;
+    probCutBeta = beta + 413;
     if (   ss->inCheck
         && !PvNode
         && ttCapture
@@ -1424,7 +1424,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, capture;
+    bool pvHit, givesCheck, capture, priorCapture;
     int moveCount;
 
     // Step 1. Initialize node
@@ -1519,6 +1519,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    priorCapture = pos.captured_piece();
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1593,7 +1594,7 @@ moves_loop: // When in check, search starts here
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && ss->inCheck));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
