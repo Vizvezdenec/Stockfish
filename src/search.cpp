@@ -1424,7 +1424,7 @@ moves_loop: // When in check, search starts here
     Move ttMove, move, bestMove;
     Depth ttDepth;
     Value bestValue, value, ttValue, futilityValue, futilityBase;
-    bool pvHit, givesCheck, capture, priorCapture;
+    bool pvHit, givesCheck, capture;
     int moveCount;
 
     // Step 1. Initialize node
@@ -1457,7 +1457,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    pvHit = ss->ttHit && tte->is_pv();
+    pvHit = (ss->ttHit && tte->is_pv()) || (PvNode && depth == 0);
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
@@ -1519,7 +1519,6 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
-    priorCapture = pos.captured_piece();
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1591,11 +1590,10 @@ moves_loop: // When in check, search starts here
                                                                   [to_sq(move)];
 
         quietCheckEvasions += !capture && ss->inCheck;
-        ss->currentMove = move;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && capture && to_sq(move) == to_sq((ss-1)->currentMove)));
+        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
