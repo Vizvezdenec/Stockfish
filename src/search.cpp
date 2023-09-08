@@ -625,7 +625,7 @@ namespace {
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
         && !excludedMove
-        && tte->depth() > depth
+        && tte->depth() > depth - (tte->bound() == BOUND_EXACT)
         && ttValue != VALUE_NONE // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -1457,7 +1457,7 @@ moves_loop: // When in check, search starts here
     tte = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
     ttMove = ss->ttHit ? tte->move() : MOVE_NONE;
-    pvHit = (ss->ttHit && tte->is_pv()) || (PvNode && ss->inCheck);
+    pvHit = ss->ttHit && tte->is_pv();
 
     // At non-PV nodes we check for an early TT cutoff
     if (  !PvNode
