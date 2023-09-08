@@ -1594,7 +1594,7 @@ moves_loop: // When in check, search starts here
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && ss->inCheck));
+        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && ss->inCheck && capture));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
