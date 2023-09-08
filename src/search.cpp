@@ -801,15 +801,11 @@ namespace {
         ss->currentMove = MOVE_NULL;
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
-        ss->statScore = -(ss-1)->statScore;
-
         pos.do_null_move(st);
 
         Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
-
-        ss->statScore = 0;
 
         if (nullValue >= beta)
         {
@@ -1147,6 +1143,9 @@ moves_loop: // When in check, search starts here
 
       // Increase reduction if ttMove is a capture (~3 Elo)
       if (ttCapture)
+          r++;
+
+      if (ss->ttHit && ttValue <= alpha)
           r++;
 
       // Decrease reduction for PvNodes (~2 Elo)
