@@ -1591,10 +1591,11 @@ moves_loop: // When in check, search starts here
                                                                   [to_sq(move)];
 
         quietCheckEvasions += !capture && ss->inCheck;
+        ss->currentMove = move;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && ss->inCheck && capture));
+        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1 + (priorCapture && capture && to_sq(move) == to_sq((ss-1)->currentMove)));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
