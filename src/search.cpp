@@ -1501,7 +1501,7 @@ moves_loop: // When in check, search starts here
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = std::min(ss->staticEval, bestValue) + 225;
+        futilityBase = std::min(ss->staticEval, bestValue) + 200;
     }
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
@@ -1549,7 +1549,7 @@ moves_loop: // When in check, search starts here
 
                 futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
 
-                if (futilityValue + 25 * (2 - moveCount) <= alpha)
+                if (futilityValue <= alpha)
                 {
                     bestValue = std::max(bestValue, futilityValue);
                     continue;
@@ -1558,6 +1558,12 @@ moves_loop: // When in check, search starts here
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
+                    continue;
+                }
+
+                else if (futilityBase > alpha && !pos.see_ge(move, alpha - futilityBase))
+                {
+                    bestValue = alpha;
                     continue;
                 }
             }
