@@ -1145,9 +1145,6 @@ moves_loop: // When in check, search starts here
       if (ttCapture)
           r++;
 
-      if (ss->ttHit && ttValue <= alpha && (tte->bound() & BOUND_UPPER) && !ss->ttPv)
-          r += 2;
-
       // Decrease reduction for PvNodes (~2 Elo)
       if (PvNode)
           r--;
@@ -1368,7 +1365,7 @@ moves_loop: // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 800) + ((ss-1)->moveCount > 12);
+        int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 800) + ((ss-1)->moveCount > 12) + (ttMove && (tte->bound() & BOUND_LOWER));
         update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth) * bonus / 2;
     }
