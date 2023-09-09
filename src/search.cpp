@@ -1549,7 +1549,7 @@ moves_loop: // When in check, search starts here
 
                 futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
 
-                if (futilityValue <= alpha)
+                if (futilityValue + 50 * (2 - moveCount) <= alpha)
                 {
                     bestValue = std::max(bestValue, futilityValue);
                     continue;
