@@ -1561,7 +1561,7 @@ moves_loop: // When in check, search starts here
                     continue;
                 }
 
-                else if (futilityBase > alpha && !pos.see_ge(move, alpha - futilityBase))
+                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 2))
                 {
                     bestValue = alpha;
                     continue;
