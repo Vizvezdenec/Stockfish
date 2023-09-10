@@ -1562,7 +1562,7 @@ moves_loop: // When in check, search starts here
                 }
 
                 
-                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase)))
                     continue;
             }
 
