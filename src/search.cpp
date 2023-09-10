@@ -1561,9 +1561,9 @@ moves_loop: // When in check, search starts here
                     continue;
                 }
 
-                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 8))
+                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
-                    bestValue = alpha;
+                    bestValue = std::max(bestValue, 2 * alpha - futilityBase);
                     continue;
                 }
             }
