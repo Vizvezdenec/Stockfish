@@ -1561,9 +1561,11 @@ moves_loop: // When in check, search starts here
                     continue;
                 }
 
-                
-                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase)))
+                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 8))
+                {
+                    bestValue = alpha;
                     continue;
+                }
             }
 
             // We prune after the second quiet check evasion move, where being 'in check' is
