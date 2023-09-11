@@ -225,7 +225,7 @@ top:
 
   case GOOD_CAPTURE:
       if (select<Next>([&](){
-                       return skipQuiets || pos.see_ge(*cur, Value(-cur->value)) ?
+                       return (skipQuiets && refutations[0].move == MOVE_NONE && refutations[2].move == MOVE_NONE) || pos.see_ge(*cur, Value(-cur->value)) ?
                               // Move losing capture to endBadCaptures to be tried later
                               true : (*endBadCaptures++ = *cur, false); }))
           return *(cur - 1);
