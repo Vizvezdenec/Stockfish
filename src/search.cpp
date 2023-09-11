@@ -1560,12 +1560,6 @@ moves_loop: // When in check, search starts here
                     bestValue = std::max(bestValue, futilityBase);
                     continue;
                 }
-
-                else if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
-                {
-                    bestValue = std::max(bestValue, 2 * alpha - futilityBase);
-                    continue;
-                }
             }
 
             // We prune after the second quiet check evasion move, where being 'in check' is
