@@ -843,14 +843,14 @@ namespace {
     if (    cutNode
         &&  depth >= 8
         && !ttMove)
-        depth -= 2 + 2 * (ss->ttPv && tte->depth() >= depth);
+        depth -= 2;
 
     probCutBeta = beta + 168 - 61 * improving;
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    if (   !PvNode
+    if (   !rootNode
         &&  depth > 3
         &&  abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         // If value from transposition table is lower than probCutBeta, don't attempt probCut
@@ -883,7 +883,14 @@ namespace {
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                {
+                    if (PvNode)
+                    {
+                        (ss+1)->pv = pv;
+                        (ss+1)->pv[0] = MOVE_NONE;
+                    }
+                    value = -search<PvNode ? PV : NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+beta-alpha, depth - 4, !cutNode);
+                }
 
                 pos.undo_move(move);
 
