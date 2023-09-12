@@ -843,7 +843,7 @@ namespace {
     if (    cutNode
         &&  depth >= 8
         && !ttMove)
-        depth -= 2 + 2 * ss->ttPv;
+        depth -= 2;
 
     probCutBeta = beta + 168 - 61 * improving;
 
@@ -1568,7 +1568,7 @@ moves_loop: // When in check, search starts here
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 2 - 20))
                 {
                     bestValue = alpha;
                     continue;
