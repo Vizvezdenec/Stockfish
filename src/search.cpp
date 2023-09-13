@@ -991,13 +991,17 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
+              int futilityValue = ss->staticEval + 198 + 248 * lmrDepth + PieceValue[pos.piece_on(to_sq(move))]
+                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7;
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
                   && !ss->inCheck
-                  && ss->staticEval + 197 + 248 * lmrDepth + PieceValue[pos.piece_on(to_sq(move))]
-                   + captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(move)))] / 7 < alpha)
-                  continue;
+                  && futilityValue <= alpha)
+                  {
+                      bestValue = std::max(bestValue, Value(futilityValue));
+                      continue;
+                  }
 
               // SEE based pruning for captures and checks (~11 Elo)
               if (!pos.see_ge(move, Value(-205) * depth))
@@ -1589,11 +1593,7 @@ moves_loop: // When in check, search starts here
 
             // Do not search moves with bad enough SEE values (~5 Elo)
             if (!pos.see_ge(move, Value(-95)))
-            {
-                if (futilityBase <= alpha)
-                    bestValue = std::max(bestValue, futilityBase);
                 continue;
-            }
         }
 
         // Speculative prefetch as early as possible
