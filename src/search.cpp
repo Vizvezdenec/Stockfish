@@ -1590,9 +1590,8 @@ moves_loop: // When in check, search starts here
             // Do not search moves with bad enough SEE values (~5 Elo)
             if (!pos.see_ge(move, Value(-95)))
             {
-                futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
-                if (futilityValue <= alpha)
-                    bestValue = std::max(bestValue, futilityValue);
+                if (futilityBase > alpha)
+                    bestValue = std::max(bestValue, futilityBase);
                 continue;
             }
         }
