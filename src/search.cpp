@@ -1019,17 +1019,11 @@ moves_loop: // When in check, search starts here
               lmrDepth += history / 7011;
               lmrDepth = std::max(lmrDepth, -2);
 
-              int futilityValue = ss->staticEval + 112;
-
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && futilityValue + 138 * lmrDepth <= alpha)
-                  {
-                      if (futilityValue <= alpha - 100 * depth)
-                          bestValue = std::max(bestValue, Value(futilityValue));
-                      continue;
-                  }
+                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
+                  continue;
 
               lmrDepth = std::max(lmrDepth, 0);
 
@@ -1595,7 +1589,12 @@ moves_loop: // When in check, search starts here
 
             // Do not search moves with bad enough SEE values (~5 Elo)
             if (!pos.see_ge(move, Value(-95)))
+            {
+                futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))] + 100;
+                if (futilityValue <= alpha)
+                    bestValue = std::max(bestValue, futilityValue);
                 continue;
+            }
         }
 
         // Speculative prefetch as early as possible
