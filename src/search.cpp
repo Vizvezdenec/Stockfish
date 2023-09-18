@@ -1568,7 +1568,7 @@ moves_loop: // When in check, search starts here
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 5))
                 {
                     bestValue = alpha;
                     continue;
@@ -1589,12 +1589,7 @@ moves_loop: // When in check, search starts here
 
             // Do not search moves with bad enough SEE values (~5 Elo)
             if (!pos.see_ge(move, Value(-95)))
-            {
-                futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))] - 100;
-                if (futilityValue <= alpha)
-                    bestValue = std::max(bestValue, futilityValue);
                 continue;
-            }
         }
 
         // Speculative prefetch as early as possible
