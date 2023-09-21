@@ -863,7 +863,7 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval + 100, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -1019,11 +1019,17 @@ moves_loop: // When in check, search starts here
               lmrDepth += history / 7011;
               lmrDepth = std::max(lmrDepth, -2);
 
+              int futilityValue = ss->staticEval + 112;
+
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
-                  continue;
+                  && futilityValue + 138 * lmrDepth <= alpha)
+                  {
+                      if (futilityValue <= alpha && depth <= 3)
+                          bestValue = std::max(bestValue, Value(futilityValue));
+                      continue;
+                  }
 
               lmrDepth = std::max(lmrDepth, 0);
 
