@@ -991,12 +991,6 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              if (   !givesCheck
-                 &&  to_sq(move) != prevSq
-                 &&  type_of(move) != PROMOTION
-                 &&  moveCount >= 5 + 2 * depth * depth)
-                 continue;
-
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
@@ -1025,11 +1019,17 @@ moves_loop: // When in check, search starts here
               lmrDepth += history / 7011;
               lmrDepth = std::max(lmrDepth, -2);
 
+              int futilityValue = ss->staticEval + 112;
+
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
-                  continue;
+                  && futilityValue + 138 * lmrDepth <= alpha)
+                  {
+                      if (futilityValue <= alpha && depth > 8)
+                          bestValue = std::max(bestValue, Value(futilityValue));
+                      continue;
+                  }
 
               lmrDepth = std::max(lmrDepth, 0);
 
