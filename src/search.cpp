@@ -991,6 +991,12 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
+              if (   !givesCheck
+                 &&  to_sq(move) != prevSq
+                 &&  type_of(move) != PROMOTION
+                 &&  moveCount >= 2 + 4 * depth * depth)
+                 continue;
+
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
@@ -1005,12 +1011,6 @@ moves_loop: // When in check, search starts here
           }
           else
           {
-              if (   !givesCheck
-                 &&  to_sq(move) != prevSq
-                 &&  type_of(move) != PROMOTION
-                 &&  moveCount >= 2 + 2 * depth * depth)
-                 continue;
-
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)];
