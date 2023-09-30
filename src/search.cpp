@@ -993,9 +993,10 @@ moves_loop: // When in check, search starts here
               || givesCheck)
           {
               if (   !givesCheck
+                 &&  !PvNode
                  &&  to_sq(move) != prevSq
                  &&  type_of(move) != PROMOTION
-                 &&  moveCount >= (3 + 2 * depth * depth) * (1 + improving))
+                 &&  moveCount >= 4 + 2 * depth * depth)
                  continue;
 
               // Futility pruning for captures (~2 Elo)
