@@ -608,6 +608,7 @@ namespace {
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
     ss->statScore        = 0;
+    ss->inLmr            = false;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -844,7 +845,7 @@ namespace {
     if (    cutNode
         &&  depth >= 8
         && !ttMove)
-        depth -= 2;
+        depth -= 2 + (ss-1)->inLmr;
 
     probCutBeta = beta + 168 - 61 * improving;
 
@@ -992,13 +993,6 @@ moves_loop: // When in check, search starts here
           if (   capture
               || givesCheck)
           {
-              if (   !givesCheck
-                 &&  !ss->ttPv
-                 &&  to_sq(move) != prevSq
-                 &&  type_of(move) != PROMOTION
-                 &&  moveCount >= 4 + 2 * depth * depth)
-                 continue;
-
               // Futility pruning for captures (~2 Elo)
               if (   !givesCheck
                   && lmrDepth < 7
@@ -1198,7 +1192,9 @@ moves_loop: // When in check, search starts here
           // beyond the first move depth. This may lead to hidden double extensions.
           Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
+          ss->inLmr = true;
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
+          ss->inLmr = false;
 
           // Do a full-depth search when reduced LMR search fails high
           if (value > alpha && d < newDepth)
