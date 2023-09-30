@@ -993,7 +993,7 @@ moves_loop: // When in check, search starts here
               || givesCheck)
           {
               if (   !givesCheck
-                 &&  !PvNode
+                 &&  !ss->ttPv
                  &&  to_sq(move) != prevSq
                  &&  type_of(move) != PROMOTION
                  &&  moveCount >= 4 + 2 * depth * depth)
