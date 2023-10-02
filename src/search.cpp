@@ -607,7 +607,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
-    ss->statScore        = 5000 - (ss-1)->statScore;
+    ss->statScore        = -5000 - (ss-1)->statScore;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
