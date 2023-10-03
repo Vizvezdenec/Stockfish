@@ -607,7 +607,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
-    ss->statScore        = -20000 - (ss-1)->statScore;
+    ss->statScore        = 0;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -745,6 +745,8 @@ namespace {
         ss->staticEval = eval = evaluate(pos);
         // Save static evaluation into the transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
+        if ((ss-1)->currentMove == MOVE_NULL && ss->staticEval + (ss-1)->staticEval < 0)
+            return alpha;
     }
 
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
