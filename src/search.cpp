@@ -1024,10 +1024,7 @@ moves_loop: // When in check, search starts here
               if (   !ss->inCheck
                   && lmrDepth < 12
                   && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
-                  {
-                    dbg_mean_of(depth > 15);
                   continue;
-                  }
 
               lmrDepth = std::max(lmrDepth, 0);
 
