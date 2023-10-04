@@ -745,8 +745,6 @@ namespace {
         ss->staticEval = eval = evaluate(pos);
         // Save static evaluation into the transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
-        if ((ss-1)->currentMove == MOVE_NULL && ss->staticEval + (ss-1)->staticEval < -100 * (depth - 1))
-            return alpha;
     }
 
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
@@ -848,7 +846,7 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    probCutBeta = beta + 168 - 61 * improving;
+    probCutBeta = beta + 168 - 61 * improving - 22 * (cutNode && !ss->ttHit);
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
@@ -1026,7 +1024,10 @@ moves_loop: // When in check, search starts here
               if (   !ss->inCheck
                   && lmrDepth < 12
                   && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
+                  {
+                    dbg_mean_of(depth > 15);
                   continue;
+                  }
 
               lmrDepth = std::max(lmrDepth, 0);
 
