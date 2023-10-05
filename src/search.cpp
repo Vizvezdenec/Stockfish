@@ -846,7 +846,7 @@ namespace {
         && !ttMove)
         depth -= 2;
 
-    probCutBeta = beta + 168 - 61 * improving;
+    probCutBeta = beta + 168 - 61 * improving - 66 * (cutNode && !ss->ttHit);
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
@@ -1020,17 +1020,11 @@ moves_loop: // When in check, search starts here
               lmrDepth += history / 7011;
               lmrDepth = std::max(lmrDepth, -2);
 
-              int futilityValue = ss->staticEval + 112 + 138 * lmrDepth;
-
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
                   && lmrDepth < 12
-                  && futilityValue <= alpha)
-                  {
-                      if (depth > 5)
-                          bestValue = std::max(bestValue, Value(futilityValue));
-                      continue;
-                  }
+                  && ss->staticEval + 112 + 138 * lmrDepth <= alpha)
+                  continue;
 
               lmrDepth = std::max(lmrDepth, 0);
 
