@@ -1323,7 +1323,7 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  14362
                       && value > -12393)
-                      depth -= 2 + 2 * (tte->is_pv() && move == ttMove && tte->depth() >= depth);
+                      depth -= 2 + (tte->is_pv() && move == ttMove && tte->depth() >= depth);
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
