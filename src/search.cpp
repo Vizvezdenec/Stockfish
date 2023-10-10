@@ -1323,7 +1323,7 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  14362
                       && value > -12393)
-                      depth -= 2 + (tte->is_pv() && move == ttMove && depth > 7);
+                      depth -= 2 + (tte->is_pv() && move == ttMove && depth < 7);
 
                   depth = std::max(depth, 1);
 
