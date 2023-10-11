@@ -607,7 +607,7 @@ namespace {
     (ss+2)->cutoffCnt    = 0;
     ss->doubleExtensions = (ss-1)->doubleExtensions;
     Square prevSq        = is_ok((ss-1)->currentMove) ? to_sq((ss-1)->currentMove) : SQ_NONE;
-    ss->statScore        = 0;
+    ss->statScore        = -4006 - (ss-1)->statScore;
 
     // Step 4. Transposition table lookup.
     excludedMove = ss->excludedMove;
@@ -1323,9 +1323,7 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  14362
                       && value > -12393)
-                      depth -= 2 + (tte->is_pv() && move == ttMove && depth < 5);
-
-                  depth = std::max(depth, 1);
+                      depth -= 2;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
