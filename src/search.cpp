@@ -1012,6 +1012,7 @@ moves_loop: // When in check, search starts here
           {
               int history =   (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
+                            + (*contHist[2])[movedPiece][to_sq(move)] / 2
                             + (*contHist[3])[movedPiece][to_sq(move)];
 
               // Continuation history based pruning (~2 Elo)
@@ -1174,6 +1175,7 @@ moves_loop: // When in check, search starts here
       ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
                      + (*contHist[0])[movedPiece][to_sq(move)]
                      + (*contHist[1])[movedPiece][to_sq(move)]
+                     + (*contHist[2])[movedPiece][to_sq(move)] / 2
                      + (*contHist[3])[movedPiece][to_sq(move)]
                      - 3848;
 
