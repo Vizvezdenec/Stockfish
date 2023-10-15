@@ -1071,12 +1071,14 @@ moves_loop: // When in check, search starts here
                   extension = 1;
                   singularQuietLMR = !ttCapture;
 
+                  depth += depth < 15 && !PvNode;
+
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 18)
+                      && value < singularBeta - 18
+                      && ss->doubleExtensions <= 11)
                   {
-                      extension = 1 + (ss->doubleExtensions <= 11);
-                      depth += depth < 15;
+                      extension = 2;
                   }
               }
 
