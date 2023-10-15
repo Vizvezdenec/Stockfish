@@ -919,7 +919,7 @@ moves_loop: // When in check, search starts here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                          nullptr                   , (ss-6)->continuationHistory };
+                                         (ss-5)->continuationHistory, (ss-6)->continuationHistory };
 
     Move countermove = prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
@@ -1162,9 +1162,6 @@ moves_loop: // When in check, search starts here
       if (   move == (ss-4)->currentMove
           && pos.has_repeated())
           r += 2;
-
-      if (ss->cutoffCnt > 100)
-          r--;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
