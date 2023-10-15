@@ -919,7 +919,7 @@ moves_loop: // When in check, search starts here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                         (ss-5)->continuationHistory, (ss-6)->continuationHistory };
+                                          nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
@@ -1162,6 +1162,9 @@ moves_loop: // When in check, search starts here
       if (   move == (ss-4)->currentMove
           && pos.has_repeated())
           r += 2;
+
+      if (ss->cutoffCnt > 5)
+          r--;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
@@ -1512,7 +1515,7 @@ moves_loop: // When in check, search starts here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                         (ss-5)->continuationHistory, (ss-6)->continuationHistory };
+                                          nullptr                   , (ss-6)->continuationHistory };
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
@@ -1768,13 +1771,13 @@ moves_loop: // When in check, search starts here
 
   void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
-    for (int i : {1, 2, 3, 4, 5, 6})
+    for (int i : {1, 2, 3, 4, 6})
     {
         // Only update the first 2 continuation histories if we are in check
         if (ss->inCheck && i > 2)
             break;
         if (is_ok((ss-i)->currentMove))
-            (*(ss-i)->continuationHistory)[pc][to] << bonus / (1 + 3 * (i == 3) + 7 * (i == 5));
+            (*(ss-i)->continuationHistory)[pc][to] << bonus / (1 + 3 * (i == 3));
     }
   }
 
