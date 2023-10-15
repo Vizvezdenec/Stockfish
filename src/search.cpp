@@ -1163,7 +1163,7 @@ moves_loop: // When in check, search starts here
           && pos.has_repeated())
           r += 2;
 
-      if (ss->cutoffCnt > 200)
+      if (ss->cutoffCnt > 300)
           r--;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
