@@ -919,7 +919,7 @@ moves_loop: // When in check, search starts here
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                          (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                         (ss-5)->continuationHistory, (ss-6)->continuationHistory };
+                                          nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
@@ -1073,10 +1073,9 @@ moves_loop: // When in check, search starts here
 
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
-                      && value < singularBeta - 18
-                      && ss->doubleExtensions <= 11)
+                      && value < singularBeta - 18)
                   {
-                      extension = 2;
+                      extension = 1 + (ss->doubleExtensions <= 11);
                       depth += depth < 15;
                   }
               }
