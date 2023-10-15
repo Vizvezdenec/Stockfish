@@ -1163,9 +1163,6 @@ moves_loop: // When in check, search starts here
           && pos.has_repeated())
           r += 2;
 
-      if (ss->cutoffCnt > 300)
-          r--;
-
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
           r++;
@@ -1326,7 +1323,9 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  13828
                       && value > -11369)
-                      depth -= 2;
+                      depth -= 2 + (tte->is_pv() && move == ttMove && depth < 6);
+
+                  depth = std::max(depth, 1);
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
