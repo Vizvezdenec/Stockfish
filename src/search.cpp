@@ -1071,14 +1071,13 @@ moves_loop: // When in check, search starts here
                   extension = 1;
                   singularQuietLMR = !ttCapture;
 
-                  depth += depth < 15 && !PvNode;
-
                   // Avoid search explosion by limiting the number of double extensions
                   if (  !PvNode
                       && value < singularBeta - 18
                       && ss->doubleExtensions <= 11)
                   {
                       extension = 2;
+                      depth += depth < 15;
                   }
               }
 
@@ -1163,6 +1162,9 @@ moves_loop: // When in check, search starts here
       if (   move == (ss-4)->currentMove
           && pos.has_repeated())
           r += 2;
+
+      if (ss->cutoffCnt > 200)
+          r--;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
       if ((ss+1)->cutoffCnt > 3)
