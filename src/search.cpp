@@ -1022,7 +1022,7 @@ moves_loop: // When in check, search starts here
               history += 2 * thisThread->mainHistory[us][from_to(move)];
 
               lmrDepth += history / 5793;
-              lmrDepth = std::max(lmrDepth, -2);
+              lmrDepth = std::max(lmrDepth, -3);
 
               // Futility pruning: parent node (~13 Elo)
               if (   !ss->inCheck
@@ -1323,9 +1323,7 @@ moves_loop: // When in check, search starts here
                       && depth < 12
                       && beta  <  13828
                       && value > -11369)
-                      depth -= 2 + 2 * (move == ttMove && depth < 6);
-
-                  depth = std::max(depth, 1);
+                      depth -= 2;
 
                   assert(depth > 0);
                   alpha = value; // Update alpha! Always alpha < beta
