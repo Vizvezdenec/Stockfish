@@ -1559,7 +1559,6 @@ moves_loop: // When in check, search starts here
                 // than alpha we can prune this move
                 if (futilityValue <= alpha)
                 {
-                    if (move != ttMove || bestValue == ss->staticEval)
                     bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
@@ -1568,6 +1567,7 @@ moves_loop: // When in check, search starts here
                 // we can prune this move
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
+                    if (move != ttMove || bestValue == ss->staticEval)
                     bestValue = std::max(bestValue, futilityBase);
                     continue;
                 }
