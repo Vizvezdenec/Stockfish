@@ -1193,7 +1193,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, int(ss->staticEval >= alpha), newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
@@ -1575,7 +1575,6 @@ moves_loop: // When in check, search starts here
                 // fall below alpha we can prune this move
                 if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
-                    if (move != ttMove || bestValue == ss->staticEval)
                     bestValue = alpha;
                     continue;
                 }
