@@ -712,6 +712,10 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
+    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-6)->continuationHistory };
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -783,7 +787,10 @@ namespace {
         &&  eval < 29462 // smaller than TB wins
         && !(  !ttCapture
              && ttMove
-             && thisThread->mainHistory[us][from_to(ttMove)] < 989))
+             && thisThread->mainHistory[us][from_to(ttMove)]
+                + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+                + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+                + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] < 0))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -916,10 +923,6 @@ moves_loop: // When in check, search starts here
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
         && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
-
-    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                          nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
@@ -1193,7 +1196,7 @@ moves_loop: // When in check, search starts here
           // In general we want to cap the LMR depth search at newDepth, but when
           // reduction is negative, we allow this move a limited search extension
           // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, int(ss->staticEval >= alpha - 81 * depth), newDepth + 1);
+          Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
           value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, d, true);
 
