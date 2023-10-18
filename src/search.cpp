@@ -790,7 +790,7 @@ namespace {
              && thisThread->mainHistory[us][from_to(ttMove)]
                 + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
                 + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-                + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] < -10000))
+                + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] < 10000))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
