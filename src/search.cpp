@@ -712,10 +712,6 @@ namespace {
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
 
-    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
-                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
-                                          nullptr                   , (ss-6)->continuationHistory };
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -787,10 +783,7 @@ namespace {
         &&  eval < 29462 // smaller than TB wins
         && !(  !ttCapture
              && ttMove
-             && 2 * thisThread->mainHistory[us][from_to(ttMove)]
-                + (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-                + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-                + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] < 0))
+             && thisThread->mainHistory[us][from_to(ttMove)] < 989))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -923,6 +916,10 @@ moves_loop: // When in check, search starts here
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
         && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
+
+    const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
+                                         (ss-3)->continuationHistory, (ss-4)->continuationHistory,
+                                          nullptr                   , (ss-6)->continuationHistory };
 
     Move countermove = prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
@@ -1545,7 +1542,7 @@ moves_loop: // When in check, search starts here
         moveCount++;
 
         // Step 6. Pruning.
-        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
+        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us) && pos.non_pawn_material(~us))
         {
             // Futility pruning and moveCount pruning (~10 Elo)
             if (   !givesCheck
