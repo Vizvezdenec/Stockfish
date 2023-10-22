@@ -1056,15 +1056,15 @@ moves_loop:  // When in check, search starts here
                 // is not singular, that multiple moves fail high, and we can prune the
                 // whole subtree by returning a softbound.
                 else if (singularBeta >= beta)
+                    return singularBeta;
+
+                // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
+                else if (ttValue >= beta)
               {
                   extension = -2 - !PvNode;
                   if (newDepth + extension < tte->depth() && !PvNode)
                       return ttValue;
               }
-
-                // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
-                else if (ttValue >= beta)
-                    extension = -2 - !PvNode;
 
                 // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
                 else if (cutNode)
