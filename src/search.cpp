@@ -786,8 +786,7 @@ namespace {
         &&  eval >= beta
         &&  eval < 29462 // smaller than TB wins
         && !(  !ttCapture
-             && ttMove
-             && eval != ss->staticEval))
+             && ttMove))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -843,9 +842,11 @@ namespace {
     if (    PvNode
         && !ttMove)
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
+    else if (ss->ttPv && !ttMove)
+        depth--;
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     if (    cutNode
         &&  depth >= 8
