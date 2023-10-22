@@ -780,12 +780,13 @@ namespace {
 
     // Step 8. Futility pruning: child node (~40 Elo)
     // The depth condition is important for mate finding.
-    if (   !ttMove
+    if (   !ss->ttPv
         &&  depth < 9
         &&  eval - futility_margin(depth, cutNode && !ss->ttHit, improving) - (ss-1)->statScore / 321 >= beta
         &&  eval >= beta
         &&  eval < 29462 // smaller than TB wins
-        )
+        && !(  !ttCapture
+             && ttMove))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -1091,7 +1092,11 @@ moves_loop: // When in check, search starts here
 
               // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
               else if (ttValue >= beta)
+              {
                   extension = -2 - !PvNode;
+                  if (depth + extension < tte->depth() && !PvNode)
+                      return ttValue;
+              }
 
               // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
               else if (cutNode)
