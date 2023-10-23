@@ -1029,7 +1029,7 @@ moves_loop:  // When in check, search starts here
                 && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
             {
-                Value singularBeta = ttValue - depth * 12;
+                Value singularBeta = ttValue - depth * 24 - 100;
                 ss->excludedMove = move;
                 value =
                   qsearch<NonPV>(pos, ss, singularBeta - 1, singularBeta);
