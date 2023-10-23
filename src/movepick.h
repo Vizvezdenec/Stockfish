@@ -135,6 +135,7 @@ class MovePicker {
                const ButterflyHistory*,
                const CapturePieceToHistory*,
                const PieceToHistory**,
+               const PieceToHistory**,
                Move,
                const Move*);
     MovePicker(const Position&,
@@ -142,6 +143,7 @@ class MovePicker {
                Depth,
                const ButterflyHistory*,
                const CapturePieceToHistory*,
+               const PieceToHistory**,
                const PieceToHistory**,
                Square);
     MovePicker(const Position&, Move, Value, const CapturePieceToHistory*);
@@ -159,6 +161,7 @@ class MovePicker {
     const ButterflyHistory*      mainHistory;
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
+    const PieceToHistory**       continuationHistory1;
     Move                         ttMove;
     ExtMove                      refutations[3], *cur, *endMoves, *endBadCaptures;
     int                          stage;

@@ -89,12 +89,14 @@ MovePicker::MovePicker(const Position&              p,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
+                       const PieceToHistory**       ch1,
                        Move                         cm,
                        const Move*                  killers) :
     pos(p),
     mainHistory(mh),
     captureHistory(cph),
     continuationHistory(ch),
+    continuationHistory1(ch1),
     ttMove(ttm),
     refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}},
     depth(d) {
@@ -110,11 +112,13 @@ MovePicker::MovePicker(const Position&              p,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
+                       const PieceToHistory**       ch1,
                        Square                       rs) :
     pos(p),
     mainHistory(mh),
     captureHistory(cph),
     continuationHistory(ch),
+    continuationHistory1(ch1),
     ttMove(ttm),
     recaptureSquare(rs),
     depth(d) {
@@ -177,11 +181,16 @@ void MovePicker::score() {
 
             // histories
             m.value = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
-            m.value += 2 * (*continuationHistory[0])[pc][to];
-            m.value += (*continuationHistory[1])[pc][to];
-            m.value += (*continuationHistory[2])[pc][to] / 4;
-            m.value += (*continuationHistory[3])[pc][to];
-            m.value += (*continuationHistory[5])[pc][to];
+            m.value += (2 * (*continuationHistory[0])[pc][to] 
+                         + (*continuationHistory[1])[pc][to] 
+                         + (*continuationHistory[2])[pc][to] / 4 
+                         + (*continuationHistory[3])[pc][to]
+                         + (*continuationHistory[5])[pc][to]) * pos.count<PAWN>() / 16;
+            m.value += (2 * (*continuationHistory1[0])[pc][to] 
+                         + (*continuationHistory1[1])[pc][to] 
+                         + (*continuationHistory1[2])[pc][to] / 4 
+                         + (*continuationHistory1[3])[pc][to]
+                         + (*continuationHistory1[5])[pc][to]) * (16 - pos.count<PAWN>()) / 16;
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;
@@ -212,7 +221,8 @@ void MovePicker::score() {
                         + (1 << 28);
             else
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
-                        + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)];
+                        + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)] * pos.count<PAWN>() / 16
+                        + (*continuationHistory1[0])[pos.moved_piece(m)][to_sq(m)] * (16 - pos.count<PAWN>()) / 16;
         }
 }
 
