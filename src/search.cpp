@@ -1455,6 +1455,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue > alpha)
             alpha = std::min(bestValue, beta - 1);
 
+        bestValue = std::min(bestValue, beta - 1);
+
         futilityBase = ss->staticEval + 200;
     }
 
