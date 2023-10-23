@@ -1029,7 +1029,15 @@ moves_loop:  // When in check, search starts here
                 && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
             {
-                Value singularBeta  = ttValue - (64 + 57 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta = ttValue - depth * 12;
+                ss->excludedMove = move;
+                value =
+                  qsearch<NonPV>(pos, ss, singularBeta - 1, singularBeta);
+                ss->excludedMove = MOVE_NONE;
+
+                if (value < singularBeta)
+                {
+                singularBeta  = ttValue - (64 + 57 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = (depth - 1) / 2;
 
                 ss->excludedMove = move;
@@ -1048,6 +1056,7 @@ moves_loop:  // When in check, search starts here
                         extension = 2;
                         depth += depth < 15;
                     }
+                }
                 }
 
                 // Multi-cut pruning
@@ -1150,7 +1159,7 @@ moves_loop:  // When in check, search starts here
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
             // beyond the first move depth. This may lead to hidden double extensions.
-          Depth d = std::clamp(newDepth - r, int(!capture && ss->staticEval >= alpha - 81 * depth), newDepth + 1);
+            Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
@@ -1392,6 +1401,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     bestMove           = MOVE_NONE;
     ss->inCheck        = pos.checkers();
     moveCount          = 0;
+    (ss + 1)->excludedMove = MOVE_NONE;
 
     // Step 2. Check for an immediate draw or maximum ply reached
     if (pos.is_draw(ss->ply) || ss->ply >= MAX_PLY)
@@ -1405,6 +1415,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     ttDepth = ss->inCheck || depth >= DEPTH_QS_CHECKS ? DEPTH_QS_CHECKS : DEPTH_QS_NO_CHECKS;
 
     // Step 3. Transposition table lookup
+    Move excludedMove = ss->excludedMove;
     posKey  = pos.key();
     tte     = TT.probe(posKey, ss->ttHit);
     ttValue = ss->ttHit ? value_from_tt(tte->value(), ss->ply, pos.rule50_count()) : VALUE_NONE;
@@ -1412,7 +1423,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     pvHit   = ss->ttHit && tte->is_pv();
 
     // At non-PV nodes we check for an early TT cutoff
-    if (!PvNode && tte->depth() >= ttDepth
+    if (!PvNode && !excludedMove && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
@@ -1420,6 +1431,13 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
         bestValue = futilityBase = -VALUE_INFINITE;
+    else if (excludedMove)
+    {
+        // Providing the hint that this node's accumulator will be used often brings significant Elo gain (~13 Elo)
+        Eval::NNUE::hint_common_parent_position(pos);
+        bestValue = -VALUE_INFINITE;
+        futilityBase = std::min(ss->staticEval, alpha) + 200;
+    }
     else
     {
         if (ss->ttHit)
@@ -1472,6 +1490,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     while ((move = mp.next_move()) != MOVE_NONE)
     {
         assert(is_ok(move));
+
+        if (move == excludedMove)
+            continue;
 
         // Check for legality
         if (!pos.legal(move))
@@ -1584,6 +1605,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     }
 
     // Save gathered info in transposition table
+    if (!excludedMove)
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove, ss->staticEval);
 
