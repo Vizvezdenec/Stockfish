@@ -1060,7 +1060,11 @@ moves_loop:  // When in check, search starts here
 
                 // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
                 else if (ttValue >= beta)
+                {
                     extension = -2 - !PvNode;
+                    if (depth + extension < tte->depth() && !PvNode)
+                        return ttValue;
+                }
 
                 // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
                 else if (cutNode)
@@ -1439,7 +1443,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
               (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta + 30)
+        if (bestValue >= beta)
         {
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
@@ -1449,9 +1453,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         }
 
         if (bestValue > alpha)
-            alpha = std::min(bestValue, beta - 1);
-
-        bestValue = std::min(bestValue, beta - 1);
+            alpha = bestValue;
 
         futilityBase = ss->staticEval + 200;
     }
