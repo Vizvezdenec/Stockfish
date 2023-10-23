@@ -185,12 +185,12 @@ void MovePicker::score() {
                          + (*continuationHistory[1])[pc][to] 
                          + (*continuationHistory[2])[pc][to] / 4 
                          + (*continuationHistory[3])[pc][to]
-                         + (*continuationHistory[5])[pc][to]) * pos.count<PAWN>() / 16;
+                         + (*continuationHistory[5])[pc][to]) * pos.count<ALL_PIECES>() / 32;
             m.value += (2 * (*continuationHistory1[0])[pc][to] 
                          + (*continuationHistory1[1])[pc][to] 
                          + (*continuationHistory1[2])[pc][to] / 4 
                          + (*continuationHistory1[3])[pc][to]
-                         + (*continuationHistory1[5])[pc][to]) * (16 - pos.count<PAWN>()) / 16;
+                         + (*continuationHistory1[5])[pc][to]) * (32 - pos.count<ALL_PIECES>()) / 32;
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;

@@ -1000,10 +1000,10 @@ moves_loop:  // When in check, search starts here
             {
                 int history = (((*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]) * pos.count<PAWN>()
+                             + (*contHist[3])[movedPiece][to_sq(move)]) * pos.count<ALL_PIECES>()
                              + ((*contHist1[0])[movedPiece][to_sq(move)]
                              + (*contHist1[1])[movedPiece][to_sq(move)]
-                             + (*contHist1[3])[movedPiece][to_sq(move)]) * (16 - pos.count<PAWN>())) / 16;
+                             + (*contHist1[3])[movedPiece][to_sq(move)]) * (32 - pos.count<ALL_PIECES>())) / 32;
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3232 * depth)
@@ -1092,8 +1092,8 @@ moves_loop:  // When in check, search starts here
 
             // Quiet ttMove extensions (~1 Elo)
             else if (PvNode && move == ttMove && move == ss->killers[0]
-                     && (((*contHist[0])[movedPiece][to_sq(move)] * pos.count<PAWN>() + 
-                         (*contHist1[0])[movedPiece][to_sq(move)] * (16 - pos.count<PAWN>())) / 16 >= 4194))
+                     && (((*contHist[0])[movedPiece][to_sq(move)] * pos.count<ALL_PIECES>() + 
+                         (*contHist1[0])[movedPiece][to_sq(move)] * (32 - pos.count<ALL_PIECES>())) / 32 >= 4194))
                 extension = 1;
         }
 
@@ -1153,10 +1153,10 @@ moves_loop:  // When in check, search starts here
         ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
                       + (((*contHist[0])[movedPiece][to_sq(move)]
                              + (*contHist[1])[movedPiece][to_sq(move)]
-                             + (*contHist[3])[movedPiece][to_sq(move)]) * pos.count<PAWN>()
+                             + (*contHist[3])[movedPiece][to_sq(move)]) * pos.count<ALL_PIECES>()
                              + ((*contHist1[0])[movedPiece][to_sq(move)]
                              + (*contHist1[1])[movedPiece][to_sq(move)]
-                             + (*contHist1[3])[movedPiece][to_sq(move)]) * (16 - pos.count<PAWN>())) / 16 - 3848;
+                             + (*contHist1[3])[movedPiece][to_sq(move)]) * (32 - pos.count<ALL_PIECES>())) / 32 - 3848;
 
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
         r -= ss->statScore / (10216 + 3855 * (depth > 5 && depth < 23));
@@ -1551,10 +1551,10 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             // Continuation history based pruning (~3 Elo)
             if (!capture 
-                && ((*contHist[0])[pos.moved_piece(move)][to_sq(move)] * pos.count<PAWN>() + 
-                         (*contHist1[0])[pos.moved_piece(move)][to_sq(move)] * (16 - pos.count<PAWN>())) / 16 < 0
-                && ((*contHist[1])[pos.moved_piece(move)][to_sq(move)] * pos.count<PAWN>() + 
-                         (*contHist1[1])[pos.moved_piece(move)][to_sq(move)] * (16 - pos.count<PAWN>())) / 16 < 0)
+                && ((*contHist[0])[pos.moved_piece(move)][to_sq(move)] * pos.count<ALL_PIECES>() + 
+                         (*contHist1[0])[pos.moved_piece(move)][to_sq(move)] * (32 - pos.count<ALL_PIECES>())) / 32 < 0
+                && ((*contHist[1])[pos.moved_piece(move)][to_sq(move)] * pos.count<ALL_PIECES>() + 
+                         (*contHist1[1])[pos.moved_piece(move)][to_sq(move)] * (32 - pos.count<ALL_PIECES>())) / 32 < 0)
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
@@ -1751,8 +1751,8 @@ void update_continuation_histories(const Position& pos, Stack* ss, Piece pc, Squ
             break;
         if (is_ok((ss - i)->currentMove))
         {
-            (*(ss - i)->continuationHistory)[pc][to] << pos.count<PAWN>() * bonus / (1 + 3 * (i == 3)) / 16;
-            (*(ss - i)->continuationHistory1)[pc][to] << (16 - pos.count<PAWN>()) * bonus / (1 + 3 * (i == 3)) / 16;
+            (*(ss - i)->continuationHistory)[pc][to] << pos.count<ALL_PIECES>() * bonus / (1 + 3 * (i == 3)) / 32;
+            (*(ss - i)->continuationHistory1)[pc][to] << (32 - pos.count<ALL_PIECES>()) * bonus / (1 + 3 * (i == 3)) / 32;
         }
     }
 }
