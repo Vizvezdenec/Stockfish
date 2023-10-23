@@ -1060,11 +1060,7 @@ moves_loop:  // When in check, search starts here
 
                 // If the eval of ttMove is greater than beta, we reduce it (negative extension) (~7 Elo)
                 else if (ttValue >= beta)
-                {
                     extension = -2 - !PvNode;
-                    if (depth + extension < tte->depth() && !PvNode)
-                        return ttValue;
-                }
 
                 // If we are on a cutNode, reduce it based on depth (negative extension) (~1 Elo)
                 else if (cutNode)
@@ -1154,7 +1150,7 @@ moves_loop:  // When in check, search starts here
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
             // beyond the first move depth. This may lead to hidden double extensions.
-            Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+          Depth d = std::clamp(newDepth - r, int(!capture && ss->staticEval >= alpha - 81 * depth), newDepth + 1);
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
