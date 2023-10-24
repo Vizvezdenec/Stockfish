@@ -1173,7 +1173,7 @@ moves_loop:  // When in check, search starts here
 
                 if (!capture)
                     thisThread->mainHistory[us][from_to(move)]
-                            << bonus/2;
+                            << bonus/4;
             }
         }
 
