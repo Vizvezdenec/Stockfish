@@ -755,8 +755,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
               : (ss - 4)->staticEval != VALUE_NONE ? ss->staticEval > (ss - 4)->staticEval
                                                    : true;
 
-    eval -= (ss - 1)->statScore / 321;
-
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -772,14 +770,15 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 9
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving)
+               - (ss - 1)->statScore / 321
              >= beta
-        && eval < 29462  // smaller than TB wins
+        && eval >= beta && eval < 29462  // smaller than TB wins
         && !(!ttCapture && ttMove))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17257 && eval >= beta
-        && (eval >= ss->staticEval || !ss->ttHit) && ss->staticEval >= beta - 24 * depth + 281 && !excludedMove
+        && eval >= ss->staticEval && ss->staticEval >= beta - 24 * depth + 281 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
@@ -1171,6 +1170,10 @@ moves_loop:  // When in check, search starts here
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+
+                if (!capture)
+                    thisThread->mainHistory[us][from_to(move)]
+                            << bonus/2;
             }
         }
 
