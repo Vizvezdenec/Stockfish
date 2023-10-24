@@ -755,6 +755,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
               : (ss - 4)->staticEval != VALUE_NONE ? ss->staticEval > (ss - 4)->staticEval
                                                    : true;
 
+    eval -= (ss - 1)->statScore / 321;
+
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -770,9 +772,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 9
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving)
-               - (ss - 1)->statScore / 321
              >= beta
-        && eval >= beta && eval < 29462  // smaller than TB wins
+        && eval < 29462  // smaller than TB wins
         && !(!ttCapture && ttMove))
         return eval;
 
