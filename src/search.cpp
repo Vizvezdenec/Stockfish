@@ -990,7 +990,8 @@ moves_loop:  // When in check, search starts here
                 int history = (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
-                            + thisThread->pawnHistory.get(pos, pos.pawn_key(), move);
+                            + thisThread->pawnHistory.get(pos, pos.pawn_key(), move)
+                            - thisThread->pawnHistory.getr(pos, pos.pawn_key(), move);
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3498 * depth)
@@ -1138,7 +1139,8 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[0])[movedPiece][to_sq(move)]
                       + (*contHist[1])[movedPiece][to_sq(move)]
                       + (*contHist[3])[movedPiece][to_sq(move)]
-                      + thisThread->pawnHistory.get(pos, pos.pawn_key(), move) - 3848;
+                      + thisThread->pawnHistory.get(pos, pos.pawn_key(), move)
+                      - thisThread->pawnHistory.getr(pos, pos.pawn_key(), move) - 3848;
 
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
         r -= ss->statScore / (10216 + 3855 * (depth > 5 && depth < 23));
