@@ -92,7 +92,7 @@ enum StatsType {
 
 class PawnHistory {
     static constexpr int max_size = 512;
-    using pawn_type = Stats<int16_t, 8192, COLOR_NB, max_size, PIECE_TYPE_NB, SQUARE_NB>;
+    using pawn_type = Stats<int16_t, 29952, COLOR_NB, max_size, PIECE_TYPE_NB, SQUARE_NB>;
 
    public:
     auto& get(const Position& pos, Key pawn_key, Move m) {
