@@ -106,6 +106,17 @@ class PawnHistory {
         return entry[pos.side_to_move()][pawn_index][pt][to];
     }
 
+    auto& getr(const Position& pos, Key pawn_key, Move m) {
+        const int pawn_index = pawn_key & (max_size - 1);
+        const int pt         = type_of(pos.moved_piece(m));
+        const int from       = from_sq(m);
+
+        assert(pawn_index >= 0 && pawn_index < max_size);
+        assert(pt >= 0 && pt < PIECE_TYPE_NB);
+        assert(to >= 0 && to < SQUARE_NB);
+        return entry[pos.side_to_move()][pawn_index][pt][from];
+    }
+
     const auto& get(const Position& pos, Key pawn_key, Move m) const {
         const int pawn_index = pawn_key & (max_size - 1);
         const int pt         = type_of(pos.moved_piece(m));
