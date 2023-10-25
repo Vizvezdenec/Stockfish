@@ -643,7 +643,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             else if (!ttCapture)
             {
                 int penalty = -stat_bonus(depth);
-                thisThread->mainHistory[us][from_to(ttMove)] << penalty;
+                thisThread->mainHistory[us][type_of(pos.moved_piece(ttMove))][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
         }
@@ -745,7 +745,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     if (is_ok((ss - 1)->currentMove) && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
-        thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
+        thisThread->mainHistory[~us][type_of(pos.moved_piece((ss-1)->currentMove))][from_to((ss - 1)->currentMove)] << bonus;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -994,7 +994,7 @@ moves_loop:  // When in check, search starts here
                 if (lmrDepth < 6 && history < -3498 * depth)
                     continue;
 
-                history += 2 * thisThread->mainHistory[us][from_to(move)];
+                history += 2 * thisThread->mainHistory[us][type_of(pos.moved_piece(move))][from_to(move)];
 
                 lmrDepth += history / 7815;
                 lmrDepth = std::max(lmrDepth, -2);
@@ -1132,7 +1132,7 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r--;
 
-        ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
+        ss->statScore = 2 * thisThread->mainHistory[us][type_of(pos.moved_piece(move))][from_to(move)]
                       + (*contHist[0])[movedPiece][to_sq(move)]
                       + (*contHist[1])[movedPiece][to_sq(move)]
                       + (*contHist[3])[movedPiece][to_sq(move)] - 3848;
@@ -1320,7 +1320,7 @@ moves_loop:  // When in check, search starts here
                   + ((ss - 1)->moveCount > 11);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
+        thisThread->mainHistory[~us][type_of(pos.moved_piece((ss-1)->currentMove))][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
     }
 
@@ -1675,7 +1675,7 @@ void update_all_stats(const Position& pos,
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -bestMoveBonus;
+            thisThread->mainHistory[us][type_of(pos.moved_piece(quietsSearched[i]))][from_to(quietsSearched[i])] << -bestMoveBonus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
                                           to_sq(quietsSearched[i]), -bestMoveBonus);
         }
@@ -1732,7 +1732,7 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
 
     Color   us         = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
-    thisThread->mainHistory[us][from_to(move)] << bonus;
+    thisThread->mainHistory[us][type_of(pos.moved_piece(move))][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
 
     // Update countermove history
