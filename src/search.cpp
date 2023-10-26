@@ -1150,7 +1150,7 @@ moves_loop:  // When in check, search starts here
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
             // beyond the first move depth. This may lead to hidden double extensions.
-            Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
+            Depth d = std::clamp(newDepth - r, 0, newDepth + 1);
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
@@ -1451,7 +1451,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 200 + 25 * (beta - alpha - 1) / (thisThread->rootDelta - 1);
+        futilityBase = ss->staticEval + 200;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
