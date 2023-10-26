@@ -746,7 +746,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
-        thisThread->mainHistory[~us][from_to(make_move(to_sq((ss - 1)->currentMove), from_sq((ss - 1)->currentMove)))] << -bonus / 4;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -1452,7 +1451,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 200;
+        futilityBase = ss->staticEval + 200 + 100 * (beta - alpha - 1) / (thisThread->rootDelta - 1);
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
