@@ -1177,6 +1177,7 @@ moves_loop:  // When in check, search starts here
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
+                thisThread->pawnHistory.get(pos, pos.pawn_key(), move) << bonus;
             }
         }
 
@@ -1674,6 +1675,8 @@ void update_all_stats(const Position& pos,
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
 
+        thisThread->pawnHistory.get(pos, pos.pawn_key(), bestMove) << quietMoveBonus;
+
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
@@ -1737,7 +1740,6 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
-    thisThread->pawnHistory.get(pos, pos.pawn_key(), move) << bonus;
 
     // Update countermove history
     if (is_ok((ss - 1)->currentMove))
