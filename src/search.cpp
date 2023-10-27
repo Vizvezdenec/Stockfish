@@ -1142,6 +1142,8 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
         r -= ss->statScore / (10216 + 3855 * (depth > 5 && depth < 23));
 
+        int bonus = 0;
+
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         // We use various heuristics for the sons of a node after the first son has
         // been searched. In general, we would like to reduce them, but there are many
@@ -1172,12 +1174,11 @@ moves_loop:  // When in check, search starts here
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
-                int bonus = value <= alpha ? -stat_bonus(newDepth)
+                bonus = value <= alpha ? -stat_bonus(newDepth)
                           : value >= beta  ? stat_bonus(newDepth)
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-                thisThread->pawnHistory.get(pos, pos.pawn_key(), move) << bonus;
             }
         }
 
@@ -1204,6 +1205,8 @@ moves_loop:  // When in check, search starts here
 
         // Step 19. Undo move
         pos.undo_move(move);
+
+        thisThread->pawnHistory.get(pos, pos.pawn_key(), move) << bonus;
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
 
