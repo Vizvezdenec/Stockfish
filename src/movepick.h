@@ -32,7 +32,7 @@
 
 namespace Stockfish {
 
-constexpr int PAWN_HISTORY_SIZE = 512;
+constexpr int PAWN_HISTORY_SIZE = 256;
 
 inline int pawn_structure(const Position& pos) { return pos.pawn_key() & (PAWN_HISTORY_SIZE - 1); }
 
