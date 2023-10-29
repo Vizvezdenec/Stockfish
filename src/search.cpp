@@ -1163,7 +1163,7 @@ moves_loop:  // When in check, search starts here
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
             // beyond the first move depth. This may lead to hidden double extensions.
-            Depth d = std::clamp(newDepth - r, int(!capture || ss->staticEval + PieceValue[pos.captured_piece()] >= alpha), newDepth + 1);
+            Depth d = std::clamp(newDepth - r, 1, newDepth + 1);
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
@@ -1330,7 +1330,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 6) + (PvNode || cutNode) + (bestValue < alpha - 657)
-                  + ((ss - 1)->moveCount > 10);
+                  + ((ss - 1)->moveCount > 10) + (!ss->inCheck && ss->staticEval >= alpha + 500);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
