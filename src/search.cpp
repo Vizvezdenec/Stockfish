@@ -1330,7 +1330,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 6) + (PvNode || cutNode) + (bestValue < alpha - 657)
-                  + ((ss - 1)->moveCount > 10) + (!ss->inCheck && ss->staticEval >= alpha + 500);
+                  + ((ss - 1)->moveCount > 10);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
@@ -1711,7 +1711,11 @@ void update_all_stats(const Position& pos,
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
+    {
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveBonus);
+        if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
+            thisThread->pawnHistory[pawn_structure(pos)][type_of(pos.piece_on(prevSq))][prevSq] << -quietMoveBonus;
+    }
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
