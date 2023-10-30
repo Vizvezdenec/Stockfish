@@ -210,7 +210,7 @@ void MovePicker::score() {
                                        : 0)
                        : 0;
 
-            m.value += 2 * pawnHistory[pawn_structure(pos)][pc][to];
+            m.value += pawnHistory[pawn_structure(pos)][pc][to] * (std::max(pos.rule50_count() - 10, 0) + 32) / 32;
         }
 
         else  // Type == EVASIONS
@@ -221,7 +221,7 @@ void MovePicker::score() {
             else
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
                         + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                        + 2 * pawnHistory[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+                        + pawnHistory[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
         }
 }
 
