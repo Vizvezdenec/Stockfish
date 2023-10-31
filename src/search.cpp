@@ -838,7 +838,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta, - (depth < 0));
 
     // For cutNodes without a ttMove, we decrease depth by 2
     // if current depth >= 8.
@@ -1003,7 +1003,7 @@ moves_loop:  // When in check, search starts here
                 int history = (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
-                            + 4 * thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+                            + thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3645 * depth)
