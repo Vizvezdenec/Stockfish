@@ -838,7 +838,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta, - (depth < 0));
+        return qsearch<PV>(pos, ss, alpha, beta, - (depth < -2));
 
     // For cutNodes without a ttMove, we decrease depth by 2
     // if current depth >= 8.
