@@ -748,7 +748,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                              bonus / 4);
+                                              bonus / 8);
     }
 
     // Set up the improving flag, which is true if current static evaluation is
