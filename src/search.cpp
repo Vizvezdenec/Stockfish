@@ -644,6 +644,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_bonus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)]
+                                   [to_sq(ttMove)] << penalty;
             }
         }
 
@@ -1325,11 +1327,8 @@ moves_loop:  // When in check, search starts here
 
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
-    {
-        if (depth >= 3 || moveCount > 1)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq, quietsSearched, quietCount,
                          capturesSearched, captureCount, depth);
-    }
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1689,8 +1688,6 @@ void update_all_stats(const Position& pos,
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
-        thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
-          << quietMoveBonus;
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1757,6 +1754,8 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
     update_continuation_histories(ss, pos.moved_piece(move), to_sq(move), bonus);
+    thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(move)]
+                                   [to_sq(move)] << bonus;
 
     // Update countermove history
     if (is_ok((ss - 1)->currentMove))
