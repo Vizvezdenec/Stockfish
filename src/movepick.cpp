@@ -210,7 +210,7 @@ void MovePicker::score() {
                                        : 0)
                        : 0;
 
-            m.value += pawnHistory[pawn_structure(pos)][pc][to] * (1 + (pt == PAWN));
+            m.value += pawnHistory[pawn_structure(pos)][pc][to];
         }
 
         else  // Type == EVASIONS
@@ -273,7 +273,7 @@ top:
     case GOOD_CAPTURE :
         if (select<Next>([&]() {
                 // Move losing capture to endBadCaptures to be tried later
-                return pos.see_ge(*cur, Value(-cur->value)) ? true
+                return pos.see_ge(*cur, Value(std::min(0, -cur->value))) ? true
                                                             : (*endBadCaptures++ = *cur, false);
             }))
             return *(cur - 1);
