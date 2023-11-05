@@ -1097,7 +1097,7 @@ moves_loop:  // When in check, search starts here
         newDepth += extension;
         ss->doubleExtensions = (ss - 1)->doubleExtensions + (extension == 2);
 
-        if (thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -3000)
+        if (thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -1000)
             r++;
 
         // Speculative prefetch as early as possible
