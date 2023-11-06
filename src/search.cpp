@@ -1021,7 +1021,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!(move == ss->killers[0] && type_of(movedPiece) == PAWN) && !pos.see_ge(move, Value(-26 * lmrDepth * lmrDepth)))
+                if (type_of(movedPiece) != PAWN && !pos.see_ge(move, Value(-26 * lmrDepth * lmrDepth)))
                     continue;
             }
         }
