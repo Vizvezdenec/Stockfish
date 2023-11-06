@@ -1725,7 +1725,7 @@ void update_all_stats(const Position& pos,
         && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
     else if (prevSq != SQ_NONE && (ss - 1)->currentMove == (ss - 1)->killers[1] && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus / 2);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus / 8);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
