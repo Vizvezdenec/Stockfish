@@ -1006,7 +1006,7 @@ moves_loop:  // When in check, search starts here
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][from_to(move)]
-                             + thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+                         + 2 * thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
 
                 lmrDepth += history / 7836;
                 lmrDepth = std::max(lmrDepth, -1);
