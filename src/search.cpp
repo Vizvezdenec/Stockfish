@@ -1021,7 +1021,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (type_of(movedPiece) != PAWN && !pos.see_ge(move, Value(-26 * lmrDepth * lmrDepth)))
+                if (!pos.see_ge(move, Value(-26 * lmrDepth * lmrDepth)))
                     continue;
             }
         }
@@ -1724,6 +1724,8 @@ void update_all_stats(const Position& pos,
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+    else if (prevSq != SQ_NONE && (ss - 1)->currentMove == (ss - 1)->killers[1] && !pos.captured_piece())
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus / 4);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
