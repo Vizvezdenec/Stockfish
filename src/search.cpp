@@ -1107,9 +1107,6 @@ moves_loop:  // When in check, search starts here
         newDepth += extension;
         ss->doubleExtensions = (ss - 1)->doubleExtensions + (extension == 2);
 
-        if (thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -7000)
-            r++;
-
         // Speculative prefetch as early as possible
         prefetch(TT.first_entry(pos.key_after(move)));
 
@@ -1117,6 +1114,9 @@ moves_loop:  // When in check, search starts here
         ss->currentMove = move;
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
+
+        if (!capture && thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -7000)
+            r++;
 
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
