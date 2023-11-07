@@ -1115,6 +1115,9 @@ moves_loop:  // When in check, search starts here
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
 
+        if (!capture && thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -8000)
+            r++;
+
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
 
@@ -1724,8 +1727,6 @@ void update_all_stats(const Position& pos,
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
-    else if (prevSq != SQ_NONE && (ss - 1)->currentMove == (ss - 1)->killers[1] && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus / 16);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
