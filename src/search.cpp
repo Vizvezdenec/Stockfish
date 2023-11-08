@@ -999,10 +999,10 @@ moves_loop:  // When in check, search starts here
                 int history = (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
-                            + 2 * thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+                            + thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
 
                 // Continuation history based pruning (~2 Elo)
-                if (lmrDepth < 6 && history < -3925 * depth)
+                if (lmrDepth < 6 && history < -3645 * depth)
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][from_to(move)];
@@ -1012,7 +1012,7 @@ moves_loop:  // When in check, search starts here
 
                 // Futility pruning: parent node (~13 Elo)
                 if (!ss->inCheck && lmrDepth < 13
-                    && ss->staticEval + (bestValue < ss->staticEval - 62 ? 123 : 77) + 9
+                    && ss->staticEval + (bestValue < ss->staticEval - 62 ? 123 : 77)
                            + 127 * lmrDepth
                          <= alpha)
                     continue;
@@ -1113,6 +1113,9 @@ moves_loop:  // When in check, search starts here
         ss->currentMove = move;
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
+
+        if (!capture && thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -7000)
+            r++;
 
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
