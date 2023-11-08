@@ -1114,9 +1114,6 @@ moves_loop:  // When in check, search starts here
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
 
-        if (!capture && thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)] < -7000)
-            r++;
-
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
 
