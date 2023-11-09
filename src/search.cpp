@@ -149,7 +149,8 @@ void  update_all_stats(const Position& pos,
                        int             quietCount,
                        Move*           capturesSearched,
                        int             captureCount,
-                       Depth           depth);
+                       Depth           depth,
+                       bool allNode);
 
 // Utility to verify move generation. All the leaf nodes up
 // to the given depth are generated and counted, and the sum is returned.
@@ -1333,7 +1334,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq, quietsSearched, quietCount,
-                         capturesSearched, captureCount, depth);
+                         capturesSearched, captureCount, depth, !(PvNode || cutNode));
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1674,7 +1675,8 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth) {
+                      Depth           depth,
+                      bool allNode) {
 
     Color                  us             = pos.side_to_move();
     Thread*                thisThread     = pos.this_thread();
@@ -1720,10 +1722,9 @@ void update_all_stats(const Position& pos,
     // main killer move in previous ply when it gets refuted.
     if (prevSq != SQ_NONE
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
-            || ((ss - 1)->currentMove == (ss - 1)->killers[0])
-            || ((ss - 1)->currentMove == (ss - 1)->killers[1]))
+            || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus * (1 + allNode));
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
