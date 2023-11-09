@@ -149,8 +149,7 @@ void  update_all_stats(const Position& pos,
                        int             quietCount,
                        Move*           capturesSearched,
                        int             captureCount,
-                       Depth           depth,
-                       bool            allNode);
+                       Depth           depth);
 
 // Utility to verify move generation. All the leaf nodes up
 // to the given depth are generated and counted, and the sum is returned.
@@ -1193,7 +1192,8 @@ moves_loop:  // When in check, search starts here
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
-                int bonus = value <= alpha ? -stat_malus(newDepth)
+                int bonus = value <= alpha - 300 ? -stat_malus(newDepth + 1)
+                          : value <= alpha ? -stat_malus(newDepth)
                           : value >= beta  ? stat_bonus(newDepth)
                                            : 0;
 
@@ -1334,7 +1334,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq, quietsSearched, quietCount,
-                         capturesSearched, captureCount, depth, !(cutNode || PvNode));
+                         capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1675,8 +1675,7 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth,
-                      bool            allNode) {
+                      Depth           depth) {
 
     Color                  us             = pos.side_to_move();
     Thread*                thisThread     = pos.this_thread();
@@ -1687,9 +1686,6 @@ void update_all_stats(const Position& pos,
     int quietMoveBonus = stat_bonus(depth + 1);
     int quietMoveMalus = stat_malus(depth + 1);
 
-        int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
-                                               : stat_malus(depth);  // smaller malus
-
     if (!pos.capture_stage(bestMove))
     {
         int bestMoveBonus = bestValue > beta + 168 ? quietMoveBonus      // larger bonus
@@ -1699,6 +1695,9 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
+
+        int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
+                                               : stat_malus(depth);  // smaller malus
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1720,15 +1719,11 @@ void update_all_stats(const Position& pos,
 
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
-    int mult = 0;
     if (prevSq != SQ_NONE
+        && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
+            || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-    {
-        mult = ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit)
-             + ((ss - 1)->currentMove == (ss - 1)->killers[0])
-             + allNode;
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -moveMalus * mult);
-    }
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
