@@ -911,7 +911,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     Move countermove =
-      prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
+      prevSq != SQ_NONE ? thisThread->counterMoves[priorCapture][pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
                   &thisThread->pawnHistory, countermove, ss->killers);
@@ -1192,8 +1192,7 @@ moves_loop:  // When in check, search starts here
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
-                int bonus = value <= alpha - 570 ? -stat_malus(newDepth + 1)
-                          : value <= alpha ? -stat_malus(newDepth)
+                int bonus = value <= alpha ? -stat_malus(newDepth)
                           : value >= beta  ? stat_bonus(newDepth)
                                            : 0;
 
@@ -1769,7 +1768,7 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     if (is_ok((ss - 1)->currentMove))
     {
         Square prevSq                                          = to_sq((ss - 1)->currentMove);
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[pos.captured_piece()][pos.piece_on(prevSq)][prevSq] = move;
     }
 }
 
