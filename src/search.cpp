@@ -1687,6 +1687,9 @@ void update_all_stats(const Position& pos,
     int quietMoveBonus = stat_bonus(depth + 1);
     int quietMoveMalus = stat_malus(depth + 1);
 
+        int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
+                                               : stat_malus(depth);  // smaller malus
+
     if (!pos.capture_stage(bestMove))
     {
         int bestMoveBonus = bestValue > beta + 168 ? quietMoveBonus      // larger bonus
@@ -1696,9 +1699,6 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
-
-        int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
-                                               : stat_malus(depth);  // smaller malus
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1727,7 +1727,7 @@ void update_all_stats(const Position& pos,
         mult = ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit)
              + ((ss - 1)->currentMove == (ss - 1)->killers[0])
              + allNode;
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus * mult);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -moveMalus * mult);
     }
 
     // Decrease stats for all non-best capture moves
