@@ -1723,7 +1723,8 @@ void update_all_stats(const Position& pos,
         && !pos.captured_piece())
     {
         bonus += ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit)
-               + ((ss - 1)->currentMove == (ss - 1)->killers[0]);
+               + ((ss - 1)->currentMove == (ss - 1)->killers[0])
+               + (depth > 8);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus * bonus);
     }
 
