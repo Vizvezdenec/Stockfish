@@ -1720,7 +1720,8 @@ void update_all_stats(const Position& pos,
     // main killer move in previous ply when it gets refuted.
     if (prevSq != SQ_NONE
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
-            || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
+            || ((ss - 1)->currentMove == (ss - 1)->killers[0])
+            || ((ss - 1)->currentMove == (ss - 1)->killers[1]))
         && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
 
