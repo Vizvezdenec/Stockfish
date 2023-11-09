@@ -1716,13 +1716,16 @@ void update_all_stats(const Position& pos,
         captureHistory[moved_piece][to_sq(bestMove)][captured] << quietMoveBonus;
     }
 
+    int bonus = 0;
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (prevSq != SQ_NONE
-        && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
-            || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus * (1 + bestValue > beta + 700));
+    {
+        bonus += ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit)
+               + ((ss - 1)->currentMove == (ss - 1)->killers[0]);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus * bonus);
+    }
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
