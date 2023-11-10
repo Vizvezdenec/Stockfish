@@ -911,7 +911,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     Move countermove =
-      prevSq != SQ_NONE ? thisThread->counterMoves[priorCapture][pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
+      prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
                   &thisThread->pawnHistory, countermove, ss->killers);
@@ -1144,6 +1144,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
+
+        if (!givesCheck && !ss->inCheck && capture && ss->staticEval + PieceValue[pos.captured_piece()] <= alpha)
+            r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
@@ -1768,7 +1771,7 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     if (is_ok((ss - 1)->currentMove))
     {
         Square prevSq                                          = to_sq((ss - 1)->currentMove);
-        thisThread->counterMoves[pos.captured_piece()][pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 }
 
