@@ -1145,7 +1145,7 @@ moves_loop:  // When in check, search starts here
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
 
-        if (!givesCheck && !ss->inCheck && capture && ss->staticEval + PieceValue[pos.captured_piece()] <= alpha)
+        if (!givesCheck && !ss->inCheck && capture && ss->staticEval + PieceValue[pos.captured_piece()] + 200 <= alpha)
             r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
