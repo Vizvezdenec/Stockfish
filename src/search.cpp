@@ -1135,7 +1135,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (~2 Elo)
         if (PvNode)
-            r -= 1 - (tte->is_pv());
+            r -= 1 - (tte->bound() == BOUND_EXACT);
 
         // Decrease reduction if a quiet ttMove has been singularly extended (~1 Elo)
         if (singularQuietLMR)
