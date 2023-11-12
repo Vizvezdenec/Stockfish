@@ -855,11 +855,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        int probCutCount = 0;
-
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
-        while ((move = mp.next_move()) != MOVE_NONE && probCutCount < 2)
+        while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_stage(move));
@@ -879,11 +877,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                {
-                    probCutCount++;
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
-                }
 
                 pos.undo_move(move);
 
@@ -992,7 +987,10 @@ moves_loop:  // When in check, search starts here
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
                     if (futilityEval < alpha)
+                    {
+                        bestValue = std::max(bestValue, Value(futilityEval - 300));
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
