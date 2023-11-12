@@ -855,9 +855,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         assert(probCutBeta < VALUE_INFINITE);
 
+        int probCutCount = 0;
+
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
-        while ((move = mp.next_move()) != MOVE_NONE)
+        while ((move = mp.next_move()) != MOVE_NONE && probCutCount < 2 + 2 * cutNode)
             if (move != excludedMove && pos.legal(move))
             {
                 assert(pos.capture_stage(move));
@@ -877,8 +879,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
+                    probCutCount++;
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
+                }
 
                 pos.undo_move(move);
 
@@ -1126,7 +1131,7 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Increase reduction for cut nodes (~3 Elo)
-        if (cutNode && ttMove)
+        if (cutNode)
             r += 2;
 
         // Increase reduction if ttMove is a capture (~3 Elo)
