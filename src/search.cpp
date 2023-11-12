@@ -987,10 +987,7 @@ moves_loop:  // When in check, search starts here
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
                     if (futilityEval < alpha)
-                    {
-                        bestValue = std::max(bestValue, Value(futilityEval - 300));
                         continue;
-                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
@@ -1138,7 +1135,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (~2 Elo)
         if (PvNode)
-            r--;
+            r -= 1 + (tte->is_pv());
 
         // Decrease reduction if a quiet ttMove has been singularly extended (~1 Elo)
         if (singularQuietLMR)
