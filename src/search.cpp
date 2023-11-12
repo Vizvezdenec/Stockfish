@@ -1118,7 +1118,7 @@ moves_loop:  // When in check, search starts here
         pos.do_move(move, st, givesCheck);
 
         // Decrease reduction if position is or has been on the PV (~4 Elo)
-        if (ss->ttPv && !likelyFailLow && (cutNode || PvNode || !ttMove))
+        if (ss->ttPv && !likelyFailLow)
             r -= cutNode && tte->depth() >= depth ? 3 : 2;
 
         // Decrease reduction if opponent's move count is high (~1 Elo)
@@ -1126,7 +1126,7 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Increase reduction for cut nodes (~3 Elo)
-        if (cutNode)
+        if (cutNode && ttMove)
             r += 2;
 
         // Increase reduction if ttMove is a capture (~3 Elo)
