@@ -1041,7 +1041,7 @@ moves_loop:  // When in check, search starts here
             // Recursive singular search is avoided.
             if (!rootNode && move == ttMove && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 24) + 2 * (PvNode && tte->is_pv())
-                && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
+                && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && ((tte->bound() & BOUND_LOWER) || ttValue >= beta + 300)
                 && tte->depth() >= depth - 3)
             {
                 Value singularBeta  = ttValue - (64 + 57 * (ss->ttPv && !PvNode)) * depth / 64;
@@ -1058,7 +1058,7 @@ moves_loop:  // When in check, search starts here
                     singularQuietLMR = !ttCapture;
 
                     // Avoid search explosion by limiting the number of double extensions
-                    if (!PvNode && (tte->bound() == BOUND_EXACT || value < singularBeta - 18) && ss->doubleExtensions <= 11)
+                    if (!PvNode && value < singularBeta - 18 && ss->doubleExtensions <= 11)
                     {
                         extension = 2;
                         depth += depth < 15;
