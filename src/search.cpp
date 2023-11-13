@@ -1041,7 +1041,7 @@ moves_loop:  // When in check, search starts here
             // Recursive singular search is avoided.
             if (!rootNode && move == ttMove && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 24) + 2 * (PvNode && tte->is_pv())
-                && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && ((tte->bound() & BOUND_LOWER) || ttValue >= beta + 300)
+                && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
             {
                 Value singularBeta  = ttValue - (64 + 57 * (ss->ttPv && !PvNode)) * depth / 64;
@@ -1209,6 +1209,8 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth by 1 here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
+            if (value > alpha + 110)
+                newDepth++;
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
