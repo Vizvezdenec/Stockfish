@@ -89,8 +89,8 @@ Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
          + (!i && reductionScale > 808);
 }
 
-constexpr int futility_move_count(bool improving, Depth depth) {
-    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
+constexpr int futility_move_count(bool improving, Depth depth, int staticEval) {
+    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2 + std::clamp(staticEval / 128, -2, 2);
 }
 
 // History and stats update bonus, based on depth
@@ -972,7 +972,7 @@ moves_loop:  // When in check, search starts here
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
             if (!moveCountPruning)
-                moveCountPruning = moveCount >= futility_move_count(improving, depth);
+                moveCountPruning = moveCount >= futility_move_count(improving, depth, !ss->inCheck ? ss->staticEval : 0);
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
@@ -1402,7 +1402,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     bool     pvHit, givesCheck, capture;
     int      moveCount;
     Color    us = pos.side_to_move();
-    bool priorCapture = pos.captured_piece();
 
     // Step 1. Initialize node
     if (PvNode)
@@ -1483,7 +1482,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
-    MovePicker mp(pos, ttMove, !priorCapture && depth > DEPTH_QS_RECAPTURES ? 0 : depth, &thisThread->mainHistory, &thisThread->captureHistory,
+    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory, prevSq);
 
     int quietCheckEvasions = 0;
