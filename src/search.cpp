@@ -90,7 +90,7 @@ Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
 }
 
 constexpr int futility_move_count(bool improving, Depth depth, int staticEval) {
-    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2 + std::clamp(staticEval / 128, -2, 2);
+    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2 + std::clamp(staticEval / 256, -1, 1);
 }
 
 // History and stats update bonus, based on depth
