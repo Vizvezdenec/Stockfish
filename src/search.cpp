@@ -1483,7 +1483,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
-    MovePicker mp(pos, ttMove, !priorCapture ? 0 : depth, &thisThread->mainHistory, &thisThread->captureHistory,
+    MovePicker mp(pos, ttMove, !priorCapture && depth > DEPTH_QS_RECAPTURES ? 0 : depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory, prevSq);
 
     int quietCheckEvasions = 0;
