@@ -89,8 +89,8 @@ Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
          + (!i && reductionScale > 808);
 }
 
-constexpr int futility_move_count(bool improving, Depth depth, int staticEval) {
-    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2 + staticEval / 1024;
+constexpr int futility_move_count(bool improving, Depth depth) {
+    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
 }
 
 // History and stats update bonus, based on depth
@@ -972,7 +972,7 @@ moves_loop:  // When in check, search starts here
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
             if (!moveCountPruning)
-                moveCountPruning = moveCount >= futility_move_count(improving, depth, !ss->inCheck ? ss->staticEval : 0);
+                moveCountPruning = moveCount >= futility_move_count(improving, depth);
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
@@ -991,7 +991,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                if (!pos.see_ge(move, Value(-185) * depth))
+                if (!pos.see_ge(move, Value(-165 * depth - 90)))
                     continue;
             }
             else
