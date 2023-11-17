@@ -779,7 +779,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                - (ss - 1)->statScore / 321
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
-        && (!ttMove || ttCapture))
+        && (!ttMove || ttCapture || ttMove == ss->killers[0]))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -991,7 +991,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                if (!pos.see_ge(move, Value(-185 * depth - 90)))
+                if (!pos.see_ge(move, Value(-185) * depth))
                     continue;
             }
             else
