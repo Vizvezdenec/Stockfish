@@ -89,8 +89,8 @@ Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
          + (!i && reductionScale > 808);
 }
 
-constexpr int futility_move_count(bool improving, Depth depth) {
-    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
+constexpr int futility_move_count(bool improving, Depth depth, int staticEval) {
+    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2 + std::clamp(staticEval / 64, -3, 3);
 }
 
 // History and stats update bonus, based on depth
@@ -779,7 +779,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                - (ss - 1)->statScore / 321
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
-        && (!ttMove || ttCapture || ttMove == ss->killers[0] || ttMove == ss->killers[1]))
+        && (!ttMove || ttCapture))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -972,7 +972,7 @@ moves_loop:  // When in check, search starts here
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
             if (!moveCountPruning)
-                moveCountPruning = moveCount >= futility_move_count(improving, depth);
+                moveCountPruning = moveCount >= futility_move_count(improving, depth, !ss->inCheck ? ss->staticEval : 0);
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
