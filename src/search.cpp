@@ -1120,8 +1120,6 @@ moves_loop:  // When in check, search starts here
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
 
-        ss->statScore = 2 * thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
-
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
 
@@ -1162,10 +1160,10 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r = 0;
 
-        ss->statScore += 2 * thisThread->mainHistory[us][from_to(move)]
+        ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
                       + (*contHist[0])[movedPiece][to_sq(move)]
                       + (*contHist[1])[movedPiece][to_sq(move)]
-                      + (*contHist[3])[movedPiece][to_sq(move)] - 3848 + 1200;
+                      + (*contHist[3])[movedPiece][to_sq(move)] - 3848;
 
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
         r -= ss->statScore / (10216 + 3855 * (depth > 5 && depth < 23));
@@ -1483,7 +1481,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
-                                        (ss - 2)->continuationHistory};
+                                        (ss - 2)->continuationHistory,
+                                        nullptr,
+                                        (ss - 4)->continuationHistory};
 
     // Initialize a MovePicker object for the current position, and prepare
     // to search the moves. Because the depth is <= 0 here, only captures,
@@ -1554,8 +1554,10 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 break;
 
             // Continuation history based pruning (~3 Elo)
-            if (!capture && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
-                && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
+            if (!capture && ((*contHist[0])[pos.moved_piece(move)][to_sq(move)]
+                            + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
+                            + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]
+                            + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(move)][to_sq(move)]) < -2500 * (1 - depth))
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
