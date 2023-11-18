@@ -1120,6 +1120,8 @@ moves_loop:  // When in check, search starts here
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
 
+        ss->statScore = 2 * thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
 
@@ -1160,7 +1162,7 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r = 0;
 
-        ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
+        ss->statScore += 2 * thisThread->mainHistory[us][from_to(move)]
                       + (*contHist[0])[movedPiece][to_sq(move)]
                       + (*contHist[1])[movedPiece][to_sq(move)]
                       + (*contHist[3])[movedPiece][to_sq(move)] - 3848;
@@ -1725,7 +1727,6 @@ void update_all_stats(const Position& pos,
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (prevSq != SQ_NONE
-        && bestValue >= beta - 30
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
