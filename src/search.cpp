@@ -1557,7 +1557,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             if (!capture && ((*contHist[0])[pos.moved_piece(move)][to_sq(move)]
                             + (*contHist[1])[pos.moved_piece(move)][to_sq(move)]
                             + (*contHist[3])[pos.moved_piece(move)][to_sq(move)]
-                            + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(move)][to_sq(move)]) < -3000 * depth)
+                            + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(move)][to_sq(move)]) < -3500 * depth)
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
