@@ -991,9 +991,9 @@ moves_loop:  // When in check, search starts here
                 }
 
                 if (!capture
-                    && lmrDepth < 3
-                    && (*contHist[0])[movedPiece][to_sq(move)] < -5000 * depth
-                    && (*contHist[1])[movedPiece][to_sq(move)] < -5000 * depth)
+                    && lmrDepth < 4
+                    && (*contHist[0])[movedPiece][to_sq(move)] < -4000 * depth
+                    && (*contHist[1])[movedPiece][to_sq(move)] < -4000 * depth)
 
                 // SEE based pruning for captures and checks (~11 Elo)
                 if (!pos.see_ge(move, Value(-185) * depth))
