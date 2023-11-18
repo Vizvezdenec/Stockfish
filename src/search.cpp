@@ -990,11 +990,6 @@ moves_loop:  // When in check, search starts here
                         continue;
                 }
 
-                if (!capture
-                    && lmrDepth < 4
-                    && (*contHist[0])[movedPiece][to_sq(move)] < -4000 * depth
-                    && (*contHist[1])[movedPiece][to_sq(move)] < -4000 * depth)
-
                 // SEE based pruning for captures and checks (~11 Elo)
                 if (!pos.see_ge(move, Value(-185) * depth))
                     continue;
@@ -1365,7 +1360,7 @@ moves_loop:  // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree. (~7 Elo)
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3);
+        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3 && cutNode);
 
     // Write gathered information in transposition table
     if (!excludedMove && !(rootNode && thisThread->pvIdx))
