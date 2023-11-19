@@ -877,7 +877,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4 + (value > probCutBeta + 50),
+                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
 
                 pos.undo_move(move);
@@ -1727,6 +1727,7 @@ void update_all_stats(const Position& pos,
     // Extra penalty for a quiet early move that was not a TT move or
     // main killer move in previous ply when it gets refuted.
     if (prevSq != SQ_NONE
+        && bestValue >= beta + 5
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
