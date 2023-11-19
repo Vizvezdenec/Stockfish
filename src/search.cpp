@@ -876,8 +876,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta && depth >= 10)
-                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
+                if (value >= probCutBeta)
+                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4 + (value > probCutBeta + 50),
                                            !cutNode);
 
                 pos.undo_move(move);
