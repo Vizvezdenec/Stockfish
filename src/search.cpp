@@ -877,7 +877,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4 + (value > probCutBeta + 800),
+                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
 
                 pos.undo_move(move);
@@ -1352,6 +1352,9 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
+        if (PvNode && ttMove && !pos.capture(ttMove) && (tte->bound() & BOUND_LOWER))
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove),
+                                      -stat_bonus(depth));
     }
 
     if (PvNode)
