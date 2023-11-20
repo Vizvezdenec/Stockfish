@@ -1300,7 +1300,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove;
+                    ss->cutoffCnt += 1 + !ttMove * (1 + ss->ttHit);
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1352,9 +1352,6 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
-        if (PvNode && ttMove && !pos.capture(ttMove) && (tte->bound() & BOUND_LOWER) && tte->depth() >= depth)
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove),
-                                      -stat_bonus(depth));
     }
 
     if (PvNode)
