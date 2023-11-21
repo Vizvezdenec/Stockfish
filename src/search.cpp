@@ -707,6 +707,12 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
+                                        (ss - 2)->continuationHistory,
+                                        (ss - 3)->continuationHistory,
+                                        (ss - 4)->continuationHistory,
+                                        nullptr,
+                                        (ss - 6)->continuationHistory};
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -779,7 +785,12 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                - (ss - 1)->statScore / 321
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
-        && (!ttMove || ttCapture))
+        && (!ttMove || ttCapture ||
+            (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+          + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+          + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)]
+          + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)]
+          + 2 * thisThread->mainHistory[us][from_to(ttMove)] > 50000))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -901,13 +912,6 @@ moves_loop:  // When in check, search starts here
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
-
-    const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
-                                        (ss - 2)->continuationHistory,
-                                        (ss - 3)->continuationHistory,
-                                        (ss - 4)->continuationHistory,
-                                        nullptr,
-                                        (ss - 6)->continuationHistory};
 
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
@@ -1349,9 +1353,6 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
-        if ((PvNode || cutNode) && ttMove && !pos.capture(ttMove) && (tte->bound() & BOUND_LOWER))
-            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove),
-                                      -stat_bonus(depth));
     }
 
     if (PvNode)
