@@ -790,7 +790,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
           + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
           + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)]
           + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)]
-          + 2 * thisThread->mainHistory[us][from_to(ttMove)] > 50000))
+          + 2 * thisThread->mainHistory[us][from_to(ttMove)] > 70000))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
