@@ -1349,6 +1349,9 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
+        if ((PvNode || cutNode) && ttMove && !pos.capture(ttMove) && (tte->bound() & BOUND_LOWER))
+            update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove),
+                                      -stat_bonus(depth));
     }
 
     if (PvNode)
