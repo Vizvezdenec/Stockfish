@@ -707,12 +707,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
-    const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
-                                        (ss - 2)->continuationHistory,
-                                        (ss - 3)->continuationHistory,
-                                        (ss - 4)->continuationHistory,
-                                        nullptr,
-                                        (ss - 6)->continuationHistory};
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -755,7 +749,10 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
+        {
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
+            thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][from_sq((ss-1)->currentMove)] << -bonus / 4;
+        }
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -785,12 +782,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                - (ss - 1)->statScore / 321
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
-        && (!ttMove || ttCapture ||
-            (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-          + (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-          + (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)]
-          + thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)]
-          + 2 * thisThread->mainHistory[us][from_to(ttMove)] > 10000))
+        && (!ttMove || ttCapture))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
@@ -912,6 +904,13 @@ moves_loop:  // When in check, search starts here
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
+
+    const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
+                                        (ss - 2)->continuationHistory,
+                                        (ss - 3)->continuationHistory,
+                                        (ss - 4)->continuationHistory,
+                                        nullptr,
+                                        (ss - 6)->continuationHistory};
 
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
