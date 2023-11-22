@@ -751,7 +751,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
         {
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
-            thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][from_sq((ss-1)->currentMove)] << -bonus / 8;
+            thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][from_sq((ss-1)->currentMove)] << -bonus / 16;
         }
     }
 
