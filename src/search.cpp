@@ -1159,7 +1159,7 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r = 0;
 
-        if ((ss+1)->cutoffCnt == 0 && (ss+2)->cutoffCnt > 17)
+        if ((ss+1)->cutoffCnt == 0 && (ss+2)->cutoffCnt > 6)
             r--;
 
         ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
