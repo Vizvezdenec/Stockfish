@@ -1349,6 +1349,7 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
+        thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][prevSq] << stat_bonus(depth) * bonus / 4;
     }
 
     if (PvNode)
