@@ -615,6 +615,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
               : ss->ttHit ? tte->move()
                           : MOVE_NONE;
     ttCapture = ttMove && pos.capture_stage(ttMove);
+    ss->pawnStructure = pawn_structure(pos);
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
@@ -748,8 +749,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
-        if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
-            thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
+        if (type_of((ss - 1)->currentMove) != PROMOTION)
+            thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][prevSq] << bonus / 4;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -998,7 +999,7 @@ moves_loop:  // When in check, search starts here
                 int history = (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
-                            + thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+                            + thisThread->pawnHistory[ss->pawnStructure][movedPiece][to_sq(move)];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3645 * depth)
@@ -1149,9 +1150,6 @@ moves_loop:  // When in check, search starts here
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
-
-        if ((ss+1)->cutoffCnt == 0 && (ss+2)->cutoffCnt > 19)
-            r--;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
@@ -1700,7 +1698,7 @@ void update_all_stats(const Position& pos,
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
-        thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
+        thisThread->pawnHistory[ss->pawnStructure][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
 
         int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
@@ -1709,7 +1707,7 @@ void update_all_stats(const Position& pos,
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
+            thisThread->pawnHistory[ss->pawnStructure][pos.moved_piece(quietsSearched[i])]
                                    [to_sq(quietsSearched[i])]
               << -moveMalus;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -moveMalus;
