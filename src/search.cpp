@@ -752,8 +752,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
         if (type_of((ss - 1)->currentMove) != PROMOTION)
         {
-            thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][prevSq] << bonus / 8;
-            thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][from_sq((ss-1)->currentMove)] << -bonus / 8;
+            thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][prevSq] << bonus / 4;
+            thisThread->pawnHistory[(ss-1)->pawnStructure][pos.piece_on(prevSq)][from_sq((ss-1)->currentMove)] << -bonus / 4;
         }
     }
 
@@ -1704,6 +1704,8 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[ss->pawnStructure][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
+        thisThread->pawnHistory[ss->pawnStructure][moved_piece][from_sq(bestMove)]
+          << -quietMoveMalus;
 
         int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
                                                : stat_malus(depth);  // smaller malus
@@ -1714,6 +1716,9 @@ void update_all_stats(const Position& pos,
             thisThread->pawnHistory[ss->pawnStructure][pos.moved_piece(quietsSearched[i])]
                                    [to_sq(quietsSearched[i])]
               << -moveMalus;
+            thisThread->pawnHistory[ss->pawnStructure][pos.moved_piece(quietsSearched[i])]
+                                   [from_sq(quietsSearched[i])]
+              << bestMoveBonus;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -moveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
                                           to_sq(quietsSearched[i]), -moveMalus);
