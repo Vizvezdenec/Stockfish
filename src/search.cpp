@@ -1003,7 +1003,8 @@ moves_loop:  // When in check, search starts here
                 int history = (*contHist[0])[movedPiece][to_sq(move)]
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
-                            + thisThread->pawnHistory[ss->pawnStructure][movedPiece][to_sq(move)];
+                            + thisThread->pawnHistory[ss->pawnStructure][movedPiece][to_sq(move)]
+                            - thisThread->pawnHistory[ss->pawnStructure][movedPiece][from_sq(move)];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3645 * depth)
@@ -1704,8 +1705,6 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[ss->pawnStructure][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
-        thisThread->pawnHistory[ss->pawnStructure][moved_piece][from_sq(bestMove)]
-          << -quietMoveMalus;
 
         int moveMalus = bestValue > beta + 168 ? quietMoveMalus      // larger malus
                                                : stat_malus(depth);  // smaller malus
@@ -1716,9 +1715,6 @@ void update_all_stats(const Position& pos,
             thisThread->pawnHistory[ss->pawnStructure][pos.moved_piece(quietsSearched[i])]
                                    [to_sq(quietsSearched[i])]
               << -moveMalus;
-            thisThread->pawnHistory[ss->pawnStructure][pos.moved_piece(quietsSearched[i])]
-                                   [from_sq(quietsSearched[i])]
-              << bestMoveBonus;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -moveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
                                           to_sq(quietsSearched[i]), -moveMalus);
