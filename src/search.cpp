@@ -1189,7 +1189,7 @@ moves_loop:  // When in check, search starts here
                 if (!PvNode && capture && depth > 3 && d >= newDepth - 2 && value >= probCutBeta)
                 {
                     pos.undo_move(move);
-                    return value;
+                    return probCutBeta;
                 }
                 // Adjust full-depth search based on LMR results - if the result
                 // was good enough search deeper, if it was bad enough search shallower.
