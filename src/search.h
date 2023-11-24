@@ -51,7 +51,6 @@ struct Stack {
     bool            ttHit;
     int             doubleExtensions;
     int             cutoffCnt;
-    int             pawnStructure;
 };
 
 
