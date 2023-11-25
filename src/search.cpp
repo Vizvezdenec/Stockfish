@@ -1186,11 +1186,6 @@ moves_loop:  // When in check, search starts here
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
             {
-                if (!PvNode && capture && depth > 3 && d >= newDepth - 2 && value >= probCutBeta)
-                {
-                    pos.undo_move(move);
-                    return probCutBeta;
-                }
                 // Adjust full-depth search based on LMR results - if the result
                 // was good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch =
@@ -1578,7 +1573,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1);
+        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1 + (PvNode && to_sq(move) == prevSq));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
