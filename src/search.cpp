@@ -1572,7 +1572,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         quietCheckEvasions += !capture && ss->inCheck;
 
         Depth extension = PvNode && move == ttMove && !capture
-                     && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] >= 5000;
+                     && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] >= 0;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
