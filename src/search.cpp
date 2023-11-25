@@ -1573,7 +1573,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1 + (PvNode && to_sq(move) == prevSq));
+        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1 + (PvNode && to_sq(move) == prevSq && move == ttMove));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
