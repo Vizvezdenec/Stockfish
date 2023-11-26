@@ -836,7 +836,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
-        depth -= 2;
+        depth -= 2 + ((ss-1)->moveCount == 1);
 
     probCutBeta = beta + 168 - 70 * improving;
 
@@ -1132,7 +1132,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes (~3 Elo)
         if (cutNode)
-            r += 2 + ((ss-1)->moveCount == 1 + (ss-1)->ttHit);
+            r += 2;
 
         // Increase reduction if ttMove is a capture (~3 Elo)
         if (ttCapture)
