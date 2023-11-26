@@ -1547,7 +1547,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 1 && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 5000)
+            if (quietCheckEvasions > 1 && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0)
                 break;
 
             // Continuation history based pruning (~3 Elo)
