@@ -840,7 +840,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     if (PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue <= alpha
         && !pos.capture(ttMove) && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] < -10000)
-        depth--;
+        depth -= 2;
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
