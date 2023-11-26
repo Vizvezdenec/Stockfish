@@ -646,7 +646,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             {
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
-                update_continuation_histories(ss, pos.moved_piece(ttMove), type_of(ttMove) == CASTLING ? pos.square<KING>(us) : to_sq(ttMove), penalty);
+                update_continuation_histories(ss, pos.moved_piece(ttMove), 
+                type_of(ttMove) == CASTLING ? (file_of(to_sq(ttMove)) > file_of(from_sq(ttMove)) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(ttMove), penalty);
             }
         }
 
@@ -965,7 +967,8 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta, thisThread->rootDelta);
 
-        Square toSq = type_of(move) == CASTLING ? pos.square<KING>(us) : to_sq(move);
+        Square toSq = type_of(move) == CASTLING ? (file_of(to_sq(move)) > file_of(from_sq(move)) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(move);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1509,7 +1512,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         moveCount++;
 
-        Square toSq = type_of(move) == CASTLING ? pos.square<KING>(us) : to_sq(move);
+        Square toSq = type_of(move) == CASTLING ? (file_of(to_sq(move)) > file_of(from_sq(move)) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(move);
 
         // Step 6. Pruning
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
@@ -1701,7 +1705,8 @@ void update_all_stats(const Position& pos,
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
-        Square toSq = type_of(bestMove) == CASTLING ? pos.square<KING>(us) : to_sq(bestMove);
+        Square toSq = type_of(bestMove) == CASTLING ? (file_of(to_sq(bestMove)) > file_of(from_sq(bestMove)) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(bestMove);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][toSq]
           << quietMoveBonus;
 
@@ -1711,7 +1716,8 @@ void update_all_stats(const Position& pos,
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            toSq = type_of(quietsSearched[i]) == CASTLING ? pos.square<KING>(us) : to_sq(quietsSearched[i]);
+            toSq = type_of(quietsSearched[i]) == CASTLING ? (file_of(to_sq(quietsSearched[i])) > file_of(from_sq(quietsSearched[i])) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(quietsSearched[i]);
             thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
                                    [toSq]
               << -moveMalus;
@@ -1773,7 +1779,8 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     Color   us         = pos.side_to_move();
     Thread* thisThread = pos.this_thread();
     thisThread->mainHistory[us][from_to(move)] << bonus;
-    Square toSq = type_of(move) == CASTLING ? pos.square<KING>(us) : to_sq(move);
+    Square toSq = type_of(move) == CASTLING ? (file_of(to_sq(move)) > file_of(from_sq(move)) ? (us == WHITE ? SQ_G1 : SQ_G8) 
+                : (us == WHITE ? SQ_C1 : SQ_C8)) : to_sq(move);
     update_continuation_histories(ss, pos.moved_piece(move), toSq, bonus);
 
     // Update countermove history
