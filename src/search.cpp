@@ -1537,7 +1537,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBase > alpha && ss->staticEval <= alpha - 100 && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
                     continue;
@@ -1569,7 +1569,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
           &thisThread
              ->continuationHistory[ss->inCheck][capture][pos.moved_piece(move)][to_sq(move)];
 
-        quietCheckEvasions += !capture && ss->inCheck;
+        quietCheckEvasions += (!capture && ss->inCheck) * (1 + (move == ttMove));
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
