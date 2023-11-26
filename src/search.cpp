@@ -1132,7 +1132,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes (~3 Elo)
         if (cutNode)
-            r += 2;
+            r += 2 + ((ss-1)->moveCount == 1 + (ss-1)->ttHit);
 
         // Increase reduction if ttMove is a capture (~3 Elo)
         if (ttCapture)
@@ -1547,7 +1547,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             // We prune after the second quiet check evasion move, where being 'in check' is
             // implicitly checked through the counter, and being a 'quiet move' apart from
             // being a tt move is assumed after an increment because captures are pushed ahead.
-            if (quietCheckEvasions > 1 && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0)
+            if (quietCheckEvasions > 1)
                 break;
 
             // Continuation history based pruning (~3 Elo)
