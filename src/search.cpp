@@ -844,7 +844,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
            (*contHist[1])[pos.moved_piece(ttMove)][to_sq(ttMove)] +
            (*contHist[3])[pos.moved_piece(ttMove)][to_sq(ttMove)] +
            2 * thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)] +
-           2 * thisThread->mainHistory[us][from_to(ttMove)] < -20000)
+           2 * thisThread->mainHistory[us][from_to(ttMove)] < -40000)
         depth--;
 
     if (depth <= 0)
