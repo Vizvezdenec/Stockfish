@@ -132,6 +132,7 @@ class Position {
     bool  gives_check(Move m) const;
     Piece moved_piece(Move m) const;
     Piece captured_piece() const;
+    Square real_to_sq(Move m, Color stm) const;
 
     // Doing and undoing moves
     void do_move(Move m, StateInfo& newSt);
@@ -325,6 +326,12 @@ inline bool Position::capture_stage(Move m) const {
 }
 
 inline Piece Position::captured_piece() const { return st->capturedPiece; }
+
+inline Square Position::real_to_sq(Move m, Color stm) const {
+    assert(is_ok(m));
+    return type_of(m) != CASTLING ? to_sq(m) :
+           ((file_of(to_sq(m)) > file_of(from_sq(m))) ? (stm == WHITE ? SQ_G1 : SQ_G8) : (stm == WHITE ? SQ_C1 : SQ_C8));
+}
 
 inline Thread* Position::this_thread() const { return thisThread; }
 

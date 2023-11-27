@@ -168,8 +168,8 @@ void MovePicker::score() {
     for (auto& m : *this)
         if constexpr (Type == CAPTURES)
             m.value =
-              (7 * int(PieceValue[pos.piece_on(to_sq(m))])
-               + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))])
+              (7 * int(PieceValue[pos.piece_on(pos.real_to_sq(m, pos.side_to_move()))])
+               + (*captureHistory)[pos.moved_piece(m)][pos.real_to_sq(m, pos.side_to_move())][type_of(pos.piece_on(pos.real_to_sq(m, pos.side_to_move())))])
               / 16;
 
         else if constexpr (Type == QUIETS)
@@ -177,7 +177,7 @@ void MovePicker::score() {
             Piece     pc   = pos.moved_piece(m);
             PieceType pt   = type_of(pos.moved_piece(m));
             Square    from = from_sq(m);
-            Square    to   = to_sq(m);
+            Square    to   = pos.real_to_sq(m, pos.side_to_move());
 
             // histories
             m.value = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
@@ -213,12 +213,12 @@ void MovePicker::score() {
         else  // Type == EVASIONS
         {
             if (pos.capture_stage(m))
-                m.value = PieceValue[pos.piece_on(to_sq(m))] - Value(type_of(pos.moved_piece(m)))
+                m.value = PieceValue[pos.piece_on(pos.real_to_sq(m, pos.side_to_move()))] - Value(type_of(pos.moved_piece(m)))
                         + (1 << 28);
             else
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
-                        + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                        + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+                        + (*continuationHistory[0])[pos.moved_piece(m)][pos.real_to_sq(m, pos.side_to_move())]
+                        + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][pos.real_to_sq(m, pos.side_to_move())];
         }
 }
 
@@ -341,7 +341,7 @@ top:
 
     case QCAPTURE :
         if (select<Next>(
-              [&]() { return depth > DEPTH_QS_RECAPTURES || to_sq(*cur) == recaptureSquare; }))
+              [&]() { return depth > DEPTH_QS_RECAPTURES || pos.real_to_sq(*cur, pos.side_to_move()) == recaptureSquare; }))
             return *(cur - 1);
 
         // If we did not find any move and we do not try checks, we have finished
