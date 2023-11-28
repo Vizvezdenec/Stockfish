@@ -898,7 +898,7 @@ moves_loop:  // When in check, search starts here
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 416;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 4 && ttValue >= probCutBeta
+        && tte->depth() >= depth - 5 && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
 
@@ -981,12 +981,10 @@ moves_loop:  // When in check, search starts here
                 // Futility pruning for captures (~2 Elo)
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
-                    Piece capturedPiece = type_of(move) == EN_PASSANT ? W_PAWN : pos.piece_on(to_sq(move));
+                    Piece capturedPiece = pos.piece_on(to_sq(move));
                     int   futilityEval =
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
-                    if (type_of(move) == PROMOTION)
-                        futilityEval += PieceValue[promotion_type(move)] - PawnValue;
                     if (futilityEval < alpha)
                         continue;
                 }
