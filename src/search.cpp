@@ -836,7 +836,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
-        depth -= 2 + 2 * (tte->is_pv() && tte->depth() >= depth - 3);
+        depth -= 2;
 
     probCutBeta = beta + 168 - 70 * improving;
 
@@ -981,10 +981,12 @@ moves_loop:  // When in check, search starts here
                 // Futility pruning for captures (~2 Elo)
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
-                    Piece capturedPiece = pos.piece_on(to_sq(move));
+                    Piece capturedPiece = type_of(move) == EN_PASSANT ? W_PAWN : pos.piece_on(to_sq(move));
                     int   futilityEval =
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
+                    if (type_of(move) == PROMOTION)
+                        futilityEval += PieceValue[promotion_type(move)] - PawnValue;
                     if (futilityEval < alpha)
                         continue;
                 }
