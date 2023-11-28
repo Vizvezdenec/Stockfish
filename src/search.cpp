@@ -638,7 +638,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
                 if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                    update_continuation_histories(ss - 1, pos.moved_piece((ss-1)->currentMove), prevSq,
                                                   -stat_malus(depth + 1));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
@@ -748,8 +748,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
-        if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
-            thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
+        if (type_of(pos.moved_piece((ss-1)->currentMove)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
+            thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece((ss-1)->currentMove)][prevSq] << bonus / 4;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -910,7 +910,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     Move countermove =
-      prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
+      prevSq != SQ_NONE ? thisThread->counterMoves[pos.moved_piece((ss-1)->currentMove)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
                   &thisThread->pawnHistory, countermove, ss->killers);
@@ -981,7 +981,7 @@ moves_loop:  // When in check, search starts here
                 // Futility pruning for captures (~2 Elo)
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
-                    Piece capturedPiece = type_of(move) != EN_PASSANT ? pos.piece_on(to_sq(move)) : W_PAWN;
+                    Piece capturedPiece = pos.piece_on(to_sq(move));
                     int   futilityEval =
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
@@ -1345,7 +1345,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 6) + (PvNode || cutNode) + (bestValue < alpha - 657)
                   + ((ss - 1)->moveCount > 10);
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+        update_continuation_histories(ss - 1, pos.moved_piece((ss-1)->currentMove), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
           << stat_bonus(depth) * bonus / 2;
@@ -1727,7 +1727,7 @@ void update_all_stats(const Position& pos,
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+        update_continuation_histories(ss - 1, pos.moved_piece((ss-1)->currentMove), prevSq, -quietMoveMalus);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
@@ -1773,7 +1773,7 @@ void update_quiet_stats(const Position& pos, Stack* ss, Move move, int bonus) {
     if (is_ok((ss - 1)->currentMove))
     {
         Square prevSq                                          = to_sq((ss - 1)->currentMove);
-        thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] = move;
+        thisThread->counterMoves[pos.moved_piece((ss-1)->currentMove)][prevSq] = move;
     }
 }
 
