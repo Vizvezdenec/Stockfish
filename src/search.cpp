@@ -838,9 +838,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     if (PvNode && !ttMove)
         depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
-    if (PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue <= alpha && tte->depth() >= depth
+    if (PvNode && ttMove && (tte->bound() & BOUND_UPPER) && ttValue <= alpha
         && !pos.capture(ttMove) && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] < -10000)
-        depth -= 2;
+        depth -= 2 + 2 * (tte->depth() >= depth);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
