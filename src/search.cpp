@@ -647,7 +647,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty;
             }
         }
 
