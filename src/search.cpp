@@ -647,6 +647,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty;
             }
         }
 
@@ -1211,9 +1212,6 @@ moves_loop:  // When in check, search starts here
             // Increase reduction for cut nodes without ttMove (~1 Elo)
             if (!ttMove && cutNode)
                 r += 2;
-
-            if (!ttMove && PvNode)
-                r += 4;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
