@@ -707,6 +707,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    Move countercapture = prevSq != SQ_NONE ? thisThread->counterCapture[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -854,7 +855,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, countercapture, probCutBeta - ss->staticEval, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -912,7 +913,7 @@ moves_loop:  // When in check, search starts here
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
+    MovePicker mp(pos, ttMove, countercapture, depth, &thisThread->mainHistory, &captureHistory, contHist,
                   &thisThread->pawnHistory, countermove, ss->killers);
 
     value            = bestValue;
@@ -985,8 +986,6 @@ moves_loop:  // When in check, search starts here
                     int   futilityEval =
                       ss->staticEval + 239 + 291 * lmrDepth + PieceValue[capturedPiece]
                       + captureHistory[movedPiece][to_sq(move)][type_of(capturedPiece)] / 7;
-                    if (type_of(move) == PROMOTION)
-                        futilityEval += PieceValue[promotion_type(move)] - PawnValue;
                     if (futilityEval < alpha)
                         continue;
                 }
@@ -1489,7 +1488,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
+    Move countercapture = prevSq != SQ_NONE ? thisThread->counterCapture[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
+    MovePicker mp(pos, ttMove, countercapture, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory, prevSq);
 
     int quietCheckEvasions = 0;
@@ -1721,6 +1721,8 @@ void update_all_stats(const Position& pos,
         // Increase stats for the best move in case it was a capture move
         captured = type_of(pos.piece_on(to_sq(bestMove)));
         captureHistory[moved_piece][to_sq(bestMove)][captured] << quietMoveBonus;
+        if (is_ok((ss - 1)->currentMove))
+            thisThread->counterCapture[pos.piece_on(prevSq)][prevSq] = bestMove;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or

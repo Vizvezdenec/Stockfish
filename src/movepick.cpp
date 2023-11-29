@@ -33,6 +33,7 @@ namespace {
 enum Stages {
     // generate main search moves
     MAIN_TT,
+    MAIN_COUNTERCAPTURE,
     CAPTURE_INIT,
     GOOD_CAPTURE,
     REFUTATION,
@@ -47,11 +48,13 @@ enum Stages {
 
     // generate probcut moves
     PROBCUT_TT,
+    PROBCUT_COUNTERCAPTURE,
     PROBCUT_INIT,
     PROBCUT,
 
     // generate qsearch moves
     QSEARCH_TT,
+    QSEARCH_COUNTERCAPTURE,
     QCAPTURE_INIT,
     QCAPTURE,
     QCHECK_INIT,
@@ -85,6 +88,7 @@ void partial_insertion_sort(ExtMove* begin, ExtMove* end, int limit) {
 // MovePicker constructor for the main search
 MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
+                       Move                         cc,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
@@ -98,6 +102,7 @@ MovePicker::MovePicker(const Position&              p,
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
+    counterCapture(cc),
     refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}},
     depth(d) {
     assert(d > 0);
@@ -108,6 +113,7 @@ MovePicker::MovePicker(const Position&              p,
 // Constructor for quiescence search
 MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
+                       Move                         cc,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
@@ -120,6 +126,7 @@ MovePicker::MovePicker(const Position&              p,
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
+    counterCapture(cc),
     recaptureSquare(rs),
     depth(d) {
     assert(d <= 0);
@@ -129,10 +136,11 @@ MovePicker::MovePicker(const Position&              p,
 
 // Constructor for ProbCut: we generate captures with SEE greater
 // than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePieceToHistory* cph) :
+MovePicker::MovePicker(const Position& p, Move ttm, Move cc,Value th, const CapturePieceToHistory* cph) :
     pos(p),
     captureHistory(cph),
     ttMove(ttm),
+    counterCapture(cc),
     threshold(th) {
     assert(!pos.checkers());
 
@@ -256,6 +264,14 @@ top:
         ++stage;
         return ttMove;
 
+    case MAIN_COUNTERCAPTURE :
+    case QSEARCH_COUNTERCAPTURE :
+    case PROBCUT_COUNTERCAPTURE :
+        ++stage;
+        if (counterCapture && pos.capture_stage(counterCapture) && pos.pseudo_legal(counterCapture))
+            return counterCapture;
+        [[fallthrough]];
+
     case CAPTURE_INIT :
     case PROBCUT_INIT :
     case QCAPTURE_INIT :
@@ -270,7 +286,7 @@ top:
     case GOOD_CAPTURE :
         if (select<Next>([&]() {
                 // Move losing capture to endBadCaptures to be tried later
-                return pos.see_ge(*cur, Value(-cur->value)) ? true
+                return *cur != counterCapture && pos.see_ge(*cur, Value(-cur->value)) ? true
                                                             : (*endBadCaptures++ = *cur, false);
             }))
             return *(cur - 1);
@@ -323,7 +339,7 @@ top:
         [[fallthrough]];
 
     case BAD_CAPTURE :
-        return select<Next>([]() { return true; });
+        return select<Next>([&]() { return *cur != counterCapture; });
 
     case EVASION_INIT :
         cur      = moves;
