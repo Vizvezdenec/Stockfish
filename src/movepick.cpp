@@ -268,7 +268,8 @@ top:
     case QSEARCH_COUNTERCAPTURE :
     case PROBCUT_COUNTERCAPTURE :
         ++stage;
-        if (counterCapture && pos.capture_stage(counterCapture) && pos.pseudo_legal(counterCapture))
+        if (counterCapture && pos.capture_stage(counterCapture) && pos.pseudo_legal(counterCapture)
+            && (stage != PROBCUT_COUNTERCAPTURE || pos.see_ge(counterCapture, threshold)))
             return counterCapture;
         [[fallthrough]];
 
