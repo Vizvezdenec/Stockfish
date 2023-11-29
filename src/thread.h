@@ -65,6 +65,7 @@ class Thread {
     Value                 rootDelta;
     Value                 rootSimpleEval;
     CounterMoveHistory    counterMoves;
+    CounterCaptureHistory counterCapture;
     ButterflyHistory      mainHistory;
     CapturePieceToHistory captureHistory;
     ContinuationHistory   continuationHistory[2][2];
