@@ -1209,7 +1209,7 @@ moves_loop:  // When in check, search starts here
         else if (!PvNode || moveCount > 1)
         {
             // Increase reduction for cut nodes without ttMove (~1 Elo)
-            if (!ttMove && cutNode)
+            if (!ttMove && (cutNode || PvNode))
                 r += 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here
@@ -1218,7 +1218,7 @@ moves_loop:  // When in check, search starts here
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
         // otherwise let the parent node fail low with value <= alpha and try another move.
-        if (PvNode && (moveCount == 1 || (value > alpha && (rootNode || value < beta + 50 * depth))) )
+        if (PvNode && (moveCount == 1 || value > alpha))
         {
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = MOVE_NONE;
