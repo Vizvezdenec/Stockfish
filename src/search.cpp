@@ -634,8 +634,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-                else if (is_ok((ss - 1)->currentMove))
-                    thisThread->counterCapture[pos.piece_on(prevSq)][prevSq] = ttMove;
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
