@@ -647,23 +647,14 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)][to_sq(ttMove)] << penalty / 4;
             }
         }
 
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-            if (tte->eval() != VALUE_NONE && is_ok((ss - 1)->currentMove) && !(ss - 1)->inCheck && !priorCapture)
-            {
-                ss->staticEval = tte->eval();
-                int bonus = std::clamp(-18 * int((ss - 1)->staticEval + ss->staticEval), -1812, 1812);
-                thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
-                if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
-                thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
-            }
             return ttValue;
-        }
     }
 
     // Step 5. Tablebases probe
