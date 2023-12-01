@@ -1096,7 +1096,7 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
 
             // Quiet ttMove extensions (~1 Elo)
-            else if (PvNode && move == ttMove && move == ss->killers[0]
+            else if (PvNode && move == ttMove && (move == ss->killers[0] || move == ss->killers[1])
                      && (*contHist[0])[movedPiece][to_sq(move)] >= 4194)
                 extension = 1;
 
@@ -1537,7 +1537,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 3 - 50))
+                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
                     continue;
