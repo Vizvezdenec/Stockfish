@@ -912,7 +912,7 @@ moves_loop:  // When in check, search starts here
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
-    MovePicker mp(pos, excludedMove ? MOVE_NONE : ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
+    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
                   &thisThread->pawnHistory, countermove, ss->killers);
 
     value            = bestValue;
@@ -1147,8 +1147,8 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Increase reduction on repetition (~1 Elo)
-        if (move == (ss - 4)->currentMove && pos.has_repeated())
-            r += 2;
+        if ((move == make_move(to_sq((ss-2)->currentMove), from_sq((ss-2)->currentMove))) && pos.has_repeated())
+            r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
