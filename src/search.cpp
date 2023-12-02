@@ -1147,7 +1147,7 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Increase reduction on repetition (~1 Elo)
-        if ((move == make_move(to_sq((ss-2)->currentMove), from_sq((ss-2)->currentMove))) && pos.has_repeated())
+        if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
@@ -1189,7 +1189,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result
                 // was good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 50 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + newDepth && value <= beta;             // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
