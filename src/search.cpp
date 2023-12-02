@@ -532,7 +532,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (PvNode)
         {
             Value v = qsearch<NonPV> (pos, ss, alpha, alpha + 1);
-            if (v <= alpha)
+            if (v <= alpha || v >= beta)
                 return v;
         }
         return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta);
