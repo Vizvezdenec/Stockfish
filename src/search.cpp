@@ -854,7 +854,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, excludedMove ? MOVE_NONE : ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
@@ -1147,8 +1147,8 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Increase reduction on repetition (~1 Elo)
-        if ((move == make_move(to_sq((ss-2)->currentMove), from_sq((ss-2)->currentMove))) && pos.has_repeated())
-            r += 3;
+        if (move == (ss - 4)->currentMove && pos.has_repeated())
+            r += 2;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
