@@ -806,7 +806,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 14)
-                return (nullValue + beta) / 2;
+                return nullValue;
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -886,7 +886,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, ss->staticEval);
-                    return value - (probCutBeta - beta);
+                    return value - (probCutBeta - beta) + 25;
                 }
             }
 
