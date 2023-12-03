@@ -780,7 +780,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return (eval + beta) / 2;
+        return std::max(beta, eval - futility_margin(depth, cutNode && !ss->ttHit, improving) / 2);
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17257 && eval >= beta
@@ -886,7 +886,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, ss->staticEval);
-                    return value - (probCutBeta - beta) + 25;
+                    return value - (probCutBeta - beta);
                 }
             }
 
