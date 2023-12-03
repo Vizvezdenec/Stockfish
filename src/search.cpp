@@ -806,7 +806,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 14)
-                return nullValue;
+                return (nullValue + beta) / 2;
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -854,7 +854,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         assert(probCutBeta < VALUE_INFINITE);
 
-        MovePicker mp(pos, excludedMove ? MOVE_NONE : ttMove, probCutBeta - ss->staticEval, &captureHistory);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
             if (move != excludedMove && pos.legal(move))
