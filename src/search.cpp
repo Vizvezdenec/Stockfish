@@ -909,12 +909,6 @@ moves_loop:  // When in check, search starts here
                                         nullptr,
                                         (ss - 6)->continuationHistory};
 
-    if (ss->inCheck && !PvNode && !ttCapture && ttMove && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 2 && ttValue >= beta + 1000
-        && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] + thisThread->mainHistory[us][from_to(ttMove)] > 20000
-        && abs (ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-        return beta;
-
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
