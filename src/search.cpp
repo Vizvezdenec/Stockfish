@@ -806,7 +806,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 14)
-                return (nullValue + 3 * beta) / 4;
+                return (3 * nullValue + beta) / 4;
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
