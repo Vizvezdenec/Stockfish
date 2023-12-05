@@ -910,8 +910,8 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     if (ss->inCheck && !PvNode && !ttCapture && ttMove && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 3 && ttValue >= beta + 700
-        && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] + thisThread->mainHistory[us][from_to(ttMove)] > 10000
+        && tte->depth() >= depth - 4 && ttValue >= beta + 500
+        && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] + thisThread->mainHistory[us][from_to(ttMove)] > 5000
         && abs (ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return beta;
 
