@@ -806,7 +806,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 14)
-                return (3 * nullValue + beta) / 4;
+                return nullValue;
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -908,6 +908,12 @@ moves_loop:  // When in check, search starts here
                                         (ss - 4)->continuationHistory,
                                         nullptr,
                                         (ss - 6)->continuationHistory};
+
+    if (ss->inCheck && !PvNode && !ttCapture && ttMove && (tte->bound() & BOUND_LOWER)
+        && tte->depth() >= depth - 3 && ttValue >= beta + 700
+        && (*contHist[0])[pos.moved_piece(ttMove)][to_sq(ttMove)] + thisThread->mainHistory[us][from_to(ttMove)] > 10000
+        && abs (ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+        return beta;
 
     Move countermove =
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
