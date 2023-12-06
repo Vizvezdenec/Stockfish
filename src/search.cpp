@@ -900,7 +900,7 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-        return (ttValue - (probCutBeta - beta));
+        return probCutBeta;
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
@@ -1009,12 +1009,16 @@ moves_loop:  // When in check, search starts here
                 lmrDepth += history / 7836;
                 lmrDepth = std::max(lmrDepth, -1);
 
+                int   futilityEval = ss->staticEval + (bestValue < ss->staticEval - 62 ? 123 : 77)
+                           + 127 * lmrDepth;
+
                 // Futility pruning: parent node (~13 Elo)
                 if (!ss->inCheck && lmrDepth < 13
-                    && ss->staticEval + (bestValue < ss->staticEval - 62 ? 123 : 77)
-                           + 127 * lmrDepth
-                         <= alpha)
+                    && futilityEval <= alpha)
+                {
+                    bestValue = std::max(bestValue, Value(futilityEval + alpha) / 2);
                     continue;
+                }
 
                 lmrDepth = std::max(lmrDepth, 0);
 
