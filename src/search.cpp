@@ -1016,7 +1016,7 @@ moves_loop:  // When in check, search starts here
                 if (!ss->inCheck && lmrDepth < 13
                     && futilityEval <= alpha)
                 {
-                    bestValue = std::max(bestValue, Value(futilityEval + alpha) / 2);
+                    bestValue = std::max(bestValue, Value(futilityEval + alpha - 300) / 2);
                     continue;
                 }
 
