@@ -1465,11 +1465,15 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!ss->ttHit)
-                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+            if (!PvNode)
+            {
+                if (!ss->ttHit)
+                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
 
-            return bestValue;
+                return bestValue;
+            }
+            else bestValue = alpha;
         }
 
         if (bestValue > alpha)
@@ -1531,12 +1535,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
-                    continue;
-                }
-
-                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 4))
-                {
-                    bestValue = std::max(bestValue, futilityBase + (alpha - futilityBase) / 4);
                     continue;
                 }
 
