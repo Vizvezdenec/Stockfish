@@ -1534,6 +1534,12 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                     continue;
                 }
 
+                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 2))
+                {
+                    bestValue = std::max(bestValue, futilityBase + (alpha - futilityBase) / 2);
+                    continue;
+                }
+
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
                 if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
