@@ -1613,7 +1613,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
-    return bestValue >= beta ? (3 * bestValue + beta) / 4 : bestValue;
+    return bestValue >= beta ? beta : bestValue;
 }
 
 
