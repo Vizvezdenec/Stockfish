@@ -900,7 +900,7 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-        return std::max(ttValue - (probCutBeta - beta) * 4, beta);
+        return probCutBeta;
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
@@ -1613,7 +1613,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
-    return bestValue;
+    return bestValue >= beta ? (bestValue + beta) / 2 : bestValue;
 }
 
 
