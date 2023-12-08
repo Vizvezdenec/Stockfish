@@ -1534,9 +1534,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                     continue;
                 }
 
-                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 2))
+                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 4))
                 {
-                    bestValue = std::max(bestValue, futilityBase + (alpha - futilityBase) / 2);
+                    bestValue = std::max(bestValue, futilityBase + (alpha - futilityBase) / 4);
                     continue;
                 }
 
