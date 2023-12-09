@@ -1229,7 +1229,7 @@ moves_loop:  // When in check, search starts here
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
 
             if (fhLmr && value <= alpha)
-                update_continuation_histories(ss, movedPiece, to_sq(move), -stat_malus(newDepth));
+                update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
         }
 
         // Step 19. Undo move
