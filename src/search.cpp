@@ -1167,8 +1167,6 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
         r -= ss->statScore / 14200;
 
-        bool fhLmr = false;
-
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         // We use various heuristics for the sons of a node after the first son has
         // been searched. In general, we would like to reduce them, but there are many
@@ -1203,8 +1201,6 @@ moves_loop:  // When in check, search starts here
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
-
-                fhLmr = value >= beta;
             }
         }
 
@@ -1227,9 +1223,6 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = MOVE_NONE;
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
-
-            if (fhLmr && value <= alpha)
-                update_continuation_histories(ss, movedPiece, to_sq(move), -stat_bonus(newDepth));
         }
 
         // Step 19. Undo move
@@ -1538,6 +1531,12 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
+                    continue;
+                }
+
+                if (futilityBase <= alpha && !pos.see_ge(move, alpha - futilityBase))
+                {
+                    bestValue = std::max(bestValue, alpha);
                     continue;
                 }
 
