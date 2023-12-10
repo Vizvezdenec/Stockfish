@@ -90,7 +90,7 @@ Depth reduction(bool i, Depth d, int mn, Value delta, Value rootDelta) {
 }
 
 constexpr int futility_move_count(bool improving, Depth depth, bool inCheck) {
-    return improving ? (3 + depth * depth) : (3 + inCheck + depth * depth) / 2;
+    return improving ? (3 + depth * depth) : (3 + 3 * inCheck + depth * depth) / 2;
 }
 
 // History and stats update bonus, based on depth
