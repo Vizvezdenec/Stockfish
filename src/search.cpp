@@ -528,7 +528,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
-        return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta);
+        return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta, PvNode ? 0 : depth);
 
     // Check if we have an upcoming move that draws by repetition, or
     // if the opponent had an alternative move earlier to this position.
@@ -1462,19 +1462,14 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             ss->staticEval = bestValue =
               (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
 
-        // Stand pat. Return immediately if static value is at least beta for non-Pv nodes
-        // for PvNodes make bestValue between alpha and beta instead
+        // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!PvNode)
-            {
-                if (!ss->ttHit)
-                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+            if (!ss->ttHit)
+                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
 
-                return bestValue;
-            }
-            bestValue = (alpha + beta) / 2;
+            return bestValue;
         }
 
         if (bestValue > alpha)
