@@ -806,7 +806,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 15)
-                return nullValue;
+                return nullValue > eval ? eval : nullValue;
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -1213,9 +1213,6 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth by 1 here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
-
-            if (moveCount > 1 && value <= alpha)
-                update_continuation_histories(ss, movedPiece, to_sq(move), -stat_malus(newDepth));
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
