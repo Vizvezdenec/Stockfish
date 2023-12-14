@@ -335,7 +335,7 @@ top:
         return select<Best>([]() { return true; });
 
     case PROBCUT :
-        return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
+        return select<Next>([&]() { return pos.see_ge(*cur, threshold - 100 * (type_of(pos.moved_piece(*cur)) == KING)); });
 
     case QCAPTURE :
         if (select<Next>([]() { return true; }))
