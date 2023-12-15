@@ -1617,7 +1617,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         return mated_in(ss->ply);  // Plies to mate from the root
     }
 
-    if (abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
+    if (!PvNode && abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
         bestValue = bestValue >= beta ? (bestValue + beta) / 2 : (bestValue + alpha) / 2;
 
     // Save gathered info in transposition table
