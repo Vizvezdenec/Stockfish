@@ -633,7 +633,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
+                {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)]
+                                   [to_sq(ttMove)] << stat_bonus(depth);
+                }
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
@@ -1612,9 +1616,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         return mated_in(ss->ply);  // Plies to mate from the root
     }
-
-    if (abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
-        bestValue = bestValue >= beta ? (3 * bestValue + beta) / 4 : bestValue;
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
