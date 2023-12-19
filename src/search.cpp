@@ -1472,7 +1472,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // At PvNodes set bestValue between alpha and beta instead
         if (bestValue >= beta)
         {
-            if (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY)
+            if (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || bestValue >= beta + 500)
             {
                 if (!ss->ttHit)
                     tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
