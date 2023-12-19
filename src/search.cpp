@@ -1470,16 +1470,18 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         // Stand pat. Return immediately if bestValue is at least beta at non-Pv nodes.
         // At PvNodes set bestValue between alpha and beta instead
-        if (bestValue >= beta && (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY))
+        if (bestValue >= beta)
         {
+            if (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY)
+            {
                 if (!ss->ttHit)
                     tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
                               DEPTH_NONE, MOVE_NONE, ss->staticEval);
 
                 return bestValue;
+            }
+            bestValue = std::min((alpha + beta) / 2, beta - 1);
         }
-
-        bestValue = std::min(bestValue, std::min((alpha + beta) / 2, beta - 1));
 
         if (bestValue > alpha)
             alpha = bestValue;
@@ -1620,7 +1622,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         bestValue = bestValue >= beta ? (3 * bestValue + beta) / 4 : bestValue;
 
     // Save gathered info in transposition table
-    tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
+    tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit || PvNode,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove, ss->staticEval);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
