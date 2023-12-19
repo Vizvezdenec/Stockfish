@@ -782,7 +782,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
              >= beta
         && eval >= beta && eval < 29008  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return cutNode && !ss->ttHit ? (eval + beta) / 2 : !cutNode && ss->ttHit ? (eval + 3 * beta) / 4 : (eval * 3 + beta * 5) / 8;
+        return (eval + beta) / 2;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17496 && eval >= beta
@@ -1155,6 +1155,8 @@ moves_loop:  // When in check, search starts here
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
             r++;
+        else if ((ss + 1)->cutoffCnt < 1)
+            r--;
 
         // Set reduction to 0 for first picked move (ttMove) (~2 Elo)
         // Nullifies all previous reduction adjustments to ttMove and leaves only history to do them
