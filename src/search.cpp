@@ -1072,7 +1072,7 @@ moves_loop:  // When in check, search starts here
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
                 else if (singularBeta >= beta)
-                    return singularBeta;
+                    return (singularBeta + beta) / 2;
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the ttMove on a reduced search,
@@ -1467,9 +1467,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             // In case of null move search, use previous static eval with a different sign
             ss->staticEval = bestValue =
               (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
-
-        bestValue -= 3;
-        ss->staticEval -= 3;
 
         // Stand pat. Return immediately if bestValue is at least beta at non-Pv nodes.
         // At PvNodes set bestValue between alpha and beta instead
