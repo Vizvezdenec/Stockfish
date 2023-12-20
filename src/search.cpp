@@ -1466,7 +1466,10 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         else
             // In case of null move search, use previous static eval with a different sign
             ss->staticEval = bestValue =
-              (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) - 50 : -(ss - 1)->staticEval;
+              (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
+
+        bestValue -= 10;
+        ss->staticEval -= 10;
 
         // Stand pat. Return immediately if bestValue is at least beta at non-Pv nodes.
         // At PvNodes set bestValue between alpha and beta instead
