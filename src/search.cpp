@@ -653,7 +653,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return abs(ttValue) >= VALUE_TB_WIN_IN_MAX_PLY ? ttValue : ttValue >= beta ? (ttValue + beta) / 2 : (ttValue + alpha) / 2;
+            return ttValue >= beta ? (ttValue * 3 + beta) / 4 : ttValue;
     }
 
     // Step 5. Tablebases probe
