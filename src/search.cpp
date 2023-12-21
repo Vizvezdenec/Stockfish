@@ -1480,7 +1480,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
                 return bestValue;
             }
-            bestValue = alpha;
+            bestValue = std::min((alpha + bestValue) / 2, beta - 1);
         }
 
         if (bestValue > alpha)
