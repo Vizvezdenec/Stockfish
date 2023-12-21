@@ -622,7 +622,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
-    if ((!PvNode || beta - alpha == 1) && !excludedMove && tte->depth() > depth
+    if (!PvNode && !excludedMove && tte->depth() > depth
         && ttValue != VALUE_NONE  // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -653,7 +653,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return ttValue;
+            return ttValue >= beta ? (ttValue + beta) / 2 : ttValue;
     }
 
     // Step 5. Tablebases probe
