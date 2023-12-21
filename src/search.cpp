@@ -633,7 +633,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
+                {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(ttMove)]
+                                   [to_sq(ttMove)] << stat_bonus(depth);
+                }
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
@@ -653,7 +657,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return ttValue >= beta ? (ttValue * 3 + beta) / 4 : ttValue;
+            return ttValue;
     }
 
     // Step 5. Tablebases probe
