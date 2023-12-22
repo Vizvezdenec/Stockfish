@@ -653,7 +653,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return ttValue;
+            return ttValue >= beta && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && tte->depth() < depth + 4 ? (ttValue * 3 + beta) / 4 : ttValue;
     }
 
     // Step 5. Tablebases probe
@@ -1072,7 +1072,7 @@ moves_loop:  // When in check, search starts here
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
                 else if (singularBeta >= beta)
-                    return (singularBeta + beta) / 2;
+                    return singularBeta;
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the ttMove on a reduced search,
