@@ -782,7 +782,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
              >= beta
         && eval >= beta && eval < 29008  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return cutNode && !ss->ttHit ? (eval + beta) / 2 : (3 * eval + 5 * beta) / 8;
+        return (eval + beta) / 2;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17496 && eval >= beta
@@ -1471,11 +1471,14 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!ss->ttHit)
-                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
-                          MOVE_NONE, ss->staticEval);
-
-            return bestValue;
+            if (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
+            {
+                if (!ss->ttHit)
+                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
+                              DEPTH_NONE, MOVE_NONE, ss->staticEval);
+                return bestValue;
+            }
+            bestValue = beta - 1;
         }
 
         if (bestValue > alpha)
