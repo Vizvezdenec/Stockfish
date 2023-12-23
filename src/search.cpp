@@ -1445,7 +1445,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     if (!PvNode && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
-        return ttValue;
+            return ttValue >= beta && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY ? (ttValue * 3 + beta) / 4 : ttValue;
 
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
@@ -1471,14 +1471,11 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!PvNode || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
-            {
-                if (!ss->ttHit)
-                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
-                              DEPTH_NONE, MOVE_NONE, ss->staticEval);
-                return bestValue;
-            }
-            bestValue = beta - 1;
+            if (!ss->ttHit)
+                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+                          MOVE_NONE, ss->staticEval);
+
+            return bestValue;
         }
 
         if (bestValue > alpha)
