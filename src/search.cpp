@@ -653,7 +653,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return ttValue;
+            return ttValue >= beta && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY ? (ttValue * 7 + beta) / 8 : ttValue;
     }
 
     // Step 5. Tablebases probe
@@ -1445,7 +1445,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     if (!PvNode && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
-            return ttValue >= beta && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && tte->depth() < 1 ? (ttValue + beta) / 2 : ttValue;
+        return ttValue;
 
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
