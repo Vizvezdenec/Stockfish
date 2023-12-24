@@ -1471,14 +1471,14 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!pvHit || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
+            if (beta - alpha == 1 || abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
             {
                 if (!ss->ttHit)
                     tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER,
                               DEPTH_NONE, MOVE_NONE, ss->staticEval);
                 return bestValue;
             }
-            bestValue = std::min((alpha + beta) / 2, beta - 1);
+            bestValue = (alpha + beta) / 2;
         }
 
         if (bestValue > alpha)
