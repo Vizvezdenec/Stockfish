@@ -771,7 +771,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
-            return value;
+            return (value + alpha) / 2;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -1471,8 +1471,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                bestValue = (7 * bestValue + beta) / 8;
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
