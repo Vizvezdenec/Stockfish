@@ -1072,8 +1072,7 @@ moves_loop:  // When in check, search starts here
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
                 else if (singularBeta >= beta)
-                    return std::abs(std::min(ttValue, value)) < VALUE_TB_WIN_IN_MAX_PLY && 
-                           std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY ? (std::min(ttValue, value) * 3 + beta) / 4 : singularBeta;
+                    return singularBeta;
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the ttMove on a reduced search,
@@ -1472,6 +1471,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
+            if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+                bestValue = (bestValue + beta) / 2;
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
