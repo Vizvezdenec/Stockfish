@@ -737,9 +737,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
-
-        if (eval > ss->staticEval)
-            eval = (3 * eval + ss->staticEval) / 4;
     }
     else
     {
@@ -1475,8 +1472,12 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue >= beta)
         {
             if (!ss->ttHit)
+            {
+                if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+                    bestValue = beta;
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
+            }
 
             return bestValue;
         }
