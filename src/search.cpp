@@ -737,6 +737,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
+
+        if (eval > ss->staticEval)
+            eval = (eval + ss->staticEval) / 2;
     }
     else
     {
@@ -786,7 +789,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17496 && eval >= beta
-        && (ss+1)->cutoffCnt < 50
         && eval >= ss->staticEval && ss->staticEval >= beta - 23 * depth + 304 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
