@@ -754,6 +754,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
     }
 
+    ss->staticEval += thisThread->corrHistory[us][pawn_structure(pos)];
+
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we look at static evaluation at move prior to it
@@ -1368,6 +1370,11 @@ moves_loop:  // When in check, search starts here
                                        : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
 
+    if (!ss->inCheck 
+        && !(tte->bound() == BOUND_UPPER && bestValue <= ss->staticEval)
+        && !(tte->bound() == BOUND_LOWER && bestValue >= ss->staticEval))
+        thisThread->corrHistory[us][pawn_structure(pos)] << std::clamp(int(bestValue - ss->staticEval) / 8, -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
+
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
     return bestValue;
@@ -1472,12 +1479,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue >= beta)
         {
             if (!ss->ttHit)
-            {
-                if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                    bestValue = beta;
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           MOVE_NONE, ss->staticEval);
-            }
 
             return bestValue;
         }
