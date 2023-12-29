@@ -709,6 +709,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     }
 
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
+    Value staticEval = VALUE_NONE;
 
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
@@ -723,14 +724,14 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Providing the hint that this node's accumulator will be used often
         // brings significant Elo gain (~13 Elo).
         Eval::NNUE::hint_common_parent_position(pos);
-        eval = ss->staticEval;
+        staticEval = eval = ss->staticEval;
     }
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        ss->staticEval = eval = tte->eval();
+        staticEval = ss->staticEval = eval = tte->eval();
         if (eval == VALUE_NONE)
-            ss->staticEval = eval = evaluate(pos);
+            staticEval = ss->staticEval = eval = evaluate(pos);
         else if (PvNode)
             Eval::NNUE::hint_common_parent_position(pos);
 
@@ -740,7 +741,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     }
     else
     {
-        ss->staticEval = eval = evaluate(pos) + thisThread->corrHistory[us][corr_structure(pos)] / 8;
+        staticEval = ss->staticEval = eval = evaluate(pos);
         // Save static evaluation into the transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
@@ -753,6 +754,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
     }
+
+    ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
@@ -786,7 +789,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17496 && eval >= beta
-        && eval >= ss->staticEval && ss->staticEval >= beta - 23 * depth + 304 && !excludedMove
+        && eval >= staticEval && ss->staticEval >= beta - 23 * depth + 304 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
@@ -887,7 +890,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 {
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
-                              move, ss->staticEval);
+                              move, staticEval);
                     return value - (probCutBeta - beta);
                 }
             }
@@ -1366,12 +1369,12 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove, ss->staticEval);
+                  depth, bestMove, staticEval);
 
     if (!ss->inCheck 
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(bestValue <= alpha && bestValue >= ss->staticEval))
-        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT / 2, CORR_HISTORY_LIMIT / 2);
+        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
@@ -1452,6 +1455,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttValue;
 
+    Value staticEval = VALUE_NONE;
+
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
         bestValue = futilityBase = -VALUE_INFINITE;
@@ -1470,8 +1475,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         }
         else
             // In case of null move search, use previous static eval with a different sign
-            ss->staticEval = bestValue = Value(thisThread->corrHistory[us][corr_structure(pos)] / 8) +
-              ((ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval);
+            ss->staticEval = bestValue = 
+              (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
 
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
@@ -1485,6 +1490,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
         if (bestValue > alpha)
             alpha = bestValue;
+
+        ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
         futilityBase = ss->staticEval + 182;
     }
@@ -1623,12 +1630,12 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     // Save gathered info in transposition table
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
-              bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove, ss->staticEval);
+              bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove, staticEval);
 
     if (!ss->inCheck 
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(bestValue <= alpha && bestValue >= ss->staticEval))
-        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT / 2, CORR_HISTORY_LIMIT / 2);
+        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
