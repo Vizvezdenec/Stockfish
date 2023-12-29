@@ -745,6 +745,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
+    ss->staticEval += thisThread->corrHistory[us][corr_structure(pos)] / 8;
+
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
     if (is_ok((ss - 1)->currentMove) && !(ss - 1)->inCheck && !priorCapture)
     {
@@ -1367,6 +1369,11 @@ moves_loop:  // When in check, search starts here
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
                   depth, bestMove, ss->staticEval);
+
+    if (!ss->inCheck 
+        && !(bestValue >= beta && bestValue <= ss->staticEval)
+        && !(bestValue <= alpha && bestValue >= ss->staticEval))
+        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT / 4, CORR_HISTORY_LIMIT / 4);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
