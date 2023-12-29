@@ -735,7 +735,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         else if (PvNode)
             Eval::NNUE::hint_common_parent_position(pos);
 
-        ss->staticEval = eval = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+        ss->staticEval = eval = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
@@ -744,7 +744,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     else
     {
         staticEval = ss->staticEval = eval = evaluate(pos);
-        ss->staticEval = eval = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+        ss->staticEval = eval = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
         // Save static evaluation into the transposition table
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, staticEval);
     }
@@ -1375,7 +1375,7 @@ moves_loop:  // When in check, search starts here
     if (!ss->inCheck
         && (!bestMove || !pos.capture(bestMove))
         && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(bestValue <= alpha && bestValue >= ss->staticEval))
+        && !(!bestMove && bestValue >= ss->staticEval))
         thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval) * (16 + depth) / 16, -CORR_HISTORY_LIMIT / 2, CORR_HISTORY_LIMIT / 2);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1470,7 +1470,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             if ((staticEval = ss->staticEval = bestValue = tte->eval()) == VALUE_NONE)
                 staticEval = ss->staticEval = bestValue = evaluate(pos);
 
-            ss->staticEval = bestValue = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+            ss->staticEval = bestValue = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
             // ttValue can be used as a better position evaluation (~13 Elo)
             if (ttValue != VALUE_NONE
@@ -1482,7 +1482,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             // In case of null move search, use previous static eval with a different sign
             staticEval = ss->staticEval = bestValue = 
               (ss - 1)->currentMove != MOVE_NULL ? evaluate(pos) : -(ss - 1)->staticEval;
-            ss->staticEval = bestValue = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+            ss->staticEval = bestValue = ss->staticEval + Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
         }
 
         // Stand pat. Return immediately if static value is at least beta
