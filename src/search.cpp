@@ -1625,6 +1625,11 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove, ss->staticEval);
 
+    if (!ss->inCheck 
+        && !(bestValue >= beta && bestValue <= ss->staticEval)
+        && !(bestValue <= alpha && bestValue >= ss->staticEval))
+        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
+
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
     return bestValue;
