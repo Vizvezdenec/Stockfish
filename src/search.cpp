@@ -1371,8 +1371,8 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, ss->staticEval);
 
     if (!ss->inCheck 
-        && !(tte->bound() == BOUND_UPPER && bestValue <= ss->staticEval)
-        && !(tte->bound() == BOUND_LOWER && bestValue >= ss->staticEval))
+        && !(bestValue >= beta && bestValue <= ss->staticEval)
+        && !(bestValue <= alpha && bestValue >= ss->staticEval))
         thisThread->corrHistory[us][pawn_structure(pos)] << std::clamp(int(bestValue - ss->staticEval) / 8, -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
