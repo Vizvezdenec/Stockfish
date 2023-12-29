@@ -745,8 +745,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         tte->save(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_NONE, MOVE_NONE, eval);
     }
 
-    ss->staticEval += thisThread->corrHistory[us][corr_structure(pos)] / 8;
-
     // Use static evaluation difference to improve quiet move ordering (~4 Elo)
     if (is_ok((ss - 1)->currentMove) && !(ss - 1)->inCheck && !priorCapture)
     {
@@ -755,6 +753,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
     }
+
+    ss->staticEval += thisThread->corrHistory[us][corr_structure(pos)] / 8;
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
