@@ -1373,7 +1373,7 @@ moves_loop:  // When in check, search starts here
     if (!ss->inCheck 
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(bestValue <= alpha && bestValue >= ss->staticEval))
-        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT / 4, CORR_HISTORY_LIMIT / 4);
+        thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval), -CORR_HISTORY_LIMIT, CORR_HISTORY_LIMIT);
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
