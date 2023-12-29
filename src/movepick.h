@@ -35,7 +35,7 @@ namespace Stockfish {
 
 constexpr int PAWN_HISTORY_SIZE = 512;  // has to be a power of 2
 constexpr int CORR_HISTORY_SIZE = 131072;  // has to be a power of 2
-constexpr int CORR_HISTORY_LIMIT = 1024;
+constexpr int CORR_HISTORY_LIMIT = 512;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");

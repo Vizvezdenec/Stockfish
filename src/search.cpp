@@ -755,7 +755,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             thisThread->pawnHistory[pawn_structure(pos)][pos.piece_on(prevSq)][prevSq] << bonus / 4;
     }
 
-    ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+    ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
@@ -1491,7 +1491,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
         if (bestValue > alpha)
             alpha = bestValue;
 
-        ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 16);
+        ss->staticEval += Value(thisThread->corrHistory[us][corr_structure(pos)] / 8);
 
         futilityBase = ss->staticEval + 182;
     }
