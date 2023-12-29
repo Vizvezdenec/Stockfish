@@ -1373,7 +1373,6 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, staticEval);
 
     if (!ss->inCheck
-        && (!bestMove || !pos.capture(bestMove))
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(bestValue <= alpha && bestValue >= ss->staticEval))
         thisThread->corrHistory[us][corr_structure(pos)] << std::clamp(int(bestValue - ss->staticEval) * (16 + depth) / 16, -CORR_HISTORY_LIMIT / 2, CORR_HISTORY_LIMIT / 2);
