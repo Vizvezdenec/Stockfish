@@ -1385,7 +1385,7 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
         thisThread->correctionHistory[us][correction_pawn_structure(pos)] << 
-            std::clamp(int(bestValue - ss->staticEval) * (16 + depth) / 32,
+            std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                        -CORRECTION_HISTORY_LIMIT / 4,
                         CORRECTION_HISTORY_LIMIT / 4);
 
