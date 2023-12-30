@@ -718,6 +718,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving             = false;
+        if (ss->ttHit && (tte->bound() & BOUND_UPPER))
+            eval = ttValue;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -1019,6 +1021,10 @@ moves_loop:  // When in check, search starts here
                     && ss->staticEval + (bestValue < ss->staticEval - 57 ? 124 : 71)
                            + 118 * lmrDepth
                          <= alpha)
+                    continue;
+
+                if (ss->inCheck && lmrDepth < 6 
+                    && eval + 200 + 200 * lmrDepth <= alpha)
                     continue;
 
                 lmrDepth = std::max(lmrDepth, 0);
