@@ -122,7 +122,7 @@ using ContinuationHistory = Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB>
 // PawnHistory is addressed by the pawn structure and a move's [piece][to]
 using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
 
-using PawnKingHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, SQUARE_NB, SQUARE_NB>;
+using PawnKingHistory = Stats<int16_t, 16384, PAWN_HISTORY_SIZE, SQUARE_NB, SQUARE_NB>;
 
 // MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which returns a
