@@ -718,8 +718,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         // Skip early pruning when in check
         ss->staticEval = eval = VALUE_NONE;
         improving             = false;
-        if (ss->ttHit && (tte->bound() & BOUND_UPPER))
-            eval = ttValue;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -920,7 +918,7 @@ moves_loop:  // When in check, search starts here
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
-                  &thisThread->pawnHistory, countermove, ss->killers);
+                  &thisThread->pawnHistory, &thisThread->pawnKingHistory, countermove, ss->killers);
 
     value            = bestValue;
     moveCountPruning = singularQuietLMR = false;
@@ -1006,6 +1004,9 @@ moves_loop:  // When in check, search starts here
                             + (*contHist[1])[movedPiece][to_sq(move)]
                             + (*contHist[3])[movedPiece][to_sq(move)]
                             + thisThread->pawnHistory[pawn_structure(pos)][movedPiece][to_sq(move)];
+                
+                if (type_of(movedPiece) == KING)
+                    history += thisThread->pawnKingHistory[pawn_structure(pos)][pos.square<KING>(~us)][to_sq(move)];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3752 * depth)
@@ -1021,10 +1022,6 @@ moves_loop:  // When in check, search starts here
                     && ss->staticEval + (bestValue < ss->staticEval - 57 ? 124 : 71)
                            + 118 * lmrDepth
                          <= alpha)
-                    continue;
-
-                if (ss->inCheck && lmrDepth < 8
-                    && eval + 140 + 140 * lmrDepth <= alpha)
                     continue;
 
                 lmrDepth = std::max(lmrDepth, 0);
@@ -1502,7 +1499,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // will be generated.
     Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
-                  contHist, &thisThread->pawnHistory);
+                  contHist, &thisThread->pawnHistory, &thisThread->pawnKingHistory);
 
     int quietCheckEvasions = 0;
 
@@ -1729,6 +1726,9 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
+        if (type_of(pos.moved_piece(bestMove)) == KING)
+            thisThread->pawnKingHistory[pawn_structure(pos)][pos.square<KING>(~us)][to_sq(bestMove)]
+                << quietMoveBonus;
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1736,6 +1736,9 @@ void update_all_stats(const Position& pos,
             thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
                                    [to_sq(quietsSearched[i])]
               << -quietMoveMalus;
+            if (type_of(pos.moved_piece(quietsSearched[i])) == KING)
+                thisThread->pawnKingHistory[pawn_structure(pos)][pos.square<KING>(~us)][to_sq(quietsSearched[i])]
+                    << quietMoveBonus;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
                                           to_sq(quietsSearched[i]), -quietMoveMalus);

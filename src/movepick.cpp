@@ -90,6 +90,7 @@ MovePicker::MovePicker(const Position&              p,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
+                       const PawnKingHistory*       pkh,
                        Move                         cm,
                        const Move*                  killers) :
     pos(p),
@@ -97,6 +98,7 @@ MovePicker::MovePicker(const Position&              p,
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
+    pawnKingHistory(pkh),
     ttMove(ttm),
     refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}},
     depth(d) {
@@ -112,12 +114,14 @@ MovePicker::MovePicker(const Position&              p,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
-                       const PawnHistory*           ph) :
+                       const PawnHistory*           ph,
+                       const PawnKingHistory*       pkh) :
     pos(p),
     mainHistory(mh),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
+    pawnKingHistory(pkh),
     ttMove(ttm),
     depth(d) {
     assert(d <= 0);
@@ -180,6 +184,8 @@ void MovePicker::score() {
             // histories
             m.value = 2 * (*mainHistory)[pos.side_to_move()][from_to(m)];
             m.value += 2 * (*pawnHistory)[pawn_structure(pos)][pc][to];
+            if (pt == KING)
+                m.value += (*pawnKingHistory)[pawn_structure(pos)][pos.square<KING>(~pos.side_to_move())][to];
             m.value += 2 * (*continuationHistory[0])[pc][to];
             m.value += (*continuationHistory[1])[pc][to];
             m.value += (*continuationHistory[2])[pc][to] / 4;
@@ -214,9 +220,13 @@ void MovePicker::score() {
                 m.value = PieceValue[pos.piece_on(to_sq(m))] - Value(type_of(pos.moved_piece(m)))
                         + (1 << 28);
             else
+            {
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
                         + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                         + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+                if (type_of(pos.moved_piece(m)) == KING)
+                    m.value += (*pawnKingHistory)[pawn_structure(pos)][pos.square<KING>(~pos.side_to_move())][to_sq(m)];
+            }
         }
 }
 
