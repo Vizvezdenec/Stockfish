@@ -1023,8 +1023,8 @@ moves_loop:  // When in check, search starts here
                          <= alpha)
                     continue;
 
-                if (ss->inCheck && lmrDepth < 4
-                    && eval + 300 + 300 * lmrDepth <= alpha)
+                if (ss->inCheck && lmrDepth < 8
+                    && eval + 140 + 140 * lmrDepth <= alpha)
                     continue;
 
                 lmrDepth = std::max(lmrDepth, 0);
