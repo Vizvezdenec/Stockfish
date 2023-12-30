@@ -1726,9 +1726,13 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
+        bool kingHistUpd = false;
         if (type_of(pos.moved_piece(bestMove)) == KING)
+        {
             thisThread->pawnKingHistory[pawn_structure(pos)][pos.square<KING>(~us)][to_sq(bestMove)]
                 << quietMoveBonus;
+            kingHistUpd = true;
+        }
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
@@ -1736,9 +1740,9 @@ void update_all_stats(const Position& pos,
             thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
                                    [to_sq(quietsSearched[i])]
               << -quietMoveMalus;
-            if (type_of(pos.moved_piece(quietsSearched[i])) == KING)
+            if (kingHistUpd && type_of(pos.moved_piece(quietsSearched[i])) == KING)
                 thisThread->pawnKingHistory[pawn_structure(pos)][pos.square<KING>(~us)][to_sq(quietsSearched[i])]
-                    << quietMoveBonus;
+                    << -quietMoveMalus;
             thisThread->mainHistory[us][from_to(quietsSearched[i])] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
                                           to_sq(quietsSearched[i]), -quietMoveMalus);
