@@ -1021,8 +1021,8 @@ moves_loop:  // When in check, search starts here
                          <= alpha)
                     continue;
 
-                if (ss->inCheck && lmrDepth < 7 && !priorCapture && !(ss-1)->inCheck
-                    && -(ss-1)->staticEval + 200 + 200 * lmrDepth <= alpha)
+                if (ss->inCheck && lmrDepth < 4 && !priorCapture && !(ss-1)->inCheck
+                    && -(ss-1)->staticEval + 400 + 400 * lmrDepth <= alpha)
                     continue;
 
                 lmrDepth = std::max(lmrDepth, 0);
