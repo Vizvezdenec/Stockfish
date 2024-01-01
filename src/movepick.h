@@ -35,7 +35,10 @@ namespace Stockfish {
 
 constexpr int PAWN_HISTORY_SIZE        = 512;    // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 16384;  // has to be a power of 2
-constexpr int CORRECTION_HISTORY_LIMIT = 8192;
+constexpr int CORRECTION_HISTORY_LIMIT = 1024;
+constexpr int PAWN_HISTORY_SIZE2        = 512;    // has to be a power of 2
+constexpr int CORRECTION_HISTORY_SIZE2  = 512;  // has to be a power of 2
+constexpr int CORRECTION_HISTORY_LIMIT2 = 1024;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");
@@ -43,14 +46,23 @@ static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
 static_assert((CORRECTION_HISTORY_SIZE & (CORRECTION_HISTORY_SIZE - 1)) == 0,
               "CORRECTION_HISTORY_SIZE has to be a power of 2");
 
+inline int material_index(const Position& pos)
+{
+    return pos.material_key() & (CORRECTION_HISTORY_SIZE2 - 1);
+}
+
 enum PawnHistoryType {
     Normal,
-    Correction
+    Correction,
+    Pawn2
 };
 
 template<PawnHistoryType T = Normal>
 inline int pawn_structure_index(const Position& pos) {
-    return pos.pawn_key() & ((T == Normal ? PAWN_HISTORY_SIZE : CORRECTION_HISTORY_SIZE) - 1);
+    return pos.pawn_key() & ((T == Normal ? PAWN_HISTORY_SIZE :
+                              T == Pawn2 ?  PAWN_HISTORY_SIZE2 :
+                                            CORRECTION_HISTORY_SIZE) - 1);
+
 }
 
 // StatsEntry stores the stat table value. It is usually a number but could
@@ -138,6 +150,9 @@ using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>
 // CorrectionHistory is addressed by color and pawn structure
 using CorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, CORRECTION_HISTORY_SIZE>;
+
+using CorrectionHistory2 =
+  Stats<int16_t, CORRECTION_HISTORY_LIMIT2, COLOR_NB, PAWN_HISTORY_SIZE2, CORRECTION_HISTORY_SIZE2>;
 
 // MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which returns a

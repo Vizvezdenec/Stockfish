@@ -745,7 +745,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+
+        newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 64;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -759,7 +761,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+
+        newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 64;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1401,9 +1405,18 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 16,
-                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 8);
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+    }
+
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
+        && !(bestValue >= beta && bestValue <= ss->staticEval)
+        && !(!bestMove && bestValue >= ss->staticEval))
+    {
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 16,
+                                -CORRECTION_HISTORY_LIMIT2 / 8, CORRECTION_HISTORY_LIMIT2 / 8);
+        thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] << bonus;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1500,7 +1513,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+
+            newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 64;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1517,7 +1532,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+
+            newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 64;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
