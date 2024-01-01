@@ -745,7 +745,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -759,7 +759,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1401,8 +1401,8 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * std::max(depth, 8) / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 16,
+                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 8);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
@@ -1500,7 +1500,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1517,7 +1517,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 256;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
