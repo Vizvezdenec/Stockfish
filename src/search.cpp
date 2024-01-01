@@ -719,6 +719,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     Value unadjustedStaticEval = VALUE_NONE;
 
+    ss->corrHist = thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)];
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -745,7 +747,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + ss->corrHist / 32
+          - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -759,7 +762,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + ss->corrHist / 32
+          - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -775,11 +779,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         bonus     = bonus > 0 ? 2 * bonus : bonus / 2;
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION)
-        {
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
               << bonus / 4;
-            thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] << bonus / 16;
-        }
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -1405,7 +1406,7 @@ moves_loop:  // When in check, search starts here
         && !(!bestMove && bestValue >= ss->staticEval))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 2);
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
@@ -1490,6 +1491,10 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     Value unadjustedStaticEval = VALUE_NONE;
 
+    Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
+
+    ss->corrHist = thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)];
+
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
         bestValue = futilityBase = -VALUE_INFINITE;
@@ -1503,7 +1508,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+              + ss->corrHist / 32
+              - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1520,7 +1526,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+              + ss->corrHist / 32
+              - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
@@ -1548,7 +1555,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
-    Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory);
 
