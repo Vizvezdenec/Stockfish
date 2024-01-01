@@ -719,8 +719,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     Value unadjustedStaticEval = VALUE_NONE;
 
-    ss->corrHist = thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)];
-
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -747,8 +745,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + ss->corrHist / 32
-          - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32
+          - thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] / 128;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -762,8 +760,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + ss->corrHist / 32
-          - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32
+          - thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] / 128;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1491,10 +1489,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
     Value unadjustedStaticEval = VALUE_NONE;
 
-    Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
-
-    ss->corrHist = thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)];
-
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
         bestValue = futilityBase = -VALUE_INFINITE;
@@ -1508,8 +1502,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + ss->corrHist / 32
-              - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32
+          - thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] / 128;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1526,8 +1520,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + ss->corrHist / 32
-              - (is_ok((ss-1)->currentMove) && type_of(pos.piece_on(prevSq)) != PAWN && type_of((ss - 1)->currentMove) != PROMOTION ? (ss-1)->corrHist / 128 : 0);
+              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32
+          - thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] / 128;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
@@ -1555,6 +1549,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // to search the moves. Because the depth is <= 0 here, only captures,
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
+    Square     prevSq = is_ok((ss - 1)->currentMove) ? to_sq((ss - 1)->currentMove) : SQ_NONE;
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory);
 
