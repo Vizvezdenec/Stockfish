@@ -70,7 +70,6 @@ class Thread {
     ContinuationHistory   continuationHistory[2][2];
     PawnHistory           pawnHistory;
     CorrectionHistory     correctionHistory;
-    CorrectionHistory2    correctionHistory2;
 };
 
 

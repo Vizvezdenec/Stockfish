@@ -71,7 +71,6 @@ void Thread::clear() {
     captureHistory.fill(0);
     pawnHistory.fill(0);
     correctionHistory.fill(0);
-    correctionHistory2.fill(0);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})

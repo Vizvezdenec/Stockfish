@@ -747,8 +747,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
 
-        newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 128;
-
         ss->staticEval = eval = to_static_eval(newEval);
 
         // ttValue can be used as a better position evaluation (~7 Elo)
@@ -762,8 +760,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         Value newEval =
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
-
-        newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 128;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1376,7 +1372,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 6) + (PvNode || cutNode) + ((ss - 1)->statScore < -18782)
-                  + ((ss - 1)->moveCount > 10);
+                  + ((ss - 1)->moveCount > 10) + (bestValue < alpha - 150);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)]
@@ -1408,8 +1404,6 @@ moves_loop:  // When in check, search starts here
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-        bonus /= 4;
-        thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] << bonus;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1508,8 +1502,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
               ss->staticEval
               + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
 
-            newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 128;
-
             ss->staticEval = bestValue = to_static_eval(newEval);
 
             // ttValue can be used as a better position evaluation (~13 Elo)
@@ -1526,8 +1518,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             Value newEval =
               ss->staticEval
               + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
-
-            newEval += thisThread->correctionHistory2[us][pawn_structure_index<Pawn2>(pos)][material_index(pos)] / 128;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
