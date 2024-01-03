@@ -638,7 +638,15 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
+                {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    if (tte->eval() <= ttValue)
+                    {
+                    auto bonus = std::clamp(int(ttValue - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+                    }
+                }
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
