@@ -863,7 +863,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
-        depth -= 2;
+        depth -= 2 + (ss->ttHit && tte->depth() >= depth);
 
     probCutBeta = beta + 163 - 67 * improving;
 
@@ -1401,10 +1401,9 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth,
-                                -CORRECTION_HISTORY_LIMIT, CORRECTION_HISTORY_LIMIT);
-        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] = 
-            std::clamp((thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 15 + bonus) / 16, -CORRECTION_HISTORY_LIMIT, CORRECTION_HISTORY_LIMIT);
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
