@@ -1178,7 +1178,7 @@ moves_loop:  // When in check, search starts here
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
 
-        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] <= -3 * CORRECTION_HISTORY_LIMIT / 4)
+        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] <= -7 * CORRECTION_HISTORY_LIMIT / 8)
             r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
