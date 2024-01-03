@@ -910,12 +910,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 if (value >= probCutBeta)
                 {
-                    Value adjvalue = (value * 3 + beta) / 4;
+                    value = std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? (value * 3 + beta) / 4 : value;
                     // Save ProbCut data into transposition table
-                    tte->save(posKey, value_to_tt(adjvalue, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
+                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, unadjustedStaticEval);
-                    return std::abs(adjvalue) < VALUE_TB_WIN_IN_MAX_PLY ? adjvalue
-                                                                     : value;
+                    return value;
                 }
             }
 
