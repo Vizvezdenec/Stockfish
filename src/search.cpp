@@ -640,9 +640,10 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 if (!ttCapture)
                 {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-                    if (tte->eval() <= ttValue)
+                    Value returnValue = (ttValue * 3 + beta) / 4;
+                    if (tte->eval() <= returnValue)
                     {
-                    auto bonus = std::clamp(int(ttValue - ss->staticEval) * depth / 8,
+                    auto bonus = std::clamp(int(returnValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
                     }
