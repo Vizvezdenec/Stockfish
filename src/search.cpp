@@ -1178,9 +1178,6 @@ moves_loop:  // When in check, search starts here
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
 
-        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] <= -7 * CORRECTION_HISTORY_LIMIT / 8)
-            r++;
-
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
             r++;
@@ -1399,12 +1396,14 @@ moves_loop:  // When in check, search starts here
                                        : BOUND_UPPER,
                   depth, bestMove, unadjustedStaticEval);
 
+    Value bv = bestValue >= beta ? (beta + 3 * bestValue) / 4 : bestValue;
+
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
+        && !(bv >= beta && bv <= ss->staticEval)
+        && !(!bestMove && bv >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+        auto bonus = std::clamp(int(bv - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
