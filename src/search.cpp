@@ -746,7 +746,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         Value newEval =
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
-            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 32768;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -761,7 +761,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         Value newEval =
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
-            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 32768;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1503,7 +1503,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             Value newEval =
               ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
-            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 32768;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1521,7 +1521,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             Value newEval =
               ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
-            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 32768;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
