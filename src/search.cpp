@@ -863,7 +863,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
-        depth -= 2 + 2 * (ss->ttHit && tte->depth() > depth);
+        depth -= 2;
 
     probCutBeta = beta + 163 - 67 * improving;
 
@@ -1177,6 +1177,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
+
+        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] <= -CORRECTION_HISTORY_LIMIT / 2)
+            r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
