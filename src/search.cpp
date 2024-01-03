@@ -638,16 +638,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
-                {
                     update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
-                    Value returnValue = (ttValue * 3 + beta) / 4;
-                    if (tte->eval() <= returnValue)
-                    {
-                    auto bonus = std::clamp(int(returnValue - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                    }
-                }
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
@@ -661,6 +652,12 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
+                if (tte->eval() >= ttValue)
+                    {
+                    auto bonus = std::clamp(int(ttValue - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+                    }
             }
         }
 
