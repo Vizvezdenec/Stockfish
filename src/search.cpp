@@ -745,7 +745,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -759,7 +760,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -910,11 +912,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
                 if (value >= probCutBeta)
                 {
-                    value = std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? (value * 3 + beta) / 4 : value;
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, unadjustedStaticEval);
-                    return value;
+                    return std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? value - (probCutBeta - beta)
+                                                                     : value;
                 }
             }
 
@@ -1500,7 +1502,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1517,7 +1520,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
+          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 
+            std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]) / 8192;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
