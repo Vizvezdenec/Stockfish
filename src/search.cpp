@@ -652,12 +652,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
-                if (tte->eval() >= ttValue)
-                    {
-                    auto bonus = std::clamp(int(ttValue - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                    }
             }
         }
 
@@ -1407,9 +1401,10 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth,
+                                -CORRECTION_HISTORY_LIMIT, CORRECTION_HISTORY_LIMIT);
+        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] = 
+            std::clamp((thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] * 15 + bonus) / 16, -CORRECTION_HISTORY_LIMIT, CORRECTION_HISTORY_LIMIT);
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
