@@ -756,7 +756,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             extra += (2 * (pieceColor == us) - 1)
                       * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
         }
-        newEval += extra / 512;
+        newEval += extra / 2048;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -781,7 +781,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             extra += (2 * (pieceColor == us) - 1)
                       * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
         }
-        newEval += extra / 512;
+        newEval += extra / 2048;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1535,7 +1535,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 extra += (2 * (pieceColor == us) - 1)
                       * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
             }
-            newEval += extra / 512;
+            newEval += extra / 2048;
 
             // ttValue can be used as a better position evaluation (~13 Elo)
             if (ttValue != VALUE_NONE
@@ -1561,7 +1561,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 extra += (2 * (pieceColor == us) - 1)
                       * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
             }
-            newEval += extra / 512;
+            newEval += extra / 2048;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
