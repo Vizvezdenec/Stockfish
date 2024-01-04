@@ -772,7 +772,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-13 * int((ss - 1)->staticEval + ss->staticEval), -1652, 1546);
-        bonus     = bonus > 0 ? 5 * bonus / 2 : bonus / 2;
+        bonus     = bonus > 0 ? 11 * bonus / 4 : bonus / 2;
         //dbg_mean_of(bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
