@@ -1409,7 +1409,7 @@ moves_loop:  // When in check, search starts here
         {
             Square pieceSquare = pop_lsb(nonPawn);
             int pIndex = pawn_structure_index(pos);
-            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 4;
+            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 2;
         }
     }
 
