@@ -1404,12 +1404,12 @@ moves_loop:  // When in check, search starts here
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-        Bitboard nonPawn = pos.pieces(us) & ~pos.pieces(PAWN);
+        Bitboard nonPawn = pos.pieces(us);
         while (nonPawn)
         {
             Square pieceSquare = pop_lsb(nonPawn);
             int pIndex = pawn_structure_index(pos);
-            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 16;
+            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 8;
         }
     }
 
