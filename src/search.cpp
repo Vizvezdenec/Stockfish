@@ -747,17 +747,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
 
-        Value extra = VALUE_ZERO;
-        Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
-        while (nonPawn)
-        {
-            Square pieceSquare = pop_lsb(nonPawn);
-            Color pieceColor = pos.piece_on(pieceSquare) >= 8 ? BLACK : WHITE;
-            extra += (2 * (pieceColor == us) - 1)
-                      * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
-        }
-        newEval += extra / 4096;
-
         ss->staticEval = eval = to_static_eval(newEval);
 
         // ttValue can be used as a better position evaluation (~7 Elo)
@@ -771,17 +760,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         Value newEval =
           ss->staticEval
           + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
-
-        Value extra = VALUE_ZERO;
-        Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
-        while (nonPawn)
-        {
-            Square pieceSquare = pop_lsb(nonPawn);
-            Color pieceColor = pos.piece_on(pieceSquare) >= 8 ? BLACK : WHITE;
-            extra += (2 * (pieceColor == us) - 1)
-                      * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
-        }
-        newEval += extra / 4096;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1426,6 +1404,13 @@ moves_loop:  // When in check, search starts here
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        Bitboard nonPawn = pos.pieces(us) & ~pos.pieces(PAWN);
+        while (nonPawn)
+        {
+            Square pieceSquare = pop_lsb(nonPawn);
+            int pIndex = pawn_structure_index(pos);
+            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 4;
+        }
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1526,17 +1511,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
-            Value extra = VALUE_ZERO;
-            Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
-            while (nonPawn)
-            {
-                Square pieceSquare = pop_lsb(nonPawn);
-                Color pieceColor = pos.piece_on(pieceSquare) >= 8 ? BLACK : WHITE;
-                extra += (2 * (pieceColor == us) - 1)
-                      * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
-            }
-            newEval += extra / 4096;
-
             // ttValue can be used as a better position evaluation (~13 Elo)
             if (ttValue != VALUE_NONE
                 && (tte->bound() & (ttValue > bestValue ? BOUND_LOWER : BOUND_UPPER)))
@@ -1551,17 +1525,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             Value newEval =
               ss->staticEval
               + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] / 32;
-
-            Value extra = VALUE_ZERO;
-            Bitboard nonPawn = pos.pieces() & ~pos.pieces(PAWN);
-            while (nonPawn)
-            {
-                Square pieceSquare = pop_lsb(nonPawn);
-                Color pieceColor = pos.piece_on(pieceSquare) >= 8 ? BLACK : WHITE;
-                extra += (2 * (pieceColor == us) - 1)
-                      * thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(pieceSquare)][pieceSquare];
-            }
-            newEval += extra / 4096;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
