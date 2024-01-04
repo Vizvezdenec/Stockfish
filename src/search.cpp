@@ -946,8 +946,6 @@ moves_loop:  // When in check, search starts here
     value            = bestValue;
     moveCountPruning = singularQuietLMR = false;
 
-    Move somewhatBM = MOVE_NONE;
-
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal to or greater than the current depth, and the result
     // of this search was a fail low.
@@ -1318,8 +1316,6 @@ moves_loop:  // When in check, search starts here
         {
             bestValue = value;
 
-            somewhatBM = move;
-
             if (value > alpha)
             {
                 bestMove = move;
@@ -1398,7 +1394,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove ? bestMove : !ss->ttHit ? somewhatBM : MOVE_NONE, unadjustedStaticEval);
+                  depth, bestMove, unadjustedStaticEval);
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
@@ -1408,6 +1404,13 @@ moves_loop:  // When in check, search starts here
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        Bitboard nonPawn = pos.pieces(us) & ~pos.pieces(PAWN);
+        while (nonPawn)
+        {
+            Square pieceSquare = pop_lsb(nonPawn);
+            int pIndex = pawn_structure_index(pos);
+            thisThread->pawnHistory[pIndex][pos.piece_on(pieceSquare)][pieceSquare] << bonus / 16;
+        }
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
