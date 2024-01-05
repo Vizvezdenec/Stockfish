@@ -1612,7 +1612,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             if (quietCheckEvasions > 1)
                 break;
 
-            if (checkCount > 1)
+            if (checkCount > 2)
                 break;
 
             // Continuation history based pruning (~3 Elo)
