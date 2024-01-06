@@ -1552,6 +1552,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                   contHist, &thisThread->pawnHistory);
 
     int quietCheckEvasions = 0;
+    int checkCount = 0;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1611,6 +1612,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
             if (quietCheckEvasions > 1)
                 break;
 
+            if (checkCount > 1)
+                break;
+
             // Continuation history based pruning (~3 Elo)
             if (!capture && (*contHist[0])[pos.moved_piece(move)][move.to_sq()] < 0
                 && (*contHist[1])[pos.moved_piece(move)][move.to_sq()] < 0)
@@ -1631,6 +1635,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
              ->continuationHistory[ss->inCheck][capture][pos.moved_piece(move)][move.to_sq()];
 
         quietCheckEvasions += !capture && ss->inCheck;
+        checkCount += givesCheck && !capture;
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
