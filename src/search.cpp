@@ -90,7 +90,7 @@ Depth reduction(bool i, Depth d, int mn, int delta, int rootDelta) {
 }
 
 constexpr int futility_move_count(bool improving, Depth depth) {
-    return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
+    return improving ? (4 + depth * depth) : (4 + depth * depth) / 2;
 }
 
 // Guarantee evaluation does not hit the tablebase range
@@ -868,8 +868,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
         depth -= 2;
-    else if (!PvNode && ss->ttPv && !ttMove && tte->depth() >= depth && depth >= 9)
-        depth--;
 
     probCutBeta = beta + 163 - 67 * improving;
 
