@@ -868,7 +868,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
     if (cutNode && depth >= 8 && !ttMove)
         depth -= 2;
-    else if (!PvNode && ss->ttPv && !ttMove && tte->depth() >= depth && depth >= 3)
+    else if (!PvNode && ss->ttPv && !ttMove && tte->depth() >= depth && depth >= 5)
         depth--;
 
     probCutBeta = beta + 163 - 67 * improving;
