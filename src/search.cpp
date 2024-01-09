@@ -860,7 +860,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // the stored depth is greater than or equal to the current depth.
     // Use qsearch if depth <= 0.
     if (PvNode && !ttMove)
-        depth -= 2 + 3 * (tte->is_pv() && tte->depth() >= depth);
+        depth -= 2 + 4 * (tte->is_pv() && tte->depth() >= depth);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
