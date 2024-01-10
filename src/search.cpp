@@ -606,7 +606,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     (ss + 1)->excludedMove = bestMove = Move::none();
     (ss + 2)->killers[0] = (ss + 2)->killers[1] = Move::none();
-    (ss + 2)->captKiller                        = Move::none();
     (ss + 2)->cutoffCnt                         = 0;
     ss->doubleExtensions                        = (ss - 1)->doubleExtensions;
     Square prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
@@ -1032,7 +1031,7 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + (*contHist[3])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  + 2 * thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -3752 * depth)
@@ -1135,7 +1134,7 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
 
             // Recapture extensions (~1 Elo)
-            else if (PvNode && move == ttMove && (move.to_sq() == prevSq || move == ss->captKiller)
+            else if (PvNode && move == ttMove && move.to_sq() == prevSq
                      && captureHistory[movedPiece][move.to_sq()]
                                       [type_of(pos.piece_on(move.to_sq()))]
                           > 4146)
@@ -1807,7 +1806,6 @@ void update_all_stats(const Position& pos,
         // Increase stats for the best move in case it was a capture move
         captured = type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[moved_piece][bestMove.to_sq()][captured] << quietMoveBonus;
-        ss->captKiller = bestMove;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
