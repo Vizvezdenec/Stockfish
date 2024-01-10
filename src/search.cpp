@@ -75,19 +75,6 @@ enum NodeType {
     Root
 };
 
-constexpr int N = 39;
-int lookupBonus[N] = {
--826, -762, -698, -634, -570,
--506, -442, -378, -314, -250,
--186, -122, -58, 6, 70,
-102, 166, 230, 294, 358,
-422, 486, 550, 614, 678,
-742, 806, 870, 934, 998,
-1062, 1126, 1190, 1254, 1318,
-1382, 1446, 1510, 1542
-};
-TUNE(lookupBonus);
-
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
     return ((116 - 44 * noTtCutNode) * (d - improving));
@@ -619,6 +606,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
 
     (ss + 1)->excludedMove = bestMove = Move::none();
     (ss + 2)->killers[0] = (ss + 2)->killers[1] = Move::none();
+    (ss + 2)->captKiller                        = Move::none();
     (ss + 2)->cutoffCnt                         = 0;
     ss->doubleExtensions                        = (ss - 1)->doubleExtensions;
     Square prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
@@ -789,11 +777,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-13 * int((ss - 1)->staticEval + ss->staticEval), -1652, 1546);
-        int count = bonus / 64;
-        if (count < 0)
-            count /= 2;
-        count += 13;
-        bonus     = lookupBonus[count];
+        bonus     = bonus > 0 ? 2 * bonus : bonus / 2;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
@@ -1151,7 +1135,7 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
 
             // Recapture extensions (~1 Elo)
-            else if (PvNode && move == ttMove && move.to_sq() == prevSq
+            else if (PvNode && move == ttMove && (move.to_sq() == prevSq || move == ss->captKiller)
                      && captureHistory[movedPiece][move.to_sq()]
                                       [type_of(pos.piece_on(move.to_sq()))]
                           > 4146)
@@ -1823,6 +1807,7 @@ void update_all_stats(const Position& pos,
         // Increase stats for the best move in case it was a capture move
         captured = type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[moved_piece][bestMove.to_sq()][captured] << quietMoveBonus;
+        ss->captKiller = bestMove;
     }
 
     // Extra penalty for a quiet early move that was not a TT move or
