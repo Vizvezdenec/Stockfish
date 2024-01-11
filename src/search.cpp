@@ -1696,7 +1696,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     {
         Piece moved_piece = pos.moved_piece(bestMove);
         PieceType captured    = type_of(pos.piece_on(bestMove.to_sq()));
-        thisThread->captureHistoryQsearch[moved_piece][bestMove.to_sq()][captured] << 50;
+        if (pos.capture_stage(bestMove))
+            thisThread->captureHistoryQsearch[moved_piece][bestMove.to_sq()][captured] << 50;
         for (int i = 0; i < captureCount; ++i)
         {
             moved_piece = pos.moved_piece(capturesSearched[i]);
