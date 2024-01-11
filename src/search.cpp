@@ -154,6 +154,7 @@ void  update_all_stats(const Position& pos,
                        int             quietCount,
                        Move*           capturesSearched,
                        int             captureCount,
+                       int*            quietsFL,
                        Depth           depth);
 
 // Utility to verify move generation. All the leaf nodes up
@@ -550,6 +551,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     assert(!(PvNode && cutNode));
 
     Move      pv[MAX_PLY + 1], capturesSearched[32], quietsSearched[32];
+    int       quietsFL[32];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1355,7 +1357,10 @@ moves_loop:  // When in check, search starts here
                 capturesSearched[captureCount++] = move;
 
             else
+            {
+                quietsFL[quietCount] = ss->inCheck ? 0 : std::min(value - ss->staticEval, 0);
                 quietsSearched[quietCount++] = move;
+            }
         }
     }
 
@@ -1372,7 +1377,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq, quietsSearched, quietCount,
-                         capturesSearched, captureCount, depth);
+                         capturesSearched, captureCount, quietsFL, depth);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1767,6 +1772,7 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
+                      int*            quietsFL,
                       Depth           depth) {
 
     Color                  us             = pos.side_to_move();
@@ -1787,14 +1793,15 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
 
         int pIndex = pawn_structure_index(pos);
-        thisThread->pawnHistory[pIndex][moved_piece][bestMove.to_sq()] << quietMoveBonus;
+        thisThread->pawnHistory[pIndex][moved_piece][bestMove.to_sq()] << quietMoveBonus 
+            + (!ss->inCheck && bestValue > ss->staticEval ? (bestValue - ss->staticEval) / 16 : 0);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread
                 ->pawnHistory[pIndex][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
-              << -quietMoveMalus;
+              << -quietMoveMalus - quietsFL[i] / 16;
 
             thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
