@@ -1794,14 +1794,14 @@ void update_all_stats(const Position& pos,
 
         int pIndex = pawn_structure_index(pos);
         thisThread->pawnHistory[pIndex][moved_piece][bestMove.to_sq()] << quietMoveBonus 
-            + (!ss->inCheck && bestValue > ss->staticEval ? (bestValue - ss->staticEval) / 16 : 0);
+            + (!ss->inCheck && bestValue > ss->staticEval ? (bestValue - ss->staticEval) / 32 : 0);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread
                 ->pawnHistory[pIndex][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
-              << -quietMoveMalus - quietsFL[i] / 16;
+              << -quietMoveMalus - quietsFL[i] / 32;
 
             thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
