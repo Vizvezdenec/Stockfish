@@ -169,6 +169,7 @@ class MovePicker {
                Depth,
                const ButterflyHistory*,
                const CapturePieceToHistory*,
+               const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*);
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
@@ -185,6 +186,7 @@ class MovePicker {
     const Position&              pos;
     const ButterflyHistory*      mainHistory;
     const CapturePieceToHistory* captureHistory;
+    const CapturePieceToHistory* captureHistoryQsearch;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
     Move                         ttMove;

@@ -154,7 +154,6 @@ void  update_all_stats(const Position& pos,
                        int             quietCount,
                        Move*           capturesSearched,
                        int             captureCount,
-                       int*            quietsFL,
                        Depth           depth);
 
 // Utility to verify move generation. All the leaf nodes up
@@ -551,7 +550,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     assert(!(PvNode && cutNode));
 
     Move      pv[MAX_PLY + 1], capturesSearched[32], quietsSearched[32];
-    int       quietsFL[32];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1357,10 +1355,7 @@ moves_loop:  // When in check, search starts here
                 capturesSearched[captureCount++] = move;
 
             else
-            {
-                quietsFL[quietCount] = ss->inCheck ? 0 : std::clamp(value - ss->staticEval, -10000, 0);
                 quietsSearched[quietCount++] = move;
-            }
         }
     }
 
@@ -1377,7 +1372,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, bestMove, bestValue, beta, prevSq, quietsSearched, quietCount,
-                         capturesSearched, captureCount, quietsFL, depth);
+                         capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1455,8 +1450,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     Depth    ttDepth;
     Value    bestValue, value, ttValue, futilityValue, futilityBase;
     bool     pvHit, givesCheck, capture;
-    int      moveCount;
+    int      moveCount, captureCount;
     Color    us = pos.side_to_move();
+    Move     capturesSearched[32];
 
     // Step 1. Initialize node
     if (PvNode)
@@ -1468,7 +1464,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     Thread* thisThread = pos.this_thread();
     bestMove           = Move::none();
     ss->inCheck        = pos.checkers();
-    moveCount          = 0;
+    moveCount          = captureCount = 0;
 
     // Used to send selDepth info to GUI (selDepth counts from 1, ply from 0)
     if (PvNode && thisThread->selDepth < ss->ply + 1)
@@ -1563,7 +1559,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square     prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
+    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory, &thisThread->captureHistoryQsearch,
                   contHist, &thisThread->pawnHistory);
 
     int quietCheckEvasions = 0;
@@ -1672,6 +1668,9 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                     break;  // Fail high
             }
         }
+
+        if (move != bestMove && moveCount <= 32 && capture)
+            capturesSearched[captureCount++] = move;
     }
 
     // Step 9. Check for mate
@@ -1692,6 +1691,19 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove,
               unadjustedStaticEval);
+
+    if (bestMove)
+    {
+        Piece moved_piece = pos.moved_piece(bestMove);
+        PieceType captured    = type_of(pos.piece_on(bestMove.to_sq()));
+        thisThread->captureHistoryQsearch[moved_piece][bestMove.to_sq()][captured] << 50;
+        for (int i = 0; i < captureCount; ++i)
+        {
+            moved_piece = pos.moved_piece(capturesSearched[i]);
+            captured    = type_of(pos.piece_on(capturesSearched[i].to_sq()));
+            thisThread->captureHistoryQsearch[moved_piece][capturesSearched[i].to_sq()][captured] << -50;
+        }
+    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
@@ -1772,7 +1784,6 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      int*            quietsFL,
                       Depth           depth) {
 
     Color                  us             = pos.side_to_move();
@@ -1793,15 +1804,14 @@ void update_all_stats(const Position& pos,
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
 
         int pIndex = pawn_structure_index(pos);
-        thisThread->pawnHistory[pIndex][moved_piece][bestMove.to_sq()] << quietMoveBonus 
-            + (!ss->inCheck && bestValue > ss->staticEval ? std::min((bestValue - ss->staticEval), 10000) / 4 : 0);
+        thisThread->pawnHistory[pIndex][moved_piece][bestMove.to_sq()] << quietMoveBonus;
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
             thisThread
                 ->pawnHistory[pIndex][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
-              << -quietMoveMalus - quietsFL[i] / 4;
+              << -quietMoveMalus;
 
             thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
