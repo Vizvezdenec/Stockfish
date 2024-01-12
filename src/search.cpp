@@ -1028,7 +1028,7 @@ moves_loop:  // When in check, search starts here
             else
             {
                 if (move == (ss - 4)->currentMove && pos.has_repeated())
-                    lmrDepth--;
+                    lmrDepth -= 2;
 
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
