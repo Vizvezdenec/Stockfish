@@ -1213,7 +1213,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth. This may lead to hidden double extensions.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(int(ss->inCheck || ss->staticEval <= beta + 250), std::min(newDepth - r, newDepth + 1));
+            Depth d = std::max(0, std::min(newDepth - r, newDepth + 1));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
