@@ -112,13 +112,11 @@ MovePicker::MovePicker(const Position&              p,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
-                       const CapturePieceToHistory* cphq,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph) :
     pos(p),
     mainHistory(mh),
     captureHistory(cph),
-    captureHistoryQsearch(cphq),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
@@ -168,14 +166,10 @@ void MovePicker::score() {
 
     for (auto& m : *this)
         if constexpr (Type == CAPTURES)
-        {
             m.value =
               (7 * int(PieceValue[pos.piece_on(m.to_sq())])
                + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))])
               / 16;
-            if (stage == QCAPTURE_INIT)
-                m.value += (*captureHistoryQsearch)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))] / 16;
-        }
 
         else if constexpr (Type == QUIETS)
         {

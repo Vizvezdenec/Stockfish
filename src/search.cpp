@@ -1027,6 +1027,9 @@ moves_loop:  // When in check, search starts here
             }
             else
             {
+                if (move == (ss - 4)->currentMove && pos.has_repeated())
+                    lmrDepth--;
+
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
@@ -1450,9 +1453,8 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     Depth    ttDepth;
     Value    bestValue, value, ttValue, futilityValue, futilityBase;
     bool     pvHit, givesCheck, capture;
-    int      moveCount, captureCount;
+    int      moveCount;
     Color    us = pos.side_to_move();
-    Move     capturesSearched[32];
 
     // Step 1. Initialize node
     if (PvNode)
@@ -1464,7 +1466,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     Thread* thisThread = pos.this_thread();
     bestMove           = Move::none();
     ss->inCheck        = pos.checkers();
-    moveCount          = captureCount = 0;
+    moveCount          = 0;
 
     // Used to send selDepth info to GUI (selDepth counts from 1, ply from 0)
     if (PvNode && thisThread->selDepth < ss->ply + 1)
@@ -1559,7 +1561,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     // queen promotions, and other checks (only if depth >= DEPTH_QS_CHECKS)
     // will be generated.
     Square     prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
-    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory, &thisThread->captureHistoryQsearch,
+    MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory);
 
     int quietCheckEvasions = 0;
@@ -1668,9 +1670,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                     break;  // Fail high
             }
         }
-
-        if (move != bestMove && moveCount <= 32 && capture)
-            capturesSearched[captureCount++] = move;
     }
 
     // Step 9. Check for mate
@@ -1691,20 +1690,6 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
     tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove,
               unadjustedStaticEval);
-
-    if (bestMove)
-    {
-        Piece moved_piece = pos.moved_piece(bestMove);
-        PieceType captured    = type_of(pos.piece_on(bestMove.to_sq()));
-        if (pos.capture_stage(bestMove))
-            thisThread->captureHistoryQsearch[moved_piece][bestMove.to_sq()][captured] << 25;
-        for (int i = 0; i < captureCount; ++i)
-        {
-            moved_piece = pos.moved_piece(capturesSearched[i]);
-            captured    = type_of(pos.piece_on(capturesSearched[i].to_sq()));
-            thisThread->captureHistoryQsearch[moved_piece][capturesSearched[i].to_sq()][captured] << -25;
-        }
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
