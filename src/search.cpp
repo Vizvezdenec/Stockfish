@@ -1547,7 +1547,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
                 return bestValue;
             }
-            bestValue = std::min((alpha + beta) / 2, beta - 1);
+            bestValue = std::min((alpha + beta * 3) / 4, beta - 1);
         }
 
         if (bestValue > alpha)
