@@ -714,6 +714,13 @@ Value Search::Worker::search(
 
     Value unadjustedStaticEval = VALUE_NONE;
 
+    Value corrHist = pos.non_pawn_material() > 12000 ? thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] :
+                     pos.non_pawn_material() < 4000  ? thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] :
+                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] * (12000 - pos.non_pawn_material()) / 8000
+                   + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] * (pos.non_pawn_material() - 4000) / 8000;
+
+    corrHist = corrHist * std::abs(corrHist) / 16384;
+
     // Step 6. Static evaluation of the position
     if (ss->inCheck)
     {
@@ -740,9 +747,7 @@ Value Search::Worker::search(
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
-              * std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
-              / 16384;
+          + corrHist;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -756,9 +761,7 @@ Value Search::Worker::search(
 
         Value newEval =
           ss->staticEval
-          + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
-              * std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
-              / 16384;
+          + corrHist;
 
         ss->staticEval = eval = to_static_eval(newEval);
 
@@ -1025,9 +1028,6 @@ moves_loop:  // When in check, search starts here
             }
             else
             {
-                if (move == (ss - 4)->currentMove && pos.has_repeated())
-                    lmrDepth--;
-
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
@@ -1411,7 +1411,15 @@ moves_loop:  // When in check, search starts here
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+        if (pos.non_pawn_material() > 12000)
+            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] << bonus;
+        else if (pos.non_pawn_material() < 4000)
+            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] << bonus;
+        else
+        {
+            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] << bonus * (pos.non_pawn_material() - 4000) / 8000;
+            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] << bonus * (-pos.non_pawn_material() + 12000) / 8000;
+        }
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1496,6 +1504,13 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     Value unadjustedStaticEval = VALUE_NONE;
 
+    Value corrHist = pos.non_pawn_material() > 12000 ? thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] :
+                     pos.non_pawn_material() < 4000  ? thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] :
+                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][1] * (12000 - pos.non_pawn_material()) / 8000
+                   + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)][0] * (pos.non_pawn_material() - 4000) / 8000;
+
+    corrHist = corrHist * std::abs(corrHist) / 16384;
+
     // Step 4. Static evaluation of the position
     if (ss->inCheck)
         bestValue = futilityBase = -VALUE_INFINITE;
@@ -1510,10 +1525,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
-                  * std::abs(
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
-                  / 16384;
+              + corrHist;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
 
@@ -1531,10 +1543,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
             Value newEval =
               ss->staticEval
-              + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
-                  * std::abs(
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
-                  / 16384;
+              + corrHist;
 
             ss->staticEval = bestValue = to_static_eval(newEval);
         }
