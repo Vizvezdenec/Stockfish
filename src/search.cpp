@@ -1025,6 +1025,9 @@ moves_loop:  // When in check, search starts here
             }
             else
             {
+                if (move == (ss - 4)->currentMove && pos.has_repeated())
+                    lmrDepth--;
+
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
@@ -1549,7 +1552,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 182 + 225 * PvNode;
+        futilityBase = ss->staticEval + 182;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
