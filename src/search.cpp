@@ -1549,7 +1549,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 182 + 75 * PvNode;
+        futilityBase = ss->staticEval + 182 + 225 * PvNode;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
