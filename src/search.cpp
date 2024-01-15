@@ -926,7 +926,10 @@ moves_loop:  // When in check, search starts here
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 425;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 4 && ttValue >= probCutBeta
+        && tte->depth() >= depth - 4 
+            && ttValue + thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
+              * std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
+              / 16384 >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
 
