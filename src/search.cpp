@@ -64,7 +64,7 @@ namespace {
 
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
-    return ((116 - 44 * noTtCutNode - 44 * improving) * d);
+    return ((116 - 44 * noTtCutNode) * (d - improving));
 }
 
 constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1584,7 +1584,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
             // Futility pruning and moveCount pruning (~10 Elo)
-            if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
+            if (!givesCheck && !PvNode && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
                 if (moveCount > 2)
