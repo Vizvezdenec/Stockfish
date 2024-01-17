@@ -746,11 +746,6 @@ Value Search::Worker::search(
 
         ss->staticEval = eval = to_static_eval(newEval);
 
-        if (std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY)
-            ttValue = to_static_eval(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
-              * std::abs(thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)])
-              / 16384 + ttValue);
-
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttValue;
@@ -1602,7 +1597,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityValue <= alpha)
                 {
                     bestValue = std::max(bestValue, futilityValue);
-                    continue;
+                    if (!PvNode)
+                        continue;
                 }
 
                 // If static eval is much lower than alpha and move is not winning material
@@ -1610,6 +1606,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
+                    if (!PvNode)
                     continue;
                 }
 
@@ -1618,6 +1615,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
+                    if (!PvNode)
                     continue;
                 }
             }
