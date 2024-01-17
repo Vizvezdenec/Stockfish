@@ -1403,6 +1403,7 @@ moves_loop:  // When in check, search starts here
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
+        && !priorCapture
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
@@ -1597,8 +1598,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityValue <= alpha)
                 {
                     bestValue = std::max(bestValue, futilityValue);
-                    if (!PvNode)
-                        continue;
+                    continue;
                 }
 
                 // If static eval is much lower than alpha and move is not winning material
@@ -1606,7 +1606,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityBase <= alpha && !pos.see_ge(move, VALUE_ZERO + 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
-                    if (!PvNode)
                     continue;
                 }
 
@@ -1615,7 +1614,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
-                    if (!PvNode)
                     continue;
                 }
             }
