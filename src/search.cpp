@@ -55,7 +55,7 @@ namespace {
 
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
-    return ((116 - 44 * noTtCutNode) * (d - improving));
+    return improving ? ((116 - 44 * noTtCutNode) * d) / 2 : ((116 - 44 * noTtCutNode) * d);
 }
 
 constexpr int futility_move_count(bool improving, Depth depth) {
@@ -1396,7 +1396,7 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !(pos.capture(bestMove) && !pos.gives_check(bestMove)))
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
