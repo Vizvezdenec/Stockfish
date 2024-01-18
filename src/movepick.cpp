@@ -56,8 +56,7 @@ enum Stages {
     QCAPTURE_INIT,
     QCAPTURE,
     QCHECK_INIT,
-    QCHECK,
-    QBADCAPTURE
+    QCHECK
 };
 
 // Sort moves in descending order up to and including
@@ -359,38 +358,25 @@ top:
         return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
     case QCAPTURE :
-        if (select<Next>([&]() {
-                // Move losing capture to endBadCaptures to be tried later
-                return pos.see_ge(*cur, -cur->value) ? true : (*endBadCaptures++ = *cur, false);
-            }))
+        if (select<Next>([]() { return true; }))
             return *(cur - 1);
+
+        // If we did not find any move and we do not try checks, we have finished
+        if (depth != DEPTH_QS_CHECKS)
+            return Move::none();
 
         ++stage;
         [[fallthrough]];
 
     case QCHECK_INIT :
-        if (depth == DEPTH_QS_CHECKS)
-        {
-            cur      = moves;
-            endMoves = generate<QUIET_CHECKS>(pos, cur);
-        }
+        cur      = moves;
+        endMoves = generate<QUIET_CHECKS>(pos, cur);
 
         ++stage;
         [[fallthrough]];
 
     case QCHECK :
-        if (depth == DEPTH_QS_CHECKS)
-            return select<Next>([]() { return true; });
-
-        cur      = moves;
-        endMoves = endBadCaptures;
-
-        ++stage;
-        [[fallthrough]];
-
-    case QBADCAPTURE :
-        if (select<Next>([]() { return true; }))
-            return *(cur - 1);
+        return select<Next>([]() { return true; });
     }
 
     assert(false);
