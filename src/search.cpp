@@ -936,7 +936,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     Move countermove =
-      prevSq != SQ_NONE ? thisThread->counterMoves[priorCapture][pos.piece_on(prevSq)][prevSq] : Move::none();
+      prevSq != SQ_NONE ? thisThread->counterMoves[(ss-1)->inCheck][pos.piece_on(prevSq)][prevSq] : Move::none();
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory, countermove, ss->killers);
@@ -1844,7 +1844,7 @@ void update_quiet_stats(
     if (((ss - 1)->currentMove).is_ok())
     {
         Square prevSq                                           = ((ss - 1)->currentMove).to_sq();
-        workerThread.counterMoves[bool(pos.captured_piece())][pos.piece_on(prevSq)][prevSq] = move;
+        workerThread.counterMoves[(ss-1)->inCheck][pos.piece_on(prevSq)][prevSq] = move;
     }
 }
 }
