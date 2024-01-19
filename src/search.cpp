@@ -922,7 +922,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 425 - 200 * (!(ss-2)->inCheck && (ss-2)->staticEval < ttValue);
+    probCutBeta = beta + 425;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
@@ -1483,7 +1483,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     if (!PvNode && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
-        return ttValue;
+        return tte->depth() > 0 || ttValue <= alpha || std::abs(ttValue) >= VALUE_TB_WIN_IN_MAX_PLY ? ttValue
+                                                                                                    : (ttValue + beta * 3) / 4;
 
     Value unadjustedStaticEval = VALUE_NONE;
 
