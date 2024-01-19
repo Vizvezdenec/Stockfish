@@ -1484,7 +1484,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return tte->depth() > 0 || ttValue <= alpha || std::abs(ttValue) >= VALUE_TB_WIN_IN_MAX_PLY ? ttValue
-                                                                                                    : (ttValue + beta * 3) / 4;
+                                                                                                    : (ttValue + beta) / 2;
 
     Value unadjustedStaticEval = VALUE_NONE;
 
