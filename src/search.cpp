@@ -922,7 +922,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 425;
+    probCutBeta = beta + 425 - 100 * (!(ss-2)->inCheck && (ss-2)->staticEval < beta);
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
@@ -936,7 +936,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 6)->continuationHistory};
 
     Move countermove =
-      prevSq != SQ_NONE ? thisThread->counterMoves[(ss-1)->inCheck][pos.piece_on(prevSq)][prevSq] : Move::none();
+      prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : Move::none();
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &thisThread->captureHistory,
                   contHist, &thisThread->pawnHistory, countermove, ss->killers);
@@ -1844,7 +1844,7 @@ void update_quiet_stats(
     if (((ss - 1)->currentMove).is_ok())
     {
         Square prevSq                                           = ((ss - 1)->currentMove).to_sq();
-        workerThread.counterMoves[(ss-1)->inCheck][pos.piece_on(prevSq)][prevSq] = move;
+        workerThread.counterMoves[pos.piece_on(prevSq)][prevSq] = move;
     }
 }
 }
