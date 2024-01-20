@@ -1483,8 +1483,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     if (!PvNode && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
-        return tte->depth() > 0 || ttValue <= alpha || std::abs(ttValue) >= VALUE_TB_WIN_IN_MAX_PLY ? ttValue
-                                                                                                    : (3 * ttValue + beta) / 4;
+        return ttValue;
 
     Value unadjustedStaticEval = VALUE_NONE;
 
@@ -1520,11 +1519,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!ss->ttHit)
-                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
-                          Move::none(), unadjustedStaticEval, tt.generation());
+            if (!PvNode || std::abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || std::abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
+            {
+                if (!ss->ttHit)
+                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+                            Move::none(), unadjustedStaticEval, tt.generation());
 
-            return bestValue;
+                return std::abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || std::abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY ? bestValue : (3 * bestValue + beta) / 4;
+            }
+            bestValue = std::min((alpha + beta) / 2, beta - 1);
         }
 
         if (bestValue > alpha)
