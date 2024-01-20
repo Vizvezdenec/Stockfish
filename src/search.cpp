@@ -1519,15 +1519,11 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (!PvNode || std::abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || std::abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY)
-            {
-                if (!ss->ttHit)
-                    tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
-                            Move::none(), unadjustedStaticEval, tt.generation());
+            if (!ss->ttHit)
+                tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+                          Move::none(), unadjustedStaticEval, tt.generation());
 
-                return std::abs(bestValue) >= VALUE_TB_WIN_IN_MAX_PLY || std::abs(beta) >= VALUE_TB_WIN_IN_MAX_PLY ? bestValue : (3 * bestValue + beta) / 4;
-            }
-            bestValue = std::min((alpha + beta) / 2, beta - 1);
+            return bestValue;
         }
 
         if (bestValue > alpha)
@@ -1648,10 +1644,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (PvNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
 
-                if (value < beta)  // Update alpha here!
-                    alpha = value;
-                else
-                    break;  // Fail high
+                break;  // Fail high
             }
         }
     }
