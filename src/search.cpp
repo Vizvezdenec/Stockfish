@@ -1567,6 +1567,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
+                if (bestMove)
+                    break;
+
                 if (moveCount > 2)
                     continue;
 
@@ -1644,7 +1647,10 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (PvNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
 
-                break;  // Fail high
+                if (value < beta)  // Update alpha here!
+                    alpha = value;
+                else
+                    break;  // Fail high
             }
         }
     }
