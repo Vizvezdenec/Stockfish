@@ -1483,7 +1483,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     if (!PvNode && tte->depth() >= ttDepth
         && ttValue != VALUE_NONE  // Only in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
-        return ttValue;
+        return tte->depth() > 0 || std::abs(ttValue) >= VALUE_TB_WIN_IN_MAX_PLY || ttValue <= alpha ? ttValue : beta;
 
     Value unadjustedStaticEval = VALUE_NONE;
 
@@ -1563,9 +1563,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 6. Pruning
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
-            if (bestMove && depth < -1)
-                break;
-
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
