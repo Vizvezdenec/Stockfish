@@ -627,6 +627,7 @@ Value Search::Worker::search(
               : ss->ttHit ? tte->move()
                           : Move::none();
     ttCapture = ttMove && pos.capture_stage(ttMove);
+    ss->currentMove = Move::none();
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
@@ -795,6 +796,8 @@ Value Search::Worker::search(
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
+        if (!ttMove && ss->currentMove)
+            ttMove = ss->currentMove;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
