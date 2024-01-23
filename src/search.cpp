@@ -1151,7 +1151,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~5 Elo)
         if (ss->ttPv)
-            r -= 1 + (ttValue > alpha) + (ttValue >= beta + 72 * depth && tte->depth() >= depth);
+            r -= 1 + (ttValue > alpha) + (ttValue > beta && tte->depth() >= depth);
 
         // Decrease reduction if opponent's move count is high (~1 Elo)
         if ((ss - 1)->moveCount > 7)
@@ -1176,6 +1176,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
+
+        if (!ss->inCheck && bestValue >= ss->staticEval - 100)
+            r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
