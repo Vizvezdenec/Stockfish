@@ -627,7 +627,6 @@ Value Search::Worker::search(
               : ss->ttHit ? tte->move()
                           : Move::none();
     ttCapture = ttMove && pos.capture_stage(ttMove);
-    ss->currentMove = Move::none();
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
@@ -796,8 +795,6 @@ Value Search::Worker::search(
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        if (!ttMove && ss->currentMove)
-            ttMove = ss->currentMove;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -1154,7 +1151,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~5 Elo)
         if (ss->ttPv)
-            r -= 1 + (ttValue > alpha) + (ttValue > beta && tte->depth() >= depth);
+            r -= 1 + (ttValue > alpha) + (ttValue >= beta + 400 && tte->depth() >= depth);
 
         // Decrease reduction if opponent's move count is high (~1 Elo)
         if ((ss - 1)->moveCount > 7)
