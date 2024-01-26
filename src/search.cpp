@@ -808,7 +808,7 @@ Value Search::Worker::search(
         return beta > VALUE_TB_LOSS_IN_MAX_PLY ? (eval + beta) / 2 : eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
-    if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 17787
+    if (!PvNode && (ss - 1)->currentMove != Move::null() && ((ss - 1)->statScore < 17787 || cutNode)
         && eval >= beta && eval >= ss->staticEval && ss->staticEval >= beta - 22 * depth + 313
         && !excludedMove && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
@@ -1151,7 +1151,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~5 Elo)
         if (ss->ttPv)
-            r -= 1 + (ttValue > alpha) + (ttValue >= beta + 100 * depth && tte->depth() >= depth);
+            r -= 1 + (ttValue > alpha) + (ttValue > beta && tte->depth() >= depth);
 
         // Decrease reduction if opponent's move count is high (~1 Elo)
         if ((ss - 1)->moveCount > 7)
