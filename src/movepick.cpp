@@ -185,7 +185,6 @@ void MovePicker::score() {
             m.value += (*continuationHistory[1])[pc][to];
             m.value += (*continuationHistory[2])[pc][to] / 4;
             m.value += (*continuationHistory[3])[pc][to];
-            m.value += (*continuationHistory[4])[pc][to] / 16;
             m.value += (*continuationHistory[5])[pc][to];
 
             // bonus for checks
