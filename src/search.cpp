@@ -1027,12 +1027,12 @@ moves_loop:  // When in check, search starts here
             // so changing them requires tests at these types of time controls.
             // Recursive singular search is avoided.
             if (!rootNode && move == ttMove && !excludedMove
-                && depth >= 4 - (thisThread->completedDepth > 31) + ss->ttPv
+                && depth >= 3 - (thisThread->completedDepth > 31) + 2 * ss->ttPv
                 && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
             {
                 Value singularBeta  = ttValue - (58 + 52 * (ss->ttPv && !PvNode)) * depth / 64;
-                Depth singularDepth = newDepth / 2;
+                Depth singularDepth = std::max(newDepth / 2, 1);
 
                 ss->excludedMove = move;
                 value =
@@ -1045,7 +1045,7 @@ moves_loop:  // When in check, search starts here
                     singularQuietLMR = !ttCapture;
 
                     // Avoid search explosion by limiting the number of double extensions
-                    if (!PvNode && ss->doubleExtensions <= 15)
+                    if (!PvNode && value < singularBeta - 2 && ss->doubleExtensions <= 12)
                     {
                         extension = 2;
                         depth += depth < 15;
