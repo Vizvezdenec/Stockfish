@@ -609,7 +609,15 @@ Value Search::Worker::search(
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
+                {
                     update_quiet_stats(pos, ss, *this, ttMove, stat_bonus(depth));
+                    if (!ss->inCheck && tte->eval() != VALUE_NONE && tte->eval() <= ttValue)
+                    {
+                    auto bonus = std::clamp(int(ttValue - tte->eval()) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+                    }
+                }
 
                 // Extra penalty for early quiet moves of
                 // the previous ply (~0 Elo on STC, ~2 Elo on LTC).
@@ -1366,12 +1374,6 @@ moves_loop:  // When in check, search starts here
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-        if ((ss-1)->currentMove.is_ok() && !priorCapture && !(ss-1)->inCheck && (ss-1)->currentMove.type_of() != PROMOTION)
-        {
-            bonus = std::clamp(int(bestValue + (ss-1)->staticEval) * depth / 32,
-                                -CORRECTION_HISTORY_LIMIT / 16, CORRECTION_HISTORY_LIMIT / 16);
-            thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] << bonus;
-        }
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
