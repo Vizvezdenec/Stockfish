@@ -623,13 +623,6 @@ Value Search::Worker::search(
                 int penalty = -stat_malus(depth);
                 thisThread->mainHistory[us][ttMove.from_to()] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), ttMove.to_sq(), penalty);
-
-                if (!ss->inCheck && tte->eval() >= ttValue && tte->eval() != VALUE_NONE)
-                    {
-                    auto bonus = std::clamp(int(ttValue - tte->eval()) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                    }
             }
         }
 
@@ -1140,7 +1133,7 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // Decrease reduction if a quiet ttMove has been singularly extended (~1 Elo)
-        if (singularQuietLMR)
+        if (singularQuietLMR && move != ttMove)
             r--;
 
         // Increase reduction on repetition (~1 Elo)
