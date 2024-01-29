@@ -1368,8 +1368,8 @@ moves_loop:  // When in check, search starts here
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
         if ((ss-1)->currentMove.is_ok() && !priorCapture && !(ss-1)->inCheck && (ss-1)->currentMove.type_of() != PROMOTION)
         {
-            bonus = std::clamp(int(bestValue + (ss-1)->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+            bonus = std::clamp(int(bestValue + (ss-1)->staticEval) * depth / 16,
+                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 8);
             thisThread->correctionHistory[~us][pawn_structure_index<Correction>(pos)] << bonus;
         }
     }
