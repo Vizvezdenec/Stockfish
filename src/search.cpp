@@ -1345,7 +1345,7 @@ moves_loop:  // When in check, search starts here
         if (depth == 1)
         for (int i = 0; i < quietCount; ++i)
         {
-            int quietMoveMalus = 100;
+            int quietMoveMalus = 50;
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
               << -quietMoveMalus;
 
