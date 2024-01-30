@@ -521,6 +521,7 @@ Value Search::Worker::search(
     assert(!(PvNode && cutNode));
 
     Move      pv[MAX_PLY + 1], capturesSearched[32], quietsSearched[32];
+    Value quietsValue[32];
     StateInfo st;
     ASSERT_ALIGNED(&st, Eval::NNUE::CacheLineSize);
 
@@ -1311,7 +1312,10 @@ moves_loop:  // When in check, search starts here
                 capturesSearched[captureCount++] = move;
 
             else
+            {
+                quietsValue[quietCount] = value;
                 quietsSearched[quietCount++] = move;
+            }
         }
     }
 
@@ -1342,16 +1346,18 @@ moves_loop:  // When in check, search starts here
             thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
               << stat_bonus(depth) * bonus / 2;
         }
-        if (depth == 1)
         for (int i = 0; i < quietCount; ++i)
         {
-            int quietMoveMalus = 25;
-            thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
-              << -quietMoveMalus;
+            if (quietsValue[i] < bestValue - 1000)
+            {
+                int malus = stat_bonus(depth) / 2;
+                thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
+                    << -malus;
 
-            thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
-                                          quietsSearched[i].to_sq(), -quietMoveMalus);
+                thisThread->mainHistory[us][quietsSearched[i].from_to()] << -malus;
+                update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
+                                            quietsSearched[i].to_sq(), -malus);
+            }
         }
     }
 
