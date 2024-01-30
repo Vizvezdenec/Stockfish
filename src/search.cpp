@@ -1134,7 +1134,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if a quiet ttMove has been singularly extended (~1 Elo)
         if (singularQuietLMR)
-            r -= 1 - 2 * (move == ttMove);
+            r--;
 
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
@@ -1331,14 +1331,28 @@ moves_loop:  // When in check, search starts here
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (!priorCapture && prevSq != SQ_NONE)
+    else 
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
-                  + ((ss - 1)->moveCount > 10);
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(depth) * bonus / 2;
+        if (!priorCapture && prevSq != SQ_NONE)
+        {
+            int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
+                      + ((ss - 1)->moveCount > 10);
+            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                                          stat_bonus(depth) * bonus);
+            thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
+              << stat_bonus(depth) * bonus / 2;
+        }
+        if (depth == 1)
+        for (int i = 0; i < quietCount; ++i)
+        {
+            int quietMoveMalus = 100;
+            thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
+              << -quietMoveMalus;
+
+            thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
+                                          quietsSearched[i].to_sq(), -quietMoveMalus);
+        }
     }
 
     if (PvNode)
