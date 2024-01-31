@@ -718,7 +718,7 @@ Value Search::Worker::search(
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
-            eval = ttValue >= eval && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY ? (ttValue * 3 + eval) / 4 : ttValue;
+            eval = ttValue >= eval && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && tte->depth() < depth / 2 ? (ttValue * 3 + eval) / 4 : ttValue;
     }
     else
     {
