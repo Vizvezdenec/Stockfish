@@ -718,7 +718,7 @@ Value Search::Worker::search(
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttValue != VALUE_NONE && (tte->bound() & (ttValue > eval ? BOUND_LOWER : BOUND_UPPER)))
-            eval = ttValue >= eval && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && tte->depth() < depth / 4 ? (ttValue * 3 + eval) / 4 : ttValue;
+            eval = ttValue;
     }
     else
     {
@@ -1162,7 +1162,7 @@ moves_loop:  // When in check, search starts here
         // been searched. In general, we would like to reduce them, but there are many
         // cases where we extend a son if it has good chances to be "interesting".
         if (depth >= 2 && moveCount > 1 + rootNode
-            && (!ss->ttPv || !capture || (cutNode && (ss - 1)->moveCount > 1)))
+            && (!ss->ttPv || !capture || !givesCheck || (cutNode && (ss - 1)->moveCount > 1)))
         {
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
