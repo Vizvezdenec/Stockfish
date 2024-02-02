@@ -1110,7 +1110,6 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
-        bool badCapt = !capture ? true : !pos.see_ge(move);
         pos.do_move(move, st, givesCheck);
 
         // Decrease reduction if position is or has been on the PV (~5 Elo)
@@ -1163,7 +1162,7 @@ moves_loop:  // When in check, search starts here
         // been searched. In general, we would like to reduce them, but there are many
         // cases where we extend a son if it has good chances to be "interesting".
         if (depth >= 2 && moveCount > 1 + rootNode
-            && (!ss->ttPv || !capture || badCapt || (cutNode && (ss - 1)->moveCount > 1)))
+            && (!ss->ttPv || !capture || (cutNode && (ss - 1)->moveCount > 1)))
         {
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
@@ -1332,14 +1331,28 @@ moves_loop:  // When in check, search starts here
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (!priorCapture && prevSq != SQ_NONE)
+    else
     {
-        int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
-                  + ((ss - 1)->moveCount > 10);
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(depth) * bonus / 2;
+        if (!priorCapture && prevSq != SQ_NONE)
+        {
+            int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
+                      + ((ss - 1)->moveCount > 10);
+            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                                          stat_bonus(depth) * bonus);
+            thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
+              << stat_bonus(depth) * bonus / 2;
+        }
+        if (depth == 1)
+        for (int i = 0; i < quietCount; ++i)
+        {
+            int quietMoveMalus = stat_malus(1);
+            thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
+              << -quietMoveMalus;
+
+            thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
+            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
+                                          quietsSearched[i].to_sq(), -quietMoveMalus);
+        }
     }
 
     if (PvNode)
