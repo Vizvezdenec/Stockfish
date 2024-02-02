@@ -1331,28 +1331,14 @@ moves_loop:  // When in check, search starts here
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else
+    else if (!priorCapture && prevSq != SQ_NONE)
     {
-        if (!priorCapture && prevSq != SQ_NONE)
-        {
-            int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
-                      + ((ss - 1)->moveCount > 10);
-            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                          stat_bonus(depth) * bonus);
-            thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-              << stat_bonus(depth) * bonus / 2;
-        }
-        if (depth == 1)
-        for (int i = 0; i < quietCount; ++i)
-        {
-            int quietMoveMalus = stat_malus(1);
-            thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
-              << -quietMoveMalus;
-
-            thisThread->mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
-                                          quietsSearched[i].to_sq(), -quietMoveMalus);
-        }
+        int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -16797)
+                  + ((ss - 1)->moveCount > 10);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                                      stat_bonus(depth) * bonus);
+        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
+          << stat_bonus(depth) * bonus / 2;
     }
 
     if (PvNode)
@@ -1374,10 +1360,10 @@ moves_loop:  // When in check, search starts here
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
+        && !(bestValue >= beta && bestValue <= unadjustedStaticEval)
+        && !(!bestMove && bestValue >= unadjustedStaticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+        auto bonus = std::clamp(int(bestValue - unadjustedStaticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
