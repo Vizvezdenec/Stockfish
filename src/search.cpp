@@ -1178,7 +1178,7 @@ moves_loop:  // When in check, search starts here
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
 
                 if (PvNode && value > bestValue + 200)
-                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth + 1, !cutNode);
+                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth + 3, !cutNode);
             }
         }
 
