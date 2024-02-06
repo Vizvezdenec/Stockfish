@@ -1176,9 +1176,6 @@ moves_loop:  // When in check, search starts here
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
-
-                if (PvNode && value > bestValue + 200)
-                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth + 3, !cutNode);
             }
         }
 
@@ -1308,6 +1305,10 @@ moves_loop:  // When in check, search starts here
     // return a fail low score.
 
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
+
+    if (!PvNode && bestValue >= beta && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && 
+        std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
+        bestValue = (bestValue * depth * 4 + beta) / (depth * 4 + 1);
 
     if (!moveCount)
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
