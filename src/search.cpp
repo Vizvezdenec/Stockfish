@@ -1020,12 +1020,12 @@ moves_loop:  // When in check, search starts here
             // so changing them requires tests at these types of time controls.
             // Recursive singular search is avoided.
             if (!rootNode && move == ttMove && !excludedMove
-                && depth >= 4 - (tte->depth() > 0) - (thisThread->completedDepth > 31) + ss->ttPv
+                && depth >= 4 - (thisThread->completedDepth > 29) + ss->ttPv
                 && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
             {
                 Value singularBeta  = ttValue - (62 + 52 * (ss->ttPv && !PvNode)) * depth / 64;
-                Depth singularDepth = std::max(1, newDepth / 2);
+                Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
                 value =
@@ -1305,6 +1305,10 @@ moves_loop:  // When in check, search starts here
     // return a fail low score.
 
     assert(moveCount || !ss->inCheck || excludedMove || !MoveList<LEGAL>(pos).size());
+
+    if (!PvNode && bestValue >= beta && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && 
+        std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
+        bestValue = (bestValue * depth * 2 + beta) / (depth * 2 + 1);
 
     if (!moveCount)
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
