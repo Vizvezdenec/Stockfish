@@ -762,7 +762,12 @@ Value Search::Worker::search(
              >= beta
         && eval >= beta && eval < 28702  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return beta > VALUE_TB_LOSS_IN_MAX_PLY ? (eval + beta) / 2 : eval;
+    {
+        Value returnValue = beta <= VALUE_TB_LOSS_IN_MAX_PLY ? eval
+                          : eval == ss->staticEval           ? (eval + beta) / 2
+                          : (eval * (depth + 2) + beta) / (depth + 3);
+        return returnValue;
+    }
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 17379
@@ -787,8 +792,6 @@ Value Search::Worker::search(
         // Do not return unproven mate or TB scores
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
-            if (depth - R <= 0)
-                nullValue = (nullValue * 3 + beta) / 4;
             if (thisThread->nmpMinPly || depth < 16)
                 return nullValue;
 
