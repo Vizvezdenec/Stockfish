@@ -787,6 +787,8 @@ Value Search::Worker::search(
         // Do not return unproven mate or TB scores
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
+            if (depth - R <= 0)
+                nullValue = (nullValue * 3 + beta) / 4;
             if (thisThread->nmpMinPly || depth < 16)
                 return nullValue;
 
@@ -1602,7 +1604,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     }
 
     if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && bestValue >= beta)
-        bestValue = ((3 - (depth < 0)) * bestValue + beta) / (4 - (depth < 0));
+        bestValue = (3 * bestValue + beta) / 4;
 
     // Save gathered info in transposition table
     // Static evaluation is saved as it was before adjustment by correction history
