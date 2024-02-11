@@ -762,12 +762,7 @@ Value Search::Worker::search(
              >= beta
         && eval >= beta && eval < 28702  // smaller than TB wins
         && (!ttMove || ttCapture))
-    {
-        Value returnValue = beta <= VALUE_TB_LOSS_IN_MAX_PLY ? eval
-                          : eval == ss->staticEval           ? (eval + beta) / 2
-                          : (eval * (tte->depth() + 2) + beta) / (tte->depth() + 3);
-        return returnValue;
-    }
+        return beta > VALUE_TB_LOSS_IN_MAX_PLY ? (eval + beta) / 2 : eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 17379
@@ -1607,7 +1602,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     }
 
     if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && bestValue >= beta)
-        bestValue = (3 * bestValue + beta) / 4;
+        bestValue = depth == 0 ? (3 * bestValue + beta) / 4 : (bestValue + 3 * beta) / 4;
 
     // Save gathered info in transposition table
     // Static evaluation is saved as it was before adjustment by correction history
