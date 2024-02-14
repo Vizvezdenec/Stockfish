@@ -982,10 +982,9 @@ moves_loop:  // When in check, search starts here
                 if (lmrDepth < 6 && history < -4215 * depth)
                     continue;
 
-                history += 69 * thisThread->mainHistory[us][move.from_to()] / 32;
+                history += 2 * thisThread->mainHistory[us][move.from_to()];
 
                 lmrDepth += history / 6658;
-                lmrDepth = std::max(lmrDepth, -1);
 
                 // Futility pruning: parent node (~13 Elo)
                 if (!ss->inCheck && lmrDepth < 15
@@ -1171,7 +1170,7 @@ moves_loop:  // When in check, search starts here
                 r += 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
-            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
+            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3) + (depth < 5 && r < -3), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
