@@ -982,7 +982,7 @@ moves_loop:  // When in check, search starts here
                 if (lmrDepth < 6 && history < -4215 * depth)
                     continue;
 
-                history += 2 * thisThread->mainHistory[us][move.from_to()];
+                history += 69 * thisThread->mainHistory[us][move.from_to()] / 32;
 
                 lmrDepth += history / 6658;
                 lmrDepth = std::max(lmrDepth, -1);
