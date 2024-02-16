@@ -1184,7 +1184,7 @@ moves_loop:  // When in check, search starts here
                 r += 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
-            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
+            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3 && !(!ttCapture && move == ttMove)), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
@@ -1511,7 +1511,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         moveCount++;
 
         // Step 6. Pruning
-        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us) && !(PvNode && !ttMove && moveCount == 1))
+        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
