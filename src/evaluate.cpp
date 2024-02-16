@@ -176,7 +176,7 @@ void NNUE::verify(const OptionsMap&                                        optio
             sync_cout << "info string ERROR: " << msg4 << sync_endl;
             sync_cout << "info string ERROR: " << msg5 << sync_endl;
 
-            exit(EXIT_FAILURE);
+            exit(502);
         }
 
         sync_cout << "info string NNUE evaluation using " << user_eval_file << sync_endl;

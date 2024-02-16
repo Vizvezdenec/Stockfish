@@ -581,7 +581,7 @@ void aligned_large_pages_free(void* mem) {
         DWORD err = GetLastError();
         std::cerr << "Failed to free large page memory. Error code: 0x" << std::hex << err
                   << std::dec << std::endl;
-        exit(EXIT_FAILURE);
+        exit(504);
     }
 }
 
