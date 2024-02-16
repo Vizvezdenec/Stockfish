@@ -1511,7 +1511,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         moveCount++;
 
         // Step 6. Pruning
-        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us) && !(PvNode && move == ttMove))
+        if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us) && !(PvNode && !ttMove && moveCount == 1))
         {
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
