@@ -1043,6 +1043,8 @@ moves_loop:  // When in check, search starts here
                         extension = 2 + (value < singularBeta - 78 && !ttCapture);
                         depth += depth < 16;
                     }
+                    if (PvNode && !ttCapture && ss->multipleExtensions <= 5 && value < singularBeta - 100 && !tte->is_pv())
+                        extension = 2;
                 }
 
                 // Multi-cut pruning
