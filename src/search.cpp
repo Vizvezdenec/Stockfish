@@ -1043,7 +1043,7 @@ moves_loop:  // When in check, search starts here
                         extension = 2 + (value < singularBeta - 78 && !ttCapture);
                         depth += depth < 16;
                     }
-                    if (PvNode && !ttCapture && ss->multipleExtensions <= 5 && value < singularBeta - 50 && !tte->is_pv())
+                    if (PvNode && !ttCapture && ss->multipleExtensions <= 5 && value < singularBeta - 50)
                         extension = 2;
                 }
 
