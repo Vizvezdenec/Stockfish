@@ -1043,8 +1043,6 @@ moves_loop:  // When in check, search starts here
                         extension = 2 + (value < singularBeta - 78 && !ttCapture);
                         depth += depth < 16;
                     }
-                    if (PvNode && !ttCapture && ss->multipleExtensions <= 5 && value < singularBeta - 50)
-                        extension = 2;
                 }
 
                 // Multi-cut pruning
@@ -1303,7 +1301,7 @@ moves_loop:  // When in check, search starts here
     // Adjust best value for fail high cases at non-pv nodes
     if (!PvNode && bestValue >= beta && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
-        bestValue = (bestValue * (depth + 2) + beta) / (depth + 3);
+        bestValue = (bestValue * (depth + 1) + beta) / (depth + 2);
 
     if (!moveCount)
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
