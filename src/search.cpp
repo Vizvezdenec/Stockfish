@@ -1043,6 +1043,8 @@ moves_loop:  // When in check, search starts here
                         extension = 2 + (value < singularBeta - 78 && !ttCapture);
                         depth += depth < 16;
                     }
+                    if (PvNode && !ttCapture && ss->multipleExtensions <= 15 && value < singularBeta - 100 && !tte->is_pv())
+                        extension = 2;
                 }
 
                 // Multi-cut pruning
@@ -1279,9 +1281,6 @@ moves_loop:  // When in check, search starts here
                 }
             }
         }
-
-        if (value <= alpha)
-            ss->staticEval -= std::min((alpha - value) / 32, 32);
 
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
