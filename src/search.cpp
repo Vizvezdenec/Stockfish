@@ -1280,6 +1280,9 @@ moves_loop:  // When in check, search starts here
             }
         }
 
+        if (value <= alpha)
+            ss->staticEval -= std::min((alpha - value) / 32, 32);
+
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
         if (move != bestMove && moveCount <= 32)
