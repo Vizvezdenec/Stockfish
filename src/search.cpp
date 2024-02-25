@@ -1112,7 +1112,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (~3 Elo)
         if (PvNode)
-            r--;
+            r -= 1 + ((ss-1)->moveCount == 1);
 
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
