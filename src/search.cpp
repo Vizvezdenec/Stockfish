@@ -1501,7 +1501,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         givesCheck = pos.gives_check(move);
         capture    = pos.capture_stage(move);
 
-        if (depth == 0 && (tte->bound() & BOUND_UPPER) && ttValue <= alpha && !givesCheck)
+        if (depth == 0 && (tte->bound() & BOUND_UPPER) && ttValue <= alpha && !givesCheck && !PvNode)
             continue;
 
         moveCount++;
