@@ -121,8 +121,7 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth,
-                      bool            failedNull);
+                      Depth           depth);
 
 }  // namespace
 
@@ -685,7 +684,6 @@ Value Search::Worker::search(
         }
     }
 
-    bool failedNull = false;
     // Step 6. Static evaluation of the position
     Value unadjustedStaticEval = VALUE_NONE;
     if (ss->inCheck)
@@ -807,7 +805,6 @@ Value Search::Worker::search(
             if (v >= beta)
                 return nullValue;
         }
-        else failedNull = true;
     }
 
     // Step 10. Internal iterative reductions (~9 Elo)
@@ -1312,7 +1309,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, *this, bestMove, bestValue, beta, prevSq, quietsSearched,
-                         quietCount, capturesSearched, captureCount, depth, failedNull);
+                         quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1503,6 +1500,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
         givesCheck = pos.gives_check(move);
         capture    = pos.capture_stage(move);
+
+        if (depth == 0 && (tte->bound() & BOUND_UPPER) && ttValue <= alpha && !givesCheck)
+            continue;
 
         moveCount++;
 
@@ -1700,8 +1700,7 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth,
-                      bool            failedNull) {
+                      Depth           depth) {
 
     Color                  us             = pos.side_to_move();
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
@@ -1713,8 +1712,8 @@ void update_all_stats(const Position& pos,
 
     if (!pos.capture_stage(bestMove))
     {
-        bool goodBV = bestValue > beta + 166;
-        int bestMoveBonus = stat_bonus(depth + goodBV + failedNull);  // smaller bonus
+        int bestMoveBonus = bestValue > beta + 166 ? quietMoveBonus      // larger bonus
+                                                   : stat_bonus(depth);  // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, workerThread, bestMove, bestMoveBonus);
