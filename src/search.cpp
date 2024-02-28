@@ -1713,8 +1713,8 @@ void update_all_stats(const Position& pos,
 
     if (!pos.capture_stage(bestMove))
     {
-        int bestMoveBonus = failedNull || (bestValue > beta + 166) ? quietMoveBonus      // larger bonus
-                                                   : stat_bonus(depth);  // smaller bonus
+        bool goodBV = bestValue > beta + 166;
+        int bestMoveBonus = stat_bonus(depth + goodBV + failedNull);  // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, workerThread, bestMove, bestMoveBonus);
