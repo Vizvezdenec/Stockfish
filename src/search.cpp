@@ -981,7 +981,7 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + (*contHist[3])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  + 2 * thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -4211 * depth)
@@ -1500,9 +1500,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
         givesCheck = pos.gives_check(move);
         capture    = pos.capture_stage(move);
-
-        if (depth == 0 && (tte->bound() & BOUND_UPPER) && ttValue <= alpha && !givesCheck && !PvNode)
-            continue;
 
         moveCount++;
 
