@@ -121,7 +121,8 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth);
+                      Depth           depth,
+                      bool            gfh);
 
 }  // namespace
 
@@ -860,14 +861,8 @@ Value Search::Worker::search(
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                {
-                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, 1,
-                              move, unadjustedStaticEval, tt.generation());
-                    if (ss->ttHit && !ttMove)
-                        ttMove = move;
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
-                }
 
                 pos.undo_move(move);
 
@@ -1315,7 +1310,7 @@ moves_loop:  // When in check, search starts here
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
         update_all_stats(pos, ss, *this, bestMove, bestValue, beta, prevSq, quietsSearched,
-                         quietCount, capturesSearched, captureCount, depth);
+                         quietCount, capturesSearched, captureCount, depth, ss->staticEval <= alpha && bestValue >= beta);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1703,7 +1698,8 @@ void update_all_stats(const Position& pos,
                       int             quietCount,
                       Move*           capturesSearched,
                       int             captureCount,
-                      Depth           depth) {
+                      Depth           depth,
+                      bool            gfh) {
 
     Color                  us             = pos.side_to_move();
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
@@ -1715,7 +1711,7 @@ void update_all_stats(const Position& pos,
 
     if (!pos.capture_stage(bestMove))
     {
-        int bestMoveBonus = bestValue > beta + 166 ? quietMoveBonus      // larger bonus
+        int bestMoveBonus = (bestValue > beta + 166) || gfh ? quietMoveBonus      // larger bonus
                                                    : stat_bonus(depth);  // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
