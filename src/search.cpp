@@ -754,8 +754,6 @@ Value Search::Worker::search(
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
             return value;
-        if (ss->ttHit && !ttMove)
-            ttMove = ss->currentMove;
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -862,8 +860,12 @@ Value Search::Worker::search(
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
+                {
+                    tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, 1,
+                              move, unadjustedStaticEval, tt.generation());
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
+                }
 
                 pos.undo_move(move);
 
