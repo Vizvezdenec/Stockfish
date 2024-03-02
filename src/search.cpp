@@ -863,6 +863,8 @@ Value Search::Worker::search(
                 {
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, 1,
                               move, unadjustedStaticEval, tt.generation());
+                    if (ss->ttHit && !ttMove)
+                        ttMove = move;
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
                 }
