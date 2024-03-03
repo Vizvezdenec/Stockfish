@@ -861,7 +861,7 @@ Value Search::Worker::search(
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
                 {
-                    if (ss->ttHit && !ttMove)
+                    if (!ttMove)
                         ttMove = move;
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
