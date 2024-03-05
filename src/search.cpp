@@ -726,7 +726,7 @@ Value Search::Worker::search(
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = -14 * int((ss - 1)->staticEval + ss->staticEval);
-        int brk = 1000;
+        int brk = 500;
         if (std::abs(bonus) > brk)
             bonus = bonus > 0 ? std::min((brk - bonus) / 2, 0) + bonus : std::max((-brk - bonus) / 2, 0) + bonus;
         bonus = std::clamp(bonus, -1723, 1455);
