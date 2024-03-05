@@ -725,8 +725,8 @@ Value Search::Worker::search(
     // Use static evaluation difference to improve quiet move ordering (~9 Elo)
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
-        int bonus = -18 * int((ss - 1)->staticEval + ss->staticEval);
-        int brk = 500;
+        int bonus = -20 * int((ss - 1)->staticEval + ss->staticEval);
+        int brk = 800;
         if (std::abs(bonus) > brk)
             bonus = bonus > 0 ? std::min((brk - bonus) / 2, 0) + bonus : std::max((-brk - bonus) / 2, 0) + bonus;
         bonus = std::clamp(bonus, -1723, 1455);
