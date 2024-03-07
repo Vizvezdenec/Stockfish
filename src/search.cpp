@@ -863,12 +863,9 @@ Value Search::Worker::search(
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                {
-                    tte->save(posKey, value_to_tt(value - (probCutBeta - beta), ss->ply), ss->ttPv, BOUND_LOWER, 1,
-                              move, unadjustedStaticEval, tt.generation());
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
-                }
+
                 pos.undo_move(move);
 
                 if (value >= probCutBeta)
@@ -1050,7 +1047,10 @@ moves_loop:  // When in check, search starts here
                         depth += depth < 16;
                     }
                     if (PvNode && !ttCapture && ss->multipleExtensions <= 5 && value < singularBeta - 50)
+                    {
                         extension = 2;
+                        depth += depth < 8;
+                    }
                 }
 
                 // Multi-cut pruning
