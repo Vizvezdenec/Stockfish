@@ -761,7 +761,12 @@ Value Search::Worker::search(
              >= beta
         && eval >= beta && eval < 30016  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return beta > VALUE_TB_LOSS_IN_MAX_PLY ? (eval + beta) / 2 : eval;
+        {
+            Value returnValue = beta <= VALUE_TB_LOSS_IN_MAX_PLY ? eval
+                                : eval != ss->staticEval         ? eval
+                                : (eval + beta * depth) / (depth + 1);
+            return returnValue;
+        }
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 16620
