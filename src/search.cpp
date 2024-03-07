@@ -764,7 +764,7 @@ Value Search::Worker::search(
         {
             Value returnValue = beta <= VALUE_TB_LOSS_IN_MAX_PLY ? eval
                                 : eval != ss->staticEval         ? eval
-                                : (eval + beta * depth) / (depth + 1);
+                                : (2 * eval + beta * (depth + 1)) / (depth + 3);
             return returnValue;
         }
 
