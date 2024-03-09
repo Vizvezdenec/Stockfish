@@ -1727,7 +1727,7 @@ void update_all_stats(const Position& pos,
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
         {
-            int malus = quietCount < 16 ? -quietMoveMalus : -quietMoveMalus * (64 - quietCount) / 48;
+            int malus = quietCount < 32 ? -quietMoveMalus : -quietMoveMalus * (64 - quietCount) / 32;
             workerThread
                 .pawnHistory[pIndex][pos.moved_piece(quietsSearched[i])][quietsSearched[i].to_sq()]
               << malus;
