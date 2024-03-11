@@ -815,7 +815,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth by 3.
     if (PvNode && !ttMove)
-        depth -= 3 + 3 * (ss->ttHit && tte->depth() >= depth);
+        depth -= 2 + 3 * (ss->ttHit && tte->depth() >= depth);
 
     // Use qsearch if depth <= 0.
     if (depth <= 0)
