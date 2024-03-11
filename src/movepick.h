@@ -71,7 +71,7 @@ class StatsEntry {
     void operator<<(int bonus) {
         static_assert(D <= std::numeric_limits<T>::max(), "D overflows T");
 
-        int truncatedBonus = std::clamp(bonus, -D, D); // Make sure that bonus isn't overflowing D
+        T truncatedBonus = std::clamp(bonus, -D, D); // Make sure that bonus isn't overflowing D
         entry += truncatedBonus - entry * std::abs(truncatedBonus) / D;
 
         assert(std::abs(entry) <= D);
