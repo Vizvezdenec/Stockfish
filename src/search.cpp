@@ -1159,9 +1159,12 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result
                 // was good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 48 + 2 * newDepth);  // (~1 Elo)
+                const bool doEvenDeeperSearch = !capture && value > (bestValue + 480 + 20 * newDepth);
                 const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
 
-                newDepth += doDeeperSearch - doShallowerSearch;
+                newDepth += doDeeperSearch - doShallowerSearch + doEvenDeeperSearch;
+
+                ss->multipleExtensions = ss->multipleExtensions + doEvenDeeperSearch;
 
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
@@ -1352,8 +1355,6 @@ moves_loop:  // When in check, search starts here
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        if (bonus < 0)
-            bonus *= 2;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
