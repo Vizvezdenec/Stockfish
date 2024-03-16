@@ -1330,7 +1330,7 @@ moves_loop:  // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree. (~7 Elo)
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3);
+        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && (depth > 3 || (!ss->inCheck && bestValue <= ss->staticEval - 850)));
 
     // Write gathered information in transposition table
     // Static evaluation is saved as it was before correction history
@@ -1612,7 +1612,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     // Save gathered info in transposition table
     // Static evaluation is saved as it was before adjustment by correction history
-    tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit || (PvNode && bestValue >= beta && !pos.capture(bestMove)),
+    tte->save(posKey, value_to_tt(bestValue, ss->ply), pvHit,
               bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, ttDepth, bestMove,
               unadjustedStaticEval, tt.generation());
 
