@@ -1056,7 +1056,7 @@ moves_loop:  // When in check, search starts here
                 {
                     if (!ttCapture && singularBeta >= ss->staticEval)
                     {
-                        auto bonus = std::min(int(singularBeta - ss->staticEval) * depth / 8, CORRECTION_HISTORY_LIMIT / 4);
+                        auto bonus = std::min(int(singularBeta - ss->staticEval) * depth / 16, CORRECTION_HISTORY_LIMIT / 8);
                         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
                     }
                     return singularBeta;
