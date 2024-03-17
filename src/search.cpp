@@ -1053,14 +1053,7 @@ moves_loop:  // When in check, search starts here
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
                 else if (singularBeta >= beta)
-                {
-                    if (!ttCapture && singularBeta >= ss->staticEval)
-                    {
-                        auto bonus = std::min(int(singularBeta - ss->staticEval) * depth / 16, CORRECTION_HISTORY_LIMIT / 8);
-                        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                    }
                     return singularBeta;
-                }
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the ttMove on a reduced search,
@@ -1126,6 +1119,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction on repetition (~1 Elo)
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
+
+        if (!ss->inCheck && moveCount > 5 && bestValue <= ss->staticEval - 150)
+            r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
