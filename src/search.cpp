@@ -1120,7 +1120,7 @@ moves_loop:  // When in check, search starts here
         if (move == (ss - 4)->currentMove && pos.has_repeated())
             r += 2;
 
-        if (!ss->inCheck && moveCount > 5 && bestValue <= ss->staticEval - 150)
+        if (!ss->inCheck && moveCount > 5 && !capture && bestValue <= ss->staticEval - 150)
             r++;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
