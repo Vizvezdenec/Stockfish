@@ -791,7 +791,12 @@ Value Search::Worker::search(
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 16)
+            {
+                if (depth - R > 0 && !ss->ttHit)
+                    tte->save(posKey, value_to_tt(nullValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
+                              Move::none(), unadjustedStaticEval, tt.generation());
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -824,7 +829,7 @@ Value Search::Worker::search(
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 168 - 64 * improving + 100 * ss->ttPv;
+    probCutBeta = beta + 168 - 64 * improving;
     if (
       !PvNode && depth > 3
       && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
