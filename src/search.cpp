@@ -1000,7 +1000,7 @@ moves_loop:  // When in check, search starts here
                          <= alpha)
                 {
                     if (bestValue <= futilityValue && abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
-                        bestValue = (bestValue + futilityValue * 3) / 4;
+                        bestValue = (bestValue * 5 + futilityValue * 3) / 8;
                     continue;
                 }
 
