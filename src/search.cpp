@@ -1519,7 +1519,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 // than alpha we can prune this move. (~2 Elo)
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, (futilityValue * 3 + bestValue) / 4);
+                    bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
 
@@ -1527,7 +1527,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 // we can prune this move. (~2 Elo)
                 if (futilityBase <= alpha && !pos.see_ge(move, 1))
                 {
-                    bestValue = std::max(bestValue, futilityBase);
+                    bestValue = std::max(bestValue, (futilityBase + bestValue) / 2);
                     continue;
                 }
 
