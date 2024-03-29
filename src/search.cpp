@@ -967,11 +967,11 @@ moves_loop:  // When in check, search starts here
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
                     Piece capturedPiece = pos.piece_on(move.to_sq());
-                    Value futilityValue =
-                      ss->staticEval + 298 + 284 * lmrDepth + PieceValue[capturedPiece]
+                    int   futilityEval =
+                      ss->staticEval + 297 + 284 * lmrDepth + PieceValue[capturedPiece]
                       + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)]
                           / 7;
-                    if (futilityValue <= alpha)
+                    if (futilityEval < alpha)
                         continue;
                 }
 
@@ -1528,7 +1528,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 // than alpha we can prune this move. (~2 Elo)
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, futilityValue);
+                    bestValue = std::max(bestValue, (futilityValue * 3 + bestValue) / 4);
                     continue;
                 }
 
