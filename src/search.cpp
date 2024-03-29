@@ -972,7 +972,12 @@ moves_loop:  // When in check, search starts here
                       + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)]
                           / 7;
                     if (futilityEval < alpha)
+                    {
+                        if (bestValue <= futilityEval && abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
+                            && futilityEval < VALUE_TB_WIN_IN_MAX_PLY)
+                            bestValue = (bestValue + futilityEval * 3) / 4;
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
