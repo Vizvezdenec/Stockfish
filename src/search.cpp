@@ -1050,6 +1050,8 @@ moves_loop:  // When in check, search starts here
                     if (!PvNode && ss->multipleExtensions <= 16)
                     {
                         extension = 2 + (value < singularBeta - 22 && !ttCapture);
+                        if (newDepth + extension < tte->depth())
+                            extension++;
                         depth += depth < 14;
                     }
                     if (PvNode && !ttCapture && ss->multipleExtensions <= 5
@@ -1528,7 +1530,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 // than alpha we can prune this move. (~2 Elo)
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, (futilityValue * 3 + bestValue) / 4);
+                    bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
 
