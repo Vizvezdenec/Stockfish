@@ -975,7 +975,7 @@ moves_loop:  // When in check, search starts here
                     {
                         if (bestValue <= futilityEval && abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
                             && futilityEval < VALUE_TB_WIN_IN_MAX_PLY)
-                            bestValue = (3 * bestValue + futilityEval) / 4;
+                            bestValue = (bestValue + futilityEval) / 2;
                         continue;
                     }
                 }
