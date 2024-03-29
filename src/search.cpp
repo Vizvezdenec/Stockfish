@@ -967,17 +967,12 @@ moves_loop:  // When in check, search starts here
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
                     Piece capturedPiece = pos.piece_on(move.to_sq());
-                    int   futilityEval =
-                      ss->staticEval + 297 + 284 * lmrDepth + PieceValue[capturedPiece]
+                    Value futilityValue =
+                      ss->staticEval + 298 + 284 * lmrDepth + PieceValue[capturedPiece]
                       + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)]
                           / 7;
-                    if (futilityEval < alpha)
-                    {
-                        if (bestValue <= futilityEval && abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
-                            && futilityEval < VALUE_TB_WIN_IN_MAX_PLY)
-                            bestValue = (bestValue + futilityEval) / 2;
+                    if (futilityValue <= alpha)
                         continue;
-                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
