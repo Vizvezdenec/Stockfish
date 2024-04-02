@@ -1059,7 +1059,7 @@ moves_loop:  // When in check, search starts here
                         && value < singularBeta - 37)
                         extension = 2;
 
-                    if (extension > 1)
+                    if (extension > 2)
                         ss->singExt = true;
                 }
 
