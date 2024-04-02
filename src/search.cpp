@@ -1348,12 +1348,13 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove)))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        if (   (bestValue >= beta && bestValue <= ss->staticEval)
+            || (!bestMove && bestValue >= ss->staticEval))
+            bonus /= 2;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
