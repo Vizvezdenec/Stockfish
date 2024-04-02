@@ -691,14 +691,7 @@ Value Search::Worker::search(
 
     // Step 6. Static evaluation of the position
     Value unadjustedStaticEval = VALUE_NONE;
-    if (ss->inCheck)
-    {
-        // Skip early pruning when in check
-        ss->staticEval = eval = VALUE_NONE;
-        improving             = false;
-        goto moves_loop;
-    }
-    else if (excludedMove)
+    if (excludedMove)
     {
         // Providing the hint that this node's accumulator will be used often
         // brings significant Elo gain (~13 Elo).
@@ -773,7 +766,7 @@ Value Search::Worker::search(
         return beta > VALUE_TB_LOSS_IN_MAX_PLY ? (eval + beta) / 2 : eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
-    if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 16878
+    if (!PvNode && !ss->inCheck && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 16878
         && eval >= beta && ss->staticEval >= beta - 20 * depth + 314 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
@@ -831,7 +824,7 @@ Value Search::Worker::search(
     // much above beta, we can (almost) safely prune the previous move.
     probCutBeta = beta + 170 - 64 * improving;
     if (
-      !PvNode && depth > 3
+      !PvNode && depth > 3 && !ss->inCheck
       && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
       // If value from transposition table is lower than probCutBeta, don't attempt probCut
       // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -881,8 +874,6 @@ Value Search::Worker::search(
 
         Eval::NNUE::hint_common_parent_position(pos, networks);
     }
-
-moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 409;
@@ -1348,14 +1339,12 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        if (bestMove && pos.capture(bestMove))
-            bonus /= 4;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
