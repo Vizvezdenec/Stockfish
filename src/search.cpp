@@ -1271,7 +1271,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove + (value >= ss->staticEval + 450);
+                    ss->cutoffCnt += 1 + !ttMove;
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1279,9 +1279,9 @@ moves_loop:  // When in check, search starts here
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 12 && beta < 14206 && value > -12077)
-                        depth -= 2;
+                        depth -= 2 + (move == ttMove);
 
-                    assert(depth > 0);
+                    depth = std::max(depth, 0);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
             }
