@@ -1082,9 +1082,6 @@ moves_loop:  // When in check, search starts here
                 // If the ttMove is assumed to fail low over the value of the reduced search (~1 Elo)
                 else if (ttValue <= value)
                     extension = -1;
-
-                else if (!PvNode)
-                    extension = 1;
             }
 
             // Recapture extensions (~0 Elo on STC, ~1 Elo on LTC)
@@ -1108,6 +1105,8 @@ moves_loop:  // When in check, search starts here
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][move.to_sq()];
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
+
+        bool lmrBV = false;
 
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
@@ -1157,6 +1156,16 @@ moves_loop:  // When in check, search starts here
             Depth d = std::max(1, std::min(newDepth - r, newDepth + 1));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
+
+            if (value <= alpha && d < newDepth)
+            {
+                lmrBV = true;
+                if (value > bestValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
+                    && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
+                    bestValue = (value + bestValue) / 2;
+                else
+                    bestValue = std::max(bestValue, value);
+            }
 
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
@@ -1263,7 +1272,8 @@ moves_loop:  // When in check, search starts here
 
         if (value > bestValue)
         {
-            bestValue = value;
+            if (!lmrBV)
+                bestValue = value;
 
             if (value > alpha)
             {
