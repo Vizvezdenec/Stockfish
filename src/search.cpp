@@ -1162,7 +1162,7 @@ moves_loop:  // When in check, search starts here
                 lmrBV = true;
                 if (value > bestValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
                     && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
-                    bestValue = (3 * value + bestValue) / 4;
+                    bestValue = (7 * value + bestValue) / 8;
                 else
                     bestValue = std::max(bestValue, value);
             }
