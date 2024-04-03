@@ -1106,8 +1106,6 @@ moves_loop:  // When in check, search starts here
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
-        bool lmrBV = false;
-
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
@@ -1156,16 +1154,6 @@ moves_loop:  // When in check, search starts here
             Depth d = std::max(1, std::min(newDepth - r, newDepth + 1));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
-
-            if (value <= alpha && d < newDepth)
-            {
-                lmrBV = true;
-                if (value > bestValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
-                    && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
-                    bestValue = (7 * value + bestValue) / 8;
-                else
-                    bestValue = std::max(bestValue, value);
-            }
 
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
@@ -1272,8 +1260,7 @@ moves_loop:  // When in check, search starts here
 
         if (value > bestValue)
         {
-            if (!lmrBV)
-                bestValue = value;
+            bestValue = value;
 
             if (value > alpha)
             {
@@ -1284,7 +1271,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove;
+                    ss->cutoffCnt += 1 + !ttMove + (value >= ss->staticEval + 50);
                     assert(value >= beta);  // Fail high
                     break;
                 }
