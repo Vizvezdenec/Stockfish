@@ -1182,7 +1182,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttMove)
-                r += 2;
+                r += 2 + cutNode;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
@@ -1279,9 +1279,9 @@ moves_loop:  // When in check, search starts here
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 12 && beta < 14206 && value > -12077)
-                        depth -= 2 + 2 * (move == ttMove && tte->depth() >= depth);
+                        depth -= 2;
 
-                    depth = std::max(depth, 0);
+                    assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
             }
