@@ -1053,7 +1053,7 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()]
                       + (*contHist[3])[movedPiece][move.to_sq()];
-                        extension = 2 + (value < singularBeta - 22 && !ttCapture) + (history > 80000);
+                        extension = 2 + (value < singularBeta - 22 && !ttCapture) + (history > 90000);
                         depth += depth < 14;
                     }
                     if (PvNode && !ttCapture && ss->multipleExtensions <= 5
