@@ -1042,17 +1042,41 @@ bool Position::see_ge(Move m, int threshold) const {
 
     Square from = m.from_sq(), to = m.to_sq();
 
+    int bishoppair[COLOR_NB];
+    int bishopPair = 50;
+    bishoppair[WHITE] = bishopPair;
+    bishoppair[BLACK] = bishopPair;
+    Color    stm       = sideToMove;
+
+    if (count<BISHOP>(WHITE) != 2)
+        bishoppair[WHITE] = 0;
+
+    if (count<BISHOP>(BLACK) != 2)
+        bishoppair[BLACK] = 0;
+
     int swap = PieceValue[piece_on(to)] - threshold;
+    if (type_of(piece_on(to)) == BISHOP)
+    {
+        swap += bishoppair[~stm];
+        bishoppair[~stm] = 0;
+    }
+
     if (swap < 0)
         return false;
 
     swap = PieceValue[piece_on(from)] - swap;
+
+    if (type_of(piece_on(from)) == BISHOP)
+    {
+        swap -= bishoppair[stm];
+        bishoppair[stm] = 0;
+    }
+
     if (swap <= 0)
         return true;
 
     assert(color_of(piece_on(from)) == sideToMove);
     Bitboard occupied  = pieces() ^ from ^ to;  // xoring to is important for pinned piece logic
-    Color    stm       = sideToMove;
     Bitboard attackers = attackers_to(to, occupied);
     Bitboard stmAttackers, bb;
     int      res = 1;
@@ -1098,9 +1122,10 @@ bool Position::see_ge(Move m, int threshold) const {
 
         else if ((bb = stmAttackers & pieces(BISHOP)))
         {
-            if ((swap = BishopValue - swap) < res)
+            if ((swap = BishopValue - swap - bishoppair[stm]) < res)
                 break;
             occupied ^= least_significant_square_bb(bb);
+            bishoppair[stm] = 0;
 
             attackers |= attacks_bb<BISHOP>(to, occupied) & pieces(BISHOP, QUEEN);
         }
