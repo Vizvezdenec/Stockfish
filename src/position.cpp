@@ -1043,7 +1043,7 @@ bool Position::see_ge(Move m, int threshold) const {
     Square from = m.from_sq(), to = m.to_sq();
 
     int bishoppair[COLOR_NB];
-    int bishopPair = 50;
+    int bishopPair = 104;
     bishoppair[WHITE] = bishopPair;
     bishoppair[BLACK] = bishopPair;
     Color    stm       = sideToMove;
