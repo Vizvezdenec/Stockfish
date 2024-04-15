@@ -1183,8 +1183,8 @@ moves_loop:  // When in check, search starts here
             if (!ttMove)
                 r += 2;
 
-            if (extension > 2)
-                r--;
+            if (extension)
+                r-= 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
