@@ -822,7 +822,7 @@ Value Search::Worker::search(
     else if (cutNode && depth >= 8)
         depth -= 2;
     }
-    else if (tte->depth() <= depth - 4)
+    else if ((PvNode || cutNode) && tte->depth() <= depth - 6)
         depth--;
     if (depth <= 0)
         return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta);
