@@ -888,7 +888,7 @@ moves_loop:  // When in check, search starts here
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
-        captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][pos.piece_on(ttMove.to_sq())] << stat_bonus(depth - 3);
+        captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][pos.piece_on(ttMove.to_sq())] << stat_bonus(depth - 2);
         return probCutBeta;
     }
 
