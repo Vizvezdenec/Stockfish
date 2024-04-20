@@ -1266,9 +1266,17 @@ moves_loop:  // When in check, search starts here
                 if (bestMove)
                 {
                     if (pos.capture_stage(bestMove))
-                        capturesSearched[captureCount++] = bestMove;
+                        captureHistory[pos.moved_piece(bestMove)][bestMove.to_sq()][pos.piece_on(bestMove.to_sq())] << -stat_bonus(depth + 1) / 2;
                     else
-                        quietsSearched[quietCount++] = bestMove;
+                    {
+                        int quietMoveMalus = -stat_bonus(depth) / 2;
+                        thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(bestMove)][bestMove.to_sq()]
+                            << -quietMoveMalus;
+
+                        thisThread->mainHistory[us][bestMove.from_to()] << -quietMoveMalus;
+                        update_continuation_histories(ss, pos.moved_piece(bestMove),
+                                          bestMove.to_sq(), -quietMoveMalus);
+                    }
                 }
                 bestMove = move;
 
