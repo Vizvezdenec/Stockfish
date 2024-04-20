@@ -811,20 +811,18 @@ Value Search::Worker::search(
         }
     }
 
-    if (!ttMove)
-    {
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth by 3.
     if (PvNode && !ttMove)
         depth -= 3;
 
-    else if (cutNode && depth >= 8)
-        depth -= 2;
-    }
-    else if (tte->depth() <= depth - 4)
-        depth -= 2;
+    // Use qsearch if depth <= 0.
     if (depth <= 0)
-        return qsearch < PvNode ? PV : NonPV > (pos, ss, alpha, beta);
+        return qsearch<PV>(pos, ss, alpha, beta);
+
+    // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
+    if (cutNode && depth >= 8 && !ttMove)
+        depth -= 2;
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
@@ -889,7 +887,10 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+    {
+        captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][pos.piece_on(ttMove.to_sq())] << stat_bonus(depth - 3);
         return probCutBeta;
+    }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
