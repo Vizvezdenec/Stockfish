@@ -887,10 +887,7 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-    {
-        captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][pos.piece_on(ttMove.to_sq())] << stat_bonus(depth - 2);
         return probCutBeta;
-    }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
@@ -1266,6 +1263,13 @@ moves_loop:  // When in check, search starts here
 
             if (value > alpha)
             {
+                if (bestMove)
+                {
+                    if (pos.capture_stage(bestMove))
+                        capturesSearched[captureCount++] = bestMove;
+                    else
+                        quietsSearched[quietCount++] = bestMove;
+                }
                 bestMove = move;
 
                 if (PvNode && !rootNode)  // Update pv even in fail-high case
