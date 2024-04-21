@@ -811,9 +811,11 @@ Value Search::Worker::search(
         }
     }
 
+    if (!ttMove || tte->depth() < depth - 6)
+    {
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth by 3.
-    if (PvNode && !ttMove)
+    if (PvNode)
         depth -= 3;
 
     // Use qsearch if depth <= 0.
@@ -821,8 +823,9 @@ Value Search::Worker::search(
         return qsearch<PV>(pos, ss, alpha, beta);
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
-    if (cutNode && depth >= 8 && !ttMove)
+    if (cutNode && depth >= 8)
         depth -= 2;
+    }
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
@@ -1263,21 +1266,6 @@ moves_loop:  // When in check, search starts here
 
             if (value > alpha)
             {
-                if (bestMove)
-                {
-                    if (pos.capture_stage(bestMove))
-                        captureHistory[pos.moved_piece(bestMove)][bestMove.to_sq()][pos.piece_on(bestMove.to_sq())] << -stat_bonus(depth + 1) / 2;
-                    else
-                    {
-                        int quietMoveMalus = -stat_bonus(depth) / 2;
-                        thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(bestMove)][bestMove.to_sq()]
-                            << -quietMoveMalus;
-
-                        thisThread->mainHistory[us][bestMove.from_to()] << -quietMoveMalus;
-                        update_continuation_histories(ss, pos.moved_piece(bestMove),
-                                          bestMove.to_sq(), -quietMoveMalus);
-                    }
-                }
                 bestMove = move;
 
                 if (PvNode && !rootNode)  // Update pv even in fail-high case
