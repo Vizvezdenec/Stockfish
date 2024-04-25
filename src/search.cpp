@@ -1352,7 +1352,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove ? bestMove : bestValue >= ss->staticEval + 250 ? bm : bestMove, unadjustedStaticEval, tt.generation());
+                  depth, bestMove ? bestMove : bestValue >= ss->staticEval + 500 ? bm : bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
