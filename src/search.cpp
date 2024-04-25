@@ -910,8 +910,6 @@ moves_loop:  // When in check, search starts here
     value            = bestValue;
     moveCountPruning = false;
 
-    Move bm = Move::none();
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != Move::none())
@@ -1267,8 +1265,6 @@ moves_loop:  // When in check, search starts here
         {
             bestValue = value;
 
-            bm = move;
-
             if (value > alpha)
             {
                 bestMove = move;
@@ -1352,15 +1348,16 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove ? bestMove : bestValue >= ss->staticEval + 500 ? bm : bestMove, unadjustedStaticEval, tt.generation());
+                  depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove)))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        if (    (bestValue >= beta && bestValue <= ss->staticEval)
+             || (!bestMove && bestValue >= ss->staticEval))
+            bonus /= 4;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
