@@ -734,12 +734,12 @@ Value Search::Worker::search(
     }
 
     // Use static evaluation difference to improve quiet move ordering (~9 Elo)
-    if ((((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture) || (ss - 1)->currentMove == Move::null())
+    if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-14 * int((ss - 1)->staticEval + ss->staticEval), -1644, 1384);
         bonus     = bonus > 0 ? 2 * bonus : bonus / 2;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
-        if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION && (ss - 1)->currentMove != Move::null())
+        if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
               << bonus / 2;
     }
@@ -784,7 +784,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min((int(eval - beta) + thisThread->mainHistory[us][Move::null().from_to()] / 32) / 152 , 8) + depth / 3 + 4;
+        Depth R = std::min(int(eval - beta) / 152, 6) + depth / 3 + 4;
 
         ss->currentMove         = Move::null();
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -909,6 +909,8 @@ moves_loop:  // When in check, search starts here
 
     value            = bestValue;
     moveCountPruning = false;
+
+    Move bm = Move::none();
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1265,6 +1267,8 @@ moves_loop:  // When in check, search starts here
         {
             bestValue = value;
 
+            bm = move;
+
             if (value > alpha)
             {
                 bestMove = move;
@@ -1348,7 +1352,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove, unadjustedStaticEval, tt.generation());
+                  depth, bestMove ? bestMove : bestValue >= ss->staticEval + 250 ? bm : bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
