@@ -504,7 +504,7 @@ void Search::Worker::clear() {
                     h->fill(-65);
 
     for (size_t i = 1; i < reductions.size(); ++i)
-        reductions[i] = int((20.14 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
+        reductions[i] = int((21.12 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
 }
 
 
@@ -1351,17 +1351,14 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove)))
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
+        && !(bestValue >= beta && bestValue <= ss->staticEval)
+        && !(!bestMove && bestValue >= ss->staticEval))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        if (    (bestValue >= beta && bestValue <= ss->staticEval)
-             || (!bestMove && bestValue >= ss->staticEval))
-            bonus /= 32;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
-
-
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
@@ -1636,7 +1633,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
 Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) {
     int reductionScale = reductions[d] * reductions[mn];
-    return (reductionScale + 1150 - delta * 832 / rootDelta) / 1024 + (!i && reductionScale > 1025);
+    return (reductionScale + 1016 - delta * 930 / rootDelta) / 1024 + (!i && reductionScale > 1185);
 }
 
 TimePoint Search::Worker::elapsed() const {
