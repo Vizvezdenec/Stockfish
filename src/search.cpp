@@ -1281,10 +1281,10 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth < 12 && beta < 13546 && value > -13478)
-                        depth -= 2 + (bestValue >= ss->staticEval - 320);
+                    if (depth > 2 && depth < 12 && beta < 13546 && value > -13478)
+                        depth -= 2;
 
-                    depth = std::max(depth, 1);
+                    assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
             }
@@ -1351,12 +1351,13 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove)))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        if (    (bestValue >= beta && bestValue <= ss->staticEval)
+             || (!bestMove && bestValue >= ss->staticEval))
+            bonus /= 11;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
