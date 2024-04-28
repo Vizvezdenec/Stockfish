@@ -1281,10 +1281,10 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth > 2 && depth < 12 && beta < 13546 && value > -13478)
-                        depth -= 2;
+                    if (depth < 12 && beta < 13546 && value > -13478)
+                        depth -= 2 + (bestValue >= ss->staticEval + 50);
 
-                    assert(depth > 0);
+                    depth = std::max(depth, 1);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
             }
@@ -1317,8 +1317,8 @@ moves_loop:  // When in check, search starts here
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
 
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
-    else if (bestMove || excludedMove)
-        update_all_stats(pos, ss, *this, bestMove ? bestMove : excludedMove, bestValue, beta, prevSq, quietsSearched,
+    else if (bestMove)
+        update_all_stats(pos, ss, *this, bestMove, bestValue, beta, prevSq, quietsSearched,
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
