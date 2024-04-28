@@ -1357,7 +1357,7 @@ moves_loop:  // When in check, search starts here
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         if (    (bestValue >= beta && bestValue <= ss->staticEval)
              || (!bestMove && bestValue >= ss->staticEval))
-            bonus /= 11;
+            bonus /= 22;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
