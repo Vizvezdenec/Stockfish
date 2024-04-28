@@ -109,18 +109,18 @@ MovePicker::MovePicker(const Position&              p,
 // Constructor for quiescence search
 MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
-                       Depth                        d,
                        const ButterflyHistory*      mh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
-                       const PawnHistory*           ph) :
+                       const PawnHistory*           ph,
+                       bool                         fs) :
     pos(p),
     mainHistory(mh),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
-    depth(d) {
+    fromSearch(fs) {
     assert(d <= 0);
 
     stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
@@ -362,7 +362,7 @@ top:
             return *(cur - 1);
 
         // If we did not find any move and we do not try checks, we have finished
-        if (depth != DEPTH_QS_CHECKS)
+        if (!fromSearch)
             return Move::none();
 
         ++stage;
