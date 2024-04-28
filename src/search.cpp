@@ -1281,8 +1281,8 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth < 12 && beta < 13546 && value > -13478)
-                        depth -= 2 + (bestValue >= ss->staticEval - 50);
+                    if (depth > 2 && depth < 12 && beta < 13546 && value > -13478)
+                        depth -= 2 + 2 * (bestValue >= ss->staticEval - 50);
 
                     depth = std::max(depth, 1);
                     alpha = value;  // Update alpha! Always alpha < beta
