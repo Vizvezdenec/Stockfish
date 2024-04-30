@@ -1595,7 +1595,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1);
+        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1 + (depth == 0 && ss->inCheck));
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
