@@ -911,8 +911,6 @@ moves_loop:  // When in check, search starts here
     value            = bestValue;
     moveCountPruning = false;
 
-    Depth actualDepth = depth;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != Move::none())
@@ -1279,7 +1277,6 @@ moves_loop:  // When in check, search starts here
             if (value > alpha)
             {
                 bestMove = move;
-                actualDepth = newDepth + 1;
 
                 if (PvNode && !rootNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
@@ -1360,7 +1357,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  actualDepth, bestMove, unadjustedStaticEval, tt.generation());
+                  depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
