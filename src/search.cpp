@@ -792,7 +792,9 @@ Value Search::Worker::search(
 
         pos.do_null_move(st, tt);
 
-        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
+        Value nullValue = -qsearch<NonPV>(pos, ss + 1, -beta, -beta + 1);
+        if (depth - R > 0 && nullValue >= beta)
+            nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
 
         pos.undo_null_move();
 
@@ -864,11 +866,7 @@ Value Search::Worker::search(
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                if (depth <= 10)
-                    value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
-                else
-                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, 1,
-                                           !cutNode);
+                value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
