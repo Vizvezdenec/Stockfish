@@ -756,7 +756,7 @@ Value Search::Worker::search(
 
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
-    if ((ss-1)->currentMove == Move::null() && ss->staticEval >= beta)
+    if ((ss-1)->currentMove == Move::null() && eval > ss->staticEval)
         return beta;
 
     // Step 7. Razoring (~1 Elo)
