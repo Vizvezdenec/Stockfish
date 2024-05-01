@@ -864,7 +864,7 @@ Value Search::Worker::search(
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                if (depth <= 6)
+                if (depth <= 8)
                     value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
                 else
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, 1,
