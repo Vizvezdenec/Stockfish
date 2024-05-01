@@ -756,6 +756,9 @@ Value Search::Worker::search(
 
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
+    if ((ss-1)->currentMove == Move::null() && ss->staticEval >= beta)
+        return beta;
+
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -792,9 +795,7 @@ Value Search::Worker::search(
 
         pos.do_null_move(st, tt);
 
-        Value nullValue = -qsearch<NonPV>(pos, ss + 1, -beta, -beta + 1);
-        if (depth - R > 0 && nullValue >= beta)
-            nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
+        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, !cutNode);
 
         pos.undo_null_move();
 
