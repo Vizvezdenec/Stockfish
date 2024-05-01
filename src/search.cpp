@@ -833,7 +833,7 @@ Value Search::Worker::search(
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search returns a value
     // much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 169 - 63 * improving - 45 * opponentWorsening;
+    probCutBeta = beta + 169 - 63 * improving;
     if (
       !PvNode && depth > 3
       && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
@@ -864,7 +864,11 @@ Value Search::Worker::search(
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
+                if (depth <= 6)
+                    value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
+                else
+                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, 1,
+                                           !cutNode);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
