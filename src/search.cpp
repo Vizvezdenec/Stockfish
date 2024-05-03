@@ -1336,7 +1336,8 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14761)
                   + ((ss - 1)->moveCount > 11)
-                  + (!ss->inCheck && bestValue <= ss->staticEval - 142);
+                  + (!ss->inCheck && bestValue <= ss->staticEval - 142)
+                  + (!(ss-1)->inCheck && bestValue <= -(ss-1)->staticEval);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
@@ -1575,7 +1576,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -79 + PieceValue[type_of(pos.captured_piece())] / 16))
+            if (!pos.see_ge(move, -79))
                 continue;
         }
 
