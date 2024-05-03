@@ -1336,8 +1336,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14761)
                   + ((ss - 1)->moveCount > 11)
-                  + (!ss->inCheck && bestValue <= ss->staticEval - 142)
-                  + (ttMove && ttValue >= beta && tte->depth() > depth / 2);
+                  + (!ss->inCheck && bestValue <= ss->staticEval - 142);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
@@ -1626,6 +1625,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     {
         assert(!MoveList<LEGAL>(pos).size());
         return mated_in(ss->ply);  // Plies to mate from the root
+    }
+
+    if (!pos.captured_piece() && prevSq != SQ_NONE && depth == 0 && !bestMove)
+    {
+        int bonus = 10;
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                                      stat_bonus(depth) * bonus);
+        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
+          << stat_bonus(depth) * bonus / 2;
     }
 
     if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && bestValue >= beta)
