@@ -1284,7 +1284,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove;
+                    ss->cutoffCnt += 1 + !ttMove + (bestValue >= ss->staticEval);
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1511,11 +1511,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     int quietCheckEvasions = 0;
 
-    bool noChecks = false;
-
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(false, noChecks)) != Move::none())
+    while ((move = mp.next_move()) != Move::none())
     {
         assert(move.is_ok());
 
@@ -1531,8 +1529,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 6. Pruning
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
-            if (bestMove)
-                noChecks = true;
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
