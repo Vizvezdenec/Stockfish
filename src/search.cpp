@@ -744,9 +744,6 @@ Value Search::Worker::search(
               << bonus / 2;
     }
 
-    if ((ss-1)->currentMove == Move::null() && eval > ss->staticEval + 111)
-        return beta;
-
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we look at static evaluation at move prior to it
@@ -1514,9 +1511,11 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     int quietCheckEvasions = 0;
 
+    bool noChecks = false;
+
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move()) != Move::none())
+    while ((move = mp.next_move(false, noChecks)) != Move::none())
     {
         assert(move.is_ok());
 
@@ -1532,6 +1531,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 6. Pruning
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
+            if (bestValue >= alpha - 100)
+                noChecks = true;
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)

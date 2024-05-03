@@ -239,7 +239,7 @@ Move MovePicker::select(Pred filter) {
 // Most important method of the MovePicker class. It
 // returns a new pseudo-legal move every time it is called until there are no more
 // moves left, picking the move with the highest score from a list of generated moves.
-Move MovePicker::next_move(bool skipQuiets) {
+Move MovePicker::next_move(bool skipQuiets, bool noChecks) {
 
     auto quiet_threshold = [](Depth d) { return -3560 * d; };
 
@@ -362,7 +362,7 @@ top:
             return *(cur - 1);
 
         // If we did not find any move and we do not try checks, we have finished
-        if (depth != DEPTH_QS_CHECKS)
+        if (depth != DEPTH_QS_CHECKS || noChecks)
             return Move::none();
 
         ++stage;
