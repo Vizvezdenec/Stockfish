@@ -1284,7 +1284,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove + (bestValue >= ss->staticEval + 122);
+                    ss->cutoffCnt += 1 + !ttMove + (bestValue >= ss->staticEval + 256);
                     assert(value >= beta);  // Fail high
                     break;
                 }
