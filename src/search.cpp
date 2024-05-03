@@ -1629,7 +1629,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     if (!pos.captured_piece() && prevSq != SQ_NONE && depth == 0 && !bestMove)
     {
-        int bonus = 10;
+        int bonus = 4;
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
