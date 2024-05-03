@@ -1575,7 +1575,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -79))
+            if (!pos.see_ge(move, -79 + !capture ? 0 : std::clamp(thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.captured_piece())] / 32, -79, 79)))
                 continue;
         }
 
@@ -1625,15 +1625,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     {
         assert(!MoveList<LEGAL>(pos).size());
         return mated_in(ss->ply);  // Plies to mate from the root
-    }
-
-    if (!pos.captured_piece() && prevSq != SQ_NONE && depth == 0 && !bestMove)
-    {
-        int bonus = 83;
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(depth) * bonus / 2;
     }
 
     if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && bestValue >= beta)
