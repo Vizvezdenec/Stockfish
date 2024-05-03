@@ -744,6 +744,9 @@ Value Search::Worker::search(
               << bonus / 2;
     }
 
+    if ((ss-1)->currentMove == Move::null() && eval > ss->staticEval + 50)
+        return beta;
+
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we look at static evaluation at move prior to it
@@ -980,9 +983,8 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeMargin = 203 * depth;
-                int seeHist = std::clamp(captHist / 32, -seeMargin, seeMargin * 5 / 8);
-                if (!pos.see_ge(move, -seeMargin - seeHist))
+                int seeHist = std::clamp(captHist / 32, -199 * depth, 199 * depth);
+                if (!pos.see_ge(move, -203 * depth - seeHist))
                     continue;
             }
             else
