@@ -877,7 +877,6 @@ Value Search::Worker::search(
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, unadjustedStaticEval, tt.generation());
-                    ss->cutoffCnt += 1 + !ttMove;
                     return std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? value - (probCutBeta - beta)
                                                                      : value;
                 }
@@ -893,7 +892,10 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+    {
+        ss->cutoffCnt++;
         return probCutBeta;
+    }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
