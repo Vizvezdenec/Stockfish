@@ -834,7 +834,7 @@ Value Search::Worker::search(
     // much above beta, we can (almost) safely prune the previous move.
     probCutBeta = beta + 169 - 63 * improving;
     if (
-      !PvNode && depth > 6
+      !PvNode && depth > 3
       && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
       // If value from transposition table is lower than probCutBeta, don't attempt probCut
       // there and in further interactions with transposition table cutoff depth is set to depth - 3
@@ -976,7 +976,12 @@ moves_loop:  // When in check, search starts here
                     Value futilityValue = ss->staticEval + 285 + 277 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
                     if (futilityValue <= alpha)
+                    {
+                        if (bestValue <= futilityValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
+                            && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
+                            bestValue = (3 * bestValue + futilityValue) / 4;
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
