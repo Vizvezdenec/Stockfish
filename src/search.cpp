@@ -877,7 +877,7 @@ Value Search::Worker::search(
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3,
                               move, unadjustedStaticEval, tt.generation());
-                    ss->cutoffCnt++;
+                    ss->cutoffCnt += 1 + !ttMove;
                     return std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? value - (probCutBeta - beta)
                                                                      : value;
                 }
