@@ -1771,7 +1771,12 @@ void update_all_stats(const Position& pos,
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+    {
+        int penalty = quietMoveMalus;
+        if (!(ss-1)->inCheck && bestValue >= -(ss-1)->staticEval + 50)
+            penalty *= 2;
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -penalty);
+    }
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
