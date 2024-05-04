@@ -113,7 +113,7 @@ struct Skill {
 Value value_to_tt(Value v, int ply);
 Value value_from_tt(Value v, int ply, int r50c);
 void  update_pv(Move* pv, Move move, const Move* childPv);
-void  update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
+void  update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool onlyFirst);
 void  update_quiet_stats(
    const Position& pos, Stack* ss, Search::Worker& workerThread, Move move, int bonus);
 void update_all_stats(const Position& pos,
@@ -551,7 +551,7 @@ Value Search::Worker::search(
     // Step 1. Initialize node
     Worker* thisThread = this;
     ss->inCheck        = pos.checkers();
-    priorCapture       = pos.captured_piece();
+    priorCapture       = ss->priorCapture = pos.captured_piece();
     Color us           = pos.side_to_move();
     moveCount = captureCount = quietCount = ss->moveCount = 0;
     bestValue                                             = -VALUE_INFINITE;
@@ -628,7 +628,7 @@ Value Search::Worker::search(
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
             if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                              -stat_malus(depth + 1));
+                                              -stat_malus(depth + 1), false);
         }
 
         // Partial workaround for the graph history interaction problem
@@ -742,6 +742,11 @@ Value Search::Worker::search(
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
               << bonus / 2;
+
+        bonus = std::clamp(5 * int(ss->staticEval - (ss-2)->staticEval), -1644, 1384);
+
+        if (!(ss-2)->inCheck && !(ss-1)->priorCapture)
+            update_continuation_histories(ss-1, pos.moved_piece((ss-1)->currentMove), (ss-1)->currentMove.to_sq(), bonus, true);
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -1186,7 +1191,7 @@ moves_loop:  // When in check, search starts here
                           : value >= beta  ? stat_bonus(newDepth)
                                            : 0;
 
-                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus, false);
             }
         }
 
@@ -1336,10 +1341,9 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14761)
                   + ((ss - 1)->moveCount > 11)
-                  + (!ss->inCheck && bestValue <= ss->staticEval - 142)
-                  + (!(ss-1)->inCheck && bestValue <= -(ss-1)->staticEval - 77);
+                  + (!ss->inCheck && bestValue <= ss->staticEval - 142);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus);
+                                      stat_bonus(depth) * bonus, false);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
     }
@@ -1756,7 +1760,7 @@ void update_all_stats(const Position& pos,
 
             workerThread.mainHistory[us][quietsSearched[i].from_to()] << -quietMoveMalus;
             update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
-                                          quietsSearched[i].to_sq(), -quietMoveMalus);
+                                          quietsSearched[i].to_sq(), -quietMoveMalus, false);
         }
     }
     else
@@ -1772,7 +1776,7 @@ void update_all_stats(const Position& pos,
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus, false);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
@@ -1786,10 +1790,12 @@ void update_all_stats(const Position& pos,
 
 // Updates histories of the move pairs formed
 // by moves at ply -1, -2, -3, -4, and -6 with current move.
-void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
+void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool onlyFirst) {
 
     for (int i : {1, 2, 3, 4, 6})
     {
+        if (onlyFirst && i > 1)
+            break;
         // Only update the first 2 continuation histories if we are in check
         if (ss->inCheck && i > 2)
             break;
@@ -1812,7 +1818,7 @@ void update_quiet_stats(
 
     Color us = pos.side_to_move();
     workerThread.mainHistory[us][move.from_to()] << bonus;
-    update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
+    update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus, false);
 
     // Update countermove history
     if (((ss - 1)->currentMove).is_ok())
