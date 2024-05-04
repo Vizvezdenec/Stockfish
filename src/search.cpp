@@ -743,7 +743,7 @@ Value Search::Worker::search(
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
               << bonus / 2;
 
-        bonus = std::clamp(5 * int(ss->staticEval - (ss-2)->staticEval), -500, 500);
+        bonus = std::clamp(15 * int(ss->staticEval - (ss-2)->staticEval), -1000, 1000);
 
         if (!(ss-2)->inCheck && !(ss-1)->priorCapture)
             update_continuation_histories(ss-1, pos.moved_piece((ss-1)->currentMove), (ss-1)->currentMove.to_sq(), bonus, true);
