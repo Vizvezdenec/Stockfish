@@ -1635,9 +1635,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         int bonus = (!(ss-1)->inCheck && bestValue <= -(ss-1)->staticEval - 111)
                   + (!ss->inCheck && bestValue <= ss->staticEval - 111);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(1) * bonus);
+                                      43 * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(1) * bonus / 2;
+          << 43 * bonus / 2;
     }
 
     // Save gathered info in transposition table
