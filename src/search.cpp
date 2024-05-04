@@ -979,7 +979,7 @@ moves_loop:  // When in check, search starts here
                     {
                         if (bestValue <= futilityValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
                             && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
-                            bestValue = (3 * bestValue + futilityValue) / 4;
+                            bestValue = (7 * bestValue + futilityValue) / 8;
                         continue;
                     }
                 }
