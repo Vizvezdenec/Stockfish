@@ -802,7 +802,7 @@ Value Search::Worker::search(
             {
                 if (nullValue >= ss->staticEval)
                 {
-                auto bonus = std::clamp(int(nullValue - ss->staticEval) / 16,
+                auto bonus = std::clamp(int(nullValue - ss->staticEval) / 32,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                 thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
                 }
