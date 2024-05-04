@@ -799,15 +799,7 @@ Value Search::Worker::search(
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 16)
-            {
-                if (nullValue >= ss->staticEval)
-                {
-                auto bonus = std::clamp(int(nullValue - ss->staticEval) / 32,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                }
                 return nullValue;
-            }
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -827,7 +819,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth by 3.
     if (PvNode && !ttMove)
-        depth -= 3;
+        depth -= 3 + (ss->staticEval <= alpha);
 
     // Use qsearch if depth <= 0.
     if (depth <= 0)
