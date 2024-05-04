@@ -866,7 +866,7 @@ Value Search::Worker::search(
                 value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
                 // If the qsearch held, perform the regular search
-                if (value >= probCutBeta)
+                if (value >= probCutBeta && depth > 4)
                     value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 4,
                                            !cutNode);
 
@@ -888,7 +888,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 452 - 100 * (pos.count<ALL_PIECES>(~us) - pos.count<PAWN>(~us) == 2 && type_of(pos.piece_on(ttMove.to_sq())) != PAWN);
+    probCutBeta = beta + 452;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
