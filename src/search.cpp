@@ -1773,7 +1773,7 @@ void update_all_stats(const Position& pos,
         && !pos.captured_piece())
     {
         int penalty = quietMoveMalus;
-        if (!(ss-1)->inCheck && bestValue >= -(ss-1)->staticEval + 150)
+        if (!(ss-1)->inCheck && bestValue >= -(ss-1)->staticEval + 450)
             penalty *= 2;
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -penalty);
     }
