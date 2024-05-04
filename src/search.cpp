@@ -1632,7 +1632,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     if (!bestMove && !pos.captured_piece() && prevSq != SQ_NONE && depth == 0)
     {
-        int bonus = PvNode + ((ss - 1)->statScore < -14761)
+        int bonus = ((ss - 1)->statScore < -14761)
                   + ((ss - 1)->moveCount > 11)
                   + (!ss->inCheck && bestValue <= ss->staticEval - 142);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
