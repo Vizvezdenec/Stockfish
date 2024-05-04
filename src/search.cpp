@@ -799,7 +799,15 @@ Value Search::Worker::search(
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 16)
+            {
+                if (nullValue >= ss->staticEval)
+                {
+                auto bonus = std::clamp(int(nullValue - ss->staticEval) / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+                }
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -1771,12 +1779,7 @@ void update_all_stats(const Position& pos,
         && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit
             || ((ss - 1)->currentMove == (ss - 1)->killers[0]))
         && !pos.captured_piece())
-    {
-        int penalty = quietMoveMalus;
-        if (!(ss-1)->inCheck && bestValue >= -(ss-1)->staticEval + 450)
-            penalty *= 2;
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -penalty);
-    }
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
