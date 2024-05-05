@@ -990,6 +990,7 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + (*contHist[3])[movedPiece][move.to_sq()]
+                  + (*contHist[5])[movedPiece][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
@@ -1629,16 +1630,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
     if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && bestValue >= beta)
         bestValue = (3 * bestValue + beta) / 4;
-
-    if (!bestMove && !pos.captured_piece() && prevSq != SQ_NONE && depth == 0)
-    {
-        int bonus = (!(ss-1)->inCheck && bestValue <= -(ss-1)->staticEval - 111)
-                  + (!ss->inCheck && bestValue <= ss->staticEval - 111);
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      43 * bonus);
-        thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << 43 * bonus / 2;
-    }
 
     // Save gathered info in transposition table
     // Static evaluation is saved as it was before adjustment by correction history
