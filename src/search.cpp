@@ -997,7 +997,7 @@ moves_loop:  // When in check, search starts here
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()]
-                             + (*contHist[5])[movedPiece][move.to_sq()] / 2;
+                             + (*contHist[5])[movedPiece][move.to_sq()];
 
                 lmrDepth += history / 5285;
 
