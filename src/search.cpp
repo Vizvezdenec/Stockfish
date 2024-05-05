@@ -990,14 +990,14 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + (*contHist[3])[movedPiece][move.to_sq()]
-                  + (*contHist[5])[movedPiece][move.to_sq()] / 2
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
                 if (lmrDepth < 6 && history < -4173 * depth)
                     continue;
 
-                history += 2 * thisThread->mainHistory[us][move.from_to()];
+                history += 2 * thisThread->mainHistory[us][move.from_to()]
+                             + (*contHist[5])[movedPiece][move.to_sq()] / 2;
 
                 lmrDepth += history / 5285;
 
