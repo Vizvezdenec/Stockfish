@@ -991,6 +991,7 @@ moves_loop:  // When in check, search starts here
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
+                  + (*contHist[3])[movedPiece][move.to_sq()] / 2
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
@@ -1153,7 +1154,7 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[3])[movedPiece][move.to_sq()] - 5078;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        r -= ss->statScore / 12076;
+        r -= ss->statScore / std::max(21000 - (depth * 305), 12000);
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + rootNode)
