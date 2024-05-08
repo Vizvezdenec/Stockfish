@@ -1084,11 +1084,11 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttValue >= beta)
-                    extension = -3;
+                    extension = -4;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high over current beta (~1 Elo)
-                else if (ttValue <= alpha)
-                    extension = -1;
+                else if (cutNode)
+                    extension = -2;
 
                 // If the ttMove is assumed to fail low over the value of the reduced search (~1 Elo)
                 else if (ttValue <= value)
