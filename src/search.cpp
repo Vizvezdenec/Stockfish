@@ -991,7 +991,7 @@ moves_loop:  // When in check, search starts here
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
-                  + (*contHist[3])[movedPiece][move.to_sq()] / 2
+                  + (*contHist[3])[movedPiece][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
@@ -1000,7 +1000,7 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 4768;
+                lmrDepth += history / std::max(10344 - 397 * depth, 4768);
 
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 52 ? 134 : 54) + 142 * lmrDepth;
