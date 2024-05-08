@@ -1058,11 +1058,7 @@ moves_loop:  // When in check, search starts here
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin)
-                              + (value < singularBeta - quadMargin)
-                              + (!ttCapture && (*contHist[0])[movedPiece][move.to_sq()]
-                                             + (*contHist[1])[movedPiece][move.to_sq()]
-                                             + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                                             + 2 * thisThread->mainHistory[us][move.from_to()] > 77000);
+                              + (value < singularBeta - quadMargin);
 
                     depth += ((!PvNode) && (depth < 14));
                 }
@@ -1104,6 +1100,8 @@ moves_loop:  // When in check, search starts here
                      && thisThread->captureHistory[movedPiece][move.to_sq()]
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 4016)
+                extension = 1;
+            else if (!PvNode && depth < 4 && move == ttMove && ttValue <= alpha - 100)
                 extension = 1;
         }
 
