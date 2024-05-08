@@ -1101,7 +1101,7 @@ moves_loop:  // When in check, search starts here
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 4016)
                 extension = 1;
-            else if (!PvNode && depth < 4 && move == ttMove && ttValue <= alpha - 100 && (tte->bound() & BOUND_LOWER))
+            else if (!PvNode && depth < 4 + ss->ttPv && move == ttMove && ttValue <= alpha - 100 && (tte->bound() & BOUND_LOWER))
                 extension = 1;
         }
 
