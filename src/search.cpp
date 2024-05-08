@@ -1058,7 +1058,11 @@ moves_loop:  // When in check, search starts here
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin)
-                              + (value < singularBeta - quadMargin);
+                              + (value < singularBeta - quadMargin)
+                              + (!ttCapture && (*contHist[0])[movedPiece][move.to_sq()]
+                                             + (*contHist[1])[movedPiece][move.to_sq()]
+                                             + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
+                                             + 2 * thisThread->mainHistory[us][move.from_to()] > 67000);
 
                     depth += ((!PvNode) && (depth < 14));
                 }
@@ -1495,7 +1499,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 295;
+        futilityBase = ss->staticEval + 270;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1536,12 +1540,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (moveCount > 2)
                     continue;
 
-                int futilityBBase = futilityBase;
-
-                if (capture)
-                    futilityBBase += thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] / 8;
-
-                Value futilityValue = futilityBBase + PieceValue[pos.piece_on(move.to_sq())];
+                Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
 
                 // If static eval + value of piece we are going to capture is much lower
                 // than alpha we can prune this move. (~2 Elo)
@@ -1553,15 +1552,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
                 // If static eval is much lower than alpha and move is not winning material
                 // we can prune this move. (~2 Elo)
-                if (futilityBBase <= alpha && !pos.see_ge(move, 1))
+                if (futilityBase <= alpha && !pos.see_ge(move, 1))
                 {
-                    bestValue = std::max(bestValue, futilityBBase);
+                    bestValue = std::max(bestValue, futilityBase);
                     continue;
                 }
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBBase > alpha && !pos.see_ge(move, (alpha - futilityBBase) * 4))
+                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
                     continue;
