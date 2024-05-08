@@ -1062,7 +1062,7 @@ moves_loop:  // When in check, search starts here
                               + (!ttCapture && (*contHist[0])[movedPiece][move.to_sq()]
                                              + (*contHist[1])[movedPiece][move.to_sq()]
                                              + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                                             + 2 * thisThread->mainHistory[us][move.from_to()] > 57000);
+                                             + 2 * thisThread->mainHistory[us][move.from_to()] > 77000);
 
                     depth += ((!PvNode) && (depth < 14));
                 }
