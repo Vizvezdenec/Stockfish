@@ -890,7 +890,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 200 * depth;
+    probCutBeta = beta + 140 * depth;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && depth < 10
         && ttValue >= probCutBeta
