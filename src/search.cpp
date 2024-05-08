@@ -1495,7 +1495,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 270;
+        futilityBase = ss->staticEval + 295;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1539,7 +1539,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 int futilityBBase = futilityBase;
 
                 if (capture)
-                    futilityBBase += thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] / 32;
+                    futilityBBase += thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] / 8;
 
                 Value futilityValue = futilityBBase + PieceValue[pos.piece_on(move.to_sq())];
 
