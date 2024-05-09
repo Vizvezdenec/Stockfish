@@ -1085,7 +1085,7 @@ moves_loop:  // When in check, search starts here
                     extension = -3;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high over current beta (~1 Elo)
-                else if (ttValue <= alpha)
+                else if (cutNode)
                     extension = -2;
             }
 
@@ -1568,7 +1568,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
                                                 [move.to_sq()]
-                     <= 4000)
+                     <= 2500)
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
