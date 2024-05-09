@@ -1478,8 +1478,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
-            if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && !PvNode)
-                bestValue = (bestValue + beta) / 2;
+            if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
+                bestValue = (15 * bestValue + beta) / 16;
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           Move::none(), unadjustedStaticEval, tt.generation());
