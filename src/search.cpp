@@ -1082,7 +1082,7 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttValue >= beta)
-                    extension = -3;
+                    extension = -3 - cutNode;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high over current beta (~1 Elo)
                 else if (cutNode)
@@ -1109,8 +1109,6 @@ moves_loop:  // When in check, search starts here
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][move.to_sq()];
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
-
-        ss->statScore = thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
@@ -1144,12 +1142,12 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r = 0;
 
-        ss->statScore += 2 * thisThread->mainHistory[us][move.from_to()]
+        ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 5078;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        r -= ss->statScore / (20662 - std::min(depth, 16) * 205);
+        r -= ss->statScore / (17662 - std::min(depth, 16) * 105);
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + rootNode)
