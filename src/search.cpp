@@ -1082,7 +1082,7 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttValue >= beta)
-                    extension = -3 - cutNode;
+                    extension = -3;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high over current beta (~1 Elo)
                 else if (cutNode)
@@ -1478,6 +1478,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Stand pat. Return immediately if static value is at least beta
         if (bestValue >= beta)
         {
+            if (std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
+                bestValue = (3 * bestValue + beta) / 4;
             if (!ss->ttHit)
                 tte->save(posKey, value_to_tt(bestValue, ss->ply), false, BOUND_LOWER, DEPTH_NONE,
                           Move::none(), unadjustedStaticEval, tt.generation());
