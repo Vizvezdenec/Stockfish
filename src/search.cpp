@@ -615,7 +615,7 @@ Value Search::Worker::search(
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
-    if (!PvNode && !excludedMove && tte->depth() > depth
+    if (!PvNode && !excludedMove && tte->depth() > depth - (tte->bound() == BOUND_EXACT)
         && ttValue != VALUE_NONE  // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -828,7 +828,7 @@ Value Search::Worker::search(
         return qsearch<PV>(pos, ss, alpha, beta);
 
     // For cutNodes without a ttMove, we decrease depth by 2 if depth is high enough.
-    if (cutNode && depth >= 8 && (!ttMove || tte->bound() == BOUND_UPPER || tte->depth() <= depth - 2))
+    if (cutNode && depth >= 8 && (!ttMove || tte->bound() == BOUND_UPPER))
         depth -= 1 + !ttMove;
 
     // Step 11. ProbCut (~10 Elo)
