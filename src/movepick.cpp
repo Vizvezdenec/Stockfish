@@ -355,7 +355,7 @@ top:
         return select<Best>([]() { return true; });
 
     case PROBCUT :
-        return select<Next>([&]() { return pos.see_ge(*cur, std::max(threshold, -450)); });
+        return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
     case QCAPTURE :
         if (select<Next>([]() { return true; }))
