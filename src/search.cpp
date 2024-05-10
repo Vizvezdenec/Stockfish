@@ -58,8 +58,8 @@ static constexpr double EvalLevel[10] = {0.981, 0.956, 0.895, 0.949, 0.913,
                                          0.942, 0.933, 0.890, 0.984, 0.941};
 
 // Futility margin
-Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
-    Value futilityMult       = 126 - 46 * noTtCutNode;
+Value futility_margin(Depth d, bool noTtCutNode, bool ttNotCutNode, bool improving, bool oppWorsening) {
+    Value futilityMult       = 126 - 46 * noTtCutNode + 100 * ttNotCutNode;
     Value improvingDeduction = 58 * improving * futilityMult / 32;
     Value worseningDeduction = (323 + 52 * improving) * oppWorsening * futilityMult / 1024;
 
@@ -615,7 +615,7 @@ Value Search::Worker::search(
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
-    if (!PvNode && !excludedMove && tte->depth() > depth - (ttValue >= alpha)
+    if (!PvNode && !excludedMove && tte->depth() > depth
         && ttValue != VALUE_NONE  // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -771,7 +771,7 @@ Value Search::Worker::search(
     // Step 8. Futility pruning: child node (~40 Elo)
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 11
-        && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
+        && eval - futility_margin(depth, cutNode && !ss->ttHit, !cutNode && eval < ss->staticEval, improving, opponentWorsening)
                - (ss - 1)->statScore / 254
              >= beta
         && eval >= beta && eval < VALUE_TB_WIN_IN_MAX_PLY && (!ttMove || ttCapture))
