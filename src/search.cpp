@@ -846,7 +846,7 @@ Value Search::Worker::search(
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &thisThread->captureHistory, depth - 3);
+        MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &thisThread->captureHistory);
 
         while ((move = mp.next_move()) != Move::none())
             if (move != excludedMove && pos.legal(move))

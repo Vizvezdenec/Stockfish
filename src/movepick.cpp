@@ -128,12 +128,11 @@ MovePicker::MovePicker(const Position&              p,
 
 // Constructor for ProbCut: we generate captures with SEE greater
 // than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph, Depth d) :
+MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph) :
     pos(p),
     captureHistory(cph),
     ttMove(ttm),
-    threshold(th),
-    depth(d) {
+    threshold(th) {
     assert(!pos.checkers());
 
     stage = PROBCUT_TT
@@ -356,7 +355,7 @@ top:
         return select<Best>([]() { return true; });
 
     case PROBCUT :
-        return select<Next>([&]() { return pos.see_ge(*cur, std::max(threshold, -150 * depth)); });
+        return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
 
     case QCAPTURE :
         if (select<Next>([]() { return true; }))
