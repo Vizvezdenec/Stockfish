@@ -1334,10 +1334,6 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
-
-        if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
-            thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus;
     }
 
     if (PvNode)
@@ -1346,7 +1342,7 @@ moves_loop:  // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree. (~7 Elo)
     if (bestValue <= alpha)
-        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3);
+        ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 1);
 
     // Write gathered information in transposition table
     // Static evaluation is saved as it was before correction history
