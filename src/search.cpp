@@ -495,7 +495,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-400);
+    pawnHistory.fill(-250);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
