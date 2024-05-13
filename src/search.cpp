@@ -495,7 +495,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(0);
+    pawnHistory.fill(-550);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -911,7 +911,6 @@ moves_loop:  // When in check, search starts here
 
     value            = bestValue;
     moveCountPruning = false;
-    Depth generalExt = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -950,11 +949,11 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth - generalExt - 1;
+        newDepth = depth - 1;
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth - generalExt, moveCount, delta);
+        Depth r = reduction(improving, depth, moveCount, delta);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -982,8 +981,8 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = std::clamp(captHist / 32, -185 * (depth - generalExt), 182 * (depth - generalExt));
-                if (!pos.see_ge(move, -176 * (depth - generalExt) - seeHist))
+                int seeHist = std::clamp(captHist / 32, -185 * depth, 182 * depth);
+                if (!pos.see_ge(move, -176 * depth - seeHist))
                     continue;
             }
             else
@@ -1148,7 +1147,7 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[1])[movedPiece][move.to_sq()] - 5313;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        r -= ss->statScore / (16145 - std::min((depth - generalExt), 15) * 102);
+        r -= ss->statScore / (16145 - std::min(depth, 15) * 102);
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + rootNode)
@@ -1285,8 +1284,8 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth - generalExt > 2 && depth < 13 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                        generalExt += 2;
+                    if (depth > 2 && depth < 13 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                        depth -= 2;
 
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
@@ -1335,6 +1334,10 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
+
+        if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
+            thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
+              << stat_bonus(depth) * bonus * 3 / 2;
     }
 
     if (PvNode)
