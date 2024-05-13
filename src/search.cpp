@@ -950,11 +950,11 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth - 1;
+        newDepth = depth - generalExt - 1;
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, delta);
+        Depth r = reduction(improving, depth - generalExt, moveCount, delta);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -982,8 +982,8 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = std::clamp(captHist / 32, -185 * depth, 182 * depth);
-                if (!pos.see_ge(move, -176 * depth - seeHist))
+                int seeHist = std::clamp(captHist / 32, -185 * (depth - generalExt), 182 * (depth - generalExt));
+                if (!pos.see_ge(move, -176 * (depth - generalExt) - seeHist))
                     continue;
             }
             else
@@ -1099,7 +1099,7 @@ moves_loop:  // When in check, search starts here
         }
 
         // Add extension to new depth
-        newDepth += extension - generalExt;
+        newDepth += extension;
 
         // Speculative prefetch as early as possible
         prefetch(tt.first_entry(pos.key_after(move)));
@@ -1148,7 +1148,7 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[1])[movedPiece][move.to_sq()] - 5313;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        r -= ss->statScore / (16145 - std::min(depth, 15) * 102);
+        r -= ss->statScore / (16145 - std::min((depth - generalExt), 15) * 102);
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + rootNode)
