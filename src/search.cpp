@@ -493,7 +493,7 @@ void Search::Worker::iterative_deepening() {
 
 void Search::Worker::clear() {
     counterMoves.fill(Move::none());
-    mainHistory.fill(0);
+    mainHistory.fill(-450);
     captureHistory.fill(0);
     pawnHistory.fill(0);
     correctionHistory.fill(0);
@@ -1325,9 +1325,7 @@ moves_loop:  // When in check, search starts here
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else 
-    {
-        if (!priorCapture && prevSq != SQ_NONE)
+    else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14323)
                   + ((ss - 1)->moveCount > 10) + (!ss->inCheck && bestValue <= ss->staticEval - 127)
@@ -1336,9 +1334,6 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
-    }
-    if (ttMove && !excludedMove)
-        ss->cutoffCnt = 0;
     }
 
     if (PvNode)
