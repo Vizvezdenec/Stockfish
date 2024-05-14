@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(0);
     pawnHistory.fill(0);
-    correctionHistory.fill(-100);
+    correctionHistory.fill(-25);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
