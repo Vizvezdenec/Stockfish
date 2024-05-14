@@ -1280,7 +1280,7 @@ moves_loop:  // When in check, search starts here
                 if (value >= beta)
                 {
                     ss->cutoffCnt += 1 + !ttMove;
-                    bmext = std::max(extension, 0);
+                    bmext = std::max(extension, -1);
                     assert(value >= beta);  // Fail high
                     break;
                 }
