@@ -1337,7 +1337,7 @@ moves_loop:  // When in check, search starts here
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
     }
-    ss->cutoffCnt = 0;
+    ss->cutoffCnt--;
     }
 
     if (PvNode)
