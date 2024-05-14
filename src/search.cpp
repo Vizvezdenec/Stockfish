@@ -1338,7 +1338,7 @@ moves_loop:  // When in check, search starts here
           << stat_bonus(depth) * bonus / 2;
     }
     if (!excludedMove)
-        ss->cutoffCnt = 0;
+        ss->cutoffCnt--;
     }
 
     if (PvNode)
