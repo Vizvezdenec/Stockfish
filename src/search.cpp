@@ -739,7 +739,6 @@ Value Search::Worker::search(
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
         int bonus = std::clamp(-12 * int((ss - 1)->staticEval + ss->staticEval), -1749, 1602);
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, bonus / 9);
         bonus     = bonus > 0 ? 2 * bonus : bonus / 2;
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
@@ -912,6 +911,8 @@ moves_loop:  // When in check, search starts here
 
     value            = bestValue;
     moveCountPruning = false;
+
+    int bmext = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1279,6 +1280,7 @@ moves_loop:  // When in check, search starts here
                 if (value >= beta)
                 {
                     ss->cutoffCnt += 1 + !ttMove;
+                    bmext = std::max(extension, 0);
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1352,7 +1354,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth, bestMove, unadjustedStaticEval, tt.generation());
+                  depth + bmext, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
