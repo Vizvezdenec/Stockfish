@@ -912,8 +912,6 @@ moves_loop:  // When in check, search starts here
     value            = bestValue;
     moveCountPruning = false;
 
-    int bmext = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != Move::none())
@@ -1280,7 +1278,6 @@ moves_loop:  // When in check, search starts here
                 if (value >= beta)
                 {
                     ss->cutoffCnt += 1 + !ttMove;
-                    bmext = std::max(extension / 2, 0);
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1328,7 +1325,9 @@ moves_loop:  // When in check, search starts here
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
-    else if (!priorCapture && prevSq != SQ_NONE)
+    else 
+    {
+        if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14323)
                   + ((ss - 1)->moveCount > 10) + (!ss->inCheck && bestValue <= ss->staticEval - 127)
@@ -1337,6 +1336,8 @@ moves_loop:  // When in check, search starts here
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 2;
+    }
+    ss->cutoffCnt = 0;
     }
 
     if (PvNode)
@@ -1354,7 +1355,7 @@ moves_loop:  // When in check, search starts here
                   bestValue >= beta    ? BOUND_LOWER
                   : PvNode && bestMove ? BOUND_EXACT
                                        : BOUND_UPPER,
-                  depth + bmext, bestMove, unadjustedStaticEval, tt.generation());
+                  depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
