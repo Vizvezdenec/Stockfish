@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(0);
     pawnHistory.fill(0);
-    correctionHistory.fill(100);
+    correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
@@ -1529,7 +1529,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (moveCount > 2)
                     continue;
 
-                Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
+                Value futilityBbase = futilityBase - 20 * !capture;
+
+                Value futilityValue = futilityBbase + PieceValue[pos.piece_on(move.to_sq())];
 
                 // If static eval + value of piece we are going to capture is much lower
                 // than alpha we can prune this move. (~2 Elo)
@@ -1541,15 +1543,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
                 // If static eval is much lower than alpha and move is not winning material
                 // we can prune this move. (~2 Elo)
-                if (futilityBase <= alpha && !pos.see_ge(move, 1))
+                if (futilityBbase <= alpha && !pos.see_ge(move, 1))
                 {
-                    bestValue = std::max(bestValue, futilityBase);
+                    bestValue = std::max(bestValue, futilityBbase);
                     continue;
                 }
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBbase > alpha && !pos.see_ge(move, (alpha - futilityBbase) * 4))
                 {
                     bestValue = alpha;
                     continue;
