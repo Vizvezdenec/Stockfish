@@ -1535,7 +1535,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (moveCount > 2)
                     continue;
 
-                Value futilityBbase = futilityBase + (bestValue >= ss->staticEval - 50) * 75;
+                Value futilityBbase = futilityBase + (bestValue >= ss->staticEval - 75) * 47;
 
                 Value futilityValue = futilityBbase + PieceValue[pos.piece_on(move.to_sq())];
 
