@@ -1169,9 +1169,8 @@ moves_loop:  // When in check, search starts here
                 // was good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 41 + 2 * newDepth);  // (~1 Elo)
                 const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
-                const bool evenShallower = value < bestValue + 2;
 
-                newDepth += doDeeperSearch - doShallowerSearch - evenShallower;
+                newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
@@ -1536,7 +1535,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 if (moveCount > 2)
                     continue;
 
-                Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
+                Value futilityBbase = futilityBase + (bestValue >= ss->staticEval - 50) * 75;
+
+                Value futilityValue = futilityBbase + PieceValue[pos.piece_on(move.to_sq())];
 
                 // If static eval + value of piece we are going to capture is much lower
                 // than alpha we can prune this move. (~2 Elo)
@@ -1548,7 +1549,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
                 // If static eval is much lower than alpha and move is not winning material
                 // we can prune this move. (~2 Elo)
-                if (futilityBase <= alpha && !pos.see_ge(move, 1))
+                if (futilityBbase <= alpha && !pos.see_ge(move, 1))
                 {
                     bestValue = std::max(bestValue, futilityBase);
                     continue;
@@ -1556,7 +1557,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBbase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
                 {
                     bestValue = alpha;
                     continue;
