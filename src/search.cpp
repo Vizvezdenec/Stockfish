@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-900);
+    pawnHistory.fill(-1500);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -764,9 +764,8 @@ Value Search::Worker::search(
     // Adjust razor margin according to cutoffCnt. (~1 Elo)
     if (eval < alpha - 473 - (308 - 138 * ((ss + 1)->cutoffCnt > 3)) * depth * depth)
     {
-        int em = 13;
-        value = qsearch<NonPV>(pos, ss, alpha - 1 - em, alpha - em);
-        if (value < alpha - em)
+        value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
+        if (value < alpha)
             return value;
     }
 
