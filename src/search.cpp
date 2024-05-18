@@ -764,7 +764,7 @@ Value Search::Worker::search(
     // Adjust razor margin according to cutoffCnt. (~1 Elo)
     if (eval < alpha - 473 - (308 - 138 * ((ss + 1)->cutoffCnt > 3)) * depth * depth)
     {
-        int em = 5;
+        int em = 13;
         value = qsearch<NonPV>(pos, ss, alpha - 1 - em, alpha - em);
         if (value < alpha - em)
             return value;
