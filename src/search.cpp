@@ -822,7 +822,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth by 3.
     if (PvNode && !ttMove)
-        depth -= 3 + (ss->staticEval <= alpha - 60);
+        depth -= 3;
 
     // Use qsearch if depth <= 0.
     if (depth <= 0)
@@ -1168,7 +1168,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result
                 // was good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 41 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + newDepth;             // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + (newDepth + 2) / 2;  
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
