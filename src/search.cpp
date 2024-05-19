@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-900);
+    pawnHistory.fill(-1100);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -802,16 +802,7 @@ Value Search::Worker::search(
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 16)
-            {
-                if (nullValue >= ss->staticEval)
-                {
-                    auto bonus = std::min(int(nullValue - ss->staticEval) * depth / 32, CORRECTION_HISTORY_LIMIT / 16);
-                    thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-                }
                 return nullValue;
-            }
-
-
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
@@ -1348,7 +1339,7 @@ moves_loop:  // When in check, search starts here
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus * 2;
+              << stat_bonus(depth) * bonus * 4;
     }
 
     if (PvNode)
