@@ -1474,7 +1474,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         else
         {
             // In case of null move search, use previous static eval with a different sign
-            unadjustedStaticEval = evaluate(networks, pos, refreshTable, thisThread->optimism[us]);
+            unadjustedStaticEval = (ss - 1)->currentMove != Move::null()
+                                   ? evaluate(networks, pos, refreshTable, thisThread->optimism[us])
+                                   : -(ss - 1)->staticEval;
             ss->staticEval       = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
@@ -1814,7 +1816,7 @@ void update_quiet_histories(
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
 
     int pIndex = pawn_structure_index(pos);
-    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus;
+    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus * 3 / 2;
 }
 
 // Updates move sorting heuristics
