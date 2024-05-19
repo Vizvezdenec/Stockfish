@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-1100);
+    pawnHistory.fill(-900);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -1339,7 +1339,7 @@ moves_loop:  // When in check, search starts here
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus * 4;
+              << stat_bonus(depth) * bonus * 2;
     }
 
     if (PvNode)
@@ -1474,9 +1474,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         else
         {
             // In case of null move search, use previous static eval with a different sign
-            unadjustedStaticEval = (ss - 1)->currentMove != Move::null()
-                                   ? evaluate(networks, pos, refreshTable, thisThread->optimism[us])
-                                   : -(ss - 1)->staticEval;
+            unadjustedStaticEval = evaluate(networks, pos, refreshTable, thisThread->optimism[us]);
             ss->staticEval       = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
