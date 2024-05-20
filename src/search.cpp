@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-1300);
+    pawnHistory.fill(-900);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -1339,7 +1339,7 @@ moves_loop:  // When in check, search starts here
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus * 4;
+              << stat_bonus(depth) * bonus * 2;
     }
 
     if (PvNode)
@@ -1360,12 +1360,14 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
+    if (!ss->inCheck
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        if (bestMove && pos.capture(bestMove))
+            bonus /= 2;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
@@ -1816,7 +1818,7 @@ void update_quiet_histories(
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
 
     int pIndex = pawn_structure_index(pos);
-    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
+    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus;
 }
 
 // Updates move sorting heuristics
