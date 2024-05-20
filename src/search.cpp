@@ -882,8 +882,8 @@ Value Search::Worker::search(
                               move, unadjustedStaticEval, tt.generation());
                     Value fhv = value - (probCutBeta - beta);
 
-                    auto bonus = std::clamp(int(fhv - ss->staticEval) * depth / 8,
-                                            0, CORRECTION_HISTORY_LIMIT / 4);
+                    auto bonus = std::clamp(int(fhv - ss->staticEval) * depth / 16,
+                                            0, CORRECTION_HISTORY_LIMIT / 8);
                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
                     return std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? fhv
                                                                      : value;
