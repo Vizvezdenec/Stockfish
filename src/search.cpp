@@ -496,7 +496,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-1287);
+    pawnHistory.fill(-1200);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -1816,7 +1816,7 @@ void update_quiet_histories(
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
 
     int pIndex = pawn_structure_index(pos);
-    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus * 3 / 4;
+    workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
 }
 
 // Updates move sorting heuristics
