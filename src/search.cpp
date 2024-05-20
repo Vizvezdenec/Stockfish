@@ -1368,7 +1368,7 @@ moves_loop:  // When in check, search starts here
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
 
         if (bestMove && pos.capture(bestMove))
-            bonus /= 16;
+            bonus /= 32;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
