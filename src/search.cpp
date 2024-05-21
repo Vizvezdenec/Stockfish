@@ -1123,6 +1123,9 @@ moves_loop:  // When in check, search starts here
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
+        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] < - CORRECTION_HISTORY_LIMIT / 2)
+            r++;
+
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
@@ -1372,14 +1375,12 @@ moves_loop:  // When in check, search starts here
                   depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
-    if (!ss->inCheck
+    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        if (bestMove && pos.capture(bestMove))
-            bonus /= 12;
         thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
     }
 
