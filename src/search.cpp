@@ -640,8 +640,8 @@ Value Search::Worker::search(
         if (pos.rule50_count() < 90)
         {
             if (!ss->inCheck && tte->eval() != VALUE_NONE
-                              && ((ttValue >= beta && ttValue >= ss->staticEval)
-                              ||  (ttValue < beta && ttValue < ss->staticEval)))
+                              && ((ttValue >= beta && ttValue >= tte->eval())
+                              ||  (ttValue < beta && ttValue < tte->eval())))
             {
                 auto bonus = std::clamp(int(bestValue - tte->eval()) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
