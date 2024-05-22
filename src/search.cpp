@@ -497,7 +497,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-1550);
+    pawnHistory.fill(-1300);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -638,9 +638,19 @@ Value Search::Worker::search(
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (!ss->inCheck && tte->eval() != VALUE_NONE
+                              && ((ttValue >= beta && ttValue >= ss->staticEval)
+                              ||  (ttValue < beta && ttValue < ss->staticEval)))
+            {
+                auto bonus = std::clamp(int(bestValue - tte->eval()) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+            }
             return ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                    ? (ttValue * 3 + beta) / 4
                    : ttValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -1351,7 +1361,7 @@ moves_loop:  // When in check, search starts here
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus * 6;
+              << stat_bonus(depth) * bonus * 4;
     }
 
     if (PvNode)
