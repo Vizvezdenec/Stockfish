@@ -639,13 +639,17 @@ Value Search::Worker::search(
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
         {
-            if (!ss->inCheck && tte->eval() != VALUE_NONE
-                              && ((ttValue >= beta && ttValue >= tte->eval())
-                              ||  (ttValue < beta && ttValue < tte->eval())))
+            Value staticEval = tte->eval();
+            if (staticEval != VALUE_NONE)
             {
-                auto bonus = std::clamp(int(bestValue - tte->eval()) * depth / 8,
+                staticEval = to_corrected_static_eval(staticEval, *thisThread, pos);
+            if (!ss->inCheck  && ((ttValue >= beta && ttValue >= staticEval)
+                              ||  (ttValue < beta && ttValue < staticEval)))
+            {
+                auto bonus = std::clamp(int(bestValue - staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                 thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+            }
             }
             return ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                    ? (ttValue * 3 + beta) / 4
