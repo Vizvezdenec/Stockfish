@@ -1117,7 +1117,7 @@ moves_loop:  // When in check, search starts here
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
-        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] > CORRECTION_HISTORY_LIMIT * 31 / 32)
+        if (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] == CORRECTION_HISTORY_LIMIT)
             r--;
 
         // Step 16. Make the move
