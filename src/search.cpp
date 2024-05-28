@@ -1363,7 +1363,7 @@ moves_loop:  // When in check, search starts here
     if (bestValue <= alpha)
     {
         ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3);
-        (ss-1)->ttPv = (ss-1)->ttPv || ((ss - 2)->ttPv && ss->ttPv);
+        (ss-1)->ttPv = (ss-1)->ttPv || ((ss - 2)->ttPv && ss->ttPv && depth > 1);
     }
 
     // Write gathered information in transposition table
