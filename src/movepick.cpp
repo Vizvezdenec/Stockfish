@@ -208,9 +208,9 @@ void MovePicker::score() {
                        : 0;
 
             m.value += pt == PAWN && !(threatenedByAnything & to) ? 
-                             (pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), QUEEN) ? 40000 :
-                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), ROOK) ? 20000 :
-                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), KNIGHT, BISHOP) ? 10000 : 0) : 0;
+                             (pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), QUEEN) ? 20000 :
+                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), ROOK) ? 10000 :
+                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), KNIGHT, BISHOP) ? 5000 : 0) : 0;
         }
 
         else  // Type == EVASIONS
