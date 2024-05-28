@@ -788,7 +788,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5 + (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] > CORRECTION_HISTORY_LIMIT / 2);
 
         ss->currentMove         = Move::null();
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -902,7 +902,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 361 - thisThread->captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][type_of(pos.piece_on(ttMove.to_sq()))] / 512;
+    probCutBeta = beta + 361;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
