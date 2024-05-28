@@ -148,7 +148,7 @@ void MovePicker::score() {
     static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
     [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook,
-      threatenedPieces;
+      threatenedPieces, threatenedByAnything;
     if constexpr (Type == QUIETS)
     {
         Color us = pos.side_to_move();
@@ -157,6 +157,7 @@ void MovePicker::score() {
         threatenedByMinor =
           pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
         threatenedByRook = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
+        threatenedByAnything = threatenedByRook | pos.attacks_by<QUEEN>(~us) | pos.attacks_by<KING>(~us);
 
         // Pieces threatened by pieces of lesser material value
         threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
@@ -204,6 +205,8 @@ void MovePicker::score() {
                           : pt != PAWN ? bool(to & threatenedByPawn) * 14950
                                        : 0)
                        : 0;
+
+            m.value += pt == PAWN && !(threatenedByAnything & to) && pawn_attacks_bb(pos.side_to_move(), to) & (pos.pieces(~pos.side_to_move(), KNIGHT, ROOK)) ? 10000 : 0;
         }
 
         else  // Type == EVASIONS
