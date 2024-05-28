@@ -902,7 +902,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 361;
+    probCutBeta = beta + 361 - thisThread->captureHistory[pos.moved_piece(ttMove)][ttMove.to_sq()][type_of(pos.piece_on(ttMove.to_sq()))] / 128;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
         && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
@@ -1343,8 +1343,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 4) + (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14144)
                   + ((ss - 1)->moveCount > 9) + (!ss->inCheck && bestValue <= ss->staticEval - 115)
-                  + (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 81)
-                  + (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 1522);
+                  + (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 81);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
