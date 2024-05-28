@@ -788,7 +788,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5 + (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] > 7 * CORRECTION_HISTORY_LIMIT / 8);
+        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5;
 
         ss->currentMove         = Move::null();
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1591,7 +1591,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -67))
+            if (!pos.see_ge(move, capture ? -120 : 0))
                 continue;
         }
 
