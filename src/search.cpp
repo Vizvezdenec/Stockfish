@@ -1343,7 +1343,8 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (depth > 4) + (depth > 5) + (PvNode || cutNode) + ((ss - 1)->statScore < -14144)
                   + ((ss - 1)->moveCount > 9) + (!ss->inCheck && bestValue <= ss->staticEval - 115)
-                  + (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 81);
+                  + (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 81)
+                  + (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] > CORRECTION_HISTORY_LIMIT / 2);
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
@@ -1361,10 +1362,7 @@ moves_loop:  // When in check, search starts here
     // If no good move is found and the previous position was ttPv, then the previous
     // opponent move is probably good and the new position is added to the search tree. (~7 Elo)
     if (bestValue <= alpha)
-    {
         ss->ttPv = ss->ttPv || ((ss - 1)->ttPv && depth > 3);
-        (ss-1)->ttPv = (ss-1)->ttPv || ((ss - 2)->ttPv && ss->ttPv && depth > 5);
-    }
 
     // Write gathered information in transposition table
     // Static evaluation is saved as it was before correction history
