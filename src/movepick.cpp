@@ -148,7 +148,7 @@ void MovePicker::score() {
     static_assert(Type == CAPTURES || Type == QUIETS || Type == EVASIONS, "Wrong type");
 
     [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook,
-      threatenedPieces, threatenedByAnything;
+      threatenedPieces;
     if constexpr (Type == QUIETS)
     {
         Color us = pos.side_to_move();
@@ -157,8 +157,6 @@ void MovePicker::score() {
         threatenedByMinor =
           pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatenedByPawn;
         threatenedByRook = pos.attacks_by<ROOK>(~us) | threatenedByMinor;
-        threatenedByAnything = threatenedByRook | pos.attacks_by<QUEEN>(~us) | pos.attacks_by<KING>(~us);
-        threatenedByAnything &= ~(pos.attacks_by<PAWN>(us) & ~threatenedByPawn);
 
         // Pieces threatened by pieces of lesser material value
         threatenedPieces = (pos.pieces(us, QUEEN) & threatenedByRook)
@@ -189,7 +187,7 @@ void MovePicker::score() {
             m.value += (*continuationHistory[5])[pc][to];
 
             // bonus for checks
-            m.value += bool(pos.check_squares(pt) & to) * 16384;
+            m.value += bool(pos.check_squares(pt) & to) * (pt == ROOK ? 23000 : pt == KNIGHT || pt == QUEEN ? 18000 : 14000);
 
             // bonus for escaping from capture
             m.value += threatenedPieces & from ? (pt == QUEEN && !(to & threatenedByRook)   ? 51700
@@ -206,11 +204,6 @@ void MovePicker::score() {
                           : pt != PAWN ? bool(to & threatenedByPawn) * 14950
                                        : 0)
                        : 0;
-
-            m.value += pt == PAWN && !(threatenedByAnything & to) ? 
-                             (pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), QUEEN) ? 80000 :
-                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), ROOK) ? 40000 :
-                              pawn_attacks_bb(pos.side_to_move(), to) & pos.pieces(~pos.side_to_move(), KNIGHT, BISHOP) ? 20000 : 0) : 0;
         }
 
         else  // Type == EVASIONS
