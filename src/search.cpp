@@ -788,8 +788,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5
-                        + (thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] == CORRECTION_HISTORY_LIMIT);
+        Depth R = std::min(int(eval - beta) / 177, 6) + depth / 3 + 5;
 
         ss->currentMove         = Move::null();
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
