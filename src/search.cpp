@@ -781,7 +781,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 13999
-        && eval >= beta && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
+        && eval >= beta && ss->staticEval >= beta - 21 * depth + 390 - 150 * ss->ttPv && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
@@ -1010,7 +1010,7 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 2670;
+                lmrDepth += history / 3670;
 
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 51 ? 149 : 55) + 141 * lmrDepth;
