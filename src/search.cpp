@@ -618,7 +618,7 @@ Value Search::Worker::search(
         ss->ttPv = PvNode || (ss->ttHit && tte->is_pv());
 
     // At non-PV nodes we check for an early TT cutoff
-    if (!PvNode && !excludedMove && tte->depth() > depth - (ttValue <= beta) + (ttValue > beta)
+    if (!PvNode && !excludedMove && tte->depth() > depth
         && ttValue != VALUE_NONE  // Possible in case of TT access race or if !ttHit
         && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER)))
     {
@@ -1010,7 +1010,7 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 3670;
+                lmrDepth += history / 2670;
 
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 51 ? 149 : 55) + 141 * lmrDepth;
