@@ -500,7 +500,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-1300);
+    pawnHistory.fill(-1100);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -637,7 +637,7 @@ Value Search::Worker::search(
                                               -stat_malus(depth + 1));
                 if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
                     thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-                    << -stat_malus(depth + 1) / 2;
+                    << -stat_malus(depth + 1) * 2;
             }
         }
 
