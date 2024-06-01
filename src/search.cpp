@@ -817,6 +817,7 @@ Value Search::Worker::search(
                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
                       << bonus;
                 }
+                ss->cutoffCnt += nullValue >= beta + 100;
                 return nullValue;
             }
 
@@ -908,10 +909,9 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    int dededepth = std::max((depth - 4) - tte->depth(), 0);
-    probCutBeta = beta + 361 + 490 * dededepth * dededepth;
+    probCutBeta = beta + 361;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
-        && ttValue >= probCutBeta
+        && tte->depth() >= depth - 4 && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
 
