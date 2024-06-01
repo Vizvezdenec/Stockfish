@@ -776,8 +776,8 @@ Value Search::Worker::search(
         {
             if (value < ss->staticEval)
             {
-                        auto bonus = std::clamp(int(value - ss->staticEval) * depth / 16,
-                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 8);
+                        auto bonus = std::clamp(int(value - ss->staticEval) * depth / 32,
+                                -CORRECTION_HISTORY_LIMIT / 16, CORRECTION_HISTORY_LIMIT / 16);
             thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
             }
             return value;
