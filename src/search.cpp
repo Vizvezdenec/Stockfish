@@ -648,8 +648,8 @@ Value Search::Worker::search(
                 && !(ttValue >= beta && ttValue <= tte->eval())
                 && !(ttValue <= alpha && ttValue >= tte->eval()))
             {
-                auto bonus = std::clamp(int(ttValue - tte->eval()) * tte->depth() / 16,
-                                -CORRECTION_HISTORY_LIMIT / 8, CORRECTION_HISTORY_LIMIT / 8);
+                auto bonus = std::clamp(int(ttValue - tte->eval()) * tte->depth() / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                 thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
             }
             return ttValue;
