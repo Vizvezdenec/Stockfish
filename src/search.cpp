@@ -637,7 +637,7 @@ Value Search::Worker::search(
                                               -stat_malus(depth + 1));
                 if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
                     thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-                    << -stat_malus(depth + 1);
+                    << -stat_malus(depth + 1) / 2;
             }
         }
 
