@@ -644,6 +644,14 @@ Value Search::Worker::search(
             if (ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
                 ttValue = (ttValue * tte->depth() + beta) / (tte->depth() + 1);
+            if (!ss->inCheck && tte->eval() != VALUE_NONE && (!ttCapture || ttValue <= alpha)
+                && !(ttValue >= beta && ttValue <= tte->eval())
+                && !(ttValue <= alpha && ttValue >= tte->eval()))
+            {
+                auto bonus = std::clamp(int(ttValue - tte->eval()) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+            }
             return ttValue;
         }
     }
