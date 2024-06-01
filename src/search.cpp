@@ -817,7 +817,7 @@ Value Search::Worker::search(
                     thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)]
                       << bonus;
                 }
-                ss->cutoffCnt += nullValue >= ss->staticEval + 200;
+                ss->cutoffCnt += nullValue >= ss->staticEval + 100;
                 return nullValue;
             }
 
