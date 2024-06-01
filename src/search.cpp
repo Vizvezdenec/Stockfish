@@ -640,9 +640,9 @@ Value Search::Worker::search(
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
         {
-            if (!PvNode && ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
+            if (ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                ttValue = (ttValue * 4 * depth + beta) / (4 * depth + 1);
+                ttValue = (ttValue * tte->depth() * depth + beta) / (4 * tte->depth() + 1);
             return ttValue;
         }
     }
