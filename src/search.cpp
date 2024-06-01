@@ -642,7 +642,7 @@ Value Search::Worker::search(
         {
             if (!PvNode && ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                ttValue = (ttValue * depth + beta) / (depth + 1);
+                ttValue = (ttValue * 2 * depth + beta) / (2 * depth + 1);
             return ttValue;
         }
     }
