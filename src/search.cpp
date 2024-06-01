@@ -644,14 +644,6 @@ Value Search::Worker::search(
             if (ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
                 ttValue = (ttValue * tte->depth() + beta) / (tte->depth() + 1);
-            if (!ss->inCheck && tte->eval() != VALUE_NONE && (!ttCapture || ttValue <= alpha)
-                && !(ttValue >= beta && ttValue <= tte->eval())
-                && !(ttValue <= alpha && ttValue >= tte->eval()))
-            {
-                auto bonus = std::clamp(int(ttValue - tte->eval()) * tte->depth() / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-            }
             return ttValue;
         }
     }
@@ -781,7 +773,15 @@ Value Search::Worker::search(
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
+        {
+            if (value < ss->staticEval)
+            {
+                        auto bonus = std::clamp(int(value - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
+            }
             return value;
+        }
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
