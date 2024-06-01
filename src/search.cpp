@@ -500,7 +500,7 @@ void Search::Worker::clear() {
     counterMoves.fill(Move::none());
     mainHistory.fill(0);
     captureHistory.fill(0);
-    pawnHistory.fill(-900);
+    pawnHistory.fill(-1300);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -632,13 +632,8 @@ Value Search::Worker::search(
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
             if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 && !priorCapture)
-            {
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                               -stat_malus(depth + 1));
-                if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
-                    thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-                    << -stat_malus(depth + 1) * 2;
-            }
         }
 
         // Partial workaround for the graph history interaction problem
@@ -1294,7 +1289,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += 1 + !ttMove - (extension >= 2);
+                    ss->cutoffCnt += std::max(1 + !ttMove - (extension >= 2) - ((ss-1)->currentMove == Move::null()), 0);
                     assert(value >= beta);  // Fail high
                     break;
                 }
