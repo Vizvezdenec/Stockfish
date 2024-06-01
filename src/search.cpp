@@ -1289,7 +1289,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += std::max(0, 1 + !ttMove - (extension >= 2) - 2 * ((ss-1)->currentMove == Move::null()));
+                    ss->cutoffCnt += 1 + !ttMove - (extension >= 2);
                     assert(value >= beta);  // Fail high
                     break;
                 }
@@ -1339,7 +1339,7 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonus = (116 * (depth > 5) + 115 * (PvNode || cutNode)
+        int bonus = (116 * (depth > 5) + 115 * PvNode + 145 * cutNode
                      + 186 * ((ss - 1)->statScore < -14144) + 121 * ((ss - 1)->moveCount > 9)
                      + 64 * (!ss->inCheck && bestValue <= ss->staticEval - 115)
                      + 137 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 81));
