@@ -773,15 +773,7 @@ Value Search::Worker::search(
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
-        {
-            if (value < ss->staticEval)
-            {
-                        auto bonus = std::clamp(int(value - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-            }
             return value;
-        }
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -1011,7 +1003,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = std::clamp(captHist / 32, -183 * depth, 162 * depth);
+                int seeHist = std::clamp(captHist / 32, -222 * depth, 162 * depth);
                 if (!pos.see_ge(move, -166 * depth - seeHist))
                     continue;
             }
