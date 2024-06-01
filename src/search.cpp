@@ -773,15 +773,7 @@ Value Search::Worker::search(
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
-        {
-            if (value < ss->staticEval)
-            {
-                        auto bonus = std::clamp(int(value - ss->staticEval) * depth / 32,
-                                -CORRECTION_HISTORY_LIMIT / 16, CORRECTION_HISTORY_LIMIT / 16);
-            thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-            }
             return value;
-        }
     }
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -916,9 +908,10 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
-    probCutBeta = beta + 361;
+    int dededepth = std::max((depth - 4) - tte->depth(), 0);
+    probCutBeta = beta + 361 + 30 * dededepth * dededepth;
     if (ss->inCheck && !PvNode && ttCapture && (tte->bound() & BOUND_LOWER)
-        && tte->depth() >= depth - 4 && ttValue >= probCutBeta
+        && ttValue >= probCutBeta
         && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
 
