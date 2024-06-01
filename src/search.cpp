@@ -1468,7 +1468,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         {
             if (ttValue >= beta && std::abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                ttValue = (ttValue * std::max(tte->depth(), 0) + beta) / (std::max(tte->depth(), 0) + 1);
+                ttValue = (ttValue * std::max(tte->depth(), 1) + beta) / (std::max(tte->depth(), 1) + 1);
             return ttValue;
         }
 
