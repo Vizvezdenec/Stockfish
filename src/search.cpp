@@ -1138,7 +1138,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (~0 Elo on STC, ~2 Elo on LTC)
         if (PvNode)
-            r--;
+            r -= 1 + ((ss-1)->moveCount == 1);
 
         // These reduction adjustments have no proven non-linear scaling.
 
@@ -1157,8 +1157,8 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction
         // but never allow it to go below 0 (~3 Elo)
-        if (move == ttMove)
-            r -= 2;
+        else if (move == ttMove)
+            r = std::max(0, r - 2);
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
