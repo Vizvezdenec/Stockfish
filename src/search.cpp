@@ -1015,7 +1015,7 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 5500 + history / 11000 * std::abs(history) / 11000;
+                lmrDepth += history / 5500 + history / 110 * std::abs(history) / 110 / 10000;
 
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 51 ? 149 : 55) + 141 * lmrDepth;
