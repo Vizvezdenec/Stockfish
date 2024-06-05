@@ -1158,7 +1158,7 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction
         // but never allow it to go below 0 (~3 Elo)
         else if (move == ttMove)
-            r = std::max(0, r - 2);
+            r = std::max(-1, r - 2);
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1500,7 +1500,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             unadjustedStaticEval =
               (ss - 1)->currentMove != Move::null()
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
-                : -(ss - 1)->staticEval + 220;
+                : -(ss - 1)->staticEval;
             ss->staticEval = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
