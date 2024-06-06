@@ -154,7 +154,7 @@ inline bool use_old_affinity_api() {
         return false;
 
     return true;
-};
+}
 
 // On Windows there are two ways to set affinity, and therefore 2 ways to get it.
 // These are not consistent, so we have to check both.
