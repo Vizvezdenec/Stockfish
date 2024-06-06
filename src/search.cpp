@@ -1138,7 +1138,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (~0 Elo on STC, ~2 Elo on LTC)
         if (PvNode)
-            r -= 1 + ((ss-1)->moveCount == 1);
+            r--;
 
         // These reduction adjustments have no proven non-linear scaling.
 
@@ -1500,7 +1500,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             unadjustedStaticEval =
               (ss - 1)->currentMove != Move::null()
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
-                : -(ss - 1)->staticEval;
+                : -(ss - 1)->staticEval + 90;
             ss->staticEval = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
