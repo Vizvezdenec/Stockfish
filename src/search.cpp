@@ -643,8 +643,8 @@ Value Search::Worker::search(
         if (pos.rule50_count() < 90)
         {
             Value returnValue = ttData.value;
-            if (ttData.value >= beta && std::abs(ttData.value < VALUE_TB_LOSS_IN_MAX_PLY
-                && std::abs(beta) < VALUE_TB_LOSS_IN_MAX_PLY))
+            if (ttData.value >= beta && std::abs(ttData.value < VALUE_TB_WIN_IN_MAX_PLY
+                && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY))
                 returnValue = (ttData.value * ttData.depth + beta) / (ttData.depth + 1);
             return returnValue;
         }
