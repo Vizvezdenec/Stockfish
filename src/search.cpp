@@ -651,7 +651,7 @@ Value Search::Worker::search(
             Value returnValue = ttData.value;
             if (ttData.value >= beta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
                 && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                returnValue = (ttData.value * ttData.depth + 3 * beta) / (ttData.depth + 3);
+                returnValue = (ttData.value * ttData.depth + beta) / (ttData.depth + 1);
             return returnValue;
         }
     }
