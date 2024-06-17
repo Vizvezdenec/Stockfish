@@ -647,7 +647,13 @@ Value Search::Worker::search(
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-            return ttData.value;
+        {
+            Value returnValue = ttData.value;
+            if (ttData.value >= beta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
+                && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+                returnValue = (ttData.value * ttData.depth + 3 * beta) / (ttData.depth + 3);
+            return returnValue;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -1557,7 +1563,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 1 + bool(ttData.move))
+                if (moveCount > 2)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
