@@ -639,7 +639,7 @@ Value Search::Worker::search(
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
-            if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 && !priorCapture)
+            if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 1 + ((ss-1)->ttHit) && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                               -stat_malus(depth + 1));
         }
@@ -647,13 +647,7 @@ Value Search::Worker::search(
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-            Value returnValue = ttData.value;
-            if (ttData.value >= beta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
-                && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-                returnValue = (ttData.value * ttData.depth + beta) / (ttData.depth + 1);
-            return returnValue;
-        }
+            return ttData.value;
     }
 
     // Step 5. Tablebases probe
