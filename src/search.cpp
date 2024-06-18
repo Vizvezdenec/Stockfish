@@ -639,7 +639,7 @@ Value Search::Worker::search(
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
-            if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 1 + ((ss-1)->ttHit) && !priorCapture)
+            if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 + ((ss-1)->ttHit) && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                               -stat_malus(depth + 1));
         }
