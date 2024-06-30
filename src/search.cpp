@@ -635,7 +635,7 @@ Value Search::Worker::search(
         {
             // Bonus for a quiet ttMove that fails high (~2 Elo)
             if (!ttCapture)
-                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth));
+                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth + 1));
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
@@ -1086,8 +1086,8 @@ moves_loop:  // When in check, search starts here
                 // and if after excluding the ttMove with a reduced search we fail high over the original beta,
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
-                else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                    return value;
+                else if (singularBeta >= beta)
+                    return singularBeta;
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the ttMove on a reduced search,
