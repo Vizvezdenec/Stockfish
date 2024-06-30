@@ -812,8 +812,8 @@ Value Search::Worker::search(
         {
             if (thisThread->nmpMinPly || depth < 16)
             {
-                auto bonus = std::clamp(int(nullValue - ss->staticEval) * depth / 16,
-                                        0, CORRECTION_HISTORY_LIMIT / 8);
+                auto bonus = std::clamp(int(nullValue - ss->staticEval) * depth / 32,
+                                        0, CORRECTION_HISTORY_LIMIT / 16);
                 thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
                 return nullValue;
             }
