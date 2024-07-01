@@ -634,7 +634,7 @@ Value Search::Worker::search(
         if (ttData.move && ttData.value >= beta)
         {
             // Bonus for a quiet ttMove that fails high (~2 Elo)
-            if (!ttCapture && (ss-1)->moveCount <= 4)
+            if (!ttCapture && (ss-1)->moveCount <= 9)
                 update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth + 1));
 
             // Extra penalty for early quiet moves of
