@@ -1110,8 +1110,7 @@ moves_loop:  // When in check, search starts here
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 3922)
                 extension = 1;
-            if (std::abs(ss->staticEval + (ss-1)->staticEval) >= 500
-                && !PvNode
+            if (std::abs((std::abs(ss->staticEval) - std::abs((ss-1)->staticEval)) >= 500)
                 && ss->ply < 8
                 && !priorCapture
                 && !ss->inCheck && !(ss-1)->inCheck)
