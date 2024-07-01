@@ -634,8 +634,8 @@ Value Search::Worker::search(
         if (ttData.move && ttData.value >= beta)
         {
             // Bonus for a quiet ttMove that fails high (~2 Elo)
-            if (!ttCapture)
-                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth));
+            if (!ttCapture && (ss-1)->moveCount <= 6)
+                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth + 1));
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
@@ -1110,12 +1110,6 @@ moves_loop:  // When in check, search starts here
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 3922)
                 extension = 1;
-            else if (std::abs(ss->staticEval + (ss-1)->staticEval) >= 500
-                && !PvNode
-                && ss->ply < 8
-                && !priorCapture
-                && !ss->inCheck && !(ss-1)->inCheck)
-                extension += 1;
         }
 
         // Add extension to new depth
