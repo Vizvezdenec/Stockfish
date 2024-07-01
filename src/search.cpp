@@ -1111,7 +1111,7 @@ moves_loop:  // When in check, search starts here
                           > 3922)
                 extension = 1;
 
-            if (std::abs(ss->staticEval + (ss-1)->staticEval) >= 500
+            if (std::abs(ss->staticEval + (ss-1)->staticEval) >= 1000
                 && ss->ply < 8
                 && !priorCapture
                 && !ss->inCheck && !(ss-1)->inCheck)
