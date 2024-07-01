@@ -510,7 +510,7 @@ void Search::Worker::clear() {
         for (StatsType c : {NoCaptures, Captures})
             for (auto& to : continuationHistory[inCheck][c])
                 for (auto& h : to)
-                    h->fill(-313);
+                    h->fill(-533);
 
     for (size_t i = 1; i < reductions.size(); ++i)
         reductions[i] = int((19.26 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
