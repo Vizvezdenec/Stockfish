@@ -1020,7 +1020,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth += history / 3678;
 
                 Value futilityValue =
-                  ss->staticEval + (bestValue < ss->staticEval - 51 ? 138 : 54) + 140 * lmrDepth - 160 * ttCapture;
+                  ss->staticEval + (bestValue < ss->staticEval - 51 ? 138 : 54) + 140 * lmrDepth;
 
                 // Futility pruning: parent node (~13 Elo)
                 if (!ss->inCheck && lmrDepth < 12 && futilityValue <= alpha)
@@ -1110,6 +1110,12 @@ moves_loop:  // When in check, search starts here
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 3922)
                 extension = 1;
+
+            if (std::abs((std::abs(ss->staticEval) - std::abs((ss-1)->staticEval)) >= 1000)
+                && ss->ply < 8
+                && !priorCapture
+                && !ss->inCheck && !(ss-1)->inCheck)
+                extension += 1;
         }
 
         // Add extension to new depth
