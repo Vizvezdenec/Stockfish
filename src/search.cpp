@@ -510,7 +510,7 @@ void Search::Worker::clear() {
         for (StatsType c : {NoCaptures, Captures})
             for (auto& to : continuationHistory[inCheck][c])
                 for (auto& h : to)
-                    h->fill(-56);
+                    h->fill(-122);
 
     for (size_t i = 1; i < reductions.size(); ++i)
         reductions[i] = int((19.26 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
@@ -635,7 +635,7 @@ Value Search::Worker::search(
         {
             // Bonus for a quiet ttMove that fails high (~2 Elo)
             if (!ttCapture)
-                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth + ((ss-1)->moveCount <= 16)));
+                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth));
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
@@ -1817,8 +1817,6 @@ void update_all_stats(const Position& pos,
 // Updates histories of the move pairs formed
 // by moves at ply -1, -2, -3, -4, and -6 with current move.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
-
-    bonus = bonus * 51 / 64;
 
     for (int i : {1, 2, 3, 4, 6})
     {
