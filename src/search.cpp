@@ -909,11 +909,7 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4
         && ttData.value >= probCutBeta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-    {
-        if (!ttCapture)
-            update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(std::max(ttData.depth, 0)));
         return probCutBeta;
-    }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
@@ -1160,7 +1156,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
-            r += 1 + !(PvNode || cutNode);
+            r += 1 + (!(PvNode || cutNode) || bestValue <= alpha - 50);
 
         // For first picked move (ttMove) reduce reduction
         // but never allow it to go below 0 (~3 Elo)
