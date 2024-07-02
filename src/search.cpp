@@ -911,7 +911,7 @@ moves_loop:  // When in check, search starts here
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         if (!ttCapture)
-            update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth));
+            update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(std::max(depth - 4, 0)));
         return probCutBeta;
     }
 
