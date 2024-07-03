@@ -1512,7 +1512,14 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     // Step 4. Static evaluation of the position
     Value unadjustedStaticEval = VALUE_NONE;
     if (ss->inCheck)
+    {
+        Value sss = beta + 100;
+        if (ss->inCheck && (ttData.bound & BOUND_LOWER)
+            && ttData.value >= sss && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
+            && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
+            return sss;
         bestValue = futilityBase = -VALUE_INFINITE;
+    }
     else
     {
         if (ss->ttHit)
