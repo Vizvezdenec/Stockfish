@@ -906,7 +906,7 @@ moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea, when we are in check (~4 Elo)
     probCutBeta = beta + 388;
-    if (ss->inCheck && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4
+    if (ss->inCheck && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.move
         && ttData.value >= probCutBeta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
@@ -928,8 +928,6 @@ moves_loop:  // When in check, search starts here
     moveCountPruning = false;
     singularValue    = VALUE_INFINITE;
     singularBound    = BOUND_NONE;
-
-    (ss + 2)->cutoffCnt                         = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
