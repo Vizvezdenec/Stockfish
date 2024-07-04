@@ -1080,7 +1080,7 @@ moves_loop:  // When in check, search starts here
 
             if (!rootNode && move == ttData.move && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 35) + ss->ttPv
-                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && ((ttData.bound & BOUND_LOWER) || ttData.value >= beta + 200)
+                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && ((ttData.bound & BOUND_LOWER) || ttData.value <= alpha - 200)
                 && ttData.depth >= depth - 3)
             {
                 Value singularBeta  = ttData.value - (52 + 80 * (ss->ttPv && !PvNode)) * depth / 64;
