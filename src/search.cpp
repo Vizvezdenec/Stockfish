@@ -1080,7 +1080,7 @@ moves_loop:  // When in check, search starts here
 
             if (!rootNode && move == ttData.move && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 35) + ss->ttPv
-                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER)
+                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && ((ttData.bound & BOUND_LOWER) || ttData.value >= beta + 200)
                 && ttData.depth >= depth - 3)
             {
                 Value singularBeta  = ttData.value - (52 + 80 * (ss->ttPv && !PvNode)) * depth / 64;
@@ -1512,14 +1512,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
     // Step 4. Static evaluation of the position
     Value unadjustedStaticEval = VALUE_NONE;
     if (ss->inCheck)
-    {
-        Value sss = beta + 433;
-        if (ss->inCheck && (ttData.bound & BOUND_LOWER)
-            && ttData.value >= sss && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
-            && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-            return sss;
         bestValue = futilityBase = -VALUE_INFINITE;
-    }
     else
     {
         if (ss->ttHit)
