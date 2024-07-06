@@ -899,9 +899,8 @@ Value Search::Worker::search(
 
                 if (value >= probCutBeta)
                 {
-                    bool EB = value >= ss->staticEval + 55;
                     thisThread->captureHistory[movedPiece][move.to_sq()][type_of(captured)]
-                      << stat_bonus(depth - 2 + EB);
+                      << stat_bonus(depth - 2);
 
                     for (int i = 0; i < probcutCaptureCount; i++)
                     {
@@ -910,7 +909,7 @@ Value Search::Worker::search(
 
                         thisThread->captureHistory[movedPiece][probcutCapturesSearched[i].to_sq()]
                                                   [type_of(captured)]
-                          << -stat_malus(depth - 3 + EB);
+                          << -stat_malus(depth - 3);
                     }
 
                     // Save ProbCut data into transposition table
@@ -951,6 +950,8 @@ moves_loop:  // When in check, search starts here
     moveCountPruning = false;
     singularValue    = VALUE_INFINITE;
     singularBound    = BOUND_NONE;
+
+    bool pepega = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1095,6 +1096,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value < singularBeta)
                 {
+                    pepega = true;
                     int doubleMargin = 293 * PvNode - 195 * !ttCapture;
                     int tripleMargin = 107 + 259 * PvNode - 260 * !ttCapture + 98 * ss->ttPv;
 
@@ -1175,6 +1177,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction if ttMove is a capture (~3 Elo)
         if (ttCapture)
             r++;
+
+        if (pepega)
+            r--;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
