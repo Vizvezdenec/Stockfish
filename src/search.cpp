@@ -1023,7 +1023,7 @@ moves_loop:  // When in check, search starts here
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures (~2 Elo)
-                if (!givesCheck && lmrDepth < 7 && !ss->inCheck && PieceValue[type_of(movedPiece)] >= PieceValue[type_of(capturedPiece)])
+                if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
                     Value futilityValue = ss->staticEval + 294 + 246 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
@@ -1066,7 +1066,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, -24 * lmrDepth * lmrDepth))
+                if (!pos.see_ge(move, -(29 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth))
                     continue;
             }
         }
