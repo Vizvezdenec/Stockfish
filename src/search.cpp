@@ -1620,7 +1620,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             }
 
             // Continuation history based pruning (~3 Elo)
-            if (!capture && givesCheck
+            if (!capture && !ss->inCheck
                 && (*contHist[0])[pos.moved_piece(move)][move.to_sq()]
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
