@@ -1607,7 +1607,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                     futilityBase += ((*contHist[0])[pos.moved_piece(move)][move.to_sq()]
                   + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)][move.to_sq()] 
-                  + 2 * thisThread->mainHistory[us][move.from_to()]) / 4040;
+                  + 2 * thisThread->mainHistory[us][move.from_to()]) / 8192;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
 
