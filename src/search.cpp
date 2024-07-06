@@ -86,7 +86,7 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos) {
 }
 
 // History and stats update bonus, based on depth
-int stat_bonus(Depth d) { return std::clamp(190 * d - 298, 20, 1596); }
+int stat_bonus(Depth d) { return std::min(190 * d - 108, 1596); }
 
 // History and stats update malus, based on depth
 int stat_malus(Depth d) { return (d < 4 ? 736 * d - 268 : 2044); }
@@ -131,8 +131,6 @@ void update_all_stats(const Position& pos,
                       Stack*          ss,
                       Search::Worker& workerThread,
                       Move            bestMove,
-                      Value           bestValue,
-                      Value           beta,
                       Square          prevSq,
                       Move*           quietsSearched,
                       int             quietCount,
@@ -639,7 +637,7 @@ Value Search::Worker::search(
         {
             // Bonus for a quiet ttMove that fails high (~2 Elo)
             if (!ttCapture)
-                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth + 1));
+                update_quiet_stats(pos, ss, *this, ttData.move, stat_bonus(depth));
 
             // Extra penalty for early quiet moves of
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
@@ -1369,7 +1367,7 @@ moves_loop:  // When in check, search starts here
 
     // If there is a move that produces search value greater than alpha we update the stats of searched moves
     else if (bestMove)
-        update_all_stats(pos, ss, *this, bestMove, bestValue, beta, prevSq, quietsSearched,
+        update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched,
                          quietCount, capturesSearched, captureCount, depth);
 
     // Bonus for prior countermove that caused the fail low
@@ -1780,8 +1778,6 @@ void update_all_stats(const Position& pos,
                       Stack*          ss,
                       Search::Worker& workerThread,
                       Move            bestMove,
-                      Value           bestValue,
-                      Value           beta,
                       Square          prevSq,
                       Move*           quietsSearched,
                       int             quietCount,
@@ -1793,15 +1789,12 @@ void update_all_stats(const Position& pos,
     Piece                  moved_piece    = pos.moved_piece(bestMove);
     PieceType              captured;
 
-    int quietMoveBonus = stat_bonus(depth + 1);
+    int quietMoveBonus = stat_bonus(depth);
     int quietMoveMalus = stat_malus(depth);
 
     if (!pos.capture_stage(bestMove))
     {
-        int bestMoveBonus = bestValue > beta + 172 ? quietMoveBonus      // larger bonus
-                                                   : stat_bonus(depth);  // smaller bonus
-
-        update_quiet_stats(pos, ss, workerThread, bestMove, bestMoveBonus);
+        update_quiet_stats(pos, ss, workerThread, bestMove, quietMoveBonus);
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
