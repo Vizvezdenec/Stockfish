@@ -1200,7 +1200,6 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4747;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        if (!ss->inCheck)
         r -= ss->statScore / 11125;
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
@@ -1564,8 +1563,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
         if (bestValue > alpha)
             alpha = bestValue;
-
-        futilityBase = ss->staticEval + 294;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1603,6 +1600,10 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             {
                 if (moveCount > 2)
                     continue;
+
+                futilityBase = ss->staticEval + 294;
+                if (capture)
+                    futilityBase += thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] / 7;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
 
