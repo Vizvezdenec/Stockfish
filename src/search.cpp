@@ -1066,7 +1066,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, -24 * lmrDepth * lmrDepth))
+                if (!pos.see_ge(move, -(26 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth))
                     continue;
             }
         }
@@ -1200,10 +1200,7 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4747;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        if (!ss->inCheck)
-            r -= ss->statScore / 11125;
-        else
-            r -= (thisThread->mainHistory[us][move.from_to()] + (*contHist[0])[movedPiece][move.to_sq()] - 4747) / 8192;
+        r -= ss->statScore / 11125;
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + rootNode)
