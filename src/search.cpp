@@ -1178,7 +1178,7 @@ moves_loop:  // When in check, search starts here
         if (ttCapture)
             r++;
 
-        if (pepega)
+        if (pepega && moveCount > 1)
             r--;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
