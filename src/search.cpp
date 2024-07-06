@@ -1090,7 +1090,7 @@ moves_loop:  // When in check, search starts here
 
             if (!rootNode && move == ttData.move && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 35) + ss->ttPv
-                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER)
+                && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && ((ttData.bound & BOUND_LOWER) || ttData.value <= alpha - 100)
                 && ttData.depth >= depth - 3)
             {
                 Value singularBeta  = ttData.value - (52 + 80 * (ss->ttPv && !PvNode)) * depth / 64;
@@ -1118,7 +1118,7 @@ moves_loop:  // When in check, search starts here
                 // and if after excluding the ttMove with a reduced search we fail high over the original beta,
                 // we assume this expected cut-node is not singular (multiple moves fail high),
                 // and we can prune the whole subtree by returning a softbound.
-                else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER))
                     return value;
 
                 // Negative extensions
