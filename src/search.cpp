@@ -900,7 +900,7 @@ Value Search::Worker::search(
                 if (value >= probCutBeta)
                 {
                     thisThread->captureHistory[movedPiece][move.to_sq()][type_of(captured)]
-                      << stat_bonus(depth - 2);
+                      << stat_bonus(depth - 2 + (value >= probCutBeta + 400));
 
                     for (int i = 0; i < probcutCaptureCount; i++)
                     {
@@ -1533,7 +1533,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             unadjustedStaticEval =
               (ss - 1)->currentMove != Move::null()
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
-                : -(ss - 1)->staticEval + 140;
+                : -(ss - 1)->staticEval;
             ss->staticEval = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
