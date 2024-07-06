@@ -899,7 +899,7 @@ Value Search::Worker::search(
 
                 if (value >= probCutBeta)
                 {
-                    bool EB = value >= ss->staticEval + 666;
+                    bool EB = value >= ss->staticEval + 100;
                     thisThread->captureHistory[movedPiece][move.to_sq()][type_of(captured)]
                       << stat_bonus(depth - 2 + EB);
 
