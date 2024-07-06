@@ -899,8 +899,9 @@ Value Search::Worker::search(
 
                 if (value >= probCutBeta)
                 {
+                    bool EB = value >= probCutBeta + 200;
                     thisThread->captureHistory[movedPiece][move.to_sq()][type_of(captured)]
-                      << stat_bonus(depth - 2 + (value >= probCutBeta + 400));
+                      << stat_bonus(depth - 2 + EB);
 
                     for (int i = 0; i < probcutCaptureCount; i++)
                     {
@@ -909,7 +910,7 @@ Value Search::Worker::search(
 
                         thisThread->captureHistory[movedPiece][probcutCapturesSearched[i].to_sq()]
                                                   [type_of(captured)]
-                          << -stat_malus(depth - 3);
+                          << -stat_malus(depth - 3 + EB);
                     }
 
                     // Save ProbCut data into transposition table
