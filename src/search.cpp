@@ -1142,7 +1142,10 @@ moves_loop:  // When in check, search starts here
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 3922)
                 extension = 1;
-            else if (   (PvNode || cutNode) && capture && moveCount != 1)
+            else if (   PvNode
+               && move == ttData.move
+               && move == ss->killers[0]
+               && (*contHist[0])[movedPiece][move.to_sq()] >= 10000)
                 extension = 1;
         }
 
