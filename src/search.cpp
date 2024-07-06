@@ -951,7 +951,7 @@ moves_loop:  // When in check, search starts here
     singularValue    = VALUE_INFINITE;
     singularBound    = BOUND_NONE;
 
-    bool pepega = false;
+    int pepega = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1096,12 +1096,13 @@ moves_loop:  // When in check, search starts here
 
                 if (value < singularBeta)
                 {
-                    pepega = true;
                     int doubleMargin = 293 * PvNode - 195 * !ttCapture;
                     int tripleMargin = 107 + 259 * PvNode - 260 * !ttCapture + 98 * ss->ttPv;
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin);
+
+                    pepega = extension;
 
                     depth += ((!PvNode) && (depth < 16));
                 }
@@ -1178,8 +1179,7 @@ moves_loop:  // When in check, search starts here
         if (ttCapture)
             r++;
 
-        if (pepega)
-            r-= 2;
+        r -= pepega;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
