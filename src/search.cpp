@@ -1036,7 +1036,7 @@ moves_loop:  // When in check, search starts here
                 if (!pos.see_ge(move, -163 * depth - seeHist))
                     continue;
             }
-            else if (pos.non_pawn_material(~us) > BishopValue)
+            else if (pos.non_pawn_material(~us) > QueenValue)
             {
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
