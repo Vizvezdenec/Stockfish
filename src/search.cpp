@@ -795,7 +795,7 @@ Value Search::Worker::search(
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && beta > VALUE_TB_LOSS_IN_MAX_PLY
         && eval < VALUE_TB_WIN_IN_MAX_PLY)
-        return beta + (ttCapture ? (eval - beta) / 3 : (eval - beta) / 4);
+        return beta + (eval - beta) / 3;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14369
@@ -1036,7 +1036,7 @@ moves_loop:  // When in check, search starts here
                 if (!pos.see_ge(move, -163 * depth - seeHist))
                     continue;
             }
-            else
+            else if (pos.non_pawn_material(~us))
             {
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
@@ -1066,7 +1066,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, -24 * lmrDepth * lmrDepth))
+                if (!pos.see_ge(move, -(28 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth))
                     continue;
             }
         }
