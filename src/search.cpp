@@ -1387,12 +1387,12 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (113 * (depth > 5) + 118 * (PvNode || cutNode) + 119 * ((ss - 1)->moveCount > 8)
-                     + 64 * (!ss->inCheck && bestValue <= ss->staticEval - 107)
+                     + (64 - std::max((bestValue - (ss->staticEval - 117)) / 4, -30)) * (!ss->inCheck && bestValue <= ss->staticEval)
                      + 147 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 75));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::min(-(ss - 1)->statScore / 100, 324);
-        bonus = std::max(bonus, 0);
+        if ((ss - 1)->statScore < -7850)
+            bonus += std::clamp(-(ss - 1)->statScore / 100, 0, 224);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
