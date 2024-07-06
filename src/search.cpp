@@ -1094,7 +1094,6 @@ moves_loop:  // When in check, search starts here
 
                 if (value < singularBeta)
                 {
-                    r--;
                     int doubleMargin = 293 * PvNode - 195 * !ttCapture;
                     int tripleMargin = 107 + 259 * PvNode - 260 * !ttCapture + 98 * ss->ttPv;
 
@@ -1621,7 +1620,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             }
 
             // Continuation history based pruning (~3 Elo)
-            if (!capture
+            if (!capture && !givesCheck
                 && (*contHist[0])[pos.moved_piece(move)][move.to_sq()]
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
