@@ -1379,8 +1379,6 @@ moves_loop:  // When in check, search starts here
                      + 64 * (!ss->inCheck && bestValue <= ss->staticEval - 108)
                      + 153 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 76));
 
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -50, 274);
-
         // Proportional to "how much damage we have to undo"
         if ((ss - 1)->statScore < -7865)
             bonus += std::clamp(-(ss - 1)->statScore / 103, 0, 258);
@@ -1535,7 +1533,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             unadjustedStaticEval =
               (ss - 1)->currentMove != Move::null()
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
-                : -(ss - 1)->staticEval;
+                : -(ss - 1)->staticEval + 120;
             ss->staticEval = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
