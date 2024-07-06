@@ -899,8 +899,9 @@ Value Search::Worker::search(
 
                 if (value >= probCutBeta)
                 {
+                    bool EB = value >= ss->staticEval + 200;
                     thisThread->captureHistory[movedPiece][move.to_sq()][type_of(captured)]
-                      << stat_bonus(depth - 2);
+                      << stat_bonus(depth - 2 + EB);
 
                     for (int i = 0; i < probcutCaptureCount; i++)
                     {
@@ -909,7 +910,7 @@ Value Search::Worker::search(
 
                         thisThread->captureHistory[movedPiece][probcutCapturesSearched[i].to_sq()]
                                                   [type_of(captured)]
-                          << -stat_malus(depth - 3);
+                          << -stat_malus(depth - 3 + EB);
                     }
 
                     // Save ProbCut data into transposition table
@@ -1380,7 +1381,8 @@ moves_loop:  // When in check, search starts here
                      + 153 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 76));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -50, 274);
+        if ((ss - 1)->statScore < -7865)
+            bonus += std::clamp(-(ss - 1)->statScore / 103, 0, 258);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
