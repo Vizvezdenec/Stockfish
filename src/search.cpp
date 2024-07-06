@@ -920,9 +920,10 @@ Value Search::Worker::search(
                           << -stat_malus(depth - 3);
                     }
 
-                    // Save ProbCut data into transposition table
                     if (std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                        value = (value * (depth - 3) + probCutBeta) / (depth - 2);
+                        value = (value * (depth + 1) + beta) / (depth + 2);
+
+                    // Save ProbCut data into transposition table
                     ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                    depth - 3, move, unadjustedStaticEval, tt.generation());
                     return value;
