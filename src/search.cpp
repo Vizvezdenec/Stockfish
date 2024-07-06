@@ -1096,7 +1096,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value < singularBeta)
                 {
-                    pepega = true;
+                    pepega = !capture;
                     int doubleMargin = 293 * PvNode - 195 * !ttCapture;
                     int tripleMargin = 107 + 259 * PvNode - 260 * !ttCapture + 98 * ss->ttPv;
 
