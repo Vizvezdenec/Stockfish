@@ -1218,7 +1218,7 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = value <= alpha ? -stat_malus(newDepth)
-                          : value >= beta  ? stat_bonus(newDepth + 1)
+                          : value >= beta  ? stat_bonus(newDepth)
                                            : 0;
 
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
@@ -1384,7 +1384,7 @@ moves_loop:  // When in check, search starts here
             bonus += std::clamp(-(ss - 1)->statScore / 103, 0, 258);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus / 100);
+                                      stat_bonus(depth + 1) * bonus / 100);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
           << stat_bonus(depth) * bonus / 200;
 
