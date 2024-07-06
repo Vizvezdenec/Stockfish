@@ -1391,8 +1391,7 @@ moves_loop:  // When in check, search starts here
                      + 147 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 75));
 
         // Proportional to "how much damage we have to undo"
-        if ((ss - 1)->statScore < -7850)
-            bonus += std::clamp(-(ss - 1)->statScore / 100, 0, 224);
+        bonus += std::clamp(-(ss - 1)->statScore / 100, 0, 224);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
@@ -1563,6 +1562,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
 
         if (bestValue > alpha)
             alpha = bestValue;
+
+        futilityBase = ss->staticEval + 294;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1594,20 +1595,12 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 6. Pruning
         if (bestValue > VALUE_TB_LOSS_IN_MAX_PLY && pos.non_pawn_material(us))
         {
-            futilityBase = ss->staticEval + 294;
-
             // Futility pruning and moveCount pruning (~10 Elo)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
                 if (moveCount > 2)
                     continue;
-
-                if (!capture)
-                    futilityBase += ((*contHist[0])[pos.moved_piece(move)][move.to_sq()]
-                  + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)][move.to_sq()] 
-                  + 2 * thisThread->mainHistory[us][move.from_to()]) / 8192;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
 
