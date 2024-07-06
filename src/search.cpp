@@ -1386,12 +1386,12 @@ moves_loop:  // When in check, search starts here
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(depth + 1) * bonus / 200;
+          << stat_bonus(depth) * bonus / 200;
 
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << stat_bonus(depth) * bonus / 25;
+              << stat_bonus(depth + 1) * bonus / 25;
     }
 
     if (PvNode)
