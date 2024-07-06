@@ -1036,7 +1036,7 @@ moves_loop:  // When in check, search starts here
                 if (!pos.see_ge(move, -163 * depth - seeHist))
                     continue;
             }
-            else
+            else if (pos.non_pawn_material(~us) > BishopValue)
             {
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
@@ -1066,7 +1066,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, -(31 - std::min(lmrDepth, 18)) * lmrDepth * lmrDepth))
+                if (!pos.see_ge(move, -24 * lmrDepth * lmrDepth))
                     continue;
             }
         }
