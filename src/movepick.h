@@ -34,7 +34,7 @@
 
 namespace Stockfish {
 
-constexpr int PAWN_HISTORY_SIZE        = 512 / 2;    // has to be a power of 2
+constexpr int PAWN_HISTORY_SIZE        = 512 * 2;    // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 16384;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT = 1024;
 
