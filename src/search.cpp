@@ -998,7 +998,7 @@ moves_loop:  // When in check, search starts here
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
-                if (!givesCheck && lmrDepth < 0 && captHist < -4000 * depth)
+                if (!givesCheck && lmrDepth < 0 && captHist < -2000 * depth)
                     continue;
 
                 // Futility pruning for captures (~2 Elo)
