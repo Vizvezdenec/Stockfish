@@ -939,6 +939,8 @@ moves_loop:  // When in check, search starts here
     value            = bestValue;
     moveCountPruning = false;
 
+    int ER = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move(moveCountPruning)) != Move::none())
@@ -1065,11 +1067,11 @@ moves_loop:  // When in check, search starts here
             // and lower extension margins scale well.
 
             if (!rootNode && move == ttData.move && !excludedMove
-                && depth >= 3 + ss->ttPv
+                && depth >= 4 - (thisThread->completedDepth > 36) + ss->ttPv
                 && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER)
-                && ttData.depth >= depth - 4)
+                && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (49 + 71 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value - (54 + 76 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
@@ -1079,8 +1081,8 @@ moves_loop:  // When in check, search starts here
 
                 if (value < singularBeta)
                 {
-                    int doubleMargin = 273 * PvNode - 205 * !ttCapture;
-                    int tripleMargin = 97 + 239 * PvNode - 290 * !ttCapture + 78 * ss->ttPv;
+                    int doubleMargin = 293 * PvNode - 195 * !ttCapture;
+                    int tripleMargin = 107 + 259 * PvNode - 260 * !ttCapture + 98 * ss->ttPv;
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin);
@@ -1162,6 +1164,8 @@ moves_loop:  // When in check, search starts here
         // Increase reduction if ttMove is a capture (~3 Elo)
         if (ttCapture)
             r++;
+
+        r += ER;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
@@ -1320,8 +1324,8 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth > 2 && depth < 14 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                        depth -= 2;
+                    if (std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                        ER += 2;;
 
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
