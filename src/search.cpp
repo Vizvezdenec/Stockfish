@@ -998,6 +998,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
+                if (!givesCheck && lmrDepth < 0 && captHist < -4000 * depth)
+                    continue;
+
                 // Futility pruning for captures (~2 Elo)
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
@@ -1020,7 +1023,7 @@ moves_loop:  // When in check, search starts here
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
-                if (history < -4165 * depth)
+                if (lmrDepth < 6 && history < -4165 * depth)
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
