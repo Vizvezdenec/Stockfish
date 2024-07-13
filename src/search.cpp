@@ -795,7 +795,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14389
-        && eval >= beta && (priorCapture || (ss-1)->inCheck || -(ss-1)->staticEval <= eval + 122) && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
+        && eval >= beta && (priorCapture || (ss-1)->inCheck || -(ss-1)->staticEval <= eval + 30 + 20 * depth) && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
