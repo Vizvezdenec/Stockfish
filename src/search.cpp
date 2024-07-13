@@ -1542,7 +1542,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 299;
+        futilityBase = ss->staticEval + 299 + 5 * (beta - alpha) / rootDelta;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1617,7 +1617,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -83 - depth * 22))
+            if (!pos.see_ge(move, -83))
                 continue;
         }
 
