@@ -1009,7 +1009,7 @@ moves_loop:  // When in check, search starts here
 
                 if (!capture && lmrDepth < 3 && (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()] < -10000 * depth)
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()] < -5000 * depth)
                     continue;
 
                 // SEE based pruning for captures and checks (~11 Elo)
