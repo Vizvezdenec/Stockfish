@@ -1371,6 +1371,8 @@ moves_loop:  // When in check, search starts here
         // Proportional to "how much damage we have to undo"
         bonus += std::clamp(-(ss - 1)->statScore / 100, -50, 274);
 
+        bonus = std::max(bonus, 0);
+
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
@@ -1542,7 +1544,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 299 + 55 * (beta - alpha) / rootDelta;
+        futilityBase = ss->staticEval + 299;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
