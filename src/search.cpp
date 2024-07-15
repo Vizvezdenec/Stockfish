@@ -1371,7 +1371,7 @@ moves_loop:  // When in check, search starts here
                      + 32 * (!(ss - 1)->inCheck && bestValue > -(ss - 1)->staticEval + 76));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -84, 300);
+        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 300);
 
         bonus = std::max(bonus, 0);
 
