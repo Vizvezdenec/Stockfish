@@ -1167,7 +1167,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
-            r += 1 + !(PvNode || cutNode);
+            r += 1 + !PvNode;
 
         // For first picked move (ttMove) reduce reduction, but never allow
         // reduction to go below 0 (~3 Elo)
@@ -1371,9 +1371,7 @@ moves_loop:  // When in check, search starts here
                      + 32 * (!(ss - 1)->inCheck && bestValue > -(ss - 1)->staticEval + 76));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 300);
-
-        bonus = std::max(bonus, 0);
+        bonus += std::clamp(-(ss - 1)->statScore / 100, -64, 300);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                       stat_bonus(depth) * bonus / 100);
