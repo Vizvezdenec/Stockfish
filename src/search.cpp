@@ -1551,7 +1551,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2)
+                if (moveCount > 2 + (PvNode && ttData.move))
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
@@ -1607,14 +1607,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
-        if (PvNode && move == ttData.move && ss->ply <= thisThread->rootDepth * 4)
-        {
-            (ss + 1)->pv    = pv;
-            (ss + 1)->pv[0] = Move::none();
-            value = -search<PV>(pos, ss + 1, -beta, -alpha, 1, false);
-        }
-        else
-            value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1);
+        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha, depth - 1);
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
