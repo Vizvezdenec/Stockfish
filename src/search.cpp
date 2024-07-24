@@ -1607,7 +1607,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
-        if (PvNode && move == ttData.move && ss->ply <= thisThread->rootDepth / 2)
+        if (PvNode && move == ttData.move && ss->ply <= thisThread->rootDepth * 4)
         {
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
