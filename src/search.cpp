@@ -1145,7 +1145,7 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction, but never allow
         // reduction to go below 0 (~3 Elo)
         else if (move == ttData.move)
-            r = std::max(0, r - 2);
+            r = std::max(0, r - 2 - cutNode);
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1551,7 +1551,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2 + (PvNode && ttData.move))
+                if (moveCount > 2)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
