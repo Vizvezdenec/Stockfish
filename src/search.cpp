@@ -1501,7 +1501,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta,
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
 
-        if (PvNode && !ss->ttHit && bestValue >= beta)
+        if (PvNode && bestValue == ss->staticEval && bestValue >= beta)
             bestValue = beta - 1;
 
         // Stand pat. Return immediately if static value is at least beta
