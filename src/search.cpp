@@ -599,7 +599,7 @@ Value Search::Worker::search(
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
 
     // Step 12. A small Probcut idea (~4 Elo)
-    probCutBeta = beta + 370;
+    probCutBeta = beta + 410;
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY)
