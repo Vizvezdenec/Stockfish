@@ -802,8 +802,6 @@ Value Search::Worker::search(
         }
     }
 
-    ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
-
     // Step 10. Internal iterative reductions (~9 Elo)
     // For PV nodes without a ttMove, we decrease depth.
     if (PvNode && !ttData.move)
@@ -954,6 +952,8 @@ moves_loop:  // When in check, search starts here
         int delta = beta - alpha;
 
         Depth r = reduction(improving, depth, moveCount, delta);
+
+        ss->staticEval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
