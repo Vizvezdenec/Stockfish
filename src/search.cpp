@@ -1595,8 +1595,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!pos.see_ge(move, -seeConst))
             {
                 Value futilityValue = futilityBase - seeConst + PieceValue[pos.piece_on(move.to_sq())];
-                if (futilityValue >= bestValue && abs(futilityValue < VALUE_TB_WIN_IN_MAX_PLY))
-                    bestValue = futilityValue;
+                if (futilityValue < alpha && abs(futilityValue < VALUE_TB_WIN_IN_MAX_PLY))
+                    bestValue = std::max(bestValue, futilityValue);
                 continue;
             }
         }
