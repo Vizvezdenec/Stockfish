@@ -1590,9 +1590,15 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                      <= 4643)
                 continue;
 
+            int seeConst = 83;
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -83))
+            if (!pos.see_ge(move, -seeConst))
+            {
+                Value futilityValue = futilityBase - seeConst + PieceValue[pos.piece_on(move.to_sq())];
+                if (futilityValue >= bestValue && abs(futilityValue < VALUE_TB_WIN_IN_MAX_PLY))
+                    bestValue = futilityValue;
                 continue;
+            }
         }
 
         // Speculative prefetch as early as possible
@@ -1649,15 +1655,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     ttWriter.write(posKey, value_to_tt(bestValue, ss->ply), pvHit,
                    bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, DEPTH_QS, bestMove,
                    unadjustedStaticEval, tt.generation());
-
-    if (!ss->inCheck && (!bestMove || !pos.capture(bestMove))
-        && !(bestValue >= beta && bestValue <= ss->staticEval)
-        && !(!bestMove && bestValue >= ss->staticEval))
-    {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        thisThread->correctionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
-    }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
