@@ -765,7 +765,8 @@ Value Search::Worker::search(
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && beta > VALUE_TB_LOSS_IN_MAX_PLY
         && eval < VALUE_TB_WIN_IN_MAX_PLY)
-        return beta + (eval - beta) / 3;
+        return eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
+               - (ss - 1)->statScore / 260;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14389
@@ -1590,15 +1591,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                      <= 4643)
                 continue;
 
-            int seeConst = 83;
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -seeConst))
-            {
-                Value futilityValue = futilityBase - seeConst + PieceValue[pos.piece_on(move.to_sq())];
-                if (futilityValue < alpha && abs(futilityValue < VALUE_TB_WIN_IN_MAX_PLY))
-                    bestValue = std::max(bestValue, futilityValue);
+            if (!pos.see_ge(move, -83))
                 continue;
-            }
         }
 
         // Speculative prefetch as early as possible
