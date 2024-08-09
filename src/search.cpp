@@ -886,6 +886,9 @@ Value Search::Worker::search(
                 return std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY ? value - (probCutBeta - beta)
                                                                  : value;
             }
+            else if (move == ttData.move)
+                ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
+                               depth, move, unadjustedStaticEval, tt.generation());
         }
 
         Eval::NNUE::hint_common_parent_position(pos, networks[numaAccessToken], refreshTable);
@@ -1210,8 +1213,6 @@ moves_loop:  // When in check, search starts here
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
                 newDepth = std::max(newDepth, 1);
-
-            newDepth += !ttData.move && givesCheck && moveCount > 1;
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
