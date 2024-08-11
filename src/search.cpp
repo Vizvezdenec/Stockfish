@@ -776,7 +776,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(9 * int(eval - beta) / 2048, 6) + depth / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 202, 6) + depth / 3 + 5;
 
         ss->currentMove         = Move::null();
         ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -985,7 +985,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = std::clamp(captHist / 32, -182 * depth, 166 * depth);
+                int seeHist = capture ? std::clamp(captHist / 32, -182 * depth, 166 * depth) : 0;
                 if (!pos.see_ge(move, -168 * depth - seeHist))
                     continue;
             }
