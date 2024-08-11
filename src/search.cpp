@@ -769,7 +769,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14389
-        && eval >= beta && (ttCapture || !ttData.move || ttData.value >= beta) && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
+        && eval >= beta && ss->staticEval >= beta - 21 * depth + 390 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
     {
@@ -791,7 +791,12 @@ Value Search::Worker::search(
         if (nullValue >= beta && nullValue < VALUE_TB_WIN_IN_MAX_PLY)
         {
             if (thisThread->nmpMinPly || depth < 16)
+            {
+                if (!ss-ttHit)
+                    ttWriter.write(posKey, value_to_tt(nullValue, ss->ply), ss->ttPv,
+                       BOUND_LOWER, DEPTH_UNSEARCHED, Move::none(), unadjustedStaticEval, tt.generation());
                 return nullValue;
+            }
 
             assert(!thisThread->nmpMinPly);  // Recursive verification is not allowed
 
