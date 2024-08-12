@@ -985,11 +985,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = capture ? captHist / 32 : ((*contHist[0])[movedPiece][move.to_sq()]
-                  + (*contHist[1])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                  + 2 * thisThread->mainHistory[us][move.from_to()]) / 256;
-                seeHist = std::clamp(seeHist, -182 * depth, 166 * depth);
+                int seeHist = capture ? std::clamp(captHist / 32, -182 * depth, 166 * depth) : -100;
                 if (!pos.see_ge(move, -168 * depth - seeHist))
                     continue;
             }
