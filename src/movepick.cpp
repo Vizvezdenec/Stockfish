@@ -141,7 +141,7 @@ void MovePicker::score() {
     for (auto& m : *this)
         if constexpr (Type == CAPTURES)
             m.value =
-              7 * int(PieceValue[pos.piece_on(m.to_sq())])
+              7 * int(PieceValue[m.type_of() == EN_PASSANT ? (pos.side_to_move() == WHITE ? B_PAWN : W_PAWN) : pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
 
         else if constexpr (Type == QUIETS)
@@ -180,7 +180,7 @@ void MovePicker::score() {
         {
             if (pos.capture_stage(m))
                 m.value =
-                  PieceValue[pos.piece_on(m.to_sq())] - type_of(pos.moved_piece(m)) + (1 << 28);
+                  PieceValue[m.type_of() == EN_PASSANT ? (pos.side_to_move() == WHITE ? B_PAWN : W_PAWN) : pos.piece_on(m.to_sq())] - type_of(pos.moved_piece(m)) + (1 << 28);
             else
                 m.value = (*mainHistory)[pos.side_to_move()][m.from_to()]
                         + (*continuationHistory[0])[pos.moved_piece(m)][m.to_sq()]

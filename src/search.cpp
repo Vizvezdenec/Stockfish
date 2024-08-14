@@ -852,7 +852,7 @@ Value Search::Worker::search(
             assert(pos.capture_stage(move));
 
             movedPiece = pos.moved_piece(move);
-            captured   = pos.piece_on(move.to_sq());
+            captured   = move.type_of() == EN_PASSANT ? (us == WHITE ? B_PAWN : W_PAWN) : pos.piece_on(move.to_sq());
 
 
             // Prefetch the TT entry for the resulting position
@@ -971,7 +971,7 @@ moves_loop:  // When in check, search starts here
 
             if (capture || givesCheck)
             {
-                Piece capturedPiece = pos.piece_on(move.to_sq());
+                Piece capturedPiece = move.type_of() == EN_PASSANT ? (us == WHITE ? B_PAWN : W_PAWN) : pos.piece_on(move.to_sq());
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
@@ -985,7 +985,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
-                int seeHist = capture ? std::clamp(captHist / 32, -182 * depth, 166 * depth) : -20;
+                int seeHist = std::clamp(captHist / 32, -182 * depth, 166 * depth);
                 if (!pos.see_ge(move, -168 * depth - seeHist))
                     continue;
             }
@@ -1554,7 +1554,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 if (moveCount > 2)
                     continue;
 
-                Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
+                Value futilityValue = futilityBase + PieceValue[move.type_of() == EN_PASSANT ? (us == WHITE ? B_PAWN : W_PAWN) : pos.piece_on(move.to_sq())];
 
                 // If static eval + value of piece we are going to capture is
                 // much lower than alpha, we can prune this move. (~2 Elo)
@@ -1765,7 +1765,7 @@ void update_all_stats(const Position&      pos,
     else
     {
         // Increase stats for the best move in case it was a capture move
-        captured = type_of(pos.piece_on(bestMove.to_sq()));
+        captured = bestMove.type_of() == EN_PASSANT ? PAWN :type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[moved_piece][bestMove.to_sq()][captured] << quietMoveBonus;
     }
 
@@ -1778,7 +1778,7 @@ void update_all_stats(const Position&      pos,
     for (Move move : capturesSearched)
     {
         moved_piece = pos.moved_piece(move);
-        captured    = type_of(pos.piece_on(move.to_sq()));
+        captured    = move.type_of() == EN_PASSANT ? PAWN : type_of(pos.piece_on(move.to_sq()));
         captureHistory[moved_piece][move.to_sq()][captured] << -quietMoveMalus;
     }
 }
