@@ -105,8 +105,8 @@ void update_all_stats(const Position&      pos,
                       Search::Worker&      workerThread,
                       Move                 bestMove,
                       Square               prevSq,
-                      ValueList<Move, 32>& quietsSearched,
-                      ValueList<Move, 32>& capturesSearched,
+                      ValueList<Move, 48>& quietsSearched,
+                      ValueList<Move, 48>& capturesSearched,
                       Depth                depth);
 
 }  // namespace
@@ -542,8 +542,8 @@ Value Search::Worker::search(
     bool  capture, ttCapture;
     Piece movedPiece;
 
-    ValueList<Move, 32> capturesSearched;
-    ValueList<Move, 32> quietsSearched;
+    ValueList<Move, 48> capturesSearched;
+    ValueList<Move, 48> quietsSearched;
 
     // Step 1. Initialize node
     Worker* thisThread = this;
@@ -1311,7 +1311,7 @@ moves_loop:  // When in check, search starts here
 
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
-        if (move != bestMove && moveCount <= 16)
+        if (move != bestMove && moveCount <= std::min(16 + depth, 48))
         {
             if (capture)
                 capturesSearched.push_back(move);
@@ -1743,8 +1743,8 @@ void update_all_stats(const Position&      pos,
                       Search::Worker&      workerThread,
                       Move                 bestMove,
                       Square               prevSq,
-                      ValueList<Move, 32>& quietsSearched,
-                      ValueList<Move, 32>& capturesSearched,
+                      ValueList<Move, 48>& quietsSearched,
+                      ValueList<Move, 48>& capturesSearched,
                       Depth                depth) {
 
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
