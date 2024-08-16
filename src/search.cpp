@@ -105,8 +105,8 @@ void update_all_stats(const Position&      pos,
                       Search::Worker&      workerThread,
                       Move                 bestMove,
                       Square               prevSq,
-                      ValueList<Move, 48>& quietsSearched,
-                      ValueList<Move, 48>& capturesSearched,
+                      ValueList<Move, 32>& quietsSearched,
+                      ValueList<Move, 32>& capturesSearched,
                       Depth                depth);
 
 }  // namespace
@@ -542,8 +542,8 @@ Value Search::Worker::search(
     bool  capture, ttCapture;
     Piece movedPiece;
 
-    ValueList<Move, 48> capturesSearched;
-    ValueList<Move, 48> quietsSearched;
+    ValueList<Move, 32> capturesSearched;
+    ValueList<Move, 32> quietsSearched;
 
     // Step 1. Initialize node
     Worker* thisThread = this;
@@ -1311,7 +1311,7 @@ moves_loop:  // When in check, search starts here
 
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
-        if (move != bestMove && moveCount <= std::min(8 + 8 * depth, 48))
+        if (move != bestMove && moveCount <= 32)
         {
             if (capture)
                 capturesSearched.push_back(move);
@@ -1348,7 +1348,8 @@ moves_loop:  // When in check, search starts here
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 304);
+        int emg = 5;
+        bonus += std::clamp(-(ss - 1)->statScore / 100, -94 - emg, 304 + emg);
 
         bonus = std::max(bonus, 0);
 
@@ -1743,8 +1744,8 @@ void update_all_stats(const Position&      pos,
                       Search::Worker&      workerThread,
                       Move                 bestMove,
                       Square               prevSq,
-                      ValueList<Move, 48>& quietsSearched,
-                      ValueList<Move, 48>& capturesSearched,
+                      ValueList<Move, 32>& quietsSearched,
+                      ValueList<Move, 32>& capturesSearched,
                       Depth                depth) {
 
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
