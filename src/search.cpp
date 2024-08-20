@@ -1276,7 +1276,7 @@ moves_loop:  // When in check, search starts here
 
         // In case we have an alternative move equal in eval to the current bestmove,
         // promote it to bestmove by pretending it just exceeds alpha (but not beta).
-        int inc = !bestMove && (value == bestValue && (int(nodes) & 15) == 0
+        int inc = (value == bestValue && (int(nodes) & 15) == 0
                    && ss->ply + 2 + ss->ply / 32 >= thisThread->rootDepth
                    && std::abs(value) + 1 < VALUE_TB_WIN_IN_MAX_PLY);
 
@@ -1348,7 +1348,7 @@ moves_loop:  // When in check, search starts here
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
         // Proportional to "how much damage we have to undo"
-        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 304);
+        bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 329);
 
         bonus = std::max(bonus, 0);
 
