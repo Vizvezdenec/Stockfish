@@ -1295,7 +1295,7 @@ moves_loop:  // When in check, search starts here
                     assert(value >= beta);  // Fail high
                     break;
                 }
-                else
+                else if (value > alpha)
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 14 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
