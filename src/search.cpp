@@ -1295,7 +1295,7 @@ moves_loop:  // When in check, search starts here
                     assert(value >= beta);  // Fail high
                     break;
                 }
-                else if (value > alpha)
+                else
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 14 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
@@ -1342,6 +1342,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (122 * (depth > 5) + 39 * (PvNode || cutNode) + 165 * ((ss - 1)->moveCount > 8)
+                     + ((ss-1)->moveCount - 3) * 3
                      + 107 * (!ss->inCheck && bestValue <= ss->staticEval - 98)
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
