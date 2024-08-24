@@ -1366,7 +1366,7 @@ moves_loop:  // When in check, search starts here
     // Bonus when search fails low and there is a TT move
     else if (moveCount > 1 && ttData.move && (cutNode || PvNode))
     {
-        auto bonus = ttBestMove ? stat_bonus(depth) / 4 : -stat_bonus(depth) / 4;
+        auto bonus = ttBestMove ? stat_bonus(depth) / 2 : -stat_bonus(depth) / 2;
         thisThread->mainHistory[us][ttData.move.from_to()] << bonus;
     }
 
