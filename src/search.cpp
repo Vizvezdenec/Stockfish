@@ -915,6 +915,7 @@ moves_loop:  // When in check, search starts here
 
     int  moveCount        = 0;
     bool moveCountPruning = false;
+    bool ttBestMove = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1280,6 +1281,7 @@ moves_loop:  // When in check, search starts here
 
         if (value + inc > bestValue)
         {
+            ttBestMove = ttBestMove && (moveCount == 1 || value <= bestValue);
             bestValue = value;
 
             if (value + inc > alpha)
@@ -1342,7 +1344,6 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (122 * (depth > 5) + 39 * (PvNode || cutNode) + 165 * ((ss - 1)->moveCount > 8)
-                     + ((ss-1)->moveCount - 2) * 15
                      + 107 * (!ss->inCheck && bestValue <= ss->staticEval - 98)
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
@@ -1364,7 +1365,10 @@ moves_loop:  // When in check, search starts here
 
     // Bonus when search fails low and there is a TT move
     else if (moveCount > 1 && ttData.move && (cutNode || PvNode))
-        thisThread->mainHistory[us][ttData.move.from_to()] << stat_bonus(depth) / 4;
+    {
+        auto bonus = ttBestMove ? stat_bonus(depth) / 4 : 0;
+        thisThread->mainHistory[us][ttData.move.from_to()] << bonus;
+    }
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
