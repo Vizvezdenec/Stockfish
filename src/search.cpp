@@ -1342,7 +1342,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (122 * (depth > 5) + 39 * (PvNode || cutNode) + 165 * ((ss - 1)->moveCount > 8)
-                     + ((ss-1)->moveCount - 2) * 10
+                     + ((ss-1)->moveCount - 3) * 15
                      + 107 * (!ss->inCheck && bestValue <= ss->staticEval - 98)
                      + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
