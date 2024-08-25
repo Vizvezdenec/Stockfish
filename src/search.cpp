@@ -1071,8 +1071,8 @@ moves_loop:  // When in check, search starts here
                 // over the original beta, we assume this expected cut-node is not
                 // singular (multiple moves fail high), and we can prune the whole
                 // subtree by returning a softbound.
-                else if (value >= beta && ttData.value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                    return value;
+                else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                    return std::max(ttData.value, beta);
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the
