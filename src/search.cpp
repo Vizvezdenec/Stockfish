@@ -915,7 +915,6 @@ moves_loop:  // When in check, search starts here
 
     int  moveCount        = 0;
     bool moveCountPruning = false;
-    bool ttBestMove = true;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1072,7 +1071,7 @@ moves_loop:  // When in check, search starts here
                 // over the original beta, we assume this expected cut-node is not
                 // singular (multiple moves fail high), and we can prune the whole
                 // subtree by returning a softbound.
-                else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                else if (value >= beta && ttData.value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
                     return value;
 
                 // Negative extensions
@@ -1281,7 +1280,6 @@ moves_loop:  // When in check, search starts here
 
         if (value + inc > bestValue)
         {
-            ttBestMove = ttBestMove && (moveCount == 1 || value <= bestValue);
             bestValue = value;
 
             if (value + inc > alpha)
@@ -1365,10 +1363,7 @@ moves_loop:  // When in check, search starts here
 
     // Bonus when search fails low and there is a TT move
     else if (moveCount > 1 && ttData.move && (cutNode || PvNode))
-    {
-        auto bonus = ttBestMove ? stat_bonus(depth) / 2 : -stat_bonus(depth) / 2;
-        thisThread->mainHistory[us][ttData.move.from_to()] << bonus;
-    }
+        thisThread->mainHistory[us][ttData.move.from_to()] << stat_bonus(depth) / 4;
 
     if (PvNode)
         bestValue = std::min(bestValue, maxValue);
