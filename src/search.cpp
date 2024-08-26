@@ -1072,7 +1072,7 @@ moves_loop:  // When in check, search starts here
                 // singular (multiple moves fail high), and we can prune the whole
                 // subtree by returning a softbound.
                 else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                    return std::max(beta, std::min(value, ttData.value));
+                    return value;
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the
@@ -1498,7 +1498,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             unadjustedStaticEval =
               (ss - 1)->currentMove != Move::null()
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
-                : -(ss - 1)->staticEval;
+                : -(ss - 1)->staticEval + 120;
             ss->staticEval = bestValue =
               to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
