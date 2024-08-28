@@ -174,6 +174,8 @@ void MovePicker::score() {
             m.value -= (pt == QUEEN  ? bool(to & threatenedByRook) * 49000
                         : pt == ROOK ? bool(to & threatenedByMinor) * 24335
                                      : bool(to & threatenedByPawn) * 14900);
+            if ((pt == BISHOP || pt == KNIGHT) && (relative_square(pos.side_to_move(),to) == SQ_A1 || relative_square(pos.side_to_move(),to) == SQ_H1))
+                m.value -= 1000;
         }
 
         else  // Type == EVASIONS
