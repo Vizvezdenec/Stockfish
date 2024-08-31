@@ -1193,7 +1193,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
-                r += 2;
+                r += 2 + allNode;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
@@ -1344,8 +1344,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (122 * (depth > 5) + 39 * !allNode + 165 * ((ss - 1)->moveCount > 8)
                      + 107 * (!ss->inCheck && bestValue <= ss->staticEval - 98)
-                     + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91))
-                     - 140 * allNode;
+                     + 134 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 91));
 
         // Proportional to "how much damage we have to undo"
         bonus += std::clamp(-(ss - 1)->statScore / 100, -94, 304);
