@@ -486,7 +486,7 @@ void Search::Worker::iterative_deepening() {
 void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(-700);
-    pawnHistory.fill(-1188);
+    pawnHistory.fill(-1194);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -737,7 +737,7 @@ Value Search::Worker::search(
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << bonus / 2;
+              << bonus;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -1147,7 +1147,7 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction, but never allow
         // reduction to go below 0 (~3 Elo)
         else if (move == ttData.move)
-            r -= 2;
+            r = std::max(0, r - 2);
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
