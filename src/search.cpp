@@ -1147,7 +1147,7 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction, but never allow
         // reduction to go below 0 (~3 Elo)
         else if (move == ttData.move)
-            r -= 2;
+            r = std::max(0, r - 2);
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1194,6 +1194,9 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
                 r += 2;
+
+            if (ss->ttPv && move == ttData.move && ss->ply <= thisThread->rootDepth)
+                newDepth = std::max(newDepth, 1);
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
