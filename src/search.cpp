@@ -486,7 +486,7 @@ void Search::Worker::iterative_deepening() {
 void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(-700);
-    pawnHistory.fill(-1144);
+    pawnHistory.fill(-1188);
     correctionHistory.fill(0);
 
     for (bool inCheck : {false, true})
@@ -630,7 +630,12 @@ Value Search::Worker::search(
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
+        {
+            if (ttData.value >= beta && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
+                && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY && std::abs(alpha) < VALUE_TB_WIN_IN_MAX_PLY)
+                return (ttData.value * ttData.depth + beta) / (ttData.depth + 1);
             return ttData.value;
+        }
     }
 
     // Step 5. Tablebases probe
@@ -737,7 +742,7 @@ Value Search::Worker::search(
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()] << bonus;
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
-              << bonus;
+              << bonus / 2;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
