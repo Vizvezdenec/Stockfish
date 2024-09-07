@@ -1195,7 +1195,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 2;
 
-            if (ss->ttPv && move == ttData.move && ss->ply <= 3 * thisThread->rootDepth / 2)
+            if (ss->ttPv && move == ttData.move && ss->ply <= 4 * thisThread->rootDepth / 2)
                 newDepth = std::max(newDepth, 1);
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
