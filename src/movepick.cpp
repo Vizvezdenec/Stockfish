@@ -180,7 +180,7 @@ void MovePicker::score() {
                                      : bool(to & threatenedByPawn) * 14900);
 
             if (rootNode)
-                m.value += (*rootHistory)[pos.side_to_move()][m.from_to()];
+                m.value += 4 * (*rootHistory)[pos.side_to_move()][m.from_to()];
         }
 
         else  // Type == EVASIONS
@@ -191,8 +191,7 @@ void MovePicker::score() {
             else
                 m.value = (*mainHistory)[pos.side_to_move()][m.from_to()]
                         + (*continuationHistory[0])[pos.moved_piece(m)][m.to_sq()]
-                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()]
-                        + rootNode ? (*rootHistory)[pos.side_to_move()][m.from_to()] : 0;
+                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()];
         }
 }
 
