@@ -1157,6 +1157,9 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4664;
 
+        if (rootNode)
+            ss->statScore += 2 * thisThread->rootHistory[us][move.from_to()];
+
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore / 10898;
 
