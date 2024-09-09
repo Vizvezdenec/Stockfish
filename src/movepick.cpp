@@ -180,7 +180,7 @@ void MovePicker::score() {
                                      : bool(to & threatenedByPawn) * 14900);
 
             if (rootNode)
-                m.value += 4 * (*rootHistory)[pos.side_to_move()][m.from_to()];
+                m.value += 8 * (*rootHistory)[pos.side_to_move()][m.from_to()];
         }
 
         else  // Type == EVASIONS
