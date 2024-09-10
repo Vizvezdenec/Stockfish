@@ -1770,7 +1770,7 @@ void update_all_stats(const Position&      pos,
     {
         update_quiet_histories(pos, ss, workerThread, bestMove, quietMoveBonus);
         if (rootNode)
-            workerThread.rootHistory[pos.side_to_move()][bestMove.from_to()] << 100 * depth;
+            workerThread.rootHistory[pos.side_to_move()][bestMove.from_to()] << 200 * depth;
 
 
         // Decrease stats for all non-best quiet moves
