@@ -1770,7 +1770,7 @@ void update_all_stats(const Position&      pos,
     {
         update_quiet_histories(pos, ss, workerThread, bestMove, quietMoveBonus);
         if (rootNode)
-            workerThread.rootHistory[pos.side_to_move()][bestMove.from_to()] << 200 * depth;
+            workerThread.rootHistory[pos.side_to_move()][bestMove.from_to()] << std::min(200 * depth, 2000 + 100 * depth);
 
 
         // Decrease stats for all non-best quiet moves
@@ -1778,7 +1778,7 @@ void update_all_stats(const Position&      pos,
         {
             update_quiet_histories(pos, ss, workerThread, move, -quietMoveMalus);
             if (rootNode)
-                workerThread.rootHistory[pos.side_to_move()][move.from_to()] << -100 * depth;
+                workerThread.rootHistory[pos.side_to_move()][move.from_to()] << std::max(-100 * depth, -1000 - 50 * depth);
         }
     }
     else
