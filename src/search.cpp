@@ -235,7 +235,7 @@ void Search::Worker::iterative_deepening() {
     for (int i = 7; i > 0; --i)
     {
         (ss - i)->continuationHistory =
-          &this->continuationHistory[0][0][0][NO_PIECE][0];  // Use as a sentinel
+          &this->continuationHistory[0][0][NO_PIECE][0];  // Use as a sentinel
         (ss - i)->staticEval = VALUE_NONE;
     }
 
@@ -495,10 +495,9 @@ void Search::Worker::clear() {
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
-            for (PieceType pt : {NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN})
-                for (auto& to : continuationHistory[inCheck][c][pt])
-                    for (auto& h : to)
-                        h->fill(-658);
+            for (auto& to : continuationHistory[inCheck][c])
+                for (auto& h : to)
+                    h->fill(-658);
 
     for (size_t i = 1; i < reductions.size(); ++i)
         reductions[i] = int((18.62 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
@@ -781,10 +780,10 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 202, 6) + depth / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 202, 6) + depth / 3 + 5 + (ss->staticEval > (ss-2)->staticEval + 20);
 
         ss->currentMove         = Move::null();
-        ss->continuationHistory = &thisThread->continuationHistory[0][0][0][NO_PIECE][0];
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
 
         pos.do_null_move(st, tt);
 
@@ -865,7 +864,7 @@ Value Search::Worker::search(
 
             ss->currentMove = move;
             ss->continuationHistory =
-              &this->continuationHistory[ss->inCheck][true][type_of(pos.piece_on(move.to_sq()))][pos.moved_piece(move)][move.to_sq()];
+              &this->continuationHistory[ss->inCheck][true][pos.moved_piece(move)][move.to_sq()];
 
             thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
             pos.do_move(move, st);
@@ -1113,7 +1112,7 @@ moves_loop:  // When in check, search starts here
         // Update the current move (this must be done after singular extension search)
         ss->currentMove = move;
         ss->continuationHistory =
-          &thisThread->continuationHistory[ss->inCheck][capture][type_of(pos.piece_on(move.to_sq()))][movedPiece][move.to_sq()];
+          &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][move.to_sq()];
 
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
@@ -1609,7 +1608,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         ss->currentMove = move;
         ss->continuationHistory =
           &thisThread
-             ->continuationHistory[ss->inCheck][capture][type_of(pos.piece_on(move.to_sq()))][pos.moved_piece(move)][move.to_sq()];
+             ->continuationHistory[ss->inCheck][capture][pos.moved_piece(move)][move.to_sq()];
 
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
