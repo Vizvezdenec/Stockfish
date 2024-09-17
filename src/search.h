@@ -283,6 +283,7 @@ class Worker {
     PawnHistory               pawnHistory;
     PawnCorrectionHistory     pawnCorrectionHistory;
     MaterialCorrectionHistory materialCorrectionHistory;
+    ContCorrectionHistory     contCorrectionHistory;
 
    private:
     void iterative_deepening();

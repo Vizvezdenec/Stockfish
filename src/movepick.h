@@ -38,6 +38,7 @@ constexpr int PAWN_HISTORY_SIZE                = 512;    // has to be a power of
 constexpr int PAWN_CORRECTION_HISTORY_SIZE     = 16384;  // has to be a power of 2
 constexpr int MATERIAL_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT         = 1024;
+constexpr int CORRECTION_HISTORY_LIMIT_CONT    = 512;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");
@@ -150,6 +151,9 @@ using PawnCorrectionHistory =
 // MaterialCorrectionHistory is addressed by color and material configuration
 using MaterialCorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, MATERIAL_CORRECTION_HISTORY_SIZE>;
+
+using ContCorrectionHistory =
+  Stats<int16_t, CORRECTION_HISTORY_LIMIT_CONT, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
 
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
