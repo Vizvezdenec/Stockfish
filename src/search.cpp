@@ -87,9 +87,9 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos, St
     const auto  micv  = w.minorPieceCorrectionHistory[us][minor_piece_index(pos)];
     const auto  wnpcv = w.nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)];
     const auto  bnpcv = w.nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)];
-    auto  cv =
-      (98198 * pcv + 68968 * mcv + 54353 * macv + 85174 * micv + 85581 * (wnpcv + bnpcv)) / 2097152;
-    cv += w.fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] * 33 / 256;
+    const auto  ftcv  = w.fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()];
+    const auto  cv =
+      (98198 * pcv + 68968 * mcv + 54353 * macv + 85174 * micv + 85581 * (wnpcv + bnpcv) + 55555 * ftcv) / 2097152;
     v += cv;
     return std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
@@ -1417,8 +1417,6 @@ moves_loop:  // When in check, search starts here
         thisThread->minorPieceCorrectionHistory[us][minor_piece_index(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)] << bonus;
-        bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 32,
-                                -CORRECTION_HISTORY_LIMIT_FROMTO / 4, CORRECTION_HISTORY_LIMIT_FROMTO / 4);
         thisThread->fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] << bonus;
     }
 
