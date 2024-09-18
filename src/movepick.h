@@ -181,7 +181,7 @@ using NonPawnCorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, NON_PAWN_CORRECTION_HISTORY_SIZE>;
 
 using FromToCorrectionHistory =
-  Stats<int16_t, CORRECTION_HISTORY_LIMIT_FROMTO, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
+  Stats<int16_t, CORRECTION_HISTORY_LIMIT_FROMTO, COLOR_NB, 2, int(SQUARE_NB) * int(SQUARE_NB)>;
 
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
