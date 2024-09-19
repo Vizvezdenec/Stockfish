@@ -41,7 +41,6 @@ constexpr int MAJOR_PIECE_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power
 constexpr int MINOR_PIECE_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power of 2
 constexpr int NON_PAWN_CORRECTION_HISTORY_SIZE    = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT            = 1024;
-constexpr int CORRECTION_HISTORY_LIMIT_FROMTO    = 256;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");
@@ -181,7 +180,7 @@ using NonPawnCorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, NON_PAWN_CORRECTION_HISTORY_SIZE>;
 
 using FromToCorrectionHistory =
-  Stats<int16_t, CORRECTION_HISTORY_LIMIT_FROMTO, COLOR_NB, 2, int(SQUARE_NB) * int(SQUARE_NB)>;
+  Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
 
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
