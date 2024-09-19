@@ -89,7 +89,7 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos, bo
     const auto  bnpcv = w.nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)];
     const auto  ftcv  = w.fromToCorrectionHistory[~us][priorCapture][(ss-1)->currentMove.from_to()];
     const auto  cv =
-      (98198 * pcv + 68968 * mcv + 54353 * macv + 85174 * micv + 85581 * (wnpcv + bnpcv) + 55555 * ftcv) / 2097152;
+      (98198 * pcv + 68968 * mcv + 54353 * macv + 85174 * micv + 85581 * (wnpcv + bnpcv) + 20000 * ftcv) / 2097152;
     v += cv;
     return std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
@@ -1417,7 +1417,7 @@ moves_loop:  // When in check, search starts here
         thisThread->minorPieceCorrectionHistory[us][minor_piece_index(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)] << bonus;
-        thisThread->fromToCorrectionHistory[~us][priorCapture][(ss-1)->currentMove.from_to()] << bonus;
+        thisThread->fromToCorrectionHistory[~us][priorCapture][(ss-1)->currentMove.from_to()] << bonus / 4;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
