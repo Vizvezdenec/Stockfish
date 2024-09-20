@@ -41,7 +41,6 @@ constexpr int MAJOR_PIECE_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power
 constexpr int MINOR_PIECE_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power of 2
 constexpr int NON_PAWN_CORRECTION_HISTORY_SIZE    = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT            = 1024;
-constexpr int CORRECTION_HISTORY_LIMIT_FROMTO    = 512;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");
@@ -140,6 +139,8 @@ enum StatsType {
 // see https://www.chessprogramming.org/Butterfly_Boards (~11 elo)
 using ButterflyHistory = Stats<int16_t, 7183, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
 
+using LowPlyHistory = Stats<int16_t, 7183, COLOR_NB, 4, int(SQUARE_NB) * int(SQUARE_NB)>;
+
 // CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
 using CapturePieceToHistory = Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB>;
 
@@ -180,9 +181,6 @@ using MinorPieceCorrectionHistory =
 using NonPawnCorrectionHistory =
   Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, NON_PAWN_CORRECTION_HISTORY_SIZE>;
 
-using FromToCorrectionHistory =
-  Stats<int16_t, CORRECTION_HISTORY_LIMIT_FROMTO, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
-
 // The MovePicker class is used to pick one pseudo-legal move at a time from the
 // current position. The most important method is next_move(), which emits one
 // new pseudo-legal move on every call, until there are no moves left, when
@@ -203,11 +201,11 @@ class MovePicker {
                Move,
                Depth,
                const ButterflyHistory*,
-               const ButterflyHistory*,
+               const LowPlyHistory*,
                const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*,
-               bool);
+               int);
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
     Move next_move(bool skipQuiets = false);
 
@@ -221,7 +219,7 @@ class MovePicker {
 
     const Position&              pos;
     const ButterflyHistory*      mainHistory;
-    const ButterflyHistory*      rootHistory;
+    const LowPlyHistory*         rootHistory;
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
@@ -230,7 +228,7 @@ class MovePicker {
     int                          stage;
     int                          threshold;
     Depth                        depth;
-    bool                         rootNode;
+    int                          ply;
     ExtMove                      moves[MAX_MOVES];
 };
 

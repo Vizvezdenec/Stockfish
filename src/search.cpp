@@ -79,7 +79,7 @@ constexpr int futility_move_count(bool improving, Depth depth) {
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
 // does not hit the tablebase range.
-Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos, Stack* ss) {
+Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos) {
     const Color us    = pos.side_to_move();
     const auto  pcv   = w.pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)];
     const auto  mcv   = w.materialCorrectionHistory[us][material_index(pos)];
@@ -87,9 +87,8 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos, St
     const auto  micv  = w.minorPieceCorrectionHistory[us][minor_piece_index(pos)];
     const auto  wnpcv = w.nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)];
     const auto  bnpcv = w.nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)];
-    auto  cv =
+    const auto  cv =
       (98198 * pcv + 68968 * mcv + 54353 * macv + 85174 * micv + 85581 * (wnpcv + bnpcv)) / 2097152;
-    cv += w.fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] * 33 / 256;
     v += cv;
     return std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
@@ -509,7 +508,6 @@ void Search::Worker::clear() {
     minorPieceCorrectionHistory.fill(0);
     nonPawnCorrectionHistory[WHITE].fill(0);
     nonPawnCorrectionHistory[BLACK].fill(0);
-    fromToCorrectionHistory.fill(0);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
@@ -734,7 +732,7 @@ Value Search::Worker::search(
         else if (PvNode)
             Eval::NNUE::hint_common_parent_position(pos, networks[numaAccessToken], refreshTable);
 
-        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos, ss);
+        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
 
         // ttValue can be used as a better position evaluation (~7 Elo)
         if (ttData.value != VALUE_NONE
@@ -745,7 +743,7 @@ Value Search::Worker::search(
     {
         unadjustedStaticEval =
           evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us]);
-        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos, ss);
+        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
 
         // Static evaluation is saved as it was before adjustment by correction history
         ttWriter.write(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_UNSEARCHED, Move::none(),
@@ -931,7 +929,7 @@ moves_loop:  // When in check, search starts here
 
 
     MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->rootHistory,
-                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, rootNode);
+                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
 
     value = bestValue;
 
@@ -1417,9 +1415,6 @@ moves_loop:  // When in check, search starts here
         thisThread->minorPieceCorrectionHistory[us][minor_piece_index(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[WHITE][us][non_pawn_index<WHITE>(pos)] << bonus;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)] << bonus;
-        bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 16,
-                                -CORRECTION_HISTORY_LIMIT_FROMTO / 4, CORRECTION_HISTORY_LIMIT_FROMTO / 4);
-        thisThread->fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] << bonus;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
@@ -1515,7 +1510,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 unadjustedStaticEval =
                   evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us]);
             ss->staticEval = bestValue =
-              to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos, ss);
+              to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
 
             // ttValue can be used as a better position evaluation (~13 Elo)
             if (std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY
@@ -1530,7 +1525,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 ? evaluate(networks[numaAccessToken], pos, refreshTable, thisThread->optimism[us])
                 : -(ss - 1)->staticEval;
             ss->staticEval = bestValue =
-              to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos, ss);
+              to_corrected_static_eval(unadjustedStaticEval, *thisThread, pos);
         }
 
         // Stand pat. Return immediately if static value is at least beta
@@ -1561,7 +1556,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // captures, or evasions only when in check.
     MovePicker mp(pos, ttData.move, DEPTH_QS, &thisThread->mainHistory, &thisThread->rootHistory,
                   &thisThread->captureHistory, contHist, &thisThread->pawnHistory,
-                  nodeType == Root);
+                  ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
@@ -1845,8 +1840,8 @@ void update_quiet_histories(const Position& pos,
 
     Color us = pos.side_to_move();
     workerThread.mainHistory[us][move.from_to()] << bonus;
-    if (rootNode)
-        workerThread.rootHistory[us][move.from_to()] << bonus;
+    if (ss->ply < 4)
+        workerThread.rootHistory[us][ss->ply][move.from_to()] << bonus;
 
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
 
