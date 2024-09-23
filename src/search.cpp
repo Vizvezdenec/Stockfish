@@ -929,7 +929,7 @@ moves_loop:  // When in check, search starts here
 
 
     MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->rootHistory,
-                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, rootNode);
+                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
 
     value = bestValue;
 
@@ -1556,7 +1556,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // captures, or evasions only when in check.
     MovePicker mp(pos, ttData.move, DEPTH_QS, &thisThread->mainHistory, &thisThread->rootHistory,
                   &thisThread->captureHistory, contHist, &thisThread->pawnHistory,
-                  nodeType == Root);
+                  ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
@@ -1840,8 +1840,8 @@ void update_quiet_histories(const Position& pos,
 
     Color us = pos.side_to_move();
     workerThread.mainHistory[us][move.from_to()] << bonus;
-    if (rootNode)
-        workerThread.rootHistory[us][move.from_to()] << bonus;
+    if (ss->ply < 4)
+        workerThread.rootHistory[us][ss->ply][move.from_to()] << bonus;
 
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
 

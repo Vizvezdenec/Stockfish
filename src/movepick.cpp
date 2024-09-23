@@ -82,11 +82,11 @@ MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
                        Depth                        d,
                        const ButterflyHistory*      mh,
-                       const ButterflyHistory*      rh,
+                       const LowPlyHistory*      rh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
-                       bool                         rn) :
+                       int                          pl) :
     pos(p),
     mainHistory(mh),
     rootHistory(rh),
@@ -95,7 +95,7 @@ MovePicker::MovePicker(const Position&              p,
     pawnHistory(ph),
     ttMove(ttm),
     depth(d),
-    rootNode(rn) {
+    ply(pl) {
 
     if (pos.checkers())
         stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
@@ -179,8 +179,8 @@ void MovePicker::score() {
                         : pt == ROOK ? bool(to & threatenedByMinor) * 24335
                                      : bool(to & threatenedByPawn) * 14900);
 
-            if (rootNode)
-                m.value += 4 * (*rootHistory)[pos.side_to_move()][m.from_to()];
+            if (ply < 4)
+                m.value += 4 * (*rootHistory)[pos.side_to_move()][ply][m.from_to()] / (1 + ply);
         }
 
         else  // Type == EVASIONS
