@@ -1420,7 +1420,7 @@ moves_loop:  // When in check, search starts here
           << bonus * 123 / 128;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)]
           << bonus * 165 / 128;
-        thisThread->fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] << bonus;
+        thisThread->fromToCorrectionHistory[~us][(ss-1)->currentMove.from_to()] << bonus * 144 / 128;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
