@@ -934,6 +934,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int  moveCount        = 0;
+    int flCount = 1;
     bool moveCountPruning = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
@@ -977,7 +978,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, delta);
+        Depth r = reduction(improving, depth, flCount, delta);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1296,6 +1297,9 @@ moves_loop:  // When in check, search starts here
         int inc =
           (value == bestValue && (int(nodes) & 15) == 0 && ss->ply + 2 >= thisThread->rootDepth
            && std::abs(value) + 1 < VALUE_TB_WIN_IN_MAX_PLY);
+
+        if (value <= alpha)
+            flCount++;
 
         if (value + inc > bestValue)
         {
