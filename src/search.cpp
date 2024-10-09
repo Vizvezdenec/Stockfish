@@ -1166,9 +1166,6 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4410;
 
-        if (ss->ply < 4)
-            ss->statScore += 2 * (thisThread->lowPlyHistory[ss->ply][move.from_to()] / (1 + 2 * ss->ply) + rootNode ? 2700 : 0);
-
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore / 11016;
 
@@ -1415,6 +1412,10 @@ moves_loop:  // When in check, search starts here
           << bonus * 123 / 128;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)]
           << bonus * 165 / 128;
+        if (bestMove)
+            update_continuation_histories(ss, pos.moved_piece(bestMove), bestMove.to_sq(), bonus);
+        else if (!priorCapture && (ss - 1)->currentMove.is_ok())
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
