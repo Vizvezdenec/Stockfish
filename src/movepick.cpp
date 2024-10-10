@@ -183,7 +183,7 @@ void MovePicker::score() {
             {
                 m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
                 if (ply > 1)
-                    m.value += (*lowPlyHistory)[ply - 2][m.from_to()] / (1 + 2 * ply);
+                    m.value += 2 * (*lowPlyHistory)[ply - 2][m.from_to()] / (1 + 2 * ply);
             }
         }
 
