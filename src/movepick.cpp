@@ -179,8 +179,12 @@ void MovePicker::score() {
                         : pt == ROOK && bool(to & threatenedByMinor) ? 24335
                                                                      : 0);
 
-            if (ply < LOW_PLY_HISTORY_SIZE)
+            if (ply < 4)
+            {
                 m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
+                if (ply > 1)
+                    m.value += (*lowPlyHistory)[ply - 2][m.from_to()] / (1 + 2 * ply);
+            }
         }
 
         else  // Type == EVASIONS
