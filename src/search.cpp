@@ -1412,7 +1412,7 @@ moves_loop:  // When in check, search starts here
           << bonus * 123 / 128;
         thisThread->nonPawnCorrectionHistory[BLACK][us][non_pawn_index<BLACK>(pos)]
           << bonus * 165 / 128;
-        bonus *= 2;
+        bonus /= 2;
         if (bestMove)
             update_continuation_histories(ss, pos.moved_piece(bestMove), bestMove.to_sq(), bonus);
         else if (!priorCapture && (ss - 1)->currentMove.is_ok())
