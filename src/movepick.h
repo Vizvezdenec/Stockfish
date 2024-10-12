@@ -37,7 +37,6 @@ namespace Stockfish {
 constexpr int PAWN_HISTORY_SIZE        = 512;    // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT = 1024;
-constexpr int LOW_PLY_HISTORY_SIZE     = 4;
 
 static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
               "PAWN_HISTORY_SIZE has to be a power of 2");
@@ -138,7 +137,9 @@ using ButterflyHistory = Stats<int16_t, 7183, COLOR_NB, int(SQUARE_NB) * int(SQU
 
 // LowPlyHistory is adressed by play and move's from and to squares, used
 // to improve move ordering near the root
-using LowPlyHistory = Stats<int16_t, 7183, LOW_PLY_HISTORY_SIZE, int(SQUARE_NB) * int(SQUARE_NB)>;
+using LowPlyHistory = Stats<int16_t, 7183, 4, int(SQUARE_NB) * int(SQUARE_NB)>;
+
+using LowPlyCaptureHistory = Stats<int16_t, 10692, 4, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB>;
 
 // CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
 using CapturePieceToHistory = Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB>;
@@ -202,10 +203,11 @@ class MovePicker {
                const ButterflyHistory*,
                const LowPlyHistory*,
                const CapturePieceToHistory*,
+               const LowPlyCaptureHistory*,
                const PieceToHistory**,
                const PawnHistory*,
                int);
-    MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
+    MovePicker(const Position&, Move, int, const CapturePieceToHistory*, const LowPlyCaptureHistory*, int);
     Move next_move(bool skipQuiets = false);
 
    private:
@@ -220,6 +222,7 @@ class MovePicker {
     const ButterflyHistory*      mainHistory;
     const LowPlyHistory*         lowPlyHistory;
     const CapturePieceToHistory* captureHistory;
+    const LowPlyCaptureHistory*  lowPlyCaptureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
     Move                         ttMove;
