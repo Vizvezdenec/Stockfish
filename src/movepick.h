@@ -143,6 +143,8 @@ using LowPlyHistory = Stats<int16_t, 7183, LOW_PLY_HISTORY_SIZE, int(SQUARE_NB) 
 // CapturePieceToHistory is addressed by a move's [piece][to][captured piece type]
 using CapturePieceToHistory = Stats<int16_t, 10692, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB>;
 
+using LowPlyCaptureHistory = Stats<int16_t, 10692, 4, PIECE_NB, SQUARE_NB, PIECE_TYPE_NB>;
+
 // PieceToHistory is like ButterflyHistory but is addressed by a move's [piece][to]
 using PieceToHistory = Stats<int16_t, 29952, PIECE_NB, SQUARE_NB>;
 
@@ -209,10 +211,11 @@ class MovePicker {
                const ButterflyHistory*,
                const LowPlyHistory*,
                const CapturePieceToHistory*,
+               const LowPlyCaptureHistory*,
                const PieceToHistory**,
                const PawnHistory*,
                int);
-    MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
+    MovePicker(const Position&, Move, int, const CapturePieceToHistory*, const LowPlyCaptureHistory*, int);
     Move next_move(bool skipQuiets = false);
 
    private:
@@ -227,6 +230,7 @@ class MovePicker {
     const ButterflyHistory*      mainHistory;
     const LowPlyHistory*         lowPlyHistory;
     const CapturePieceToHistory* captureHistory;
+    const LowPlyCaptureHistory*  lowPlyCaptureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
     Move                         ttMove;
