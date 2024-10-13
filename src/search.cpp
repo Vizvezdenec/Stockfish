@@ -1440,6 +1440,12 @@ moves_loop:  // When in check, search starts here
 
         if (m.is_ok())
             (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus;
+
+        bonus *= 4;
+        if (bestMove)
+            update_continuation_histories(ss, pos.moved_piece(bestMove), bestMove.to_sq(), bonus);
+        else if (!priorCapture && (ss - 1)->currentMove.is_ok())
+            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
