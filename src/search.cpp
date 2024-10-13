@@ -1424,8 +1424,11 @@ moves_loop:  // When in check, search starts here
     {
         const auto m = (ss - 1)->currentMove;
 
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
-                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        auto bonus = int(bestValue - ss->staticEval) * depth / 8;
+
+        if ((ss->staticEval - unadjustedStaticEval) * bonus < 0)
+            bonus += bonus * std::min(abs(ss->staticEval - unadjustedStaticEval), 128) / 128;
+        bonus = std::clamp(bonus, -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)]
           << bonus * 101 / 128;
         thisThread->materialCorrectionHistory[us][material_index(pos)] << bonus * 99 / 128;
@@ -1438,12 +1441,6 @@ moves_loop:  // When in check, search starts here
 
         if (m.is_ok())
             (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus;
-
-        bonus *= 4;
-        if (bestMove)
-            update_continuation_histories(ss, pos.moved_piece(bestMove), bestMove.to_sq(), bonus);
-        else if (!priorCapture && (ss - 1)->currentMove.is_ok())
-            update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, bonus);
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
