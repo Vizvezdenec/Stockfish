@@ -1424,11 +1424,8 @@ moves_loop:  // When in check, search starts here
     {
         const auto m = (ss - 1)->currentMove;
 
-        auto bonus = int(bestValue - ss->staticEval) * depth / 8;
-
-        if ((ss->staticEval - unadjustedStaticEval) * bonus < 0)
-            bonus += bonus * std::min(abs(ss->staticEval - unadjustedStaticEval), 128) / 256;
-        bonus = std::clamp(bonus, -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+                                -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)]
           << bonus * 101 / 128;
         thisThread->materialCorrectionHistory[us][material_index(pos)] << bonus * 99 / 128;
