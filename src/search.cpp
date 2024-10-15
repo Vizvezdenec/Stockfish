@@ -566,7 +566,7 @@ Value Search::Worker::search(
     Move  move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, eval, maxValue, probCutBeta;
-    bool  givesCheck, improving, priorCapture, opponentWorsening;
+    bool  improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
     Piece movedPiece;
 
@@ -982,7 +982,6 @@ moves_loop:  // When in check, search starts here
         extension  = 0;
         capture    = pos.capture_stage(move);
         movedPiece = pos.moved_piece(move);
-        givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
         newDepth = depth - 1;
@@ -1001,14 +1000,14 @@ moves_loop:  // When in check, search starts here
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
 
-            if (capture || givesCheck)
+            if (capture)
             {
                 Piece capturedPiece = pos.piece_on(move.to_sq());
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures (~2 Elo)
-                if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
+                if (lmrDepth < 7 && !ss->inCheck)
                 {
                     Value futilityValue = ss->staticEval + 300 + 238 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
@@ -1147,7 +1146,7 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
-        pos.do_move(move, st, givesCheck);
+        pos.do_move(move, st, pos.gives_check(move));
 
         // These reduction adjustments have proven non-linear scaling.
         // They are optimized to time controls of 180 + 1.8 and longer,
