@@ -566,7 +566,7 @@ Value Search::Worker::search(
     Move  move, excludedMove, bestMove;
     Depth extension, newDepth;
     Value bestValue, value, eval, maxValue, probCutBeta;
-    bool  improving, priorCapture, opponentWorsening;
+    bool  givesCheck, improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
     Piece movedPiece;
 
@@ -982,6 +982,7 @@ moves_loop:  // When in check, search starts here
         extension  = 0;
         capture    = pos.capture_stage(move);
         movedPiece = pos.moved_piece(move);
+        givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
         newDepth = depth - 1;
@@ -1000,14 +1001,14 @@ moves_loop:  // When in check, search starts here
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
 
-            if (capture)
+            if (capture || givesCheck)
             {
                 Piece capturedPiece = pos.piece_on(move.to_sq());
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures (~2 Elo)
-                if (lmrDepth < 7 && !ss->inCheck)
+                if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
                     Value futilityValue = ss->staticEval + 300 + 238 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
@@ -1146,7 +1147,7 @@ moves_loop:  // When in check, search starts here
 
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
-        pos.do_move(move, st, pos.gives_check(move));
+        pos.do_move(move, st, givesCheck);
 
         // These reduction adjustments have proven non-linear scaling.
         // They are optimized to time controls of 180 + 1.8 and longer,
@@ -1236,8 +1237,8 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
-                newDepth = std::max(newDepth, 1);
+            if (move == ttData.move && newDepth == 0 && ss->ply <= thisThread->rootDepth * 2)
+                newDepth = 1 + ttCapture;
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
