@@ -1238,7 +1238,7 @@ moves_loop:  // When in check, search starts here
 
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && newDepth == 0 && ss->ply <= thisThread->rootDepth * 2)
-                newDepth = 1 + ttCapture;
+                newDepth = 2 * ttCapture;
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
