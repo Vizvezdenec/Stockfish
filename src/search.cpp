@@ -849,7 +849,7 @@ Value Search::Worker::search(
 
     // For cutNodes, if depth is high enough, decrease depth by 2 if there is no ttMove,
     // or by 1 if there is a ttMove with an upper bound.
-    if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
+    if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER) && !ttCapture)
         depth -= 1 + !ttData.move;
 
     // Step 11. ProbCut (~10 Elo)
@@ -1237,8 +1237,8 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if (move == ttData.move && newDepth == 0 && ss->ply <= thisThread->rootDepth * 2)
-                newDepth = 1 + 2 * ttCapture;
+            if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
+                newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
