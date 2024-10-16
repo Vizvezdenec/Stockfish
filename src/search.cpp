@@ -720,6 +720,7 @@ Value Search::Worker::search(
         // Skip early pruning when in check
         ss->staticEval = eval = (ss - 2)->staticEval;
         improving             = false;
+        opponentWorsening     = false;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -849,7 +850,7 @@ Value Search::Worker::search(
 
     // For cutNodes, if depth is high enough, decrease depth by 2 if there is no ttMove,
     // or by 1 if there is a ttMove with an upper bound.
-    if (cutNode && depth >= 7 && (!ttData.move || (ttCapture && ttData.bound == BOUND_UPPER)))
+    if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
         depth -= 1 + !ttData.move;
 
     // Step 11. ProbCut (~10 Elo)
@@ -989,7 +990,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, delta);
+        Depth r = reduction(improving, opponentWorsening, depth, moveCount, delta);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1699,9 +1700,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     return bestValue;
 }
 
-Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
+Depth Search::Worker::reduction(bool i, bool o, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return (reductionScale + 1239 - delta * 795 / rootDelta) / 1024 + (!i && reductionScale > 1341);
+    return (reductionScale + 1239 - delta * 795 / rootDelta) / 1024 + (!i && reductionScale > 1341) - (o && reductionScale < 300);
 }
 
 // elapsed() returns the time elapsed since the search started. If the
