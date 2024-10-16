@@ -720,7 +720,6 @@ Value Search::Worker::search(
         // Skip early pruning when in check
         ss->staticEval = eval = (ss - 2)->staticEval;
         improving             = false;
-        opponentWorsening     = false;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -990,7 +989,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, opponentWorsening, depth, moveCount, delta);
+        Depth r = reduction(improving, depth, moveCount, delta);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1227,7 +1226,7 @@ moves_loop:  // When in check, search starts here
                 r += 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
-            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
+            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3) + (depth < 6 && r < -3), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
@@ -1700,9 +1699,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     return bestValue;
 }
 
-Depth Search::Worker::reduction(bool i, bool o, Depth d, int mn, int delta) const {
+Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return (reductionScale + 1239 - delta * 795 / rootDelta) / 1024 + (!i && reductionScale > 1341) - (o && reductionScale < 55);
+    return (reductionScale + 1239 - delta * 795 / rootDelta) / 1024 + (!i && reductionScale > 1341);
 }
 
 // elapsed() returns the time elapsed since the search started. If the
