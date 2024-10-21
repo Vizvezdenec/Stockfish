@@ -1384,7 +1384,7 @@ moves_loop:  // When in check, search starts here
         bonus += std::min(-(ss - 1)->statScore / 102, 305);
 
         if (ss->ply <= LOW_PLY_HISTORY_SIZE && !rootNode)
-            thisThread->lowPlyHistory[ss->ply - 1][((ss - 1)->currentMove).from_to()] << stat_bonus(depth) * bonus / 174;
+            thisThread->lowPlyHistory[ss->ply - 1][((ss - 1)->currentMove).from_to()] << stat_bonus(depth) * bonus / 256;
 
         bonus = std::max(bonus, 0);
 
