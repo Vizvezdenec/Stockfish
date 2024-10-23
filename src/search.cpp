@@ -1205,7 +1205,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 38 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + 8;                    // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + (12 + newDepth) / 2;                    // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1566,7 +1566,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 280 - ((ss-1)->currentMove == move.null()) * 100;
+        futilityBase = ss->staticEval + 280;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
