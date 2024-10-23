@@ -111,7 +111,7 @@ Value value_draw(size_t nodes) { return VALUE_DRAW - 1 + Value(nodes & 0x2); }
 Value value_to_tt(Value v, int ply);
 Value value_from_tt(Value v, int ply, int r50c);
 void  update_pv(Move* pv, Move move, const Move* childPv);
-void  update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus);
+void  update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool of);
 void  update_quiet_histories(
    const Position& pos, Stack* ss, Search::Worker& workerThread, Move move, int bonus);
 void update_all_stats(const Position&      pos,
@@ -501,7 +501,7 @@ void Search::Worker::iterative_deepening() {
 
 // Reset histories, usually before a new game
 void Search::Worker::clear() {
-    mainHistory.fill(-800);
+    mainHistory.fill(0);
     lowPlyHistory.fill(0);
     captureHistory.fill(-753);
     pawnHistory.fill(-1152);
@@ -651,7 +651,7 @@ Value Search::Worker::search(
             // the previous ply (~1 Elo on STC, ~2 Elo on LTC)
             if (prevSq != SQ_NONE && (ss - 1)->moveCount <= 2 && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                              -stat_malus(depth + 1));
+                                              -stat_malus(depth + 1), false);
         }
 
         // Partial workaround for the graph history interaction problem
@@ -767,6 +767,13 @@ Value Search::Worker::search(
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             thisThread->pawnHistory[pawn_structure_index(pos)][pos.piece_on(prevSq)][prevSq]
               << bonus / 2;
+        if ((ss-2)->currentMove.is_ok() && !(ss-1)->priorCapture && !(ss-2)->inCheck)
+        {
+            bonus = std::clamp(10 * int((ss - 2)->staticEval - ss->staticEval), -1500, 1500) + 720;
+            //dbg_mean_of(bonus);
+            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
+                                              bonus, true);
+        }
     }
 
     // Set up the improving flag, which is true if current static evaluation is
@@ -1214,7 +1221,7 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = value >= beta ? 3 * stat_bonus(newDepth) : -stat_malus(newDepth);
-                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus, false);
             }
         }
 
@@ -1386,9 +1393,9 @@ moves_loop:  // When in check, search starts here
         bonus = std::max(bonus, 0);
 
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                      stat_bonus(depth) * bonus / 107);
+                                      stat_bonus(depth) * bonus / 107, false);
         thisThread->mainHistory[~us][((ss - 1)->currentMove).from_to()]
-          << stat_bonus(depth) * bonus / 96;
+          << stat_bonus(depth) * bonus / 174;
 
 
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
@@ -1816,7 +1823,7 @@ void update_all_stats(const Position&      pos,
     // Extra penalty for a quiet early move that was not a TT move in
     // previous ply when it gets refuted.
     if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus);
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -quietMoveMalus, false);
 
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
@@ -1830,12 +1837,14 @@ void update_all_stats(const Position&      pos,
 
 // Updates histories of the move pairs formed by moves
 // at ply -1, -2, -3, -4, and -6 with current move.
-void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
+void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus, bool of) {
 
     bonus = bonus * 53 / 64;
 
     for (int i : {1, 2, 3, 4, 6})
     {
+        if (of && i > 1)
+            break;
         // Only update the first 2 continuation histories if we are in check
         if (ss->inCheck && i > 2)
             break;
@@ -1854,7 +1863,7 @@ void update_quiet_histories(
     if (ss->ply < LOW_PLY_HISTORY_SIZE)
         workerThread.lowPlyHistory[ss->ply][move.from_to()] << bonus;
 
-    update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus);
+    update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus, false);
 
     int pIndex = pawn_structure_index(pos);
     workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
