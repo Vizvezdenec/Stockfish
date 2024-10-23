@@ -771,7 +771,7 @@ Value Search::Worker::search(
         {
             bonus = std::clamp(10 * int((ss - 2)->staticEval - ss->staticEval), -1500, 1500) + 720;
             //dbg_mean_of(bonus);
-            bonus /= 2;
+            bonus *= 2;
             update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
                                               bonus, true);
         }
