@@ -936,7 +936,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
                                         (ss - 4)->continuationHistory,
-                                        nullptr,
+                                        (ss - 5)->continuationHistory,
                                         (ss - 6)->continuationHistory};
 
 
@@ -1205,7 +1205,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 38 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + (10 + newDepth) / 2;                    // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + 8;                    // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1834,13 +1834,13 @@ void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
     bonus = bonus * 53 / 64;
 
-    for (int i : {1, 2, 3, 4, 6})
+    for (int i : {1, 2, 3, 4, 5, 6})
     {
         // Only update the first 2 continuation histories if we are in check
         if (ss->inCheck && i > 2)
             break;
         if (((ss - i)->currentMove).is_ok())
-            (*(ss - i)->continuationHistory)[pc][to] << bonus / (1 + (i == 3));
+            (*(ss - i)->continuationHistory)[pc][to] << bonus / (1 + (i == 3) + 3 * (i == 5));
     }
 }
 
