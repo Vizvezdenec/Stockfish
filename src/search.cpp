@@ -936,7 +936,7 @@ moves_loop:  // When in check, search starts here
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
                                         (ss - 4)->continuationHistory,
-                                        (ss - 5)->continuationHistory,
+                                        nullptr,
                                         (ss - 6)->continuationHistory};
 
 
@@ -1163,6 +1163,9 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // These reduction adjustments have no proven non-linear scaling
+
+        if (ss->staticEval - unadjustedStaticEval > 70 && ss->staticEval >= beta)
+            r--;
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
@@ -1834,13 +1837,13 @@ void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
 
     bonus = bonus * 53 / 64;
 
-    for (int i : {1, 2, 3, 4, 5, 6})
+    for (int i : {1, 2, 3, 4, 6})
     {
         // Only update the first 2 continuation histories if we are in check
         if (ss->inCheck && i > 2)
             break;
         if (((ss - i)->currentMove).is_ok())
-            (*(ss - i)->continuationHistory)[pc][to] << bonus / (1 + (i == 3) + 7 * (i == 5));
+            (*(ss - i)->continuationHistory)[pc][to] << bonus / (1 + (i == 3));
     }
 }
 
