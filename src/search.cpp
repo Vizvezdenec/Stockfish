@@ -1164,7 +1164,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        if (ss->staticEval - unadjustedStaticEval > 70 && ss->staticEval >= beta)
+        if (ss->staticEval - unadjustedStaticEval > 80 && ss->staticEval >= beta)
             r--;
 
         // Increase reduction for cut nodes (~4 Elo)
