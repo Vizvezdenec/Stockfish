@@ -773,7 +773,7 @@ Value Search::Worker::search(
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we go back until we weren't in check) and is
     // false otherwise. The improving flag is used in various pruning heuristics.
-    improving = ss->staticEval > (ss - 2)->staticEval;
+    improving = ss->staticEval > (ss - 2)->staticEval || ss->staticEval >= beta;
 
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
@@ -1163,9 +1163,6 @@ moves_loop:  // When in check, search starts here
             r--;
 
         // These reduction adjustments have no proven non-linear scaling
-
-        if (ss->staticEval - unadjustedStaticEval > 70 && ss->staticEval <= alpha)
-            r--;
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
