@@ -794,6 +794,8 @@ Value Search::Worker::search(
         && eval < VALUE_TB_WIN_IN_MAX_PLY)
         return beta + (eval - beta) / 3;
 
+    improving |= ss->staticEval >= beta + 100;
+
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 23 * depth + 400 && !excludedMove && pos.non_pawn_material(us)
@@ -847,7 +849,7 @@ Value Search::Worker::search(
     // For cutNodes, if depth is high enough, decrease depth by 2 if there is no ttMove,
     // or by 1 if there is a ttMove with an upper bound.
     if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
-        depth--;
+        depth -= 2;
 
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
@@ -923,7 +925,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea (~4 Elo)
-    probCutBeta = beta + 379;
+    probCutBeta = beta + 379 + 10 - 30 * improving;
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && std::abs(beta) < VALUE_TB_WIN_IN_MAX_PLY
         && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY)
