@@ -86,7 +86,6 @@ MovePicker::MovePicker(const Position&              p,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
-                       const NonPawnHistory*        nph,
                        int                          pl) :
     pos(p),
     mainHistory(mh),
@@ -94,7 +93,6 @@ MovePicker::MovePicker(const Position&              p,
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
-    nonPawnHistory(nph),
     ttMove(ttm),
     depth(d),
     ply(pl) {
@@ -160,8 +158,6 @@ void MovePicker::score() {
             // histories
             m.value = (*mainHistory)[pos.side_to_move()][m.from_to()];
             m.value += 2 * (*pawnHistory)[pawn_structure_index(pos)][pc][to];
-            m.value += pos.side_to_move() == WHITE ? (*nonPawnHistory)[non_pawn_index_mp<BLACK>(pos)][pc][to]
-                                                   : (*nonPawnHistory)[non_pawn_index_mp<WHITE>(pos)][pc][to];
             m.value += 2 * (*continuationHistory[0])[pc][to];
             m.value += (*continuationHistory[1])[pc][to];
             m.value += (*continuationHistory[2])[pc][to] / 3;
@@ -195,9 +191,7 @@ void MovePicker::score() {
             else
                 m.value = (*mainHistory)[pos.side_to_move()][m.from_to()]
                         + (*continuationHistory[0])[pos.moved_piece(m)][m.to_sq()]
-                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()]
-                        + (pos.side_to_move() == WHITE ? (*nonPawnHistory)[non_pawn_index_mp<BLACK>(pos)][pos.moved_piece(m)][m.to_sq()]
-                                                       : (*nonPawnHistory)[non_pawn_index_mp<WHITE>(pos)][pos.moved_piece(m)][m.to_sq()]);
+                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()];
         }
 }
 

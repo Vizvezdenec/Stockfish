@@ -35,7 +35,6 @@
 namespace Stockfish {
 
 constexpr int PAWN_HISTORY_SIZE        = 512;    // has to be a power of 2
-constexpr int NON_PAWN_HISTORY_SIZE    = 512;    // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT = 1024;
 constexpr int LOW_PLY_HISTORY_SIZE     = 4;
@@ -71,11 +70,6 @@ inline int minor_piece_index(const Position& pos) {
 template<Color c>
 inline int non_pawn_index(const Position& pos) {
     return pos.non_pawn_key(c) & (CORRECTION_HISTORY_SIZE - 1);
-}
-
-template<Color c>
-inline int non_pawn_index_mp(const Position& pos) {
-    return pos.non_pawn_key(c) & (NON_PAWN_HISTORY_SIZE - 1);
 }
 
 // StatsEntry stores the stat table value. It is usually a number but could
@@ -161,8 +155,6 @@ using ContinuationHistory = Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB>
 // PawnHistory is addressed by the pawn structure and a move's [piece][to]
 using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
 
-using NonPawnHistory = Stats<int16_t, 8192, NON_PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
-
 // Correction histories record differences between the static evaluation of
 // positions and their search score. It is used to improve the static evaluation
 // used by some search heuristics.
@@ -218,7 +210,6 @@ class MovePicker {
                const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*,
-               const NonPawnHistory*,
                int);
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
     Move next_move();
@@ -238,7 +229,6 @@ class MovePicker {
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
-    const NonPawnHistory*        nonPawnHistory;
     Move                         ttMove;
     ExtMove *                    cur, *endMoves, *endBadCaptures, *beginBadQuiets, *endBadQuiets;
     int                          stage;
