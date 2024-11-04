@@ -503,6 +503,7 @@ void Search::Worker::clear() {
     lowPlyHistory.fill(0);
     captureHistory.fill(-753);
     pawnHistory.fill(-1152);
+    nonPawnHistory.fill(0);
     pawnCorrectionHistory.fill(0);
     majorPieceCorrectionHistory.fill(0);
     minorPieceCorrectionHistory.fill(0);
@@ -938,7 +939,7 @@ moves_loop:  // When in check, search starts here
 
 
     MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->lowPlyHistory,
-                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
+                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, &thisThread->nonPawnHistory, ss->ply);
 
     value = bestValue;
 
@@ -1023,7 +1024,9 @@ moves_loop:  // When in check, search starts here
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
+                  + thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][movedPiece][move.to_sq()]
+                  + thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
                 if (history < -4071 * depth)
@@ -1574,7 +1577,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // the moves. We presently use two stages of move generator in quiescence search:
     // captures, or evasions only when in check.
     MovePicker mp(pos, ttData.move, DEPTH_QS, &thisThread->mainHistory, &thisThread->lowPlyHistory,
-                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
+                  &thisThread->captureHistory, contHist, &thisThread->pawnHistory, &thisThread->nonPawnHistory, ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
     // cutoff occurs.
@@ -1625,6 +1628,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
                                                 [move.to_sq()]
+                       + thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][pos.moved_piece(move)][move.to_sq()]
+                       + thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][pos.moved_piece(move)][move.to_sq()]
                      <= 5036)
                 continue;
 
@@ -1854,6 +1859,8 @@ void update_quiet_histories(
 
     int pIndex = pawn_structure_index(pos);
     workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
+    workerThread.nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
+    workerThread.nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
 }
 
 }
