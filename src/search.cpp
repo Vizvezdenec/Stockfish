@@ -1025,8 +1025,8 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                  + thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][movedPiece][move.to_sq()]
-                  + thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][movedPiece][move.to_sq()];
+                  + (us == WHITE ? thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][movedPiece][move.to_sq()]
+                                 : thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][movedPiece][move.to_sq()]);
 
                 // Continuation history based pruning (~2 Elo)
                 if (history < -4071 * depth)
@@ -1628,8 +1628,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
                                                 [move.to_sq()]
-                       + thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][pos.moved_piece(move)][move.to_sq()]
-                       + thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][pos.moved_piece(move)][move.to_sq()]
+                       + (pos.side_to_move() == WHITE ? thisThread->nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][pos.moved_piece(move)][move.to_sq()]
+                                                      : thisThread->nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][pos.moved_piece(move)][move.to_sq()])
                      <= 5036)
                 continue;
 
@@ -1859,8 +1859,10 @@ void update_quiet_histories(
 
     int pIndex = pawn_structure_index(pos);
     workerThread.pawnHistory[pIndex][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
-    workerThread.nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][WHITE][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
-    workerThread.nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][BLACK][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
+    if (us == WHITE)
+        workerThread.nonPawnHistory[non_pawn_index_mp<BLACK>(pos)][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
+    else
+        workerThread.nonPawnHistory[non_pawn_index_mp<WHITE>(pos)][pos.moved_piece(move)][move.to_sq()] << bonus / 2;
 }
 
 }
