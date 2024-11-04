@@ -161,7 +161,7 @@ using ContinuationHistory = Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB>
 // PawnHistory is addressed by the pawn structure and a move's [piece][to]
 using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
 
-using NonPawnHistory = Stats<int16_t, 6144, NON_PAWN_HISTORY_SIZE, 2, PIECE_NB, SQUARE_NB>;
+using NonPawnHistory = Stats<int16_t, 12288, NON_PAWN_HISTORY_SIZE, 2, PIECE_NB, SQUARE_NB>;
 
 // Correction histories record differences between the static evaluation of
 // positions and their search score. It is used to improve the static evaluation
