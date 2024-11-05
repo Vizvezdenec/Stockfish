@@ -1076,7 +1076,7 @@ moves_loop:  // When in check, search starts here
                 && ttData.depth >= depth - 3)
             {
                 Value singularBeta  = ttData.value - (54 + 77 * (ss->ttPv && !PvNode)) * depth / 64;
-                Depth singularDepth = 3 * newDepth / 8;
+                Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
                 value =
@@ -1375,7 +1375,8 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (118 * (depth > 5) + 38 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                      + 116 * (!ss->inCheck && bestValue <= ss->staticEval - 101)
-                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92));
+                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92))
+                     + 100 * (!ss->inCheck && !(ss-1)->inCheck && ss->staticEval > -(ss-1)->staticEval + 500);
 
         // Proportional to "how much damage we have to undo"
         bonus += std::min(-(ss - 1)->statScore / 102, 305);
