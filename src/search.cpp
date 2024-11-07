@@ -1223,7 +1223,7 @@ moves_loop:  // When in check, search starts here
                 r += 2;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
-            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3), !cutNode);
+            value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3) + (!ttCapture && ttData.move && extension == 0 && r < -3), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
@@ -1375,8 +1375,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (118 * (depth > 5) + 38 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                      + 116 * (!ss->inCheck && bestValue <= ss->staticEval - 101)
-                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92))
-                     + 111 * (!ss->inCheck && !(ss-1)->inCheck && ss->staticEval > -(ss-1)->staticEval + 252);
+                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92));
 
         // Proportional to "how much damage we have to undo"
         bonus += std::min(-(ss - 1)->statScore / 102, 305);
