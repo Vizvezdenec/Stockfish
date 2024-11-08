@@ -777,7 +777,7 @@ Value Search::Worker::search(
     // Step 7. Razoring (~1 Elo)
     // If eval is really low, check with qsearch if we can exceed alpha. If the
     // search suggests we cannot exceed alpha, return a speculative fail low.
-    if (eval < alpha - 501 - 200 * improving - 272 * depth * depth)
+    if (eval < alpha - 471 - 150 * improving - 272 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
