@@ -1004,9 +1004,6 @@ moves_loop:  // When in check, search starts here
                 int   captHist =
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
-                if (capture && captHist < -2000 * depth - 6000)
-                    continue;
-
                 // Futility pruning for captures (~2 Elo)
                 if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
                 {
@@ -1378,7 +1375,8 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (118 * (depth > 5) + 38 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                      + 116 * (!ss->inCheck && bestValue <= ss->staticEval - 101)
-                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92));
+                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92))
+                     + 100 * (!ss->inCheck && !(ss-1)->inCheck && ss->staticEval > -(ss-1)->staticEval + 600);
 
         // Proportional to "how much damage we have to undo"
         bonus += std::min(-(ss - 1)->statScore / 102, 305);
