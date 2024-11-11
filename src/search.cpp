@@ -1177,7 +1177,10 @@ moves_loop:  // When in check, search starts here
         else if (move == ttData.move)
             r -= 2;
 
-        ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
+        if (capture)
+            ss->statScore = thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] - 13000;
+        else
+            ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4410;
 
@@ -1375,8 +1378,7 @@ moves_loop:  // When in check, search starts here
     {
         int bonus = (118 * (depth > 5) + 38 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                      + 116 * (!ss->inCheck && bestValue <= ss->staticEval - 101)
-                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92))
-                     + 177 * (!ss->inCheck && !(ss-1)->inCheck && ss->staticEval > -(ss-1)->staticEval + 777);
+                     + 133 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 92));
 
         // Proportional to "how much damage we have to undo"
         bonus += std::min(-(ss - 1)->statScore / 102, 305);
