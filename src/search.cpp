@@ -1167,7 +1167,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if ttMove is a capture but the current move is not a capture (~3 Elo)
         if (ttCapture && !capture)
-            r += 1 + (depth < 8);
+            r += 1 + (depth < 8) - (depth > 14);
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
@@ -1177,10 +1177,7 @@ moves_loop:  // When in check, search starts here
         else if (move == ttData.move)
             r -= 2;
 
-        if (capture)
-            ss->statScore = (thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] - 1500) / 2 - 11500;
-        else
-            ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
+        ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4410;
 
