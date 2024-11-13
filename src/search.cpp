@@ -1026,7 +1026,7 @@ moves_loop:  // When in check, search starts here
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
-                if (history < -4071 * depth)
+                if (history + (ss->staticEval - unadjustedStaticEval) < -4071 * depth)
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
@@ -1177,10 +1177,7 @@ moves_loop:  // When in check, search starts here
         else if (move == ttData.move)
             r -= 2;
 
-        if (capture)
-            ss->statScore = thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] - 13000;
-        else
-            ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
+        ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4410;
 
