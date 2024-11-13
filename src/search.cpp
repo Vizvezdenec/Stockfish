@@ -1030,7 +1030,7 @@ moves_loop:  // When in check, search starts here
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
-                if (history < -3884 * depth)
+                if (history + !ss->inCheck * (ss->staticEval - unadjustedStaticEval) < -3884 * depth)
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
@@ -1087,7 +1087,7 @@ moves_loop:  // When in check, search starts here
                   search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
                 ss->excludedMove = Move::none();
 
-                if (value < singularBeta + 3 * !PvNode)
+                if (value < singularBeta)
                 {
                     int doubleMargin = 249 * PvNode - 194 * !ttCapture;
                     int tripleMargin = 94 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv;
