@@ -1030,7 +1030,7 @@ moves_loop:  // When in check, search starts here
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
-                if (history + !ss->inCheck * (ss->staticEval - unadjustedStaticEval) * 27 < -3884 * depth)
+                if (history < -3884 * depth)
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
@@ -1079,7 +1079,7 @@ moves_loop:  // When in check, search starts here
                 && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER)
                 && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (56 + 79 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value - (46 + 59 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
