@@ -796,7 +796,7 @@ Value Search::Worker::search(
         && eval < VALUE_TB_WIN_IN_MAX_PLY)
         return beta + (eval - beta) / 3;
 
-    improving |= ss->staticEval >= beta + 200 - 20 * depth;
+    improving |= ss->staticEval >= beta + 100;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1184,7 +1184,7 @@ moves_loop:  // When in check, search starts here
         if (capture)
             ss->statScore =
               thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
-              - 13000;
+              - 11000;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
