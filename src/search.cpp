@@ -796,7 +796,7 @@ Value Search::Worker::search(
         && eval < VALUE_TB_WIN_IN_MAX_PLY)
         return beta + (eval - beta) / 3;
 
-    improving |= ss->staticEval >= beta + 100;
+    improving |= depth < 10 && ss->staticEval >= beta + 100;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1079,7 +1079,7 @@ moves_loop:  // When in check, search starts here
                 && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY && (ttData.bound & BOUND_LOWER)
                 && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (46 + 59 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value - (56 + 79 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
