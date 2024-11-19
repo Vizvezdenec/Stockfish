@@ -1183,8 +1183,8 @@ moves_loop:  // When in check, search starts here
         else if (move == ttData.move)
             r -= 1879;
 
-        r += bmc * 258;
-        
+        r += bmc * bmc * 258;
+
         if (capture)
             ss->statScore =
               thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
