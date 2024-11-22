@@ -1168,7 +1168,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r -= -(ss-1)->fwr;
+        r -= -(ss-1)->fwr / 4;
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
