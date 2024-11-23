@@ -798,6 +798,8 @@ Value Search::Worker::search(
 
     improving |= ss->staticEval >= beta + 100;
 
+    ss->fwr = 0;
+
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 21 * depth + 421 && !excludedMove && pos.non_pawn_material(us)
@@ -946,6 +948,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
+    ss->fwr = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1164,6 +1167,8 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
+        r -= -(ss-1)->fwr / 8;
+
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
@@ -1193,6 +1198,8 @@ moves_loop:  // When in check, search starts here
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1)
         {
+            Depth actualReduction = std::min(std::max(-!allNode, r / 1024), newDepth - 1);
+            ss->fwr = std::min(std::max(-!allNode * 1024, r), (newDepth - 1) * 1024) - actualReduction * 1024;
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
             // beyond the first move depth.
@@ -1202,13 +1209,15 @@ moves_loop:  // When in check, search starts here
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
+            ss->fwr = 0;
+
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
             {
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 42 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + 9 + r / 2048;                   // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + 10;                   // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1228,6 +1237,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 2037;
 
+            ss->fwr = 0;
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
               -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 2983), !cutNode);
