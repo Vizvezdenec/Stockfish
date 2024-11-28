@@ -797,7 +797,7 @@ Value Search::Worker::search(
         return beta + (eval - beta) / 3;
 
     improving |= ss->staticEval >= beta + 100;
-    improving |= eval >= ss->staticEval + 222;
+    improving &= eval >= ss->staticEval - 188;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
