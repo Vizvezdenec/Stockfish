@@ -1169,7 +1169,7 @@ moves_loop:  // When in check, search starts here
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
 
         // Increase reduction if ttMove is a capture but the current move is not a capture (~3 Elo)
-        if (ttCapture && !capture && (ttData.depth > DEPTH_QS || ttData.value >= beta))
+        if (ttCapture && !capture)
             r += 1043 + (depth < 8) * 999;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
@@ -1604,7 +1604,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!givesCheck && move.to_sq() != prevSq && futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2)
+                if (moveCount > 2 - !ttData.move)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
