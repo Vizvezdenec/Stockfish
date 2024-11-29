@@ -797,7 +797,6 @@ Value Search::Worker::search(
         return beta + (eval - beta) / 3;
 
     improving |= ss->staticEval >= beta + 100;
-    improving &= eval >= ss->staticEval - 188;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1246,6 +1245,9 @@ moves_loop:  // When in check, search starts here
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
+
+            if (moveCount > 1 && value <= alpha)
+                update_continuation_histories(ss, movedPiece, move.to_sq(), -stat_bonus(newDepth));
         }
 
         // Step 19. Undo move
