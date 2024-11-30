@@ -1181,7 +1181,8 @@ moves_loop:  // When in check, search starts here
             r -= 1879;
 
         if (capture)
-            ss->statScore = 0;
+            ss->statScore = 7 * int(PieceValue[pos.captured_piece()])
+              + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] - 5000;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1245,9 +1246,6 @@ moves_loop:  // When in check, search starts here
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
-
-            if (moveCount > 1 && value <= alpha)
-                update_continuation_histories(ss, movedPiece, move.to_sq(), -2 * stat_bonus(newDepth));
         }
 
         // Step 19. Undo move
