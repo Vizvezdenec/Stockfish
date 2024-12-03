@@ -947,8 +947,6 @@ moves_loop:  // When in check, search starts here
 
     int moveCount = 0;
 
-    extension  = 0;
-
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != Move::none())
@@ -1150,6 +1148,13 @@ moves_loop:  // When in check, search starts here
         // Step 16. Make the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
+
+        if (!ss->inCheck && !givesCheck)
+        {
+            Value correctionAfter = to_corrected_static_eval(0, *thisThread, pos, ss + 1);
+            Value correctionBefore = ss->staticEval - unadjustedStaticEval;
+            r += (correctionAfter - correctionBefore) * 6;
+        }
 
         // These reduction adjustments have proven non-linear scaling.
         // They are optimized to time controls of 180 + 1.8 and longer,
@@ -1421,7 +1426,7 @@ moves_loop:  // When in check, search starts here
                        bestValue >= beta    ? BOUND_LOWER
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
-                       depth + (bestValue >= beta) * std::max(extension, 0), bestMove, unadjustedStaticEval, tt.generation());
+                       depth, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
