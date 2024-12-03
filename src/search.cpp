@@ -1153,7 +1153,7 @@ moves_loop:  // When in check, search starts here
         {
             Value correctionAfter = to_corrected_static_eval(0, *thisThread, pos, ss + 1);
             Value correctionBefore = ss->staticEval - unadjustedStaticEval;
-            r += (correctionAfter - correctionBefore) * 6;
+            r += (correctionAfter - correctionBefore) * 3;
         }
 
         // These reduction adjustments have proven non-linear scaling.
