@@ -947,6 +947,8 @@ moves_loop:  // When in check, search starts here
 
     int moveCount = 0;
 
+    extension  = 0;
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != Move::none())
@@ -1181,8 +1183,7 @@ moves_loop:  // When in check, search starts here
             r -= 1879;
 
         if (capture)
-            ss->statScore = 2 * (7 * int(PieceValue[pos.captured_piece()])
-              + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] - 5000);
+            ss->statScore = 0;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1420,7 +1421,7 @@ moves_loop:  // When in check, search starts here
                        bestValue >= beta    ? BOUND_LOWER
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
-                       depth, bestMove, unadjustedStaticEval, tt.generation());
+                       depth + (bestValue >= beta) * extension, bestMove, unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
