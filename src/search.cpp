@@ -1165,6 +1165,8 @@ moves_loop:  // When in check, search starts here
         // These reduction adjustments have no proven non-linear scaling
 
         // Increase reduction for cut nodes (~4 Elo)
+        if (priorCapture && (ss-1)->moveCount > 10)
+            r--;
         if (cutNode)
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
 
@@ -1242,7 +1244,7 @@ moves_loop:  // When in check, search starts here
 
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
-                newDepth = std::max(newDepth, int(ttData.depth > DEPTH_QS));
+                newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
