@@ -1166,7 +1166,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes (~4 Elo)
         if (!priorCapture)
-            r-= (ss-1)->moveCount * 5;
+            r-= ((ss-1)->moveCount - 1) * 10;
         if (cutNode)
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
 
