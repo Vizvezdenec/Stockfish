@@ -1165,7 +1165,7 @@ moves_loop:  // When in check, search starts here
         // These reduction adjustments have no proven non-linear scaling
 
         // Increase reduction for cut nodes (~4 Elo)
-        if (!priorCapture && (ss-1)->moveCount > 20)
+        if (!priorCapture && (ss-1)->moveCount > 25)
             r--;
         if (cutNode)
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
