@@ -1052,7 +1052,12 @@ moves_loop:  // When in check, search starts here
 
                 // Prune moves with negative SEE (~4 Elo)
                 if (!pos.see_ge(move, -25 * lmrDepth * lmrDepth))
+                {
+                    futilityValue = ss->staticEval - 25 * lmrDepth * lmrDepth;
+                    if (!ss->inCheck && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
+                    bestValue = std::min(alpha, futilityValue);
                     continue;
+                }
             }
         }
 
@@ -1190,9 +1195,6 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore * 1287 / 16384;
 
-        Depth extraRed = r - (r / 1024) * 1024;
-        Depth realRed = (r / 1024) + (int(thisThread->nodes % 1024) < extraRed);
-
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1)
         {
@@ -1201,7 +1203,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - realRed, newDepth + !allNode));
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + !allNode));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
@@ -1707,7 +1709,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
 Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return (reductionScale + 1304 - 512 - delta * 814 / rootDelta) + (!i && reductionScale > 1423) * 1135;
+    return (reductionScale + 1304 - delta * 814 / rootDelta) + (!i && reductionScale > 1423) * 1135;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
