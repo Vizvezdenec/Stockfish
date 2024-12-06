@@ -1191,7 +1191,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore * 1287 / 16384;
 
         Depth extraRed = r - (r / 1024) * 1024;
-        Depth realRed = (r / 1024) + (int(thisThread->nodes % 1024) >= extraRed * 2);
+        Depth realRed = (r / 1024) + (int(thisThread->nodes % 1024) >= extraRed * 4);
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1)
