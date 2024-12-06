@@ -1165,8 +1165,6 @@ moves_loop:  // When in check, search starts here
         // These reduction adjustments have no proven non-linear scaling
 
         // Increase reduction for cut nodes (~4 Elo)
-        if (!priorCapture)
-            r-= ((ss-1)->moveCount - 1) * ((ss-1)->moveCount - 1);
         if (cutNode)
             r += 2518 - (ttData.depth >= depth && ss->ttPv) * 991;
 
@@ -1192,6 +1190,9 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore * 1287 / 16384;
 
+        Depth extraRed = r - (r / 1024) * 1024;
+        Depth realRed = (r / 1024) + (int(thisThread->nodes % 1024) >= extraRed);
+
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1)
         {
@@ -1200,7 +1201,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + !allNode));
+            Depth d = std::max(1, std::min(newDepth - realRed, newDepth + !allNode));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
