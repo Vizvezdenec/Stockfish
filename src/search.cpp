@@ -521,7 +521,7 @@ void Search::Worker::clear() {
                     h->fill(-645);
 
     for (size_t i = 1; i < reductions.size(); ++i)
-        reductions[i] = int((19.43 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
+        reductions[i] = int(19.43 * std::log(i));
 
     refreshTable.clear(networks[numaAccessToken]);
 }
@@ -1052,12 +1052,7 @@ moves_loop:  // When in check, search starts here
 
                 // Prune moves with negative SEE (~4 Elo)
                 if (!pos.see_ge(move, -25 * lmrDepth * lmrDepth))
-                {
-                    futilityValue = ss->staticEval - 50 * lmrDepth * lmrDepth;
-                    if (bestValue <= futilityValue && !ss->inCheck && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
-                        bestValue = std::min(alpha, (4 * futilityValue + 0 * bestValue) / 4);
                     continue;
-                }
             }
         }
 
