@@ -1055,7 +1055,7 @@ moves_loop:  // When in check, search starts here
                 {
                     futilityValue = ss->staticEval - 25 * lmrDepth * lmrDepth;
                     if (bestValue <= futilityValue && !ss->inCheck && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
-                    bestValue = std::min(alpha, (futilityValue + 3 * bestValue) / 4);
+                    bestValue = std::min(alpha, (2 * futilityValue + 2 * bestValue) / 4);
                     continue;
                 }
             }
