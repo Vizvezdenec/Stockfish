@@ -1000,8 +1000,6 @@ moves_loop:  // When in check, search starts here
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r / 1024;
-            Depth extraRed = r - (r / 1024) * 1024;
-            lmrDepth = lmrDepth - (int(thisThread->nodes % 1024) < extraRed);
 
             if (capture || givesCheck)
             {
