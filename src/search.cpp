@@ -1054,8 +1054,8 @@ moves_loop:  // When in check, search starts here
                 if (!pos.see_ge(move, -25 * lmrDepth * lmrDepth))
                 {
                     futilityValue = ss->staticEval - 25 * lmrDepth * lmrDepth;
-                    if (!ss->inCheck && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
-                    bestValue = std::min(alpha, futilityValue);
+                    if (bestValue <= futilityValue && !ss->inCheck && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
+                    bestValue = std::min(alpha, (futilityValue + 3 * bestValue) / 4);
                     continue;
                 }
             }
