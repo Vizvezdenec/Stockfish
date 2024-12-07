@@ -521,7 +521,7 @@ void Search::Worker::clear() {
                     h->fill(-645);
 
     for (size_t i = 1; i < reductions.size(); ++i)
-        reductions[i] = int(19.43 * std::log(i));
+        reductions[i] = int((19.43 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
 
     refreshTable.clear(networks[numaAccessToken]);
 }
@@ -1174,7 +1174,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
-            r += 938 + allNode * 960;
+            r += 938 + allNode * 960 + 200 * cutNode;
 
         // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
