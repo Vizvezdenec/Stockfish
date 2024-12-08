@@ -1174,7 +1174,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
-            r += 938 + allNode * 960 - 800 * cutNode;
+            r += 938 + allNode * 960;
 
         // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
@@ -1217,6 +1217,7 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = 2 * (value >= beta) * stat_bonus(newDepth);
+                if (!capture)
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
         }
