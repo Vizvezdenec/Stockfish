@@ -1383,7 +1383,7 @@ moves_loop:  // When in check, search starts here
         int bonus = (117 * (depth > 5) + 39 * !allNode + 168 * ((ss - 1)->moveCount > 8)
                      + 115 * (!ss->inCheck && bestValue <= ss->staticEval - 108)
                      + 119 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 83))
-                     + 60 * (ttData.move && ttData.bound == BOUND_LOWER);
+                     + 120 * (ttData.move && ttData.bound == BOUND_LOWER);
 
         // Proportional to "how much damage we have to undo"
         bonus += std::min(-(ss - 1)->statScore / 113, 300);
