@@ -1182,7 +1182,7 @@ moves_loop:  // When in check, search starts here
             r -= 1879;
 
         if (moveCount > 1 && depthRed)
-            r += 1222;
+            r -= 1222;
 
         if (capture)
             ss->statScore =
