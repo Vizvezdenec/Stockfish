@@ -838,6 +838,20 @@ Value Search::Worker::search(
         }
     }
 
+    // Step 10. Internal iterative reductions (~9 Elo)
+    // For PV nodes without a ttMove, we decrease depth.
+    if (PvNode && !ttData.move)
+        depth -= 3;
+
+    // Use qsearch if depth <= 0
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
+
+    // For cutNodes, if depth is high enough, decrease depth by 2 if there is no ttMove,
+    // or by 1 if there is a ttMove with an upper bound.
+    if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
+        depth -= 1 + !ttData.move;
+
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
@@ -929,6 +943,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
+    bool depthRed = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -967,7 +982,7 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth - 1;
+        newDepth = depth - 1 - depthRed;
 
         int delta = beta - alpha;
 
@@ -1098,7 +1113,10 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttData.value >= beta)
+                {
+                    depthRed = true;
                     extension = -3;
+                }
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta (~1 Elo)
@@ -1321,6 +1339,11 @@ moves_loop:  // When in check, search starts here
                 }
                 else
                 {
+                    // Reduce other moves if we have found at least one score improvement (~2 Elo)
+                    if (depth > 2 && depth < 14 && !is_decisive(value))
+                        depth -= 2;
+
+                    assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
             }
