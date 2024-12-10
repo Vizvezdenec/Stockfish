@@ -982,7 +982,7 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth - 1 - depthRed;
+        newDepth = depth - 1;
 
         int delta = beta - alpha;
 
@@ -1180,6 +1180,9 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
             r -= 1879;
+
+        if (moveCount > 1 && depthRed)
+            r += 1222;
 
         if (capture)
             ss->statScore =
