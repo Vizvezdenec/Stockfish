@@ -1404,13 +1404,12 @@ moves_loop:  // When in check, search starts here
         // bonus for prior countermoves that caused the fail low
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
-        int eb = !ss->inCheck && bestValue <= ss->staticEval - 222;
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (2 + eb);
+          << stat_bonus(depth) * 2;
     }
 
     // Bonus when search fails low and there is a TT move
-    else if (ttData.move && !allNode)
+    else if (ttData.move && !ttCapture && !allNode)
         thisThread->mainHistory[us][ttData.move.from_to()] << stat_bonus(depth) * 23 / 100;
 
     if (PvNode)
