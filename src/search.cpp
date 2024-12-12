@@ -1222,7 +1222,7 @@ moves_loop:  // When in check, search starts here
         }
 
         // Step 18. Full-depth search when LMR is skipped
-        else if (!PvNode || moveCount > 1)
+        else if (!PvNode)
         {
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
@@ -1235,13 +1235,10 @@ moves_loop:  // When in check, search starts here
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
         // otherwise let the parent node fail low with value <= alpha and try another move.
-        if (PvNode && (moveCount == 1 || value > alpha))
+        if (PvNode && (depth == 1 || moveCount == 1 || value > alpha))
         {
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
-
-            if (moveCount > 1 && is_decisive(value))
-                newDepth--;
 
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
