@@ -521,7 +521,7 @@ void Search::Worker::clear() {
                     h->fill(-645);
 
     for (size_t i = 1; i < reductions.size(); ++i)
-        reductions[i] = int(19.43 * std::log(i));
+        reductions[i] = int((19.43 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
 
     refreshTable.clear(networks[numaAccessToken]);
 }
@@ -1191,7 +1191,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore * 1287 / 16384;
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
-        if (depth >= 2 && moveCount > 1)
+        if (depth >= 2 && moveCount > 1 && !is_decisive(bestValue))
         {
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
