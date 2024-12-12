@@ -1208,7 +1208,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 42 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = (value < bestValue + 10) && !is_decisive(value);                   // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + 10;                   // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1239,6 +1239,9 @@ moves_loop:  // When in check, search starts here
         {
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
+
+            if (moveCount > 1 && is_decisive(value))
+                newDepth--;
 
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
