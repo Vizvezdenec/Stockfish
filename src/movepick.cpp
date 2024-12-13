@@ -82,6 +82,7 @@ MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
                        Depth                        d,
                        const ButterflyHistory*      mh,
+                       const ButterflyHistory*      mph,
                        const LowPlyHistory*         lph,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
@@ -89,6 +90,7 @@ MovePicker::MovePicker(const Position&              p,
                        int                          pl) :
     pos(p),
     mainHistory(mh),
+    middlePlyHistory(mph),
     lowPlyHistory(lph),
     captureHistory(cph),
     continuationHistory(ch),
@@ -181,6 +183,8 @@ void MovePicker::score() {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
+            if (ply >= MIDDLE_PLY_HISTORY_LOWER_LIMIT && ply <= MIDDLE_PLY_HISTORY_UPPER_LIMIT)
+                m.value += (*middlePlyHistory)[pos.side_to_move()][m.from_to()];
         }
 
         else  // Type == EVASIONS
