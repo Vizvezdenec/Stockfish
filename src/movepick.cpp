@@ -82,17 +82,17 @@ MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
                        Depth                        d,
                        const ButterflyHistory*      mh,
-                       const ButterflyHistory*      mph,
                        const LowPlyHistory*         lph,
                        const CapturePieceToHistory* cph,
+                       const LowPlyCaptureHistory*  lpch,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
                        int                          pl) :
     pos(p),
     mainHistory(mh),
-    middlePlyHistory(mph),
     lowPlyHistory(lph),
     captureHistory(cph),
+    lowPlyCaptureHistory(lpch),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
@@ -108,11 +108,13 @@ MovePicker::MovePicker(const Position&              p,
 
 // MovePicker constructor for ProbCut: we generate captures with Static Exchange
 // Evaluation (SEE) greater than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph) :
+MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph, const LowPlyCaptureHistory*  lpch, int pl) :
     pos(p),
     captureHistory(cph),
+    lowPlyCaptureHistory(lpch),
     ttMove(ttm),
-    threshold(th) {
+    threshold(th),
+    ply(pl) {
     assert(!pos.checkers());
 
     stage = PROBCUT_TT
@@ -146,9 +148,13 @@ void MovePicker::score() {
 
     for (auto& m : *this)
         if constexpr (Type == CAPTURES)
+        {
             m.value =
               7 * int(PieceValue[pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
+            if (ply < LOW_PLY_HISTORY_SIZE)
+                m.value += 2 * (*lowPlyCaptureHistory)[ply][pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))] / (1 + 2 * ply);
+        }
 
         else if constexpr (Type == QUIETS)
         {
@@ -183,8 +189,6 @@ void MovePicker::score() {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
-            if (ply >= MIDDLE_PLY_HISTORY_LOWER_LIMIT && ply <= MIDDLE_PLY_HISTORY_UPPER_LIMIT)
-                m.value += (*middlePlyHistory)[pos.side_to_move()][m.from_to()];
         }
 
         else  // Type == EVASIONS
