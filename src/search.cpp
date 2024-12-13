@@ -1824,6 +1824,15 @@ void update_all_stats(const Position&      pos,
         captureHistory[moved_piece][bestMove.to_sq()][captured] << bonus;
         if (ss->ply < LOW_PLY_HISTORY_SIZE)
             lowPlyCaptureHistory[ss->ply][moved_piece][bestMove.to_sq()][captured] << bonus;
+        if (ss->ply < LOW_PLY_HISTORY_SIZE)
+        {
+            for (Move move : capturesSearched)
+            {
+                moved_piece = pos.moved_piece(move);
+                captured    = type_of(pos.piece_on(move.to_sq()));
+                lowPlyCaptureHistory[ss->ply][moved_piece][bestMove.to_sq()][captured] << -malus;
+            }
+        }
     }
 
     // Extra penalty for a quiet early move that was not a TT move in
@@ -1837,8 +1846,6 @@ void update_all_stats(const Position&      pos,
         moved_piece = pos.moved_piece(move);
         captured    = type_of(pos.piece_on(move.to_sq()));
         captureHistory[moved_piece][move.to_sq()][captured] << -malus;
-        if (ss->ply < LOW_PLY_HISTORY_SIZE)
-            lowPlyCaptureHistory[ss->ply][moved_piece][bestMove.to_sq()][captured] << -malus;
     }
 }
 
