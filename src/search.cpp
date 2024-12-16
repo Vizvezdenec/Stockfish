@@ -929,12 +929,6 @@ moves_loop:  // When in check, search starts here
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
-    probCutBeta = alpha - 2500;
-    if ((ttData.bound & BOUND_UPPER) && ttData.depth >= depth - 4 && ttData.value <= probCutBeta
-        && !is_decisive(alpha) && is_valid(ttData.value) && !is_decisive(ttData.value))
-        return probCutBeta;
-
-
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
@@ -1021,7 +1015,7 @@ moves_loop:  // When in check, search starts here
 
                 // SEE based pruning for captures and checks (~11 Elo)
                 int seeHist = std::clamp(captHist / 33, -161 * depth, 156 * depth);
-                if (!pos.see_ge(move, -162 * depth - seeHist))
+                if (!pos.see_ge(move, std::min(-162 * depth - seeHist, -83)))
                     continue;
             }
             else
