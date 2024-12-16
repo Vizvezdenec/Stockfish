@@ -805,7 +805,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 235, 7) + (depth - ss->ttPv) / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 235, 7) + depth / 3 + 5;
 
         ss->currentMove                   = Move::null();
         ss->continuationHistory           = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -928,6 +928,12 @@ moves_loop:  // When in check, search starts here
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
+
+    probCutBeta = alpha - 2000;
+    if ((ttData.bound & BOUND_UPPER) && ttData.depth >= depth - 4 && ttData.value <= probCutBeta
+        && !is_decisive(alpha) && is_valid(ttData.value) && !is_decisive(ttData.value))
+        return probCutBeta;
+
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
