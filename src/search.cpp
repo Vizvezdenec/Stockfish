@@ -992,7 +992,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-            if (moveCount >= futility_move_count(improving, depth))
+            if (!PvNode && moveCount >= futility_move_count(improving, depth))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
@@ -1015,7 +1015,7 @@ moves_loop:  // When in check, search starts here
 
                 // SEE based pruning for captures and checks (~11 Elo)
                 int seeHist = std::clamp(captHist / 33, -161 * depth, 156 * depth);
-                if (!pos.see_ge(move, std::min(-162 * depth - seeHist, -222)))
+                if (!pos.see_ge(move, -162 * depth - seeHist))
                     continue;
             }
             else
