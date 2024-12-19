@@ -521,7 +521,7 @@ void Search::Worker::clear() {
                     h->fill(-645);
 
     for (size_t i = 1; i < reductions.size(); ++i)
-        reductions[i] = int(19.43 * std::log(i));
+        reductions[i] = int((19.43 + std::log(size_t(options["Threads"])) / 2) * std::log(i));
 
     refreshTable.clear(networks[numaAccessToken]);
 }
@@ -1198,7 +1198,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + !allNode));
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + (!allNode || r < - 1535)));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
