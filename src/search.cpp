@@ -795,7 +795,7 @@ Value Search::Worker::search(
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
-    improving |= ss->staticEval >= beta + 100;
+    improving |= ss->staticEval >= beta + 50;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1235,7 +1235,7 @@ moves_loop:  // When in check, search starts here
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
         // otherwise let the parent node fail low with value <= alpha and try another move.
-        if (PvNode && (moveCount == 1 || value >= alpha - (depth < 10)))
+        if (PvNode && (moveCount == 1 || value > alpha))
         {
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
