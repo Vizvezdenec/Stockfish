@@ -795,7 +795,7 @@ Value Search::Worker::search(
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
-    improving |= ss->staticEval >= beta + 200;
+    improving |= ss->staticEval >= beta + 100;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1198,7 +1198,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + !allNode));
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && moveCount <= 4)));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
