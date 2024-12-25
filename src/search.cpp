@@ -1157,7 +1157,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 554;
+        r += 524;
 
         r -= std::min(std::abs(correctionValue) / 16384, 4096);
 
