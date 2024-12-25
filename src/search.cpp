@@ -983,6 +983,10 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
+        r += 330;
+
+        r -= std::min(std::abs(correctionValue) / 32768, 2048);
+
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
@@ -1156,10 +1160,6 @@ moves_loop:  // When in check, search starts here
             r -= 1024;
 
         // These reduction adjustments have no proven non-linear scaling
-
-        r += 594;
-
-        r -= std::min(std::abs(correctionValue) / 16384, 4096);
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
