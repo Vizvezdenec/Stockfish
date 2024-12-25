@@ -983,8 +983,6 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
-        r += 180;
-
         r -= std::min(std::abs(correctionValue) / 32768, 2048);
 
         // Step 14. Pruning at shallow depth (~120 Elo).
