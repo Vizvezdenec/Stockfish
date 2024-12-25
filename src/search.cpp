@@ -983,7 +983,7 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
-        r += 130;
+        r += 180;
 
         r -= std::min(std::abs(correctionValue) / 32768, 2048);
 
