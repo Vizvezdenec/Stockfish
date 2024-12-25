@@ -921,7 +921,7 @@ moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea (~4 Elo)
     probCutBeta = beta + 417;
-    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta && (ttData.value >= ss->staticEval + 111 || ss->inCheck)
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -1157,9 +1157,9 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 330;
+        r += 554;
 
-        r -= std::min(std::abs(correctionValue) / 32768, 2048);
+        r -= std::min(std::abs(correctionValue) / 16384, 4096);
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
