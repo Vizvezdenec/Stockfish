@@ -1660,14 +1660,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
-        if (PvNode && move == ttData.move && ss->staticEval >= beta)
-        {
-            (ss + 1)->pv    = pv;
-            (ss + 1)->pv[0] = Move::none();
-            value = -search<PV>(pos, ss + 1, -beta, -alpha, 1, false);
-        }
-        else
-            value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha);
+        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha);
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
