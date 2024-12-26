@@ -983,8 +983,6 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
-        r -= std::min(std::abs(correctionValue) / 32768, 2048);
-
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
@@ -1158,6 +1156,10 @@ moves_loop:  // When in check, search starts here
             r -= 1024;
 
         // These reduction adjustments have no proven non-linear scaling
+
+        r += 330;
+
+        r -= std::min(std::abs(correctionValue) / 32768, 2048);
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
@@ -1658,7 +1660,14 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         // Step 7. Make and search the move
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha);
+        if (PvNode && move == ttData.move && capture)
+        {
+            (ss + 1)->pv    = pv;
+            (ss + 1)->pv[0] = Move::none();
+            value = -search<PV>(pos, ss + 1, -beta, -alpha, 1, false);
+        }
+        else
+            value = -qsearch<nodeType>(pos, ss + 1, -beta, -alpha);
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
