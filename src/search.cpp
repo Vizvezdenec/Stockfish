@@ -1440,7 +1440,7 @@ moves_loop:  // When in check, search starts here
 
         auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        bonus += std::clamp(std::max(0, -correctionValue * bonus / 256), -abs(bonus) / 4, abs(bonus) / 4);
+        bonus += std::clamp(std::max(0, -correctionValue * bonus / 512), -abs(bonus) / 8, abs(bonus) / 8);
         thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)]
           << bonus * 107 / 128;
         thisThread->majorPieceCorrectionHistory[us][major_piece_index(pos)] << bonus * 162 / 128;
