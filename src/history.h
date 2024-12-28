@@ -160,6 +160,7 @@ enum CorrHistType {
     NonPawn,       // By color and non-pawn material positions
     PieceTo,       // By [piece][to] move
     Continuation,  // Combined history of move pairs
+    FromTo,
 };
 
 template<CorrHistType _>
@@ -177,6 +178,10 @@ struct CorrHistTypedef<Continuation> {
     using type = Stats<CorrHistTypedef<PieceTo>::type, NOT_USED, PIECE_NB, SQUARE_NB>;
 };
 
+template<>
+struct CorrHistTypedef<FromTo> {
+    using type = Stats<int16_t, CORRECTION_HISTORY_LIMIT, COLOR_NB, int(SQUARE_NB) * int(SQUARE_NB)>;
+};
 template<CorrHistType T>
 using CorrectionHistory = typename CorrHistTypedef<T>::type;
 
