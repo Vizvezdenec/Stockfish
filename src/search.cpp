@@ -1456,7 +1456,7 @@ moves_loop:  // When in check, search starts here
             (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus;
 
         if ((ss-1)->currentMove.is_ok() && !priorCapture)
-            thisThread->fromToCorrectionHistory[us][(ss-1)->currentMove.from_to()] << bonus * 101 / 128;
+            thisThread->fromToCorrectionHistory[us][(ss-1)->currentMove.from_to()] << bonus * 128 / 128;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
