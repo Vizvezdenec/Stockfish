@@ -91,7 +91,7 @@ int correction_value(const Worker& w, const Position& pos, Stack* ss) {
     const auto  ftcv  = (ss-1)->currentMove.is_ok() && !pos.captured_piece() ?
       w.fromToCorrectionHistory[us][(ss-1)->currentMove.from_to()] : 0;
 
-    return (6384 * pcv + 3583 * macv + 6492 * micv + 6725 * (wnpcv + bnpcv) + 5880 * cntcv + 4444 * ftcv);
+    return (6384 * pcv + 3583 * macv + 6492 * micv + 6725 * (wnpcv + bnpcv) + 5880 * cntcv + 5000 * ftcv);
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -1456,7 +1456,7 @@ moves_loop:  // When in check, search starts here
             (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus;
 
         if ((ss-1)->currentMove.is_ok() && !priorCapture)
-            thisThread->fromToCorrectionHistory[us][(ss-1)->currentMove.from_to()] << bonus * 80 / 128;
+            thisThread->fromToCorrectionHistory[us][(ss-1)->currentMove.from_to()] << bonus * 101 / 128;
     }
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
