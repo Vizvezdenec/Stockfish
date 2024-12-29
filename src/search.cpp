@@ -801,7 +801,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 235, 7) + depth / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 235, 7) + depth / 3 + 5 - (std::abs(correctionValue) > 15000000);
 
         ss->currentMove                   = Move::null();
         ss->continuationHistory           = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1226,7 +1226,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
-                r += 2337 - 600 * cutNode;
+                r += 2037;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
