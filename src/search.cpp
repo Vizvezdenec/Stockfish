@@ -1226,7 +1226,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
-                r += 1737 + 600 * cutNode;
+                r += 2337 - 600 * cutNode;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
