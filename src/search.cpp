@@ -1823,7 +1823,15 @@ void update_all_stats(const Position&      pos,
         captured = type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[moved_piece][bestMove.to_sq()][captured] << bonus * 1291 / 1024;
         if (ss->ply == 0)
+        {
+            for (Move move : capturesSearched)
+            {
+                moved_piece = pos.moved_piece(move);
+                captured    = type_of(pos.piece_on(move.to_sq()));
+                workerThread.rootCaptureHistory[moved_piece][move.to_sq()][captured] << -malus;
+            }
             workerThread.rootCaptureHistory[moved_piece][bestMove.to_sq()][captured] << bonus;
+        }
     }
 
     // Extra penalty for a quiet early move that was not a TT move in
@@ -1837,15 +1845,6 @@ void update_all_stats(const Position&      pos,
         moved_piece = pos.moved_piece(move);
         captured    = type_of(pos.piece_on(move.to_sq()));
         captureHistory[moved_piece][move.to_sq()][captured] << -malus * 1090 / 1024;
-    }
-    if (ss->ply == 0)
-    {
-        for (Move move : capturesSearched)
-        {
-            moved_piece = pos.moved_piece(move);
-            captured    = type_of(pos.piece_on(move.to_sq()));
-            workerThread.rootCaptureHistory[moved_piece][move.to_sq()][captured] << -malus;
-        }
     }
 }
 
