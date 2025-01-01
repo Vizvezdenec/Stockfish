@@ -83,6 +83,7 @@ MovePicker::MovePicker(const Position&              p,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const LowPlyHistory*         lph,
+                       const CapturePieceToHistory* rcph,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
@@ -90,6 +91,7 @@ MovePicker::MovePicker(const Position&              p,
     pos(p),
     mainHistory(mh),
     lowPlyHistory(lph),
+    rootCaptureHistory(rcph),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
@@ -106,11 +108,13 @@ MovePicker::MovePicker(const Position&              p,
 
 // MovePicker constructor for ProbCut: we generate captures with Static Exchange
 // Evaluation (SEE) greater than or equal to the given threshold.
-MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* cph) :
+MovePicker::MovePicker(const Position& p, Move ttm, int th, const CapturePieceToHistory* rcph, const CapturePieceToHistory* cph, int pl) :
     pos(p),
+    rootCaptureHistory(rcph),
     captureHistory(cph),
     ttMove(ttm),
-    threshold(th) {
+    threshold(th),
+    ply(pl) {
     assert(!pos.checkers());
 
     stage = PROBCUT_TT
@@ -144,9 +148,13 @@ void MovePicker::score() {
 
     for (auto& m : *this)
         if constexpr (Type == CAPTURES)
+        {
             m.value =
               7 * int(PieceValue[pos.piece_on(m.to_sq())])
               + (*captureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
+            if (ply == 0)
+                m.value += (*rootCaptureHistory)[pos.moved_piece(m)][m.to_sq()][type_of(pos.piece_on(m.to_sq()))];
+        }
 
         else if constexpr (Type == QUIETS)
         {
