@@ -1157,8 +1157,6 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 330;
-
         r -= std::min(std::abs(correctionValue) / 32768, 2048);
 
         // Increase reduction for cut nodes (~4 Elo)
@@ -1710,7 +1708,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
 Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     int reductionScale = reductions[d] * reductions[mn];
-    return reductionScale - delta * 814 / rootDelta + !i * reductionScale / 3 + 1304;
+    return reductionScale - delta * 814 / rootDelta + !i * reductionScale / 3 + 1354;
 }
 
 // elapsed() returns the time elapsed since the search started. If the
