@@ -1406,7 +1406,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (1 + (depth > 5));
+          << stat_bonus(depth) * (1 + (depth > 8));
     }
 
     // Bonus when search fails low and there is a TT move
