@@ -1827,7 +1827,7 @@ void update_all_stats(const Position&      pos,
     if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 919 / 1024);
 
-    if (prevSq != SQ_NONE && pos.captured_piece() && (ss-1)->moveCount == 1)
+    if (prevSq != SQ_NONE && pos.captured_piece() && (ss-1)->moveCount == 1 + (ss-1)->ttHit)
         captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())]
           << -malus;
 
