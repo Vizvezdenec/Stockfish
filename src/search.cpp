@@ -1406,7 +1406,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (2 + (depth > 5));
+          << stat_bonus(depth) * 2;
     }
 
     // Bonus when search fails low and there is a TT move
@@ -1826,6 +1826,10 @@ void update_all_stats(const Position&      pos,
     // previous ply when it gets refuted.
     if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 919 / 1024);
+
+    if (prevSq != SQ_NONE && pos.captured_piece() && (ss-1)->moveCount == 1)
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())]
+          << -malus;
 
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
