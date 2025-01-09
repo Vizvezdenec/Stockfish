@@ -1230,7 +1230,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 2037;
 
-            if (!PvNode && moveCount == 1 && r < -3000 && !ttData.move && depth >= 6 && !ss->inCheck)
+            if (!PvNode && moveCount == 1 && r < -1000 && !ttData.move && depth >= 6 && !ss->inCheck)
             {
                 Value singularBeta  = ss->staticEval - 6 * depth;
                 Depth singularDepth = newDepth / 2;
