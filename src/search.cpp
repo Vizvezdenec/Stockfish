@@ -1230,6 +1230,19 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 2037;
 
+            if (!PvNode && moveCount == 1 && r < -3000 && !ttData.move && depth >= 6 && !ss->inCheck)
+            {
+                Value singularBeta  = ss->staticEval - 6 * depth;
+                Depth singularDepth = newDepth / 2;
+
+                ss->excludedMove = move;
+                value =
+                  search<NonPV>(pos, ss, singularBeta - 1, singularBeta, singularDepth, cutNode);
+                ss->excludedMove = Move::none();
+                if (value < singularBeta)
+                    newDepth++;
+            }
+
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
               -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 2983), !cutNode);
@@ -1408,7 +1421,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (1 + (depth > 8));
+          << stat_bonus(depth) * 2;
     }
 
     // Bonus when search fails low and there is a TT move
