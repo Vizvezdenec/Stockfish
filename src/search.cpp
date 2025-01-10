@@ -318,6 +318,7 @@ void Search::Worker::iterative_deepening() {
             // Adjust optimism based on root move's averageScore (~4 Elo)
             optimism[us]  = 150 * avg / (std::abs(avg) + 85);
             optimism[~us] = -optimism[us];
+            changedBm = false;
 
             // Start with a small aspiration window and, in the case of a fail
             // high/low, re-search with a bigger window until we don't fail
@@ -1321,6 +1322,9 @@ moves_loop:  // When in check, search starts here
         if (value + inc > bestValue)
         {
             bestValue = value;
+
+            if (value > alpha && rootNode && moveCount > 1)
+                thisThread->changedBm = true;
 
             if (value + inc > alpha)
             {
