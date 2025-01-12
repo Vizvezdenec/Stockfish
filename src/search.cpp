@@ -790,7 +790,7 @@ Value Search::Worker::search(
                + (ss->staticEval == eval) * (40 - std::abs(correctionValue) / 131072)
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-        return beta + (eval - beta) / 3 + (eval > ss->staticEval && ttData.depth >= depth / 2) * (eval - beta) / 8;
+        return beta + (eval - beta) / 3 + (eval > ss->staticEval && ttData.depth >= depth / 2) * (eval - beta) / 12;
 
     improving |= ss->staticEval >= beta + 100;
 
