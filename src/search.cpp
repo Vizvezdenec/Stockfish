@@ -790,9 +790,9 @@ Value Search::Worker::search(
                + (ss->staticEval == eval) * (40 - std::abs(correctionValue) / 131072)
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-        return beta + (eval - beta) / 3;
+        return beta + (eval - beta) / 2;
 
-    improving |= ss->staticEval >= beta + 444;
+    improving |= ss->staticEval >= beta + 100;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
