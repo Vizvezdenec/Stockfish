@@ -792,7 +792,7 @@ Value Search::Worker::search(
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
-    improving |= ss->staticEval >= beta + 100;
+    improving |= ss->staticEval >= beta + 222;
 
     // Step 9. Null move search with verification search (~35 Elo)
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
@@ -1210,7 +1210,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 42 + 2 * newDepth);  // (~1 Elo)
-                const bool doShallowerSearch = value < bestValue + 6;                   // (~2 Elo)
+                const bool doShallowerSearch = value < bestValue + 10;                   // (~2 Elo)
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
