@@ -790,7 +790,7 @@ Value Search::Worker::search(
                + (ss->staticEval == eval) * (40 - std::abs(correctionValue) / 131072)
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-        return beta + (eval - beta) / 3 + (eval > ss->staticEval && ttData.depth >= depth / 2) * (eval - beta) / 12;
+        return beta + (eval - beta) / 3;
 
     improving |= ss->staticEval >= beta + 100;
 
@@ -1023,7 +1023,7 @@ moves_loop:  // When in check, search starts here
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning (~2 Elo)
-                if (history < -3884 * depth)
+                if (history < -3884 * (depth - 1))
                     continue;
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
