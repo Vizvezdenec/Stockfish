@@ -776,7 +776,7 @@ Value Search::Worker::search(
     // If eval is really low, check with qsearch if we can exceed alpha. If the
     // search suggests we cannot exceed alpha, return a speculative fail low.
     // For PvNodes, we must have a guard against mates being returned.
-    if (!PvNode && eval < alpha - 462 - 297 * depth * depth)
+    if (allNode && eval < alpha - 462 - 297 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha - 1, alpha);
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -978,11 +978,7 @@ moves_loop:  // When in check, search starts here
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
             if (moveCount >= futility_move_count(improving, depth))
-            {
                 mp.skip_quiet_moves();
-                if (!capture && !givesCheck && allNode)
-                    continue;
-            }
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r / 1024;
