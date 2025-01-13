@@ -980,7 +980,7 @@ moves_loop:  // When in check, search starts here
             if (moveCount >= futility_move_count(improving, depth))
             {
                 mp.skip_quiet_moves();
-                if (!capture && !givesCheck)
+                if (!capture && !givesCheck && allNode)
                     continue;
             }
 
