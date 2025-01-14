@@ -1060,7 +1060,7 @@ moves_loop:  // When in check, search starts here
                 && is_valid(ttData.value) && !is_decisive(ttData.value)
                 && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (22 + 44 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
@@ -1120,6 +1120,9 @@ moves_loop:  // When in check, search starts here
 
         // Add extension to new depth
         newDepth += extension;
+
+        if (move == ttData.move)
+            dbg_mean_of(extension >= 1);
 
         // Speculative prefetch as early as possible
         prefetch(tt.first_entry(pos.key_after(move)));
