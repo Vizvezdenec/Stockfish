@@ -776,7 +776,7 @@ Value Search::Worker::search(
     // If eval is really low, check with qsearch if we can exceed alpha. If the
     // search suggests we cannot exceed alpha, return a speculative fail low.
     // For PvNodes, we must have a guard against mates being returned.
-    if (allNode && eval < alpha - 462 - 297 * depth * depth)
+    if (!PvNode && eval < alpha - 462 - 297 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha - 1, alpha);
 
     // Step 8. Futility pruning: child node (~40 Elo)
@@ -1056,11 +1056,11 @@ moves_loop:  // When in check, search starts here
             // and lower extension margins scale well.
 
             if (!rootNode && move == ttData.move && !excludedMove
-                && depth >= 5 - (thisThread->completedDepth > 33) + ss->ttPv
+                && depth >= 6 - (thisThread->completedDepth > 33) + ss->ttPv
                 && is_valid(ttData.value) && !is_decisive(ttData.value)
                 && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (52 + 74 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value - (22 + 44 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
