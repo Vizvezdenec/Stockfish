@@ -1121,9 +1121,6 @@ moves_loop:  // When in check, search starts here
         // Add extension to new depth
         newDepth += extension;
 
-        if (move == ttData.move)
-            dbg_mean_of(extension >= 1);
-
         // Speculative prefetch as early as possible
         prefetch(tt.first_entry(pos.key_after(move)));
 
