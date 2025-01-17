@@ -52,11 +52,6 @@
 
 namespace Stockfish {
 
-    int a1 = 940, a2 = 1827, b1 = 940, b2 = 1827, c1 = 940, c2 = 1827, d1 = 940, d2 = 1827, e1 = 940, e2 = 1827,
-        f1 = 940, f2 = 1827, g1 = 940, g2 = 1827, h1 = 940, h2 = 1827, i1 = 940, i2 = 1827, j1 = 940, j2 = 1827, 
-        k1 = 940, k2 = 1827, l1 = 940, l2 = 1827, m1 = 940, m2 = 1827, n1 = 940, n2 = 1827;
-    TUNE(a1,a2,b1,b2,c1,c2,d1,d2,e1,e2,f1,f2,g1,g2,h1,h2,i1,i2,j1,j2,k1,k2,l1,l2,m1,m2,n1,n2);
-
 namespace TB = Tablebases;
 
 void syzygy_extend_pv(const OptionsMap&            options,
@@ -525,35 +520,6 @@ void Search::Worker::clear() {
 
     for (size_t i = 1; i < reductions.size(); ++i)
         reductions[i] = int(2143 / 100.0 * std::log(i));
-
-    cutoffCntsA[1] = a1 - 940;
-    cutoffCntsB[1] = a2 - 1827;
-    cutoffCntsA[2] = b1 - 940;
-    cutoffCntsB[2] = b2 - 1827;
-    cutoffCntsA[3] = c1 - 940;
-    cutoffCntsB[3] = c2 - 1827;
-    cutoffCntsA[4] = d1 - 940;
-    cutoffCntsB[4] = d2 - 1827;
-    cutoffCntsA[5] = e1;
-    cutoffCntsB[5] = e2;
-    cutoffCntsA[6] = f1;
-    cutoffCntsB[6] = f2;
-    cutoffCntsA[7] = g1;
-    cutoffCntsB[7] = g2;
-    cutoffCntsA[8] = h1;
-    cutoffCntsB[8] = h2;
-    cutoffCntsA[9] = i1;
-    cutoffCntsB[9] = i2;
-    cutoffCntsA[10] = j1;
-    cutoffCntsB[10] = j2;
-    cutoffCntsA[11] = k1;
-    cutoffCntsB[11] = k2;
-    cutoffCntsA[12] = l1;
-    cutoffCntsB[12] = l2;
-    cutoffCntsA[13] = m1;
-    cutoffCntsB[13] = m2;
-    cutoffCntsA[14] = n1;
-    cutoffCntsB[14] = n2;
 
     refreshTable.clear(networks[numaAccessToken]);
 }
@@ -1198,10 +1164,11 @@ moves_loop:  // When in check, search starts here
             r += 1087 + (depth < 8) * 990;
 
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
-        r += cutoffCntRed(std::min((ss + 1)->cutoffCnt + 1, 14), allNode);
+        if ((ss + 1)->cutoffCnt > 3)
+            r += 940 + allNode * 887;
 
         // For first picked move (ttMove) reduce reduction (~3 Elo)
-        if (move == ttData.move && ((ss + 1)->cutoffCnt <= 3))
+        else if (move == ttData.move)
             r -= 1960;
 
         if (capture)
@@ -1737,10 +1704,6 @@ Depth Search::Worker::reduction(bool i, Depth d, int mn, int delta) const {
     return reductionScale - delta * 768 / rootDelta + !i * reductionScale * 108 / 300 + 1168;
 }
 
-int Search::Worker::cutoffCntRed(int ctc, bool an) const {
-    return an ? cutoffCntsB[ctc] : cutoffCntsA[ctc];
-}
-
 // elapsed() returns the time elapsed since the search started. If the
 // 'nodestime' option is enabled, it will return the count of nodes searched
 // instead. This function is called to check whether the search should be
@@ -1868,8 +1831,8 @@ void update_all_stats(const Position&      pos,
 // Updates histories of the move pairs formed by moves
 // at ply -1, -2, -3, -4, and -6 with current move.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
-    static constexpr std::array<ConthistBonus, 5> conthist_bonuses = {
-      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {6, 534}}};
+    static constexpr std::array<ConthistBonus, 6> conthist_bonuses = {
+      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {5, 187}, {6, 534}}};
 
     for (const auto [i, weight] : conthist_bonuses)
     {
