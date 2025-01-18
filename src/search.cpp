@@ -1084,9 +1084,9 @@ moves_loop:  // When in check, search starts here
                     int corrValAdj   = std::abs(correctionValue) / 262144;
                     int doubleMargin = 249 * PvNode - 194 * !ttCapture - corrValAdj;
                     int tripleMargin =
-                      94 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
+                      74 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
                     int quadMargin =
-                      394 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
+                      324 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin)
@@ -1199,7 +1199,7 @@ moves_loop:  // When in check, search starts here
 
 
             Depth d = std::max(
-              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove) * (1 + (ttData.move && ttData.depth >= depth))));
+              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove)));
 
             (ss + 1)->reduction = newDepth - d;
 
@@ -1342,7 +1342,7 @@ moves_loop:  // When in check, search starts here
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 14 && !is_decisive(value))
-                        depth -= 2;
+                        depth -= 1;
 
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
