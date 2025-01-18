@@ -1180,9 +1180,6 @@ moves_loop:  // When in check, search starts here
               7 * int(PieceValue[pos.captured_piece()])
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4666;
-        else if (ss->inCheck)
-            ss->statScore = thisThread->mainHistory[us][move.from_to()]
-                          + (*contHist[0])[movedPiece][move.to_sq()] - 2000;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1202,7 +1199,7 @@ moves_loop:  // When in check, search starts here
 
 
             Depth d = std::max(
-              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove)));
+              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove) * (1 + (ttData.move && ttData.depth >= depth))));
 
             (ss + 1)->reduction = newDepth - d;
 
