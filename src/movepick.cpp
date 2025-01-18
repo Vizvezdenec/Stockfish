@@ -162,8 +162,8 @@ void MovePicker::score() {
             m.value += (*continuationHistory[1])[pc][to];
             m.value += (*continuationHistory[2])[pc][to];
             m.value += (*continuationHistory[3])[pc][to];
-            m.value += (*continuationHistory[4])[pc][to] / 3;
             m.value += (*continuationHistory[5])[pc][to];
+            m.value += (*continuationHistory[7])[pc][to] / 4;
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;

@@ -238,10 +238,10 @@ void Search::Worker::iterative_deepening() {
     // Allocate stack with extra size to allow access from (ss - 7) to (ss + 2):
     // (ss - 7) is needed for update_continuation_histories(ss - 1) which accesses (ss - 6),
     // (ss + 2) is needed for initialization of cutOffCnt.
-    Stack  stack[MAX_PLY + 10] = {};
-    Stack* ss                  = stack + 7;
+    Stack  stack[MAX_PLY + 12] = {};
+    Stack* ss                  = stack + 9;
 
-    for (int i = 7; i > 0; --i)
+    for (int i = 9; i > 0; --i)
     {
         (ss - i)->continuationHistory =
           &this->continuationHistory[0][0][NO_PIECE][0];  // Use as a sentinel
@@ -918,8 +918,10 @@ moves_loop:  // When in check, search starts here
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
                                         (ss - 4)->continuationHistory,
-                                        (ss - 5)->continuationHistory,
-                                        (ss - 6)->continuationHistory};
+                                        nullptr,
+                                        (ss - 6)->continuationHistory,
+                                        nullptr,
+                                        (ss - 8)->continuationHistory};
 
 
     MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->lowPlyHistory,
@@ -1831,8 +1833,8 @@ void update_all_stats(const Position&      pos,
 // Updates histories of the move pairs formed by moves
 // at ply -1, -2, -3, -4, and -6 with current move.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
-    static constexpr std::array<ConthistBonus, 6> conthist_bonuses = {
-      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {5, 122}, {6, 534}}};
+    static constexpr std::array<ConthistBonus, 7> conthist_bonuses = {
+      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {6, 534}, {8, 122}}};
 
     for (const auto [i, weight] : conthist_bonuses)
     {
