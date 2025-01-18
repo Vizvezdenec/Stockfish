@@ -1443,7 +1443,7 @@ moves_loop:  // When in check, search starts here
         if (m.is_ok())
         {
             (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus;
-            (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus / 2;
+            (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()] << bonus / 8;
         }
     }
 
