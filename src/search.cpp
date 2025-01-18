@@ -1834,7 +1834,7 @@ void update_all_stats(const Position&      pos,
 // at ply -1, -2, -3, -4, and -6 with current move.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
     static constexpr std::array<ConthistBonus, 7> conthist_bonuses = {
-      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {6, 534}, {8, 333}}};
+      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {6, 534}, {8, 512}}};
 
     for (const auto [i, weight] : conthist_bonuses)
     {
