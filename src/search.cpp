@@ -315,7 +315,7 @@ void Search::Worker::iterative_deepening() {
             selDepth = 0;
 
             // Reset aspiration window starting size
-            delta     = 4 + std::abs(rootMoves[pvIdx].meanSquaredScore) / 12991;
+            delta     = 5 + std::abs(rootMoves[pvIdx].meanSquaredScore) / 12991;
             Value avg = rootMoves[pvIdx].averageScore;
             alpha     = std::max(avg - delta, -VALUE_INFINITE);
             beta      = std::min(avg + delta, VALUE_INFINITE);
@@ -809,7 +809,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth and eval
-        Depth R = std::min(int(eval - beta) / 215, 8) + depth / 3 + 5;
+        Depth R = std::min(int(eval - beta) / 215, 7) + depth / 3 + 5;
 
         ss->currentMove                   = Move::null();
         ss->continuationHistory           = &thisThread->continuationHistory[0][0][NO_PIECE][0];
@@ -1027,7 +1027,7 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 3259;
+                lmrDepth += history / 3459;
 
                 Value futilityValue =
                   ss->staticEval + (bestValue < ss->staticEval - 47 ? 137 : 47) + 142 * lmrDepth;
@@ -1071,7 +1071,7 @@ moves_loop:  // When in check, search starts here
                 && is_valid(ttData.value) && !is_decisive(ttData.value)
                 && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 3)
             {
-                Value singularBeta  = ttData.value - (50 + 70 * (ss->ttPv && !PvNode)) * depth / 64;
+                Value singularBeta  = ttData.value - (52 + 74 * (ss->ttPv && !PvNode)) * depth / 64;
                 Depth singularDepth = newDepth / 2;
 
                 ss->excludedMove = move;
@@ -1084,9 +1084,9 @@ moves_loop:  // When in check, search starts here
                     int corrValAdj   = std::abs(correctionValue) / 262144;
                     int doubleMargin = 249 * PvNode - 194 * !ttCapture - corrValAdj;
                     int tripleMargin =
-                      74 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
+                      94 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
                     int quadMargin =
-                      324 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
+                      394 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin)
@@ -1342,7 +1342,7 @@ moves_loop:  // When in check, search starts here
                 {
                     // Reduce other moves if we have found at least one score improvement (~2 Elo)
                     if (depth > 2 && depth < 14 && !is_decisive(value))
-                        depth -= 1;
+                        depth -= 2;
 
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
@@ -1387,7 +1387,8 @@ moves_loop:  // When in check, search starts here
     {
         int bonusScale = (118 * (depth > 5) + 37 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                           + 128 * (!ss->inCheck && bestValue <= ss->staticEval - 102)
-                          + 115 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 82));
+                          + 115 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 82)
+                          + 110 * (correctionValue > 10000000));
 
         // Proportional to "how much damage we have to undo"
         bonusScale += std::min(-(ss - 1)->statScore / 106, 318);
