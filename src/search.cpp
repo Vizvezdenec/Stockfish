@@ -238,10 +238,10 @@ void Search::Worker::iterative_deepening() {
     // Allocate stack with extra size to allow access from (ss - 7) to (ss + 2):
     // (ss - 7) is needed for update_continuation_histories(ss - 1) which accesses (ss - 6),
     // (ss + 2) is needed for initialization of cutOffCnt.
-    Stack  stack[MAX_PLY + 12] = {};
-    Stack* ss                  = stack + 9;
+    Stack  stack[MAX_PLY + 10] = {};
+    Stack* ss                  = stack + 7;
 
-    for (int i = 9; i > 0; --i)
+    for (int i = 7; i > 0; --i)
     {
         (ss - i)->continuationHistory =
           &this->continuationHistory[0][0][NO_PIECE][0];  // Use as a sentinel
@@ -918,10 +918,8 @@ moves_loop:  // When in check, search starts here
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
                                         (ss - 4)->continuationHistory,
-                                        (ss - 5)->continuationHistory,
-                                        (ss - 6)->continuationHistory,
                                         nullptr,
-                                        (ss - 8)->continuationHistory};
+                                        (ss - 6)->continuationHistory};
 
 
     MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->lowPlyHistory,
@@ -1238,7 +1236,7 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
+            if ((move == ttData.move || ss->statScore > 20000) && ss->ply <= thisThread->rootDepth * 2)
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
@@ -1833,8 +1831,8 @@ void update_all_stats(const Position&      pos,
 // Updates histories of the move pairs formed by moves
 // at ply -1, -2, -3, -4, and -6 with current move.
 void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
-    static constexpr std::array<ConthistBonus, 8> conthist_bonuses = {
-      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {5, 122}, {6, 534}, {8, 333}}};
+    static constexpr std::array<ConthistBonus, 5> conthist_bonuses = {
+      {{1, 1025}, {2, 621}, {3, 325}, {4, 512}, {6, 534}}};
 
     for (const auto [i, weight] : conthist_bonuses)
     {
