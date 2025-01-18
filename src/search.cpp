@@ -1180,6 +1180,9 @@ moves_loop:  // When in check, search starts here
               7 * int(PieceValue[pos.captured_piece()])
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4666;
+        else if (ss->inCheck)
+            ss->statScore = thisThread->mainHistory[us][move.from_to()]
+                          + (*contHist[0])[movedPiece][move.to_sq()] - 3000;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1246,7 +1249,7 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if ((move == ttData.move || ss->statScore > 20000) && ss->ply <= thisThread->rootDepth * 2)
+            if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
