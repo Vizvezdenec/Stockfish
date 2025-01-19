@@ -624,7 +624,6 @@ Value Search::Worker::search(
     (ss + 2)->cutoffCnt = 0;
     Square prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     ss->statScore = 0;
-    ss->isTTMove = false;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -889,7 +888,6 @@ Value Search::Worker::search(
             pos.do_move(move, st, &tt);
             thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
 
-            ss->isTTMove = (move == ttData.move);
             ss->currentMove = move;
             ss->continuationHistory =
               &this->continuationHistory[ss->inCheck][true][movedPiece][move.to_sq()];
@@ -911,6 +909,9 @@ Value Search::Worker::search(
                 // Save ProbCut data into transposition table
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
+
+                if (move == ttData.move)
+                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] << stat_bonus(probCutDepth + 1);
 
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
@@ -1145,7 +1146,6 @@ moves_loop:  // When in check, search starts here
         ss->continuationCorrectionHistory =
           &thisThread->continuationCorrectionHistory[movedPiece][move.to_sq()];
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
-        ss->isTTMove = (move == ttData.move);
 
         // These reduction adjustments have proven non-linear scaling.
         // They are optimized to time controls of 180 + 1.8 and longer,
@@ -1415,7 +1415,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (2 + ((ss-1)->isTTMove));
+          << stat_bonus(depth) * 2;
     }
 
     if (PvNode)
