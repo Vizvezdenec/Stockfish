@@ -910,9 +910,6 @@ Value Search::Worker::search(
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
-                if (move == ttData.move)
-                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] << stat_bonus(probCutDepth + 1);
-
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
             }
@@ -1176,7 +1173,7 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
-            r -= 1960;
+            r -= 1960 + 300 * ttCapture;
 
         if (capture)
             ss->statScore =
