@@ -1173,7 +1173,7 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction (~3 Elo)
         else if (move == ttData.move)
-            r -= 1960 + 300 * ttCapture;
+            r -= 1960;
 
         if (capture)
             ss->statScore =
@@ -1199,7 +1199,7 @@ moves_loop:  // When in check, search starts here
 
 
             Depth d = std::max(
-              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove)));
+              1, std::min(newDepth - r / 1024, newDepth + (!allNode || r < -2048) + (PvNode && !bestMove)));
 
             (ss + 1)->reduction = newDepth - d;
 
