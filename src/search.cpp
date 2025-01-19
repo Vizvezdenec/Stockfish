@@ -624,6 +624,7 @@ Value Search::Worker::search(
     (ss + 2)->cutoffCnt = 0;
     Square prevSq = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     ss->statScore = 0;
+    ss->isTTMove = false;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -888,6 +889,7 @@ Value Search::Worker::search(
             pos.do_move(move, st, &tt);
             thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
 
+            ss->isTTMove = (move == ttData.move);
             ss->currentMove = move;
             ss->continuationHistory =
               &this->continuationHistory[ss->inCheck][true][movedPiece][move.to_sq()];
@@ -1129,7 +1131,6 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
         }
 
-        int pawnhist = thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck, &tt);
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
@@ -1144,6 +1145,7 @@ moves_loop:  // When in check, search starts here
         ss->continuationCorrectionHistory =
           &thisThread->continuationCorrectionHistory[movedPiece][move.to_sq()];
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
+        ss->isTTMove = (move == ttData.move);
 
         // These reduction adjustments have proven non-linear scaling.
         // They are optimized to time controls of 180 + 1.8 and longer,
@@ -1182,12 +1184,9 @@ moves_loop:  // When in check, search starts here
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4666;
         else
-        {
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
-                          + 2 * pawnhist
                           + (*contHist[0])[movedPiece][move.to_sq()]
-                          + (*contHist[1])[movedPiece][move.to_sq()] - 3574;
-        }
+                          + (*contHist[1])[movedPiece][move.to_sq()] - 3874;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore * 1451 / 16384;
@@ -1416,7 +1415,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * 2;
+          << stat_bonus(depth) * (2 + ((ss-1)->isTTMove));
     }
 
     if (PvNode)
