@@ -796,7 +796,7 @@ Value Search::Worker::search(
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
                - (ss - 1)->statScore / 310 + 40 - std::abs(correctionValue) / 131072
              >= beta
-        && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
+        && eval >= beta && (!ttData.move || ttCapture || eval > beta + 1000) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
     improving |= ss->staticEval >= beta + 97;
@@ -848,7 +848,7 @@ Value Search::Worker::search(
     // Further improvements need to be tested at similar time control if they make IIR
     // more aggressive.
     if ((PvNode || (cutNode && depth >= 7)) && !ttData.move)
-        depth -= 1;
+        depth -= 2;
 
     // Use qsearch if depth <= 0
     if (depth <= 0)
