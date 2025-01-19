@@ -848,7 +848,7 @@ Value Search::Worker::search(
     // Further improvements need to be tested at similar time control if they make IIR
     // more aggressive.
     if ((PvNode || (cutNode && depth >= 7)) && !ttData.move)
-        depth -= 2;
+        depth -= 1;
 
     // Use qsearch if depth <= 0
     if (depth <= 0)
@@ -981,7 +981,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~7 Elo)
         if (ss->ttPv)
-            r -= (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
+            r -= 1037 + (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1152,9 +1152,6 @@ moves_loop:  // When in check, search starts here
         // Decrease reduction for PvNodes (~0 Elo on STC, ~2 Elo on LTC)
         if (PvNode)
             r -= 1018;
-
-        if (ss->ttPv)
-            r -= 1037;
 
         // These reduction adjustments have no proven non-linear scaling
 
