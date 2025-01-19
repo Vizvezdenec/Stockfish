@@ -857,8 +857,9 @@ Value Search::Worker::search(
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 174 - 56 * improving + 200 * (depth < 3);
-    if (!is_decisive(beta)
+    probCutBeta = beta + 174 - 56 * improving;
+    if (depth >= 3
+        && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there and in further interactions with transposition table cutoff
         // depth is set to depth - 3 because probCut search has depth set to depth - 4
@@ -980,7 +981,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~7 Elo)
         if (ss->ttPv)
-            r -= 1037 + (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
+            r -= 1037 - 522 + (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1151,6 +1152,9 @@ moves_loop:  // When in check, search starts here
         // Decrease reduction for PvNodes (~0 Elo on STC, ~2 Elo on LTC)
         if (PvNode)
             r -= 1018;
+
+        if (ss->ttPv)
+            r -= 522;
 
         // These reduction adjustments have no proven non-linear scaling
 
