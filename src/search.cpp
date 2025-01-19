@@ -1199,7 +1199,7 @@ moves_loop:  // When in check, search starts here
 
 
             Depth d = std::max(
-              1, std::min(newDepth - r / 1024, newDepth + (!allNode || r < -4400) + (PvNode && !bestMove)));
+              1, std::min(newDepth - r / 1024, newDepth + 1 + (PvNode && !bestMove)));
 
             (ss + 1)->reduction = newDepth - d;
 
