@@ -981,7 +981,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction if position is or has been on the PV (~7 Elo)
         if (ss->ttPv)
-            r -= 1037 - 522 + (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
+            r -= (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
 
         // Step 14. Pruning at shallow depth (~120 Elo).
         // Depth conditions are important for mate finding.
@@ -1154,7 +1154,7 @@ moves_loop:  // When in check, search starts here
             r -= 1018;
 
         if (ss->ttPv)
-            r -= 522;
+            r -= 1037;
 
         // These reduction adjustments have no proven non-linear scaling
 
