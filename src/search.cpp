@@ -1082,7 +1082,7 @@ moves_loop:  // When in check, search starts here
                 if (value < singularBeta)
                 {
                     int corrValAdj   = std::abs(correctionValue) / 262144;
-                    int doubleMargin = 200 * (PvNode && ttCapture);
+                    int doubleMargin = 249 * PvNode - 194 * !ttCapture - corrValAdj;
                     int tripleMargin =
                       94 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
                     int quadMargin =
@@ -1129,6 +1129,7 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
         }
 
+        int pawnhist = thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck, &tt);
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
@@ -1181,9 +1182,12 @@ moves_loop:  // When in check, search starts here
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4666;
         else
+        {
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
+                          + 2 * pawnhist
                           + (*contHist[0])[movedPiece][move.to_sq()]
-                          + (*contHist[1])[movedPiece][move.to_sq()] - 3874;
+                          + (*contHist[1])[movedPiece][move.to_sq()] - 3574;
+        }
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore * 1451 / 16384;
