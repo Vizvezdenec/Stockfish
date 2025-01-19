@@ -1082,7 +1082,7 @@ moves_loop:  // When in check, search starts here
                 if (value < singularBeta)
                 {
                     int corrValAdj   = std::abs(correctionValue) / 262144;
-                    int doubleMargin = 150 * (PvNode && ttCapture);
+                    int doubleMargin = 200 * (PvNode && ttCapture);
                     int tripleMargin =
                       94 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
                     int quadMargin =
