@@ -796,7 +796,7 @@ Value Search::Worker::search(
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
                - (ss - 1)->statScore / 310 + 40 - std::abs(correctionValue) / 131072
              >= beta
-        && eval >= beta && (!ttData.move || ttCapture || eval > beta + 2000) && !is_loss(beta) && !is_win(eval))
+        && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
     improving |= ss->staticEval >= beta + 97;
@@ -857,9 +857,8 @@ Value Search::Worker::search(
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 174 - 56 * improving;
-    if (depth >= 3
-        && !is_decisive(beta)
+    probCutBeta = beta + 174 - 56 * improving - 12 * (depth < 3);
+    if (!is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there and in further interactions with transposition table cutoff
         // depth is set to depth - 3 because probCut search has depth set to depth - 4
