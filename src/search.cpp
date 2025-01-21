@@ -857,8 +857,9 @@ Value Search::Worker::search(
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 174 - 56 * improving + 22 * (depth < 3);
-    if (!PvNode && !is_decisive(beta)
+    probCutBeta = beta + 174 - 56 * improving;
+    if (depth >= 3
+        && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there and in further interactions with transposition table cutoff
         // depth is set to depth - 3 because probCut search has depth set to depth - 4
@@ -1220,7 +1221,7 @@ moves_loop:  // When in check, search starts here
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
                 // Post LMR continuation history updates (~1 Elo)
-                int bonus = (value >= beta) * 2048;
+                int bonus = (value >= beta) * 2048 - (value <= alpha) * 128;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
         }
