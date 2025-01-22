@@ -1222,10 +1222,7 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = (value >= beta) * 2048;
-                if (!capture)
-                    update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
-                else
-                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << (value >= beta) * stat_bonus(newDepth) / 4;
+                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
         }
 
@@ -1274,8 +1271,10 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
+            int bv = 1 + (value > bestValue);
+
             rm.averageScore =
-              rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
+              rm.averageScore != -VALUE_INFINITE ? (value * bv + rm.averageScore) / (1 + bv) : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (value * std::abs(value) + rm.meanSquaredScore) / 2
