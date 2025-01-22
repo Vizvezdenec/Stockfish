@@ -1225,7 +1225,7 @@ moves_loop:  // When in check, search starts here
                 if (!capture)
                     update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
                 else
-                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << (value >= beta) * stat_bonus(newDepth) / 2;
+                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << (value >= beta) * stat_bonus(newDepth) / 4;
             }
         }
 
