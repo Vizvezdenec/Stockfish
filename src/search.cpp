@@ -1221,8 +1221,11 @@ moves_loop:  // When in check, search starts here
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
                 // Post LMR continuation history updates (~1 Elo)
-                int bonus = (value >= beta) * 2048 - (value <= alpha) * 512;
-                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                int bonus = (value >= beta) * 2048;
+                if (!capture)
+                    update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                else
+                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << bonus;
             }
         }
 
