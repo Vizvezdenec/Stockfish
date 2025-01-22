@@ -1271,7 +1271,7 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
-            int bv = 1 + 2 * (value > bestValue);
+            int bv = 1 + 4 * (value > bestValue);
 
             rm.averageScore =
               rm.averageScore != -VALUE_INFINITE ? (value * bv + rm.averageScore) / (1 + bv) : value;
