@@ -1136,8 +1136,6 @@ moves_loop:  // When in check, search starts here
         // Add extension to new depth
         newDepth += extension;
 
-        Depth searchedDepth = 0;
-
         // Update the current move (this must be done after singular extension search)
         ss->currentMove = move;
         ss->continuationHistory =
@@ -1208,7 +1206,6 @@ moves_loop:  // When in check, search starts here
             value               = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
             (ss + 1)->reduction = 0;
 
-            searchedDepth = d + 1;
 
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
@@ -1221,10 +1218,7 @@ moves_loop:  // When in check, search starts here
                 newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
-                {
-                    searchedDepth = newDepth + 1;
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
-                }
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = (value >= beta) * 2048;
@@ -1238,8 +1232,6 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present (~6 Elo)
             if (!ttData.move)
                 r += 2111;
-
-            searchedDepth = newDepth + 1;
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
@@ -1280,7 +1272,7 @@ moves_loop:  // When in check, search starts here
             rm.effort += nodes - nodeCount;
 
             rm.averageScore =
-              rm.averageScore != -VALUE_INFINITE ? (value * searchedDepth + rm.averageScore * depth) / (searchedDepth + depth) : value;
+              rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (value * std::abs(value) + rm.meanSquaredScore) / 2
@@ -1440,15 +1432,17 @@ moves_loop:  // When in check, search starts here
                                             : BOUND_UPPER,
                        depth, bestMove, unadjustedStaticEval, tt.generation());
 
+    Value pseudoEval = (ss->staticEval * 7 + unadjustedStaticEval) / 8;
+
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
-        && ((bestValue < ss->staticEval && bestValue < beta)  // negative correction & no fail high
-            || (bestValue > ss->staticEval && bestMove)))     // positive correction & no fail low
+        && ((bestValue < pseudoEval && bestValue < beta)  // negative correction & no fail high
+            || (bestValue > pseudoEval && bestMove)))     // positive correction & no fail low
     {
         const auto    m             = (ss - 1)->currentMove;
         constexpr int nonPawnWeight = 165;
 
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * depth / 8,
+        auto bonus = std::clamp(int(bestValue - pseudoEval) * depth / 8,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)]
           << bonus * 114 / 128;
