@@ -1136,6 +1136,8 @@ moves_loop:  // When in check, search starts here
         // Add extension to new depth
         newDepth += extension;
 
+        Depth searchedDepth = 0;
+
         // Update the current move (this must be done after singular extension search)
         ss->currentMove = move;
         ss->continuationHistory =
@@ -1206,6 +1208,7 @@ moves_loop:  // When in check, search starts here
             value               = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
             (ss + 1)->reduction = 0;
 
+            searchedDepth = d + 1;
 
             // Do a full-depth search when reduced LMR search fails high
             if (value > alpha && d < newDepth)
@@ -1218,7 +1221,10 @@ moves_loop:  // When in check, search starts here
                 newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
+                {
+                    searchedDepth = newDepth + 1;
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+                }
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = (value >= beta) * 2048;
@@ -1233,17 +1239,17 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 2111;
 
+            searchedDepth = newDepth + 1;
+
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
               -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3444), !cutNode);
         }
-        bool pvs = false;
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
         // otherwise let the parent node fail low with value <= alpha and try another move.
         if (PvNode && (moveCount == 1 || value > alpha))
         {
-            pvs = true;
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
 
@@ -1273,9 +1279,8 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
-            if (pvs)
             rm.averageScore =
-              rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
+              rm.averageScore != -VALUE_INFINITE ? (value * searchedDepth + rm.averageScore * depth) / (searchedDepth + depth) : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (value * std::abs(value) + rm.meanSquaredScore) / 2
