@@ -1237,11 +1237,13 @@ moves_loop:  // When in check, search starts here
             value =
               -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3444), !cutNode);
         }
+        bool pvs = false;
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
         // otherwise let the parent node fail low with value <= alpha and try another move.
         if (PvNode && (moveCount == 1 || value > alpha))
         {
+            pvs = true;
             (ss + 1)->pv    = pv;
             (ss + 1)->pv[0] = Move::none();
 
@@ -1271,9 +1273,9 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
-            if (value > bestValue - 100 || rm.averageScore == -VALUE_INFINITE)
-                rm.averageScore =
-                    rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
+            if (pvs)
+            rm.averageScore =
+              rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (value * std::abs(value) + rm.meanSquaredScore) / 2
