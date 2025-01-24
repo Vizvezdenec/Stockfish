@@ -1432,7 +1432,7 @@ moves_loop:  // When in check, search starts here
                                             : BOUND_UPPER,
                        depth, bestMove, unadjustedStaticEval, tt.generation());
 
-    Value pseudoEval = (ss->staticEval * 9 - unadjustedStaticEval) / 8;
+    Value pseudoEval = (ss->staticEval + unadjustedStaticEval) / 2;
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
