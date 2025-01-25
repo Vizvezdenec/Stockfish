@@ -1157,6 +1157,9 @@ moves_loop:  // When in check, search starts here
 
         r += 307;
 
+        if (priorReduction >= 3)
+            r -= 256;
+
         r -= std::abs(correctionValue) / 34112;
 
         // Increase reduction for cut nodes (~4 Elo)
@@ -1385,7 +1388,7 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = (118 * (depth > 5) + 20 + 169 * ((ss - 1)->moveCount > 8)
+        int bonusScale = (118 * (depth > 5) + 37 * !allNode + 169 * ((ss - 1)->moveCount > 8)
                           + 128 * (!ss->inCheck && bestValue <= ss->staticEval - 102)
                           + 115 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 82));
 
