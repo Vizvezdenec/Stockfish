@@ -1158,7 +1158,7 @@ moves_loop:  // When in check, search starts here
         r += 307;
 
         if (priorReduction >= 3)
-            r -= 512;
+            r -= 1024;
 
         r -= std::abs(correctionValue) / 34112;
 
