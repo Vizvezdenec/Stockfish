@@ -1155,12 +1155,9 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 307;
+        r += 2 * 307;
 
-        if (priorReduction >= 3)
-            r -= 1024;
-
-        r -= std::abs(correctionValue) / 34112;
+        r -= 2 * std::abs(correctionValue) / 34112;
 
         // Increase reduction for cut nodes (~4 Elo)
         if (cutNode)
