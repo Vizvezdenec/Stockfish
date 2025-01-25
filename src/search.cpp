@@ -669,9 +669,7 @@ Value Search::Worker::search(
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 90)
-        {
-            return is_decisive(ttData.value) || ttData.value <= alpha ? ttData.value : (ttData.value * ttData.depth + beta) / (ttData.depth + 1);
-        }
+            return ttData.value;
     }
 
     // Step 5. Tablebases probe
@@ -851,7 +849,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
     // (* Scaler) Especially if they make IIR more aggressive.
-    if ((PvNode || (cutNode && depth >= 7)) && !ttData.move)
+    if (((PvNode || cutNode) && depth >= 7) && !ttData.move)
         depth -= 2;
 
     // Use qsearch if depth <= 0
