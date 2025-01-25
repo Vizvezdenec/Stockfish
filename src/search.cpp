@@ -911,7 +911,7 @@ Value Search::Worker::search(
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
-                    return (value * (probCutDepth + 1) + beta) / (probCutDepth + 2);
+                    return (value * (probCutDepth + 2) + beta) / (probCutDepth + 3);
             }
         }
     }
