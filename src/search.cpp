@@ -849,7 +849,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
     // (* Scaler) Especially if they make IIR more aggressive.
-    if (((PvNode && depth <= 10) || (cutNode && depth >= 7)) && !ttData.move)
+    if ((PvNode || (cutNode && depth >= 7)) && !ttData.move)
         depth -= 2;
 
     // Use qsearch if depth <= 0
@@ -1145,7 +1145,7 @@ moves_loop:  // When in check, search starts here
             r -= 1037 + (ttData.value > alpha) * 965 + (ttData.depth >= depth) * 960;
 
         if (PvNode)
-            r -= 1018;
+            r -= 1018 + 888 * ttData.is_pv;
 
         // These reduction adjustments have no proven non-linear scaling
 
