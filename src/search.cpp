@@ -787,7 +787,7 @@ Value Search::Worker::search(
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
 
-    if ((ss - 1)->currentMove == move.null() && ss->staticEval + (ss - 1)->staticEval < -5)
+    if ((ss - 1)->currentMove == move.null() && ss->staticEval + (ss - 1)->staticEval < -15)
         depth++;
 
     // Step 7. Razoring
