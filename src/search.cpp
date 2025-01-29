@@ -818,9 +818,7 @@ Value Search::Worker::search(
 
         pos.do_null_move(st, tt);
 
-        (ss + 1)->reduction = R;
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
-        (ss + 1)->reduction = 0;
 
         pos.undo_null_move();
 
@@ -903,8 +901,12 @@ Value Search::Worker::search(
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
+            {
+                (ss + 1)->reduction = 3;
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
+                (ss + 1)->reduction = 0;
+            }
 
             pos.undo_move(move);
 
