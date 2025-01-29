@@ -785,7 +785,7 @@ Value Search::Worker::search(
     opponentWorsening = ss->staticEval + (ss - 1)->staticEval > 2;
 
     if (priorReduction >= 3 && !opponentWorsening)
-        depth++;
+        depth += 1 + (priorReduction >= 6);
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
@@ -901,12 +901,8 @@ Value Search::Worker::search(
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-            {
-                (ss + 1)->reduction = 3;
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
-                (ss + 1)->reduction = 0;
-            }
 
             pos.undo_move(move);
 
