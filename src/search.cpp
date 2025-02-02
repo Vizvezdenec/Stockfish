@@ -1128,12 +1128,12 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta
                 else if (ttData.value >= beta)
-                    extension = -3;
+                    extension = -3 + (!ss->ttPv);
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta
                 else if (cutNode)
-                    extension = -2;
+                    extension = -2 + (!ss->ttPv);
             }
 
             // Extension for capturing the previous moved piece
@@ -1808,7 +1808,7 @@ void update_all_stats(const Position&      pos,
     PieceType              captured;
 
     int bonus = stat_bonus(depth) + 300 * isTTMove;
-    int malus = std::max(50, stat_malus(depth) - 46 * (moveCount - 1) + 36);
+    int malus = stat_malus(depth) - 34 * (moveCount - 1);
 
     if (!pos.capture_stage(bestMove))
     {
