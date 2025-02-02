@@ -1169,7 +1169,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 307 - moveCount * 64 - moveCount * moveCount * 2;
+        r += 307 - moveCount * 64;
 
         r -= std::abs(correctionValue) / 34112;
 
@@ -1394,7 +1394,7 @@ moves_loop:  // When in check, search starts here
     // we update the stats of searched moves.
     else if (bestMove)
         update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched, capturesSearched, depth,
-                         bestMove == ttData.move, moveCount);
+                         bestMove == ttData.move, std::min(moveCount, 32));
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
