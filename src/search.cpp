@@ -1169,7 +1169,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 307 - moveCount * 64;
+        r += 307 - moveCount * 64 - moveCount * moveCount;
 
         r -= std::abs(correctionValue) / 34112;
 
@@ -1245,7 +1245,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
-                r += 1111;
+                r += 2111;
 
             // Note that if expected reduction is high, we reduce search depth here
             value =
