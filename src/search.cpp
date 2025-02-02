@@ -1809,7 +1809,6 @@ void update_all_stats(const Position&      pos,
 
     int bonus = stat_bonus(depth) + 300 * isTTMove;
     int malus = std::max(50, stat_malus(depth) - 46 * (moveCount - 1) + 36);
-        dbg_mean_of(malus);
 
     if (!pos.capture_stage(bestMove))
     {
