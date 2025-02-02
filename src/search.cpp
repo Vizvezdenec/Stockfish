@@ -1128,12 +1128,12 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta
                 else if (ttData.value >= beta)
-                    extension = -3 + (!ss->ttPv);
+                    extension = -3;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta
                 else if (cutNode)
-                    extension = -2 + (!ss->ttPv);
+                    extension = -2;
             }
 
             // Extension for capturing the previous moved piece
@@ -1245,7 +1245,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
-                r += 2111;
+                r += 1111;
 
             // Note that if expected reduction is high, we reduce search depth here
             value =
