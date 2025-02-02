@@ -1799,7 +1799,7 @@ void update_all_stats(const Position&      pos,
     PieceType              captured;
 
     int bonus = stat_bonus(depth) + 300 * isTTMove;
-    int malus = stat_malus(depth) - 34 * (moveCount - 1);
+    int malus = std::max(0, stat_malus(depth) - 34 * (moveCount - 1));
 
     if (!pos.capture_stage(bestMove))
     {
@@ -1818,8 +1818,8 @@ void update_all_stats(const Position&      pos,
 
     // Extra penalty for a quiet early move that was not a TT move in
     // previous ply when it gets refuted.
-    if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->isTTMove) && !pos.captured_piece())
-        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 1016 / 1024);
+    if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
+        update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 966 / 1024);
 
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
