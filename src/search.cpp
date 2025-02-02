@@ -999,6 +999,8 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
+        r -= 32 * moveCount;
+
         // Increase reduction for ttPv nodes (*Scaler)
         // Smaller or even negative value is better for short time controls
         // Bigger value is better for long time controls
@@ -1169,7 +1171,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 307 - moveCount * 64;
+        r += 307 - moveCount * 32;
 
         r -= std::abs(correctionValue) / 34112;
 
@@ -1394,7 +1396,7 @@ moves_loop:  // When in check, search starts here
     // we update the stats of searched moves.
     else if (bestMove)
         update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched, capturesSearched, depth,
-                         bestMove == ttData.move, std::min(moveCount, 32));
+                         bestMove == ttData.move, moveCount);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
