@@ -1031,6 +1031,15 @@ moves_loop:  // When in check, search starts here
                         continue;
                 }
 
+                if (!capture)
+                {
+                  int history = (*contHist[0])[movedPiece][move.to_sq()]
+                  + (*contHist[1])[movedPiece][move.to_sq()]
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  if (history < -5000 * depth)
+                      continue;
+                }
+
                 // SEE based pruning for captures and checks
                 int seeHist = std::clamp(captHist / 37, -152 * depth, 141 * depth);
                 if (!pos.see_ge(move, -156 * depth - seeHist))
@@ -1245,12 +1254,11 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
-                r += 1111;
+                r += 2111;
 
             // Note that if expected reduction is high, we reduce search depth here
             value =
-              -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                            newDepth - (r > 3444) - (r > 5588 && newDepth > 2), !cutNode);
+              -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3444), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
