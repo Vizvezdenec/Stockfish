@@ -1036,7 +1036,7 @@ moves_loop:  // When in check, search starts here
                   int history = (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
-                  if (history < -7000 * depth)
+                  if (history < -12000 * depth)
                       continue;
                 }
 
