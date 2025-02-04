@@ -997,7 +997,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, delta);
+        Depth r = reduction(improving, depth, moveCount, 1);
 
         r -= 32 * moveCount;
 
@@ -1031,16 +1031,6 @@ moves_loop:  // When in check, search starts here
                                         + PieceValue[capturedPiece] + 95 * captHist / 700;
                     if (futilityValue <= alpha)
                         continue;
-                }
-
-                if (!capture)
-                {
-                  int history = (*contHist[0])[movedPiece][move.to_sq()]
-                  + (*contHist[1])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                  + thisThread->mainHistory[us][move.from_to()];
-                  if (history < -20000 * depth)
-                      continue;
                 }
 
                 // SEE based pruning for captures and checks
@@ -1166,6 +1156,11 @@ moves_loop:  // When in check, search starts here
           &thisThread->continuationCorrectionHistory[movedPiece][move.to_sq()];
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
+        r = reduction(improving, depth, moveCount, delta);
+
+        if (ss->ttPv)
+            r += 1031;
+
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
             r -= 2230 + (ttData.value > alpha) * 925 + (ttData.depth >= depth) * 971;
@@ -1175,7 +1170,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 316 - moveCount * 32;
+        r += 316 - moveCount * 64;
 
         r -= std::abs(correctionValue) / 31568;
 
