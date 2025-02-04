@@ -999,6 +999,8 @@ moves_loop:  // When in check, search starts here
 
         Depth r = reduction(improving, depth, moveCount, delta);
 
+        r -= 32 * moveCount;
+
         // Increase reduction for ttPv nodes (*Scaler)
         // Smaller or even negative value is better for short time controls
         // Bigger value is better for long time controls
@@ -1029,6 +1031,16 @@ moves_loop:  // When in check, search starts here
                                         + PieceValue[capturedPiece] + 95 * captHist / 700;
                     if (futilityValue <= alpha)
                         continue;
+                }
+
+                if (!capture)
+                {
+                  int history = (*contHist[0])[movedPiece][move.to_sq()]
+                  + (*contHist[1])[movedPiece][move.to_sq()]
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
+                  + thisThread->mainHistory[us][move.from_to()];
+                  if (history < -5000 * depth)
+                      continue;
                 }
 
                 // SEE based pruning for captures and checks
@@ -1163,7 +1175,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 316 - moveCount * 64;
+        r += 316 - moveCount * 32;
 
         r -= std::abs(correctionValue) / 31568;
 
