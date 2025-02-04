@@ -1039,7 +1039,7 @@ moves_loop:  // When in check, search starts here
                   + (*contHist[1])[movedPiece][move.to_sq()]
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
                   + thisThread->mainHistory[us][move.from_to()];
-                  if (history < -5000 * depth)
+                  if (history < -10000 * depth)
                       continue;
                 }
 
