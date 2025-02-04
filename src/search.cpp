@@ -1158,9 +1158,6 @@ moves_loop:  // When in check, search starts here
 
         r = reduction(improving, depth, moveCount, delta);
 
-        if (ss->ttPv)
-            r += 1031;
-
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
             r -= 2230 + (ttData.value > alpha) * 925 + (ttData.depth >= depth) * 971;
@@ -1170,7 +1167,7 @@ moves_loop:  // When in check, search starts here
 
         // These reduction adjustments have no proven non-linear scaling
 
-        r += 316 - moveCount * 64;
+        r += 316 - moveCount * 32;
 
         r -= std::abs(correctionValue) / 31568;
 
