@@ -997,7 +997,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, 1);
+        Depth r = reduction(improving, depth, moveCount, delta);
 
         r -= 32 * moveCount;
 
@@ -1155,8 +1155,6 @@ moves_loop:  // When in check, search starts here
         ss->continuationCorrectionHistory =
           &thisThread->continuationCorrectionHistory[movedPiece][move.to_sq()];
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
-
-        r = reduction(improving, depth, moveCount, delta);
 
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
@@ -1401,6 +1399,7 @@ moves_loop:  // When in check, search starts here
         int bonusScale = (118 * (depth > 5) + 36 * !allNode + 161 * ((ss - 1)->moveCount > 8)
                           + 133 * (!ss->inCheck && bestValue <= ss->staticEval - 107)
                           + 120 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 84)
+                          + 50 * (priorReduction > 1)
                           + 81 * ((ss - 1)->isTTMove) + std::min(-(ss - 1)->statScore / 108, 320));
 
         bonusScale = std::max(bonusScale, 0);
