@@ -870,7 +870,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
     // (* Scaler) Especially if they make IIR more aggressive.
-    if (((PvNode || cutNode) && depth >= 5) && !ttData.move)
+    if (((PvNode || cutNode) && depth >= 7 - 3 * PvNode) && !ttData.move)
         depth--;
 
     // Step 11. ProbCut
@@ -1399,7 +1399,7 @@ moves_loop:  // When in check, search starts here
         int bonusScale = (118 * (depth > 5) + 36 * !allNode + 161 * ((ss - 1)->moveCount > 8)
                           + 133 * (!ss->inCheck && bestValue <= ss->staticEval - 107)
                           + 120 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 84)
-                          + 81 * ((ss - 1)->isTTMove) + 100 * (ss->cutoffCnt <= 3)
+                          + 81 * ((ss - 1)->isTTMove)
                           + std::min(-(ss - 1)->statScore / 108, 320));
 
         bonusScale = std::max(bonusScale, 0);
