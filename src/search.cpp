@@ -1033,6 +1033,15 @@ moves_loop:  // When in check, search starts here
                         continue;
                 }
 
+                if (!capture)
+                {
+                  int history = (*contHist[0])[movedPiece][move.to_sq()]
+                  + (*contHist[1])[movedPiece][move.to_sq()]
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  if (history < -20000 * depth)
+                      continue;
+                }
+
                 // SEE based pruning for captures and checks
                 int seeHist = std::clamp(captHist / 36, -153 * depth, 134 * depth);
                 if (!pos.see_ge(move, -157 * depth - seeHist))
@@ -1399,7 +1408,6 @@ moves_loop:  // When in check, search starts here
         int bonusScale = (118 * (depth > 5) + 36 * !allNode + 161 * ((ss - 1)->moveCount > 8)
                           + 133 * (!ss->inCheck && bestValue <= ss->staticEval - 107)
                           + 120 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 84)
-                          - 120
                           + 81 * ((ss - 1)->isTTMove) + 100 * (ss->cutoffCnt <= 3)
                           + std::min(-(ss - 1)->statScore / 108, 320));
 
