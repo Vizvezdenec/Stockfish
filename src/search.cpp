@@ -798,7 +798,7 @@ Value Search::Worker::search(
               << bonus * 1195 / 1024;
         bonus += 240;
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq,
-                                              bonus);
+                                              bonus / 2);
     }
 
     // Set up the improving flag, which is true if current static evaluation is
