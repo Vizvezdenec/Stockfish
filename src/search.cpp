@@ -1053,7 +1053,7 @@ moves_loop:  // When in check, search starts here
 
                 lmrDepth += history / 3576;
 
-                Value futilityValue = ss->staticEval + (bestMove ? 49 : 135) + 150 * lmrDepth;
+                Value futilityValue = (ss->staticEval * 15 + bestValue) / 16 + (bestMove ? 49 : 135) + 150 * lmrDepth;
 
                 // Futility pruning: parent node
                 if (!ss->inCheck && lmrDepth < 12 && futilityValue <= alpha)
@@ -1171,7 +1171,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes
         if (cutNode)
-            r += 2608 - (ttData.depth >= depth && ss->ttPv) * 1159 + 1024 * !ttData.move;
+            r += 2608 - (ttData.depth >= depth && ss->ttPv) * 1159;
 
         // Increase reduction if ttMove is a capture but the current move is not a capture
         if (ttCapture && !capture)
