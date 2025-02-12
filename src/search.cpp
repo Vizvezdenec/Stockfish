@@ -1417,13 +1417,13 @@ moves_loop:  // When in check, search starts here
               << scaledBonus * 1103 / 32768;
     }
 
-    else if (priorCapture && !allNode && prevSq != SQ_NONE)
+    else if (priorCapture && prevSq != SQ_NONE)
     {
         // bonus for prior countermoves that caused the fail low
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * 2;
+          << stat_bonus(depth) * (2 - allNode);
     }
 
     if (PvNode)
