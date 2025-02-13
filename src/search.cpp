@@ -1086,7 +1086,7 @@ moves_loop:  // When in check, search starts here
             // (* Scaler) Generally, higher singularBeta (i.e closer to ttValue)
             // and lower extension margins scale well.
 
-            if (!rootNode && move == ttData.move && !excludedMove
+            if (false && !rootNode && move == ttData.move && !excludedMove
                 && depth >= 5 - (thisThread->completedDepth > 32) + ss->ttPv
                 && is_valid(ttData.value) && !is_decisive(ttData.value)
                 && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 3)
@@ -1423,7 +1423,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * (2 - (ss->cutoffCnt > 22));
+          << stat_bonus(depth) * 2;
     }
 
     if (PvNode)
