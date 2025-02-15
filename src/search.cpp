@@ -920,7 +920,7 @@ Value Search::Worker::search(
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
             // If the qsearch held, perform the regular search
-            if (value >= probCutBeta && probCutDepth > 0)
+            if (value >= probCutBeta && probCutDepth > 0 && depth < 8)
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
 
@@ -1426,7 +1426,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-        << stat_bonus(depth) * (2 - (allNode || ss->cutoffCnt > 3));
+          << stat_bonus(depth) * 2;
     }
 
     if (PvNode)
