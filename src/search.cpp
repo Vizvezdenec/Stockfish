@@ -1037,7 +1037,7 @@ moves_loop:  // When in check, search starts here
 
                 // SEE based pruning for captures and checks
                 int seeHist = std::clamp(captHist / 36, -153 * depth, 134 * depth);
-                if (!pos.see_ge(move, -157 * depth - seeHist + 100 * (depth >= 8)))
+                if (!pos.see_ge(move, -157 * depth - seeHist))
                     continue;
             }
             else
@@ -1426,7 +1426,7 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)]
-          << stat_bonus(depth) * 2;
+        << stat_bonus(depth) * (2 - (ss->cutoffCnt > 1));
     }
 
     if (PvNode)
