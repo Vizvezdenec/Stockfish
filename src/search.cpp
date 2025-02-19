@@ -1161,7 +1161,7 @@ moves_loop:  // When in check, search starts here
                + (ttData.depth >= depth) * (971 + cutNode * 1159);
 
         if ((PvNode || cutNode) && depth >= 7 - 3 * PvNode)
-            r += 1024;
+            r += 896;
 
         // These reduction adjustments have no proven non-linear scaling
 
