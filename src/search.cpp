@@ -1145,9 +1145,6 @@ moves_loop:  // When in check, search starts here
             }
         }
 
-        if (!capture)
-            ss->statScore = thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()] + 120;
-
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck, &tt);
         thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
@@ -1197,7 +1194,7 @@ moves_loop:  // When in check, search starts here
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4653;
         else
-            ss->statScore += 2 * thisThread->mainHistory[us][move.from_to()]
+            ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
                           + (*contHist[1])[movedPiece][move.to_sq()] - 3591;
 
@@ -1229,7 +1226,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 41 + 2 * newDepth);
-                const bool doShallowerSearch = !(PvNode && bestMove) && value < bestValue + 9;
+                const bool doShallowerSearch = value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1240,6 +1237,8 @@ moves_loop:  // When in check, search starts here
                 int bonus = (value >= beta) * 2010;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
+            else if (value > alpha && value > (bestValue + 41 + 2 * newDepth))
+                newDepth++;
         }
 
         // Step 18. Full-depth search when LMR is skipped
