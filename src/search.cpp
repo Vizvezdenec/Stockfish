@@ -1146,7 +1146,7 @@ moves_loop:  // When in check, search starts here
         }
 
         if (!capture)
-            ss->statScore = thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+            ss->statScore = 2 * thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck, &tt);
