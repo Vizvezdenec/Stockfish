@@ -1197,7 +1197,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes
         if (cutNode)
-            r += 2608 + 1024 * !ttData.move;
+            r += 2608 + 512 * !ttData.move;
 
         // Increase reduction if ttMove is a capture but the current move is not a capture
         if (ttCapture && !capture)
@@ -1260,7 +1260,7 @@ moves_loop:  // When in check, search starts here
                 int bonus = (value >= beta) * 2010;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
-            else if (value > alpha && value < bestValue + 4)
+            else if (value > alpha && value < bestValue + 9)
                 newDepth--;
         }
 
