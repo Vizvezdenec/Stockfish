@@ -890,7 +890,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
     // (* Scaler) Especially if they make IIR more aggressive.
-    if (((PvNode || cutNode) && depth >= 7 - 3 * PvNode) && !ttData.move)
+    if ((PvNode && depth >= 7 - 3 * PvNode) && !ttData.move)
         depth--;
 
     // Step 11. ProbCut
@@ -1197,7 +1197,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes
         if (cutNode)
-            r += 2608 + 1024 * !ttData.move;
+            r += 2608 + 2048 * !ttData.move;
 
         // Increase reduction if ttMove is a capture but the current move is not a capture
         if (ttCapture && !capture)
@@ -1267,6 +1267,10 @@ moves_loop:  // When in check, search starts here
         // Step 18. Full-depth search when LMR is skipped
         else if (!PvNode || moveCount > 1)
         {
+            // Increase reduction if ttMove is not present
+            if (!ttData.move)
+                r += 1111;
+
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
                                    newDepth - (r > 3554) - (r > 5373 && newDepth > 2), !cutNode);
