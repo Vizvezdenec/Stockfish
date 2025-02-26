@@ -1073,9 +1073,9 @@ moves_loop:  // When in check, search starts here
 
                 lmrDepth += history / 3576;
 
-                Value futilityValue = ss->staticEval + (bestMove ? 49 : 143) + 116 * lmrDepth;
+                Value futilityValue = ss->staticEval + (bestMove ? 49 : 143) + 98 * lmrDepth;
 
-                if (bestValue < ss->staticEval - 150 && lmrDepth < 7)
+                if (bestValue < ss->staticEval - 150)
                     futilityValue += 108;
 
                 // Futility pruning: parent node
@@ -1665,7 +1665,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                        + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
                        + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
                                                 [move.to_sq()]
-                     <= 7389)
+                     <= 5389)
                 continue;
 
             // Do not search moves with bad enough SEE values
