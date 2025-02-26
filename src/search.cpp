@@ -1073,9 +1073,9 @@ moves_loop:  // When in check, search starts here
 
                 lmrDepth += history / 3576;
 
-                Value futilityValue = ss->staticEval + (bestMove ? 49 : 143) + 98 * lmrDepth;
+                Value futilityValue = ss->staticEval + (bestMove ? 49 : 143) + 116 * lmrDepth;
 
-                if (bestValue < ss->staticEval - 150)
+                if (bestValue < ss->staticEval - 150 && lmrDepth < 7)
                     futilityValue += 108;
 
                 // Futility pruning: parent node
@@ -1259,6 +1259,8 @@ moves_loop:  // When in check, search starts here
                 // Post LMR continuation history updates
                 int bonus = (value >= beta) * 2010;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                if (PvNode && !doShallowerSearch && value < bestValue + 9)
+                    newDepth--;
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
