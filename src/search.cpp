@@ -1259,11 +1259,11 @@ moves_loop:  // When in check, search starts here
                 // Post LMR continuation history updates
                 int bonus = (value >= beta) * 2010;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
-                if (value < bestValue + 9)
-                    newDepth--;
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
+            else if (value > alpha && newDepth < depth && value > bestValue + 41 + 2 * newDepth)
+                newDepth++;
         }
 
         // Step 18. Full-depth search when LMR is skipped
