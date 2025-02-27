@@ -896,8 +896,8 @@ Value Search::Worker::search(
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 187 - 55 * improving;
-    if (depth >= 3
+    probCutBeta = beta + 187 - 55 * improving + 100 * (depth < 3);
+    if (depth >= 2
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there and in further interactions with transposition table cutoff
@@ -1225,7 +1225,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore * 1407 / 16384;
 
         // Step 17. Late moves reduction / extension (LMR)
-        if (moveCount > 1)
+        if (depth >= 2 && moveCount > 1)
         {
             // In general we want to cap the LMR depth search at newDepth, but when
             // reduction is negative, we allow this move a limited search extension
@@ -1265,7 +1265,7 @@ moves_loop:  // When in check, search starts here
         }
 
         // Step 18. Full-depth search when LMR is skipped
-        else if (!PvNode)
+        else if (!PvNode || moveCount > 1)
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
