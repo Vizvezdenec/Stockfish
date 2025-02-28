@@ -1262,6 +1262,8 @@ moves_loop:  // When in check, search starts here
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
+            else if (value > alpha && value > bestValue + 41 + 2 * newDepth)
+                newDepth++;
         }
 
         // Step 18. Full-depth search when LMR is skipped
