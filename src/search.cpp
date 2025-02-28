@@ -1193,7 +1193,7 @@ moves_loop:  // When in check, search starts here
         r -= std::abs(correctionValue) / 29696;
 
         if (!is_decisive(bestValue))
-            r -= risk_tolerance(pos, bestValue) / (1 + 2 * !PvNode);
+            r -= risk_tolerance(pos, bestValue) / (1 + 3 * !PvNode);
 
         // Increase reduction for cut nodes
         if (cutNode)
