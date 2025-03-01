@@ -1209,7 +1209,7 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
-            r -= 1937 + 1000 * extension;
+            r -= 1937 + 1000 * std::max(extension, -1);
 
         if (capture)
             ss->statScore =
