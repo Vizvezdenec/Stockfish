@@ -1192,7 +1192,8 @@ moves_loop:  // When in check, search starts here
 
         r -= std::abs(correctionValue) / 29696;
 
-        r -= risk_tolerance(pos, bestValue);
+        if (PvNode && !is_decisive(bestValue))
+            r -= risk_tolerance(pos, bestValue);
 
         // Increase reduction for cut nodes
         if (cutNode)
@@ -1269,6 +1270,9 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present
             if (!ttData.move)
                 r += 1156;
+
+            if (cutNode && moveCount == 1 && r < -2500)
+                newDepth++;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
