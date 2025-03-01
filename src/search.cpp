@@ -1209,7 +1209,7 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
-            r -= 1937;
+            r -= 1937 + 1000 * extension;
 
         if (capture)
             ss->statScore =
@@ -1270,9 +1270,6 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present
             if (!ttData.move)
                 r += 1156;
-
-            if (cutNode && moveCount == 1 && r < -9500)
-                newDepth++;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
