@@ -1054,11 +1054,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks
-                int seeHist = capture ? captHist / 32 : 
-                                       ((*contHist[0])[movedPiece][move.to_sq()]
-                                      + (*contHist[1])[movedPiece][move.to_sq()]
-                                      + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]) / 1024;
-                seeHist = std::clamp(seeHist, -138 * depth, 135 * depth);
+                int seeHist = std::clamp(captHist / 32, -138 * depth, 135 * depth);
                 if (!pos.see_ge(move, -154 * depth - seeHist))
                     continue;
             }
@@ -1213,7 +1209,7 @@ moves_loop:  // When in check, search starts here
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
-            r -= 1937;
+        r -= 1937 + 500 * std::max(extension, 0);
 
         if (capture)
             ss->statScore =
