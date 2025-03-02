@@ -837,7 +837,7 @@ Value Search::Worker::search(
 
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
-    if (!ss->ttPv && depth < 14
+    if ((!ss->ttPv || priorReduction > 0) && depth < 14
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
                - (ss - 1)->statScore / 301 + 37 - std::abs(correctionValue) / 139878
              >= beta
@@ -1273,7 +1273,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - ((r > 3495) - (r > 5510 && newDepth > 2)) * (extension <= 0), !cutNode);
+                                   newDepth - (r > 3495) - (r > 5510 && newDepth > 2), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
