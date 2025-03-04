@@ -837,7 +837,7 @@ Value Search::Worker::search(
 
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
-    if ((!ss->ttPv || priorReduction > 0) && depth < 14
+    if (!ss->ttPv && depth < 14
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
                - (ss - 1)->statScore / 301 + 37 - std::abs(correctionValue) / 139878
              >= beta
@@ -1054,7 +1054,11 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks
-                int seeHist = std::clamp(captHist / 32, -138 * depth, 135 * depth);
+                int seeHist = capture ? captHist / 32 : 
+                                       ((*contHist[0])[movedPiece][move.to_sq()]
+                                      + (*contHist[1])[movedPiece][move.to_sq()]
+                                      + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]) / 320;
+                seeHist = std::clamp(seeHist, -138 * depth, 135 * depth);
                 if (!pos.see_ge(move, -154 * depth - seeHist))
                     continue;
             }
