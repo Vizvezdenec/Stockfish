@@ -1058,7 +1058,7 @@ moves_loop:  // When in check, search starts here
                                        ((*contHist[0])[movedPiece][move.to_sq()]
                                       + (*contHist[1])[movedPiece][move.to_sq()]
                                       + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                                      + 2 * thisThread->mainHistory[us][move.from_to()]) / 320;
+                                      + 2 * thisThread->mainHistory[us][move.from_to()]) / 384;
                 seeHist = std::clamp(seeHist, -138 * depth, 135 * depth);
                 if (!pos.see_ge(move, -154 * depth - seeHist))
                     continue;
