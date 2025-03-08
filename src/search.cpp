@@ -896,7 +896,7 @@ Value Search::Worker::search(
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 185 - 58 * improving;
+    probCutBeta = beta + 185 - 58 * improving - std::min(priorReduction * 5, 20);
     if (depth >= 3
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
@@ -1054,12 +1054,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // SEE based pruning for captures and checks
-                int seeHist = capture ? captHist / 32 : 
-                                       ((*contHist[0])[movedPiece][move.to_sq()]
-                                      + (*contHist[1])[movedPiece][move.to_sq()]
-                                      + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                                      + 2 * thisThread->mainHistory[us][move.from_to()]) / 512;
-                seeHist = std::clamp(seeHist, -138 * depth, 135 * depth);
+                int seeHist = std::clamp(captHist / 32, -138 * depth, 135 * depth);
                 if (!pos.see_ge(move, -154 * depth - seeHist))
                     continue;
             }
