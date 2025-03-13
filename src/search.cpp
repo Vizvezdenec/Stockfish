@@ -822,11 +822,11 @@ Value Search::Worker::search(
     // false otherwise. The improving flag is used in various pruning heuristics.
     improving = ss->staticEval > (ss - 2)->staticEval;
 
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - PieceValue[pos.captured_piece()] / 2;
 
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
-    if (!priorCapture && priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
+    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
 
     // Step 7. Razoring
