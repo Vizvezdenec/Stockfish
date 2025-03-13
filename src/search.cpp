@@ -822,7 +822,7 @@ Value Search::Worker::search(
     // false otherwise. The improving flag is used in various pruning heuristics.
     improving = ss->staticEval > (ss - 2)->staticEval;
 
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - PieceValue[pos.captured_piece()] / 2;
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - PieceValue[pos.captured_piece()] / 4;
 
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
