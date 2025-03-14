@@ -1216,9 +1216,6 @@ moves_loop:  // When in check, search starts here
               846 * int(PieceValue[pos.captured_piece()]) / 128
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4822;
-        else if (ss->inCheck)
-              ss->statScore = thisThread->mainHistory[us][move.from_to()]
-                            + (*contHist[0])[movedPiece][move.to_sq()] - 2871;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1272,11 +1269,11 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
-                r += 1156;
+                r += 1156 - 512;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - (r > 3495) - (r > 5510 && newDepth > 2), !cutNode);
+                                   newDepth - (r > 3495 - 256) - (r > 5510 - 256 && newDepth > 2), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
