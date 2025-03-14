@@ -822,7 +822,7 @@ Value Search::Worker::search(
     // false otherwise. The improving flag is used in various pruning heuristics.
     improving = ss->staticEval > (ss - 2)->staticEval;
 
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - PieceValue[pos.captured_piece()] / 4;
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
 
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
@@ -1216,6 +1216,9 @@ moves_loop:  // When in check, search starts here
               846 * int(PieceValue[pos.captured_piece()]) / 128
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4822;
+        else if (ss->inCheck)
+              ss->statScore = thisThread->mainHistory[us][move.from_to()]
+                            + (*contHist[0])[movedPiece][move.to_sq()] - 2671;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
