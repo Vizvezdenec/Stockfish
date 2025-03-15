@@ -1216,9 +1216,6 @@ moves_loop:  // When in check, search starts here
               846 * int(PieceValue[pos.captured_piece()]) / 128
               + thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
               - 4822;
-        else if (ss->inCheck)
-              ss->statScore = thisThread->mainHistory[us][move.from_to()]
-                            + (*contHist[0])[movedPiece][move.to_sq()] - 2771;
         else
             ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1364,6 +1361,7 @@ moves_loop:  // When in check, search starts here
 
         if (value + inc > bestValue)
         {
+            bool dr = value > bestValue + 8;
             bestValue = value;
 
             if (value + inc > alpha)
@@ -1383,7 +1381,7 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement
-                    if (depth > 2 && depth < 16 && !is_decisive(value))
+                    if (depth > 2 && depth < 16 && !is_decisive(value) && dr)
                         depth -= 2;
 
                     assert(depth > 0);
