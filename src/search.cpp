@@ -169,7 +169,7 @@ void update_all_stats(const Position&      pos,
                       Depth                depth,
                       bool                 isTTMove,
                       int                  moveCount,
-                      Move ttMove);
+                     Move ttMove);
 
 }  // namespace
 
@@ -1828,7 +1828,7 @@ void update_all_stats(const Position&      pos,
                       Depth                depth,
                       bool                 isTTMove,
                       int                  moveCount,
-                      Move ttMove) {
+                    Move ttMove) {
 
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
     Piece                  moved_piece    = pos.moved_piece(bestMove);
@@ -1843,7 +1843,7 @@ void update_all_stats(const Position&      pos,
 
         // Decrease stats for all non-best quiet moves
         for (Move move : quietsSearched)
-            update_quiet_histories(pos, ss, workerThread, move, -malus * (1246 + 400 * (move == ttMove)) / 1024);
+            update_quiet_histories(pos, ss, workerThread, move, -malus * 1246 / 1024 - 311 * (move == ttMove));
     }
     else
     {
