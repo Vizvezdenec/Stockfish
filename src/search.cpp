@@ -1361,7 +1361,7 @@ moves_loop:  // When in check, search starts here
 
         if (value + inc > bestValue)
         {
-            bool dr = value > bestValue + 10;
+            bool dr = value > bestValue + 12;
             bestValue = value;
 
             if (value + inc > alpha)
