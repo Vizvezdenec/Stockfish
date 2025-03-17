@@ -168,8 +168,7 @@ void update_all_stats(const Position&      pos,
                       ValueList<Move, 32>& capturesSearched,
                       Depth                depth,
                       bool                 isTTMove,
-                      int                  moveCount,
-                     Move ttMove);
+                      int                  moveCount);
 
 }  // namespace
 
@@ -1362,6 +1361,7 @@ moves_loop:  // When in check, search starts here
 
         if (value + inc > bestValue)
         {
+            bool dr = value > bestValue + 6;
             bestValue = value;
 
             if (value + inc > alpha)
@@ -1381,7 +1381,7 @@ moves_loop:  // When in check, search starts here
                 else
                 {
                     // Reduce other moves if we have found at least one score improvement
-                    if (depth > 2 && depth < 16 && !is_decisive(value))
+                    if (depth > 2 && depth < 16 && !is_decisive(value) && dr)
                         depth -= 2;
 
                     assert(depth > 0);
@@ -1420,7 +1420,7 @@ moves_loop:  // When in check, search starts here
     // we update the stats of searched moves.
     else if (bestMove)
         update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched, capturesSearched, depth,
-                         bestMove == ttData.move, moveCount, ttData.move);
+                         bestMove == ttData.move, moveCount);
 
     // Bonus for prior countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
@@ -1827,8 +1827,7 @@ void update_all_stats(const Position&      pos,
                       ValueList<Move, 32>& capturesSearched,
                       Depth                depth,
                       bool                 isTTMove,
-                      int                  moveCount,
-                    Move ttMove) {
+                      int                  moveCount) {
 
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
     Piece                  moved_piece    = pos.moved_piece(bestMove);
@@ -1843,7 +1842,7 @@ void update_all_stats(const Position&      pos,
 
         // Decrease stats for all non-best quiet moves
         for (Move move : quietsSearched)
-            update_quiet_histories(pos, ss, workerThread, move, -malus * 1246 / 1024 - 311 * (move == ttMove));
+            update_quiet_histories(pos, ss, workerThread, move, -malus * 1246 / 1024);
     }
     else
     {
