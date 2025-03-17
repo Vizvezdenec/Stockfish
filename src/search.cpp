@@ -1260,7 +1260,7 @@ moves_loop:  // When in check, search starts here
                 int bonus = (value >= beta) * 1800;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
 
-                if (!doShallowerSearch && value < bestValue + 9)
+                if (!doShallowerSearch && value < bestValue + 5)
                     newDepth--;
             }
             else if (value > alpha && value < bestValue + 9)
