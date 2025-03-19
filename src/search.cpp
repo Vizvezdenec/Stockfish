@@ -1259,9 +1259,6 @@ moves_loop:  // When in check, search starts here
                 // Post LMR continuation history updates
                 int bonus = (value >= beta) * 1800;
                 update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
-
-                if (!doShallowerSearch && value < bestValue + 13)
-                    newDepth--;
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
@@ -1605,7 +1602,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 359;
+        futilityBase = ss->staticEval + 359 + 50 * PvNode;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
