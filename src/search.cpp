@@ -1517,7 +1517,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     Key   posKey;
     Move  move, bestMove;
     Value bestValue, value, futilityBase;
-    bool  pvHit, givesCheck, capture, improving;
+    bool  pvHit, givesCheck, capture;
     int   moveCount;
 
     // Step 1. Initialize node
@@ -1561,11 +1561,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*thisThread, pos, ss);
     if (ss->inCheck)
-    {
         bestValue = futilityBase = -VALUE_INFINITE;
-        improving = false;
-        ss->staticEval = (ss - 2)->staticEval;
-    }
     else
     {
         if (ss->ttHit)
@@ -1607,7 +1603,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             alpha = bestValue;
 
         futilityBase = ss->staticEval + 359;
-        improving = ss->staticEval > (ss-2)->staticEval;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
@@ -1642,7 +1637,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2 + improving)
+                if (moveCount > 2)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
