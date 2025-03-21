@@ -846,7 +846,7 @@ Value Search::Worker::search(
 
     if (priorReduction >= 3072 && !opponentWorsening)
         depth++;
-    if (priorReduction >= 1024 - 200 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
+    if (priorReduction >= 1024 + 200 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
 
     // Step 7. Razoring
