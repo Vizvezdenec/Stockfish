@@ -844,9 +844,9 @@ Value Search::Worker::search(
 
     opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
 
-    if (priorReduction >= 3 && !opponentWorsening)
+    if (priorReduction >= 3 * 1024 && !opponentWorsening)
         depth++;
-    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
+    if (priorReduction >= 1024 - 400 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
 
     // Step 7. Razoring
@@ -1258,7 +1258,7 @@ moves_loop:  // When in check, search starts here
             Depth d = std::max(
               1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove)));
 
-            ss->reduction = newDepth - d;
+            ss->reduction = r;
 
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
             ss->reduction = 0;
@@ -1580,11 +1580,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*thisThread, pos, ss);
     if (ss->inCheck)
-    {
-        if (ttData.move && !is_loss(ttData.value) && !pos.capture(ttData.move) && (ttData.bound & BOUND_LOWER))
-            return ttData.value;
         bestValue = futilityBase = -VALUE_INFINITE;
-    }
     else
     {
         if (ss->ttHit)
