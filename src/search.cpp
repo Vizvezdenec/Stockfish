@@ -1581,7 +1581,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     const auto correctionValue      = correction_value(*thisThread, pos, ss);
     if (ss->inCheck)
     {
-        if (ttData.move && !is_loss(ttData.value) && !pos.capture(ttData.move) && pos.legal(ttData.move))
+        if (ttData.move && !is_loss(ttData.value) && !pos.capture(ttData.move) && (ttData.bound & BOUND_LOWER))
             return ttData.value;
         bestValue = futilityBase = -VALUE_INFINITE;
     }
