@@ -1580,11 +1580,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*thisThread, pos, ss);
     if (ss->inCheck)
-    {
-        if (ttData.move && !is_loss(ttData.value) && !pos.capture(ttData.move) && ttData.bound == BOUND_UPPER)
-            return ttData.value;
         bestValue = futilityBase = -VALUE_INFINITE;
-    }
     else
     {
         if (ss->ttHit)
@@ -1656,6 +1652,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         // Step 6. Pruning
         if (!is_loss(bestValue))
         {
+            if (ss->inCheck && ttData.move && !is_loss(bestValue) && !pos.capture(ttData.move))
+                break;
+                
             // Futility pruning and moveCount pruning
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
                 && move.type_of() != PROMOTION)
