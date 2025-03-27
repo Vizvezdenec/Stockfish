@@ -1582,7 +1582,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     if (ss->inCheck)
     {
         bestValue = futilityBase = -VALUE_INFINITE;
-        if (ss->ttHit && ttData.value != VALUE_NONE)
+        if (ss->ttHit && ttData.value != VALUE_NONE && (ttData.bound & BOUND_LOWER))
             bestValue = std::min(beta - 1, ttData.value);
     }
     else
