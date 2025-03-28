@@ -1279,7 +1279,8 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates
                 int bonus = 1600;
-                update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
+                if (!capture)
+                    update_continuation_histories(ss, movedPiece, move.to_sq(), bonus);
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
