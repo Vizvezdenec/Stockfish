@@ -848,7 +848,7 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
-    else if (priorReduction >= 1 && priorCapture && ss->staticEval + (ss - 1)->staticEval > 50)
+    else if (priorReduction >= 1 && priorCapture && ss->staticEval + (ss - 1)->staticEval > -50)
         depth--;
 
     // Step 7. Razoring
