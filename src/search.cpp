@@ -846,7 +846,7 @@ Value Search::Worker::search(
 
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
-    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188 - 138 * priorCapture)
+    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188 - PieceValue[type_of(pos.captured_piece())] / 8)
         depth--;
 
     // Step 7. Razoring
