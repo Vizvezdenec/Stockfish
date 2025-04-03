@@ -788,6 +788,9 @@ Value Search::Worker::search(
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*thisThread, pos, ss);
+    ss->correctionV = correctionValue;
+    if ((ss - 1)->currentMove == move.null() && std::abs(correctionValue - (ss - 1)->correctionV) > 2000000)
+        depth++;
     if (ss->inCheck)
     {
         // Skip early pruning when in check
