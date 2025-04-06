@@ -864,7 +864,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
-    && ss->staticEval >= beta - 19 * depth + 418 - (eval - beta - 500) / 16 && !excludedMove && pos.non_pawn_material(us)
+    && ss->staticEval >= beta - 19 * depth + 418 - (eval - beta) / 16 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
         assert(eval - beta >= 0);
@@ -1289,7 +1289,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - (r > 3495) - (r > 5510 && newDepth > 2), !cutNode);
+                                   newDepth - ((r > 3495) - (r > 5510 && newDepth > 2)) * (newDepth < 11), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
