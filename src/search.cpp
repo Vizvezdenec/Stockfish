@@ -844,7 +844,7 @@ Value Search::Worker::search(
 
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
-    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188 - 138 * priorCapture)
+    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
 
     // Step 7. Razoring
@@ -1289,7 +1289,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - (r > 3495) - (r > 5510 && newDepth > 2), !cutNode);
+                                   newDepth - ((r > 3495) + (r > 5510 && newDepth > 2)) * (newDepth < 11), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
