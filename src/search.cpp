@@ -1154,9 +1154,9 @@ moves_loop:  // When in check, search starts here
                     int corrValAdj1 = std::abs(correctionValue) / 248873;
                     int corrValAdj2 = std::abs(correctionValue) / 255331;
                     int doubleMargin =
-                      262 * PvNode - 188 * !ttCapture - corrValAdj1 - ttMoveHistory / 128;
+                      262 * PvNode - 188 * !ttCapture - corrValAdj1 - ttMoveHistory / 32;
                     int tripleMargin =
-                      88 + 265 * PvNode - 256 * !ttCapture + 93 * ss->ttPv - corrValAdj2;
+                      88 + 265 * PvNode - 256 * !ttCapture + 93 * ss->ttPv - corrValAdj2 - ttMoveHistory / 64;
 
                     extension = 1 + (value < singularBeta - doubleMargin)
                               + (value < singularBeta - tripleMargin);
@@ -1285,10 +1285,7 @@ moves_loop:  // When in check, search starts here
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
                 // Post LMR continuation history updates
-                if (!capture)
-                    update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
-                else
-                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << 3200;
+                update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
