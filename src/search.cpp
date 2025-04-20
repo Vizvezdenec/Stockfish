@@ -916,7 +916,7 @@ Value Search::Worker::search(
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
     probCutBeta = beta + 185 - 58 * improving;
-    if (!ss->ttPv && depth >= 3
+    if (depth >= 3
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there and in further interactions with transposition table cutoff
@@ -1182,7 +1182,7 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta
                 else if (ttData.value >= beta)
-                    extension = -3;
+                    extension = -2;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta
