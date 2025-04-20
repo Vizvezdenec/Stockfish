@@ -865,7 +865,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
-        && ss->staticEval >= beta - 19 * depth + 423 - (eval - beta) / 4 && !excludedMove && pos.non_pawn_material(us)
+        && ss->staticEval >= beta - 19 * depth + 418 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
         assert(eval - beta >= 0);
@@ -1285,7 +1285,10 @@ moves_loop:  // When in check, search starts here
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
 
                 // Post LMR continuation history updates
-                update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
+                if (!capture)
+                    update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
+                else
+                    thisThread->captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())] << 1800;
             }
             else if (value > alpha && value < bestValue + 9)
                 newDepth--;
