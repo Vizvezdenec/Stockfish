@@ -1282,7 +1282,11 @@ moves_loop:  // When in check, search starts here
                 newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
+                {
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+                    if (value < bestValue + 9)
+                        newDepth--;
+                }
 
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
@@ -1315,9 +1319,6 @@ moves_loop:  // When in check, search starts here
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
-
-            if (moveCount > 1 && value > alpha && value < beta && newDepth < depth - 1)
-                value = -search<PV>(pos, ss + 1, -beta, -alpha, depth - 1, false);
         }
 
         // Step 19. Undo move
