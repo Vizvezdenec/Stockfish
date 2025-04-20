@@ -1284,7 +1284,7 @@ moves_loop:  // When in check, search starts here
                 if (newDepth > d)
                 {
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
-                    if (value < bestValue + 9 && !doShallowerSearch)
+                    if (value < bestValue + 9 && doDeeperSearch)
                         newDepth--;
                 }
 
