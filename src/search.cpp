@@ -1277,7 +1277,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = value > (bestValue + 43 + 2 * newDepth);
-                const bool doShallowerSearch = value < bestValue + 9 && value < beta;
+                const bool doShallowerSearch = value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1287,7 +1287,7 @@ moves_loop:  // When in check, search starts here
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
             }
-            else if (value > alpha && value < bestValue + 9)
+            else if (value > alpha && value < bestValue + 9  && value < beta)
                 newDepth--;
         }
 
