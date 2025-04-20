@@ -865,7 +865,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
-        && ss->staticEval >= beta - 19 * depth + 418 && !excludedMove && pos.non_pawn_material(us)
+        && ss->staticEval >= beta - 19 * depth + 423 - (eval - beta) / 4 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
         assert(eval - beta >= 0);
@@ -1154,7 +1154,7 @@ moves_loop:  // When in check, search starts here
                     int corrValAdj1 = std::abs(correctionValue) / 248873;
                     int corrValAdj2 = std::abs(correctionValue) / 255331;
                     int doubleMargin =
-                      262 * PvNode - 188 * !ttCapture - corrValAdj1 - std::max(ttMoveHistory / 64, 0);
+                      262 * PvNode - 188 * !ttCapture - corrValAdj1 - ttMoveHistory / 128;
                     int tripleMargin =
                       88 + 265 * PvNode - 256 * !ttCapture + 93 * ss->ttPv - corrValAdj2;
 
