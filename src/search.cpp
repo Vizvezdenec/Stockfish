@@ -1316,7 +1316,7 @@ moves_loop:  // When in check, search starts here
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
 
-            if (moveCount > 1 && value >= beta && newDepth < depth - 1)
+            if (moveCount > 1 && value > alpha && value < beta && newDepth < depth - 1)
                 value = -search<PV>(pos, ss + 1, -beta, -alpha, depth - 1, false);
         }
 
