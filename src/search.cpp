@@ -1290,7 +1290,7 @@ moves_loop:  // When in check, search starts here
             else if (value > alpha && value < bestValue + 9)
             {
                 newDepth--;
-                if (value < bestValue + 3)
+                if (value < bestValue + 2)
                     newDepth--;
             }
         }
