@@ -1101,7 +1101,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth += history / 3593;
 
                 Value futilityValue = ss->staticEval + (bestMove ? 48 : 146) + 116 * lmrDepth
-                                    + 103 * (bestValue < ss->staticEval - 128);
+                                    + 103 * (bestValue < ss->staticEval - 128) - 103 * (bestValue > ss->staticEval + 128);
 
                 // Futility pruning: parent node
                 // (*Scaler): Generally, more frequent futility pruning
@@ -1287,7 +1287,7 @@ moves_loop:  // When in check, search starts here
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1600);
             }
-            else if (value > alpha && value < bestValue + 9  && value < beta)
+            else if (value > alpha && value < bestValue + 9)
                 newDepth--;
         }
 
