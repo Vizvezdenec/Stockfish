@@ -909,7 +909,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
     // (* Scaler) Especially if they make IIR more aggressive.
-    if (((PvNode || cutNode) && depth >= 7 - 3 * PvNode) && !ttData.move)
+    if (((PvNode || cutNode) && depth >= 6) && !ttData.move)
         depth--;
 
     // Step 11. ProbCut
@@ -1101,7 +1101,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth += history / 3593;
 
                 Value futilityValue = ss->staticEval + (bestMove ? 48 : 146) + 116 * lmrDepth
-                                    + 103 * (bestValue < ss->staticEval - 128) - 103 * (bestValue > ss->staticEval + 128);
+                                    + 103 * (bestValue < ss->staticEval - 128);
 
                 // Futility pruning: parent node
                 // (*Scaler): Generally, more frequent futility pruning
