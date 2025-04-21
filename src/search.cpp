@@ -71,12 +71,14 @@ namespace {
 // tests at these types of time controls.
 
 // Futility margin
-Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
-    Value futilityMult       = 110 - 25 * noTtCutNode;
+Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening, int statScore, int correctionValue) {
+    Value futilityMult       = 98 - 22 * noTtCutNode;
     Value improvingDeduction = improving * futilityMult * 2;
     Value worseningDeduction = oppWorsening * futilityMult / 3;
+    Value statScoreAddition  = statScore / 339;
+    Value correctionAddition = correctionValue / 157363;
 
-    return futilityMult * d - improvingDeduction - worseningDeduction;
+    return futilityMult * d - improvingDeduction - worseningDeduction + statScoreAddition + correctionAddition;
 }
 
 constexpr int futility_move_count(bool improving, Depth depth) {
@@ -856,10 +858,8 @@ Value Search::Worker::search(
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 14
-        && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening)
-               - (ss - 1)->statScore / 301 + 37 + ((eval - beta) / 8)
-               - std::abs(correctionValue) / 139878
-             >= beta
+        && eval - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening, (ss - 1)->statScore, std::abs(correctionValue))
+                >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
 
@@ -905,6 +905,12 @@ Value Search::Worker::search(
     }
 
     improving |= ss->staticEval >= beta + 94;
+
+    // Step 10. Internal iterative reductions
+    // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
+    // (* Scaler) Especially if they make IIR more aggressive.
+    if (((PvNode || cutNode) && depth >= 7 - 3 * PvNode) && !ttData.move)
+        depth--;
 
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
@@ -1290,7 +1296,7 @@ moves_loop:  // When in check, search starts here
         {
             // Increase reduction if ttMove is not present
             if (!ttData.move)
-                r += 1156 + 1024;
+                r += 1156;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
