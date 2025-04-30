@@ -51,8 +51,9 @@ class MovePicker {
                const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*,
+               const PawnCaptureHistory*,
                int);
-    MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
+    MovePicker(const Position&, Move, int, const CapturePieceToHistory*, const PawnCaptureHistory*);
     Move next_move();
     void skip_quiet_moves();
     bool otherPieceTypesMobile(PieceType pt, ValueList<Move, 32>& capturesSearched);
@@ -71,6 +72,7 @@ class MovePicker {
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
+    const PawnCaptureHistory*    pawnCaptureHistory;
     Move                         ttMove;
     ExtMove *                    cur, *endMoves, *endBadCaptures, *beginBadQuiets, *endBadQuiets;
     int                          stage;
