@@ -193,7 +193,7 @@ void MovePicker::score() {
                 if (ply > 0 && prevSq != SQ_NONE)
                     m.value += 8 * (*contPlyHistory)[ply - 1]
                                                     [prevSq][prevType]
-                                                    [to][pt] / (1 + ply);
+                                                    [to][pt];
             }
         }
 
