@@ -84,19 +84,25 @@ MovePicker::MovePicker(const Position&              p,
                        Depth                        d,
                        const ButterflyHistory*      mh,
                        const LowPlyHistory*         lph,
+                       const ContPlyHistory*        cplh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
-                       int                          pl) :
+                       int                          pl,
+                       Square                       psq,
+                       PieceType                    pstp) :
     pos(p),
     mainHistory(mh),
     lowPlyHistory(lph),
+    contPlyHistory(cplh),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
     depth(d),
-    ply(pl) {
+    ply(pl),
+    prevSq(psq),
+    prevType(pstp) {
 
     if (pos.checkers())
         stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
@@ -182,7 +188,13 @@ void MovePicker::score() {
             }
 
             if (ply < LOW_PLY_HISTORY_SIZE)
+            {
                 m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
+                if (ply > 0)
+                    m.value += 8 * (*contPlyHistory)[ply - 1]
+                                                    [prevSq][prevType]
+                                                    [to][pt];
+            }
         }
 
         else  // Type == EVASIONS
