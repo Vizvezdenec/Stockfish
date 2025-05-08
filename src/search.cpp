@@ -1231,7 +1231,7 @@ moves_loop:  // When in check, search starts here
 
         r += 316;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
-        r -= (pcv * pcv + micv * micv + (wnpcv + bnpcv) * (wnpcv + bnpcv) + cntcv * cntcv) / 3200;
+        r -= (pcv * pcv + micv * micv + (wnpcv + bnpcv) * (wnpcv + bnpcv) + cntcv * cntcv) / 2800;
         //dbg_mean_of(std::abs(correctionValue));
         //dbg_mean_of(pcv * pcv + micv * micv + (wnpcv + bnpcv) * (wnpcv + bnpcv) + cntcv * cntcv);
 
