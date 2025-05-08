@@ -795,7 +795,15 @@ Value Search::Worker::search(
 
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
-    const auto correctionValue      = correction_value(*thisThread, pos, ss);
+    const auto  pcv   = thisThread->pawnCorrectionHistory[pawn_structure_index<Correction>(pos)][us];
+    const auto  micv  = thisThread->minorPieceCorrectionHistory[minor_piece_index(pos)][us];
+    const auto  wnpcv = thisThread->nonPawnCorrectionHistory[non_pawn_index<WHITE>(pos)][WHITE][us];
+    const auto  bnpcv = thisThread->nonPawnCorrectionHistory[non_pawn_index<BLACK>(pos)][BLACK][us];
+    const auto  cntcv =
+    (ss - 1)->currentMove.is_ok() ? (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on((ss - 1)->currentMove.to_sq())][(ss - 1)->currentMove.to_sq()]
+                 : 0;
+    const auto correctionValue      = 7696 * pcv + 7689 * micv + 9708 * (wnpcv + bnpcv) + 6978 * cntcv;
+    //const auto correctionValue      = correction_value(*thisThread, pos, ss);
     if (ss->inCheck)
     {
         // Skip early pruning when in check
@@ -1223,7 +1231,9 @@ moves_loop:  // When in check, search starts here
 
         r += 316;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
-        r -= std::abs(correctionValue) / 28047;
+        r -= (pcv * pcv + micv * micv + (wnpcv + bnpcv) * (wnpcv + bnpcv) + cntcv * cntcv) / 3000;
+        //dbg_mean_of(std::abs(correctionValue));
+        //dbg_mean_of(pcv * pcv + micv * micv + (wnpcv + bnpcv) * (wnpcv + bnpcv) + cntcv * cntcv);
 
         if (PvNode && std::abs(bestValue) <= 2078)
             r -= risk_tolerance(bestValue);
