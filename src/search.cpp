@@ -873,7 +873,7 @@ Value Search::Worker::search(
         return beta + (eval - beta) / 3;
 
     // Step 9. Null move search with verification search
-    if ((cutNode || (allNode && depth <= 4)) && (ss - 1)->currentMove != Move::null() && eval >= beta
+    if ((cutNode || (allNode && depth <= 5)) && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 19 * depth + 389 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
