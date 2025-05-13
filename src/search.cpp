@@ -873,7 +873,7 @@ Value Search::Worker::search(
         return beta + (eval - beta) / 3;
 
     // Step 9. Null move search with verification search
-    if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
+    if ((cutNode || (allNode && depth <= 3)) && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 19 * depth + 389 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
@@ -1047,8 +1047,7 @@ moves_loop:  // When in check, search starts here
         // Smaller or even negative value is better for short time controls
         // Bigger value is better for long time controls
         if (ss->ttPv)
-            r += 968 + (PvNode * 926 + (ttData.value > alpha) * 901
-               + (ttData.depth >= depth) * (943 + cutNode * 1180)) / 2;
+            r += 968;
 
         // Step 14. Pruning at shallow depth.
         // Depth conditions are important for mate finding.
@@ -1217,8 +1216,8 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
-            r -= 2437 + 3 * (PvNode * 926 + (ttData.value > alpha) * 901
-               + (ttData.depth >= depth) * (943 + cutNode * 1180)) / 2;
+            r -= 2437 + PvNode * 926 + (ttData.value > alpha) * 901
+               + (ttData.depth >= depth) * (943 + cutNode * 1180);
 
         // These reduction adjustments have no proven non-linear scaling
 
