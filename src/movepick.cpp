@@ -190,7 +190,7 @@ void MovePicker::score() {
                 m.value = (*mainHistory)[pos.side_to_move()][m.from_to()]
                         + (*continuationHistory[0])[pos.moved_piece(m)][m.to_sq()];
                 if (ply < LOW_PLY_HISTORY_SIZE)
-                    m.value += 2 * (*lowPlyHistory)[ply][m.from_to()] / (1 + ply);
+                    m.value += 4 * (*lowPlyHistory)[ply][m.from_to()] / (1 + ply);
             }
         }
 }
