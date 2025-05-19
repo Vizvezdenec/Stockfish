@@ -1243,7 +1243,7 @@ moves_loop:  // When in check, search starts here
                           + (*contHist[0])[movedPiece][move.to_sq()]
                           + (*contHist[1])[movedPiece][move.to_sq()] + 1000 * ss->inCheck - 3206;
             if (ss->ply < LOW_PLY_HISTORY_SIZE)
-                ss->statScore += 2 * (thisThread->lowPlyHistory[ss->ply][move.to_sq()] + 250 + 750 * rootNode) * (1 + 3 * !ss->inCheck);
+                ss->statScore += (thisThread->lowPlyHistory[ss->ply][move.to_sq()] + 250 + 750 * rootNode) * (1 + 3 * !ss->inCheck) / 2;
         }
 
         // Decrease/increase reduction for moves with a good/bad history
