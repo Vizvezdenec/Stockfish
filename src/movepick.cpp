@@ -159,7 +159,7 @@ void MovePicker::score() {
             m.value = (*captureHistory)[pc][to][type_of(capturedPiece)]
                     + 7 * int(PieceValue[capturedPiece]) + 1024 * bool(pos.check_squares(pt) & to);
             if (ply < LOW_PLY_CAPTURE_HISTORY_SIZE)
-                m.value += 2 * (*lowPlyCaptureHistory)[ply][pt][to][type_of(capturedPiece)] / (1 + ply);
+                m.value += (*lowPlyCaptureHistory)[ply][pt][to][type_of(capturedPiece)] / (1 + ply);
         }
 
         else if constexpr (Type == QUIETS)
