@@ -290,6 +290,7 @@ void Search::Worker::iterative_deepening() {
     int searchAgainCounter = 0;
 
     lowPlyHistory.fill(86);
+    lowPlyCaptureHistory.fill(0);
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
@@ -539,6 +540,7 @@ void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 void Search::Worker::clear() {
     mainHistory.fill(67);
     lowPlyHistory.fill(107);
+    lowPlyCaptureHistory.fill(0);
     captureHistory.fill(-688);
     pawnHistory.fill(-1287);
     pawnCorrectionHistory.fill(5);
@@ -927,7 +929,7 @@ Value Search::Worker::search(
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &thisThread->captureHistory);
+        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &thisThread->lowPlyCaptureHistory, &thisThread->captureHistory, ss->ply);
         Depth      probCutDepth = std::max(depth - 4, 0);
 
         while ((move = mp.next_move()) != Move::none())
@@ -974,8 +976,8 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea
-    probCutBeta = beta + 400 + 50 * std::max((depth - 4 - ttData.depth), 0) * std::max((depth - 4 - ttData.depth), 0);
-    if ((ttData.bound & BOUND_LOWER) && ttData.value >= probCutBeta
+    probCutBeta = beta + 400;
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -984,7 +986,7 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->lowPlyHistory,
+    MovePicker mp(pos, ttData.move, depth, &thisThread->mainHistory, &thisThread->lowPlyHistory, &thisThread->lowPlyCaptureHistory,
                   &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
 
     value = bestValue;
@@ -1643,7 +1645,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // Initialize a MovePicker object for the current position, and prepare to search
     // the moves. We presently use two stages of move generator in quiescence search:
     // captures, or evasions only when in check.
-    MovePicker mp(pos, ttData.move, DEPTH_QS, &thisThread->mainHistory, &thisThread->lowPlyHistory,
+    MovePicker mp(pos, ttData.move, DEPTH_QS, &thisThread->mainHistory, &thisThread->lowPlyHistory, &thisThread->lowPlyCaptureHistory,
                   &thisThread->captureHistory, contHist, &thisThread->pawnHistory, ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
@@ -1892,6 +1894,8 @@ void update_all_stats(const Position&      pos,
         // Increase stats for the best move in case it was a capture move
         capturedPiece = type_of(pos.piece_on(bestMove.to_sq()));
         captureHistory[movedPiece][bestMove.to_sq()][capturedPiece] << bonus * 1213 / 1024;
+        if (ss->ply < LOW_PLY_CAPTURE_HISTORY_SIZE)
+            workerThread.lowPlyCaptureHistory[ss->ply][type_of(pos.moved_piece(bestMove))][bestMove.to_sq()][type_of(pos.piece_on(bestMove.to_sq()))] << bonus;
     }
 
     // Extra penalty for a quiet early move that was not a TT move in
@@ -1905,6 +1909,8 @@ void update_all_stats(const Position&      pos,
         movedPiece    = pos.moved_piece(move);
         capturedPiece = type_of(pos.piece_on(move.to_sq()));
         captureHistory[movedPiece][move.to_sq()][capturedPiece] << -malus * 1388 / 1024;
+        if (ss->ply < LOW_PLY_CAPTURE_HISTORY_SIZE)
+            workerThread.lowPlyCaptureHistory[ss->ply][type_of(movedPiece)][move.to_sq()][capturedPiece] << -malus;
     }
 }
 
