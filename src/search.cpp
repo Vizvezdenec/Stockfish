@@ -859,7 +859,7 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 168639;
         };
 
-        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
+        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) + 50 * ((ss - 1)->isPvNode) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
@@ -1441,7 +1441,7 @@ moves_loop:  // When in check, search starts here
     {
         update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched, capturesSearched, depth,
                          ttData.move, moveCount);
-        if (!PvNode && ttData.move)
+        if (!PvNode)
         {
             int bonus = bestMove == ttData.move ? 800 : -879;
             ttMoveHistory << bonus;
