@@ -1502,6 +1502,7 @@ moves_loop:  // When in check, search starts here
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
+        && (!excludedMove || bestMove)
         && ((bestValue < ss->staticEval && bestValue < beta)  // negative correction & no fail high
             || (bestValue > ss->staticEval && bestMove)))     // positive correction & no fail low
     {
