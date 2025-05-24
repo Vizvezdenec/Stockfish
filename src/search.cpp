@@ -1441,7 +1441,7 @@ moves_loop:  // When in check, search starts here
     {
         update_all_stats(pos, ss, *this, bestMove, prevSq, quietsSearched, capturesSearched, depth,
                          ttData.move, moveCount);
-        if (!PvNode)
+        if (!PvNode && ttData.move)
         {
             int bonus = bestMove == ttData.move ? 800 : -879;
             ttMoveHistory << bonus;
@@ -1502,7 +1502,6 @@ moves_loop:  // When in check, search starts here
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
-        && (!excludedMove || bestMove)
         && ((bestValue < ss->staticEval && bestValue < beta)  // negative correction & no fail high
             || (bestValue > ss->staticEval && bestMove)))     // positive correction & no fail low
     {
