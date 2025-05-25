@@ -718,7 +718,7 @@ Value Search::Worker::search(
             else
             {
                 return is_decisive(ttData.value) || is_decisive(beta) || ttData.value <= alpha ? ttData.value :
-                       (ttData.value + beta) / 2;
+                       (3 * ttData.value + beta) / 4;
             }
         }
     }
