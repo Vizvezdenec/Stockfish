@@ -152,7 +152,7 @@ void MovePicker::score() {
 
         if constexpr (Type == CAPTURES)
             m.value = (*captureHistory)[pc][to][type_of(capturedPiece)]
-                    + 730 * int(PieceValue[capturedPiece]) / 128 + 1024 * bool(pos.check_squares(pt) & to);
+                    + 845 * int(PieceValue[capturedPiece]) / 128 + 1024 * bool(pos.check_squares(pt) & to);
 
         else if constexpr (Type == QUIETS)
         {
