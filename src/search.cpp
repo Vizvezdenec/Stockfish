@@ -716,7 +716,10 @@ Value Search::Worker::search(
                     return ttData.value;
             }
             else
-                return ttData.value;
+            {
+                return is_decisive(ttData.value) || is_decisive(beta) || ttData.value <= alpha ? ttData.value :
+                       (ttData.value + beta) / 2;
+            }
         }
     }
 
@@ -924,7 +927,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &thisThread->captureHistory);
-        Depth      probCutDepth = std::max(depth - (4 + 2 * cutNode), 0);
+        Depth      probCutDepth = std::max(depth - (4 + cutNode), 0);
 
         while ((move = mp.next_move()) != Move::none())
         {
