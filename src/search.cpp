@@ -905,7 +905,7 @@ Value Search::Worker::search(
         }
     }
 
-    improving |= ss->staticEval >= beta + 94;
+    improving |= (ss->staticEval >= beta + 94) || (eval >= beta + 100);
 
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
@@ -1458,7 +1458,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 90 * (ss->cutoffCnt <= 3);
         bonusScale += 144 * (!ss->inCheck && bestValue <= ss->staticEval - 104);
         bonusScale += 128 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 82);
-        bonusScale += 122 * (priorReduction >= 2);
 
         bonusScale = std::max(bonusScale, 0);
 
