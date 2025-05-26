@@ -813,7 +813,7 @@ Value Search::Worker::search(
                        unadjustedStaticEval, tt.generation());
     }
 
-    if ((ss - 1)->nmp && ss->staticEval >= beta + 50 * depth)
+    if ((ss - 1)->nmp && ss->staticEval >= beta + 25 * depth)
         return beta;
 
     // Use static evaluation difference to improve quiet move ordering
