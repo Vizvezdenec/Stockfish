@@ -655,6 +655,7 @@ Value Search::Worker::search(
     ss->statScore       = 0;
     ss->isPvNode        = PvNode;
     (ss + 2)->cutoffCnt = 0;
+    ss->nmp             = false;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -716,10 +717,7 @@ Value Search::Worker::search(
                     return ttData.value;
             }
             else
-            {
-                return is_decisive(ttData.value) || is_decisive(beta) || ttData.value <= alpha ? ttData.value :
-                       (7 * ttData.value + beta) / 8;
-            }
+                return ttData.value;
         }
     }
 
@@ -815,6 +813,9 @@ Value Search::Worker::search(
                        unadjustedStaticEval, tt.generation());
     }
 
+    if ((ss - 1)->nmp && ss->staticEval >= beta + 50 * depth)
+        return beta;
+
     // Use static evaluation difference to improve quiet move ordering
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture
         && (ttData.depth - 2) <= depth)
@@ -879,7 +880,11 @@ Value Search::Worker::search(
 
         do_null_move(pos, st);
 
+        ss->nmp = true;
+
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
+
+        ss->nmp = false;
 
         undo_null_move(pos);
 
