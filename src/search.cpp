@@ -716,10 +716,7 @@ Value Search::Worker::search(
                     return ttData.value;
             }
             else
-            {
-                return is_decisive(ttData.value) || is_decisive(beta) || ttData.value <= alpha ? ttData.value :
-                       beta;
-            }
+                return ttData.value;
         }
     }
 
@@ -1493,7 +1490,7 @@ moves_loop:  // When in check, search starts here
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
                        moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove,
-                       unadjustedStaticEval, tt.generation());
+                       (unadjustedStaticEval * 7 + ss->staticEval) / 8, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
