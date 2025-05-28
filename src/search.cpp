@@ -1490,7 +1490,7 @@ moves_loop:  // When in check, search starts here
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
                        moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove,
-                       (unadjustedStaticEval * 7 + ss->staticEval) / 8, tt.generation());
+                       (unadjustedStaticEval * 15 + ss->staticEval) / 16, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
