@@ -1490,7 +1490,7 @@ moves_loop:  // When in check, search starts here
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
                        moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove,
-                       (unadjustedStaticEval * 15 + bestValue) / 16, tt.generation());
+                       unadjustedStaticEval, tt.generation());
 
     // Adjust correction history
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
@@ -1609,7 +1609,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         }
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta)
+        if (bestValue >= beta + 2)
         {
             if (!is_decisive(bestValue))
                 bestValue = (bestValue + beta) / 2;
