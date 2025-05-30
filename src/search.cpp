@@ -1609,7 +1609,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         }
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta + 10 * PvNode)
+        if (bestValue >= beta + 20 * PvNode)
         {
             if (!is_decisive(bestValue))
                 bestValue = (bestValue + beta) / 2;
@@ -1623,7 +1623,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (bestValue > alpha)
             alpha = bestValue;
 
-        if (bestValue > beta)
+        if (bestValue >= beta)
             bestValue = beta - 1;
 
         futilityBase = ss->staticEval + 376;
