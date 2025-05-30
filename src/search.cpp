@@ -1609,7 +1609,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         }
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta + 8)
+        if (bestValue >= beta + 6 * PvNode)
         {
             if (!is_decisive(bestValue))
                 bestValue = (bestValue + beta) / 2;
