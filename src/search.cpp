@@ -1084,8 +1084,9 @@ moves_loop:  // When in check, search starts here
             {
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
-                  + (*contHist[1])[movedPiece][move.to_sq()]
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
+                  + (*contHist[1])[movedPiece][move.to_sq()] * !(ss->inCheck)
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
+                  - 1309 * ss->inCheck;
 
                 // Continuation history based pruning
                 if (history < -4229 * depth)
@@ -1609,7 +1610,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         }
 
         // Stand pat. Return immediately if static value is at least beta
-        if (bestValue >= beta + 3 * PvNode)
+        if (bestValue >= beta)
         {
             if (!is_decisive(bestValue))
                 bestValue = (bestValue + beta) / 2;
