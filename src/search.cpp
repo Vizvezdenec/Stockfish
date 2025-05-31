@@ -1086,7 +1086,7 @@ moves_loop:  // When in check, search starts here
                   (*contHist[0])[movedPiece][move.to_sq()]
                   + (*contHist[1])[movedPiece][move.to_sq()] * !(ss->inCheck)
                   + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                  - 1309 * ss->inCheck;
+                  - 1600 * ss->inCheck;
 
                 // Continuation history based pruning
                 if (history < -4229 * depth)
