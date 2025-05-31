@@ -986,6 +986,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
+    int dr = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1043,7 +1044,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            if (moveCount >= (3 + depth * depth) / (2 - improving))
+            if (moveCount >= (3 + (depth + dr) * (dr + depth)) / (2 - improving))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
@@ -1084,9 +1085,8 @@ moves_loop:  // When in check, search starts here
             {
                 int history =
                   (*contHist[0])[movedPiece][move.to_sq()]
-                  + (*contHist[1])[movedPiece][move.to_sq()] * !(ss->inCheck)
-                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()]
-                  - 1600 * ss->inCheck;
+                  + (*contHist[1])[movedPiece][move.to_sq()]
+                  + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
 
                 // Continuation history based pruning
                 if (history < -4229 * depth)
@@ -1398,7 +1398,10 @@ moves_loop:  // When in check, search starts here
                 {
                     // Reduce other moves if we have found at least one score improvement
                     if (depth > 2 && depth < 16 && !is_decisive(value))
+                    {
                         depth -= 2;
+                        dr++;
+                    }
 
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
