@@ -1221,7 +1221,7 @@ moves_loop:  // When in check, search starts here
             r += 1036 + allNode * 848;
 
         if (!capture && !givesCheck && ss->quietMoveStreak >= 2)
-            r += (ss->quietMoveStreak - 1) * (50 + 40 * (ttData.move && move.from_sq() == ttData.move.from_sq()));
+            r += (ss->quietMoveStreak - 1) * (50 + 65 * (ttData.move && move.from_sq() == ttData.move.from_sq()));
 
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
