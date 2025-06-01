@@ -1221,7 +1221,7 @@ moves_loop:  // When in check, search starts here
             r += 1036 + allNode * 848;
 
         if (!capture && !givesCheck && ss->quietMoveStreak >= 2)
-            r += (ss->quietMoveStreak - 1) * 50;
+            r += (ss->quietMoveStreak - 1) * (50 + 10 * (ttData.move && move.from_sq() == ttData.move.from_sq()));
 
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
@@ -1471,7 +1471,7 @@ moves_loop:  // When in check, search starts here
     {
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
-        thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 800 + std::min(100 * depth, 1000);
+        thisThread->captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 1080;
     }
 
     if (PvNode)
