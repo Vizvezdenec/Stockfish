@@ -1214,14 +1214,14 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if ttMove is a capture
         if (ttCapture)
-            r += 1210 + (depth < 8) * 963;
+            r += 1210 + (depth < 8) * 963 - 666 * capture;
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 2)
             r += 1036 + allNode * 848;
 
         if (!capture && !givesCheck && ss->quietMoveStreak >= 2)
-            r += (ss->quietMoveStreak - 1) * (50 + 65 * (ttData.move && move.from_sq() == ttData.move.from_sq()));
+            r += (ss->quietMoveStreak - 1) * 50;
 
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
