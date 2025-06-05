@@ -676,7 +676,7 @@ Value Search::Worker::search(
     if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
         && is_valid(ttData.value)  // Can happen when !ttHit or when access race in probe()
         && (ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
-        && (cutNode == (ttData.value >= beta) || depth > 5))
+        && (cutNode >= (ttData.value >= beta) || depth > 5))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttData.move && ttData.value >= beta)
@@ -851,7 +851,7 @@ Value Search::Worker::search(
     }
 
     // Step 9. Null move search with verification search
-    if (cutNode == 1 && (ss - 1)->currentMove != Move::null() && eval >= beta
+    if (cutNode >= 1 && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 19 * depth + 389 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
@@ -1166,7 +1166,7 @@ moves_loop:  // When in check, search starts here
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
-            else if (cutNode == 1)
+            else if (cutNode >= 1)
                 extension = -2;
         }
 
@@ -1187,7 +1187,7 @@ moves_loop:  // When in check, search starts here
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
             r -= 2437 + PvNode * 926 + (ttData.value > alpha) * 901
-               + (ttData.depth >= depth) * (943 + (cutNode == 1) * 1180);
+               + (ttData.depth >= depth) * (943 + (cutNode >= 1) * 1180);
 
         // These reduction adjustments have no proven non-linear scaling
 
@@ -1196,8 +1196,8 @@ moves_loop:  // When in check, search starts here
         r -= std::abs(correctionValue) / 28047;
 
         // Increase reduction for cut nodes
-        if (cutNode == 1)
-            r += 2864 + 966 * !ttData.move;
+        if (cutNode >= 1)
+            r += (2864 + 966 * !ttData.move) / cutNode;
 
         // Increase reduction if ttMove is a capture
         if (ttCapture)
