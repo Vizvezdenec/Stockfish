@@ -565,11 +565,11 @@ void Search::Worker::clear() {
 // Main search function for both PV and non-PV nodes
 template<NodeType nodeType>
 Value Search::Worker::search(
-  Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, bool cutNode) {
+  Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, int cutNode) {
 
     constexpr bool PvNode   = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
-    const bool     allNode  = !(PvNode || cutNode);
+    const bool     allNode  = !PvNode && cutNode == 0;
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
@@ -676,7 +676,7 @@ Value Search::Worker::search(
     if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
         && is_valid(ttData.value)  // Can happen when !ttHit or when access race in probe()
         && (ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
-        && (cutNode == (ttData.value >= beta) || depth > 5))
+        && (cutNode >= (ttData.value >= beta) || depth > 5))
     {
         // If ttMove is quiet, update move sorting heuristics on TT hit
         if (ttData.move && ttData.value >= beta)
@@ -851,7 +851,7 @@ Value Search::Worker::search(
     }
 
     // Step 9. Null move search with verification search
-    if (cutNode && (ss - 1)->currentMove != Move::null() && eval >= beta
+    if (cutNode >= 1 && (ss - 1)->currentMove != Move::null() && eval >= beta
         && ss->staticEval >= beta - 19 * depth + 389 && !excludedMove && pos.non_pawn_material(us)
         && ss->ply >= thisThread->nmpMinPly && !is_loss(beta))
     {
@@ -866,7 +866,7 @@ Value Search::Worker::search(
 
         do_null_move(pos, st);
 
-        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, eval < ss->staticEval && eval < beta + 300);
+        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, 2);
 
         undo_null_move(pos);
 
@@ -882,7 +882,7 @@ Value Search::Worker::search(
             // until ply exceeds nmpMinPly.
             thisThread->nmpMinPly = ss->ply + 3 * (depth - R) / 4;
 
-            Value v = search<NonPV>(pos, ss, beta - 1, beta, depth - R, false);
+            Value v = search<NonPV>(pos, ss, beta - 1, beta, depth - R, 2);
 
             thisThread->nmpMinPly = 0;
 
@@ -939,7 +939,7 @@ Value Search::Worker::search(
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
-                                       !cutNode);
+                                       cutNode == 2 ? 2 : !cutNode);
 
             undo_move(pos, move);
 
@@ -1166,7 +1166,7 @@ moves_loop:  // When in check, search starts here
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
-            else if (cutNode)
+            else if (cutNode >= 1)
                 extension = -2;
         }
 
@@ -1187,7 +1187,7 @@ moves_loop:  // When in check, search starts here
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
             r -= 2437 + PvNode * 926 + (ttData.value > alpha) * 901
-               + (ttData.depth >= depth) * (943 + cutNode * 1180);
+               + (ttData.depth >= depth) * (943 + (cutNode >= 1) * 1180);
 
         // These reduction adjustments have no proven non-linear scaling
 
@@ -1256,7 +1256,7 @@ moves_loop:  // When in check, search starts here
                 newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
-                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, cutNode == 2 ? cutNode : !cutNode);
 
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1508);
@@ -1276,7 +1276,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - (r > 3564) - (r > 4969 && newDepth > 2), !cutNode);
+                                   newDepth - (r > 3564) - (r > 4969 && newDepth > 2), cutNode == 2 ? cutNode : !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
@@ -1290,7 +1290,7 @@ moves_loop:  // When in check, search starts here
             if (move == ttData.move && thisThread->rootDepth > 8)
                 newDepth = std::max(newDepth, 1);
 
-            value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
+            value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, 0);
         }
 
         // Step 19. Undo move
