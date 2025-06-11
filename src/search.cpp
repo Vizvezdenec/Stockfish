@@ -866,7 +866,7 @@ Value Search::Worker::search(
 
         do_null_move(pos, st);
 
-        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, eval < beta + 100 && eval < ss->staticEval);
+        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, eval < beta + 150 && eval < ss->staticEval);
 
         undo_null_move(pos);
 
