@@ -603,7 +603,7 @@ Value Search::Worker::search(
     Value bestValue, value, eval, maxValue, probCutBeta;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
-    int   priorReduction;
+    int   priorReduction, quietCount;
     Piece movedPiece;
 
     ValueList<Move, 32> capturesSearched;
@@ -974,6 +974,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
+    quietCount = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -983,9 +984,6 @@ moves_loop:  // When in check, search starts here
 
         if (move == excludedMove)
             continue;
-
-        if (PvNode && !rootNode && !is_decisive(bestValue) && beta - alpha == 1)
-            break;
 
         // Check for legality
         if (!pos.legal(move))
@@ -1011,6 +1009,7 @@ moves_loop:  // When in check, search starts here
 
         extension  = 0;
         capture    = pos.capture_stage(move);
+        quietCount += !capture;
         movedPiece = pos.moved_piece(move);
         givesCheck = pos.gives_check(move);
 
@@ -1034,7 +1033,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            if (moveCount >= (3 + depth * depth) / (2 - improving))
+            if (moveCount >= (3 + depth * depth) / (2 - improving) || quietCount >= (1 + depth * depth) / (2 - improving))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
