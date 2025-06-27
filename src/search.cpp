@@ -984,6 +984,9 @@ moves_loop:  // When in check, search starts here
         if (move == excludedMove)
             continue;
 
+        if (PvNode && !rootNode && !is_decisive(bestValue) && beta - alpha == 1)
+            break;
+
         // Check for legality
         if (!pos.legal(move))
             continue;
