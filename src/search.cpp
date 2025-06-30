@@ -603,7 +603,7 @@ Value Search::Worker::search(
     Value bestValue, value, eval, maxValue, probCutBeta;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
-    int   priorReduction, quietCount;
+    int   priorReduction;
     Piece movedPiece;
 
     ValueList<Move, 32> capturesSearched;
@@ -974,7 +974,6 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    quietCount = 0;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1009,7 +1008,6 @@ moves_loop:  // When in check, search starts here
 
         extension  = 0;
         capture    = pos.capture_stage(move);
-        quietCount += !capture;
         movedPiece = pos.moved_piece(move);
         givesCheck = pos.gives_check(move);
 
@@ -1033,7 +1031,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            if (moveCount >= (3 + depth * depth) / (2 - improving) || quietCount >= (1 + depth * depth) / (2 - improving))
+            if (moveCount >= (3 + depth * depth) / (2 - improving))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
@@ -1375,11 +1373,11 @@ moves_loop:  // When in check, search starts here
                 if (PvNode && !rootNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
 
-                if (value >= beta)
+                if (value >= beta - PvNode)
                 {
                     // (* Scaler) Especially if they make cutoffCnt increment more often.
-                    ss->cutoffCnt += (extension < 2) || PvNode;
-                    assert(value >= beta);  // Fail high
+                    ss->cutoffCnt += (extension < 2) || (PvNode && value >= beta);
+                    //assert(value >= beta);  // Fail high
                     break;
                 }
 
