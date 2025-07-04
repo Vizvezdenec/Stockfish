@@ -827,8 +827,6 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 175)
         depth--;
-    if (priorReduction < 0 && ss->staticEval + (ss - 1)->staticEval < -200)
-        depth++;
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
@@ -1143,7 +1141,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply * 2 > thisThread->rootDepth * 3) * 54;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (priorReduction < 0);
 
                 depth++;
             }
