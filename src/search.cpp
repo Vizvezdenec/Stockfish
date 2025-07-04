@@ -827,6 +827,8 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 175)
         depth--;
+    if (priorReduction < 0 && ss->staticEval + (ss - 1)->staticEval < -200)
+        depth++;
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
@@ -860,7 +862,7 @@ Value Search::Worker::search(
         assert(eval - beta >= 0);
 
         // Null move dynamic reduction based on depth
-        Depth R = 8 + depth / 2;
+        Depth R = 7 + depth / 3;
 
         ss->currentMove                   = Move::null();
         ss->continuationHistory           = &thisThread->continuationHistory[0][0][NO_PIECE][0];
