@@ -380,7 +380,7 @@ void Search::Worker::iterative_deepening() {
                 }
                 else if (bestValue >= beta)
                 {
-                    beta = std::min(bestValue + (delta + 3 * (bestValue - beta)) / 4 , VALUE_INFINITE);
+                    beta = std::min(bestValue + (3 * delta + (bestValue - beta)) / 4 , VALUE_INFINITE);
                     ++failedHighCnt;
                 }
                 else
