@@ -380,7 +380,7 @@ void Search::Worker::iterative_deepening() {
                 }
                 else if (bestValue >= beta)
                 {
-                    beta = std::min(bestValue + (3 * delta + (bestValue - beta)) / 4 , VALUE_INFINITE);
+                    beta = std::min(bestValue + delta, VALUE_INFINITE);
                     ++failedHighCnt;
                 }
                 else
@@ -1141,7 +1141,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply * 2 > thisThread->rootDepth * 3) * 54;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) - (priorReduction < 0) * priorReduction;
 
                 depth++;
             }
