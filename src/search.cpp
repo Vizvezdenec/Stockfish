@@ -1141,7 +1141,7 @@ moves_loop:  // When in check, search starts here
                                  - (ss->ply * 2 > thisThread->rootDepth * 3) * 54;
 
                 extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin) + (priorReduction < -1);
 
                 depth++;
             }
