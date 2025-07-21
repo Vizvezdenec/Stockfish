@@ -74,7 +74,7 @@ struct Stack {
     bool                        ttPv;
     bool                        ttHit;
     int                         cutoffCnt;
-    int                         reduction;
+    bool                        inLmr;
     bool                        isPvNode;
     int                         quietMoveStreak;
 };

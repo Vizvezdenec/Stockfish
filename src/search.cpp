@@ -604,8 +604,7 @@ Value Search::Worker::search(
     Depth extension, newDepth;
     Value bestValue, value, eval, maxValue, probCutBeta;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
-    bool  capture, ttCapture;
-    int   priorReduction;
+    bool  capture, ttCapture, lmr;
     Piece movedPiece;
 
     SearchedList capturesSearched;
@@ -652,8 +651,8 @@ Value Search::Worker::search(
 
     Square prevSq  = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     bestMove       = Move::none();
-    priorReduction = (ss - 1)->reduction;
-    (ss - 1)->reduction = 0;
+    lmr = (ss - 1)->inLmr;
+    (ss - 1)->inLmr = false;
     ss->statScore       = 0;
     ss->isPvNode        = PvNode;
     (ss + 2)->cutoffCnt = 0;
@@ -823,10 +822,8 @@ Value Search::Worker::search(
 
     opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
 
-    if (priorReduction != 0 && !opponentWorsening)
-        depth++;
-    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 175)
-        depth--;
+    if (lmr)
+        depth += !opponentWorsening - (depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 175);
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
@@ -1240,9 +1237,9 @@ moves_loop:  // When in check, search starts here
                                            newDepth + !allNode + (PvNode && !bestMove)))
                     + (ss - 1)->isPvNode;
 
-            ss->reduction = newDepth - d;
+            ss->inLmr = true;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
-            ss->reduction = 0;
+            ss->inLmr = false;
 
             // Do a full-depth search when reduced LMR search fails high
             // (*Scaler) Usually doing more shallower searches
