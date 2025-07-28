@@ -1129,8 +1129,6 @@ moves_loop:  // When in check, search starts here
                 int corrValAdj   = std::abs(correctionValue) / 249096;
                 int doubleMargin = 4 + 205 * PvNode - 223 * !ttCapture - corrValAdj
                                  - 959 * ttMoveHistory / 131072 - (ss->ply > rootDepth) * 45;
-                if (!PvNode)
-                    doubleMargin = 0;
                 int tripleMargin = 80 + 276 * PvNode - 249 * !ttCapture + 86 * ss->ttPv - corrValAdj
                                  - (ss->ply * 2 > rootDepth * 3) * 53;
 
@@ -1221,7 +1219,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 1 + PvNode)) + PvNode;
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 1 + PvNode)) + (PvNode && depth > 3);
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
