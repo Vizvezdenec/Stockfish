@@ -1646,7 +1646,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 continue;
 
             // Do not search moves with bad enough SEE values
-            if (!pos.see_ge(move, -74))
+            if (!pos.see_ge(move, -74 - 300 * (move.to_sq() == prevSq)))
                 continue;
         }
 
