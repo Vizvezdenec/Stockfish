@@ -1165,9 +1165,6 @@ moves_loop:  // When in check, search starts here
                 extension = -2;
         }
 
-        if (!capture)
-            ss->statScore = 2 * pawnHistory[pawn_structure_index(pos)][movedPiece][move.to_sq()];
-
         // Step 16. Make the move
         do_move(pos, move, st, givesCheck, ss);
 
@@ -1208,7 +1205,7 @@ moves_loop:  // When in check, search starts here
             ss->statScore = 782 * int(PieceValue[pos.captured_piece()]) / 128
                           + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
         else
-            ss->statScore += 2 * mainHistory[us][move.from_to()]
+            ss->statScore = 2 * mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
                           + (*contHist[1])[movedPiece][move.to_sq()];
 
