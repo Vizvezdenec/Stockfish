@@ -956,7 +956,7 @@ moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea
     probCutBeta = beta + 417;
-    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 - (ss->staticEval - beta) / 512 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -1406,7 +1406,7 @@ moves_loop:  // When in check, search starts here
     }
 
     // Bonus for prior quiet countermove that caused the fail low
-    else if (!priorCapture && prevSq != SQ_NONE && depth > 1 && !PvNode)
+    else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonusScale = -215;
         bonusScale += std::min(-(ss - 1)->statScore / 103, 337);
