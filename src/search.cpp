@@ -861,7 +861,7 @@ Value Search::Worker::search(
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth
-        Depth R = 5 + depth / 2;
+        Depth R = 7 + depth / 3;
 
         ss->currentMove                   = Move::null();
         ss->continuationHistory           = &continuationHistory[0][0][NO_PIECE][0];
@@ -1406,7 +1406,7 @@ moves_loop:  // When in check, search starts here
     }
 
     // Bonus for prior quiet countermove that caused the fail low
-    else if (!priorCapture && prevSq != SQ_NONE)
+    else if (!priorCapture && prevSq != SQ_NONE && depth > 1)
     {
         int bonusScale = -215;
         bonusScale += std::min(-(ss - 1)->statScore / 103, 337);
