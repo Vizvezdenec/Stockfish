@@ -1428,9 +1428,6 @@ moves_loop:  // When in check, search starts here
         if (type_of(pos.piece_on(prevSq)) != PAWN && ((ss - 1)->currentMove).type_of() != PROMOTION)
             pawnHistory[pawn_history_index(pos)][pos.piece_on(prevSq)][prevSq]
               << scaledBonus * 1127 / 32768;
-
-        if (ss->ply < LOW_PLY_HISTORY_SIZE + 1 && !rootNode)
-            lowPlyHistory[ss->ply - 1][((ss - 1)->currentMove).from_to()] << scaledBonus * 397 / 32768;
     }
 
     // Bonus for prior capture countermove that caused the fail low
@@ -1438,7 +1435,7 @@ moves_loop:  // When in check, search starts here
     {
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
-        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 1042;
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 1042 + std::min(64 * depth, 552) - 128;
     }
 
     if (PvNode)
