@@ -1233,7 +1233,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch = d < newDepth && value > (bestValue + 43 + 2 * newDepth);
-                const bool doShallowerSearch = value < bestValue + (depth <= 6 ? 11 : 6);
+                const bool doShallowerSearch = value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
@@ -1416,7 +1416,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 141 * (!ss->inCheck && bestValue <= ss->staticEval - 94);
         bonusScale += 141 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 76);
 
-        bonusScale = std::max(bonusScale, 0);
+        bonusScale = std::max(bonusScale, 20);
 
         const int scaledBonus = std::min(155 * depth - 88, 1416) * bonusScale;
 
