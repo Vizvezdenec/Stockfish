@@ -1435,7 +1435,7 @@ moves_loop:  // When in check, search starts here
     {
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
-        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 1042 + std::min(64 * depth, 552) - 128;
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 1042;
     }
 
     if (PvNode)
