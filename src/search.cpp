@@ -1252,8 +1252,8 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 1139;
 
-            const int threshold1 = depth <= 4 ? 2000 : 3200;
-            const int threshold2 = depth <= 4 ? 3500 : 4600;
+            const int threshold1 = depth <= 4 ? 2000 : 3600;
+            const int threshold2 = depth <= 4 ? 3500 : 5000;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
