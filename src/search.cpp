@@ -898,7 +898,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
     // (*Scaler) Especially if they make IIR less aggressive.
-    if (!allNode && depth >= 6 && !ttData.move && priorReduction == 0)
+    if (!allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
         depth--;
 
     // Step 11. ProbCut
@@ -1038,7 +1038,7 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
+                if (!givesCheck && lmrDepth < 7 && !ss->inCheck && PieceValue[type_of(movedPiece)] >= PieceValue[type_of(pos.piece_on(move.to_sq()))])
                 {
 
                     Value futilityValue = ss->staticEval + 232 + 224 * lmrDepth
