@@ -178,7 +178,7 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
             }
 
             if (ply < LOW_PLY_HISTORY_SIZE)
-                m.value += 12 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
+                m.value += 8 * (*lowPlyHistory)[ply][m.from_to()] / (1 + ply);
         }
 
         else  // Type == EVASIONS
@@ -189,7 +189,7 @@ ExtMove* MovePicker::score(MoveList<Type>& ml) {
             {
                 m.value = (*mainHistory)[us][m.from_to()] + (*continuationHistory[0])[pc][to];
                 if (ply < LOW_PLY_HISTORY_SIZE)
-                    m.value += 3 * (*lowPlyHistory)[ply][m.from_to()] / (1 + 2 * ply);
+                    m.value += 2 * (*lowPlyHistory)[ply][m.from_to()] / (1 + ply);
             }
         }
     }
