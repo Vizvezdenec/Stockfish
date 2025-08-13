@@ -826,13 +826,13 @@ Value Search::Worker::search(
 
     if (priorReduction >= (depth < 10 ? 1 : 3) && !opponentWorsening)
         depth++;
-    if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 177)
+    if (priorReduction >= (depth < 10 ? 1 : 3) && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 177)
         depth--;
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
     // For PvNodes, we must have a guard against mates being returned.
-    if (!PvNode && eval < alpha - 495 - 290 * depth * depth && priorReduction <= 0)
+    if (!PvNode && eval < alpha - 495 - 290 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 8. Futility pruning: child node
