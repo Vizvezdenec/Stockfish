@@ -826,7 +826,7 @@ Value Search::Worker::search(
 
     if (priorReduction >= (depth < 10 ? 1 : 3) && !opponentWorsening)
         depth++;
-    if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 177 + 30 - 30 * (depth < 12))
+    if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 177)
         depth--;
 
     // Step 7. Razoring
@@ -1128,7 +1128,7 @@ moves_loop:  // When in check, search starts here
             {
                 int corrValAdj   = std::abs(correctionValue) / 249096;
                 int doubleMargin = 4 + 205 * PvNode - 223 * !ttCapture - corrValAdj
-                                 - 959 * ttMoveHistory / 131072 - (ss->ply > rootDepth) * 45;
+                                 - 959 * ttMoveHistory / 131072 - (ss->ply > rootDepth) * 45 - (ss->ply > 2 * rootDepth) * 45;
                 int tripleMargin = 80 + 276 * PvNode - 249 * !ttCapture + 86 * ss->ttPv - corrValAdj
                                  - (ss->ply * 2 > rootDepth * 3) * 53;
 
