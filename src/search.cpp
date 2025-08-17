@@ -1251,7 +1251,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 1199 + 35 * msb(depth);
 
-            if (depth <= 4)
+            if (depth <= 4 && !ss->ttPv)
                 r += 1150;
 
             // Note that if expected reduction is high, we reduce search depth here
@@ -1338,7 +1338,7 @@ moves_loop:  // When in check, search starts here
 
         // In case we have an alternative move equal in eval to the current bestmove,
         // promote it to bestmove by pretending it just exceeds alpha (but not beta).
-        int inc = (value == bestValue && ss->ply + 2 >= rootDepth && (int(nodes) & 3) == 0
+        int inc = (value == bestValue && ss->ply + 2 >= rootDepth && (int(nodes) & 14) == 0
                    && !is_win(std::abs(value) + 1));
 
         if (value + inc > bestValue)
