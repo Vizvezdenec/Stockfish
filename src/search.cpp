@@ -657,9 +657,7 @@ Value Search::Worker::search(
     Square prevSq  = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     bestMove       = Move::none();
     priorReduction = (ss - 1)->reduction;
-    int priorLeftReduction = (ss - 1)->leftReduction;
     (ss - 1)->reduction = 0;
-    (ss - 1)->leftReduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
 
@@ -847,11 +845,10 @@ Value Search::Worker::search(
                  - improving * futilityMult * 2          //
                  - opponentWorsening * futilityMult / 3  //
                  + (ss - 1)->statScore / 356             //
-                 + std::abs(correctionValue) / 171290
-                 - priorLeftReduction / 64;
+                 + std::abs(correctionValue) / 171290;
         };
 
-        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
+        if (!ss->ttPv && !(eval < ss->staticEval && ttData.depth < depth) && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
@@ -1224,9 +1221,7 @@ moves_loop:  // When in check, search starts here
             Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 1 + PvNode)) + PvNode;
 
             ss->reduction = newDepth - d;
-            ss->leftReduction = r - (r / 1024) * 1024;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
-            ss->leftReduction = 0;
             ss->reduction = 0;
 
             // Do a full-depth search when reduced LMR search fails high
