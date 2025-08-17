@@ -657,7 +657,9 @@ Value Search::Worker::search(
     Square prevSq  = ((ss - 1)->currentMove).is_ok() ? ((ss - 1)->currentMove).to_sq() : SQ_NONE;
     bestMove       = Move::none();
     priorReduction = (ss - 1)->reduction;
+    int priorLeftReduction = (ss - 1)->leftReduction;
     (ss - 1)->reduction = 0;
+    (ss - 1)->leftReduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
 
@@ -839,7 +841,7 @@ Value Search::Worker::search(
     // The depth condition is important for mate finding.
     {
         auto futility_margin = [&](Depth d) {
-            Value futilityMult = 90 - 20 * (cutNode && !ss->ttHit);
+            Value futilityMult = 90 - 20 * (cutNode && !ss->ttHit) - priorLeftReduction / 32;
 
             return futilityMult * d                      //
                  - improving * futilityMult * 2          //
@@ -1221,7 +1223,9 @@ moves_loop:  // When in check, search starts here
             Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 1 + PvNode)) + PvNode;
 
             ss->reduction = newDepth - d;
+            ss->leftReduction = r - (r / 1024) * 1024;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
+            ss->leftReduction = 0;
             ss->reduction = 0;
 
             // Do a full-depth search when reduced LMR search fails high
@@ -1361,7 +1365,7 @@ moves_loop:  // When in check, search starts here
                 }
 
                 // Reduce other moves if we have found at least one score improvement
-                if (depth > 2 && depth < 16 && !is_decisive(value) && !inc)
+                if (depth > 2 && depth < 16 && !is_decisive(value))
                     depth -= 2;
 
                 assert(depth > 0);
