@@ -1021,6 +1021,8 @@ moves_loop:  // When in check, search starts here
         if (ss->ttPv)
             r += 931;
 
+        r += moveCount * 33;
+
         // Step 14. Pruning at shallow depth.
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
@@ -1178,7 +1180,7 @@ moves_loop:  // When in check, search starts here
         // These reduction adjustments have no proven non-linear scaling
 
         r += 679 - 6 * msb(depth);  // Base reduction offset to compensate for other tweaks
-        r -= moveCount * (67 - 2 * msb(depth));
+        r -= moveCount * (100 - 2 * msb(depth));
         r -= std::abs(correctionValue) / 27160;
 
         // Increase reduction for cut nodes
@@ -1338,7 +1340,8 @@ moves_loop:  // When in check, search starts here
 
         // In case we have an alternative move equal in eval to the current bestmove,
         // promote it to bestmove by pretending it just exceeds alpha (but not beta).
-        int inc = false;
+        int inc = (value == bestValue && ss->ply + 2 >= rootDepth && (int(nodes) & 14) == 0
+                   && !is_win(std::abs(value) + 1));
 
         if (value + inc > bestValue)
         {
