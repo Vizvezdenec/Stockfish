@@ -848,7 +848,7 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 171290;
         };
 
-        if (!ss->ttPv && eval >= ss->staticEval && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
+        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
@@ -916,6 +916,10 @@ Value Search::Worker::search(
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
         Depth      dynamicReduction = (ss->staticEval - beta) / 300;
         Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
+
+        if (is_valid(ttData.value) && !is_decisive(ttData.value) && ttData.value >= probCutBeta && 
+            ttData.depth > probCutDepth && ttCapture && (ttData.bound & BOUND_LOWER))
+            return ttData.value - (probCutBeta - beta);
 
         while ((move = mp.next_move()) != Move::none())
         {
