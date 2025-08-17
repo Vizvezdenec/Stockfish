@@ -848,7 +848,7 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 171290;
         };
 
-        if (!ss->ttPv && !(eval < ss->staticEval && ttData.depth <= depth) && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
+        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
@@ -1338,8 +1338,7 @@ moves_loop:  // When in check, search starts here
 
         // In case we have an alternative move equal in eval to the current bestmove,
         // promote it to bestmove by pretending it just exceeds alpha (but not beta).
-        int inc = (value == bestValue && ss->ply + 2 >= rootDepth && (int(nodes) & 14) == 0
-                   && !is_win(std::abs(value) + 1));
+        int inc = false;
 
         if (value + inc > bestValue)
         {
