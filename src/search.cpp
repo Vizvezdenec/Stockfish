@@ -918,7 +918,7 @@ Value Search::Worker::search(
         Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
 
         if (is_valid(ttData.value) && !is_decisive(ttData.value) && ttData.value >= probCutBeta && 
-            ttData.depth > probCutDepth && ttCapture && (ttData.bound & BOUND_LOWER))
+            ttData.depth >= probCutDepth && ttCapture && (ttData.bound & BOUND_LOWER))
             return ttData.value - (probCutBeta - beta);
 
         while ((move = mp.next_move()) != Move::none())
