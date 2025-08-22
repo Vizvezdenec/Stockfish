@@ -909,11 +909,11 @@ Value Search::Worker::search(
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
-        && !(is_valid(ttData.value) && ttData.value < probCutBeta))
+        && !(is_valid(ttData.value) && ttData.value < probCutBeta - 22))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
-        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, ttCapture && ttData.value >= probCutBeta - 88 && (ttData.bound & BOUND_LOWER) && ttData.depth > 0);
+        MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory, ttCapture && ttData.value >= probCutBeta - 22 && (ttData.bound & BOUND_LOWER) && ttData.depth > 0);
         Depth      dynamicReduction = (ss->staticEval - beta) / 306;
         Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
 
