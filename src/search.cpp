@@ -915,7 +915,7 @@ Value Search::Worker::search(
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
         Depth      dynamicReduction = (ss->staticEval - beta) / 306;
-        Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
+        Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 1);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -944,7 +944,7 @@ Value Search::Worker::search(
             {
                 // Save ProbCut data into transposition table
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
-                               std::max(probCutDepth, 0) + 1, move, unadjustedStaticEval, tt.generation());
+                               probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
