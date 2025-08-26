@@ -931,7 +931,7 @@ Value Search::Worker::search(
             do_move(pos, move, st, ss);
 
             if (move != ttData.move)
-                probCutDepth = std::min(depth, probCutDepth);
+                probCutDepth = std::min(depth - 1, probCutDepth);
 
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
