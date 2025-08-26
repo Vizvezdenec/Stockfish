@@ -915,7 +915,7 @@ Value Search::Worker::search(
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
         Depth      dynamicReduction = (ss->staticEval - beta) / 306;
-        Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 1);
+        Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -929,6 +929,9 @@ Value Search::Worker::search(
             movedPiece = pos.moved_piece(move);
 
             do_move(pos, move, st, ss);
+
+            if (move != ttData.move)
+                probCutDepth = std::min(depth, probCutDepth);
 
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
