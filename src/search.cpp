@@ -851,9 +851,8 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 158105;
         };
 
-        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
-            && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval)
-            && !(eval < ss->staticEval && eval - 3 * futility_margin(depth) < beta))
+        if (!ss->ttPv && depth < 14 && (eval * 7 + ss->staticEval) / 8 - futility_margin(depth) >= beta && eval >= beta
+            && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
 
