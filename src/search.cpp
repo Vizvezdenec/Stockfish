@@ -608,7 +608,7 @@ Value Search::Worker::search(
     Key   posKey;
     Move  move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, eval, maxValue, probCutBeta;
+    Value bestValue, value, maxValue, probCutBeta;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
     int   priorReduction;
@@ -779,12 +779,12 @@ Value Search::Worker::search(
     if (ss->inCheck)
     {
         // Skip early pruning when in check
-        ss->staticEval = eval = (ss - 2)->staticEval;
+        ss->staticEval = (ss - 2)->staticEval;
         improving             = false;
         goto moves_loop;
     }
     else if (excludedMove)
-        unadjustedStaticEval = eval = ss->staticEval;
+        unadjustedStaticEval = ss->staticEval;
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
@@ -792,17 +792,12 @@ Value Search::Worker::search(
         if (!is_valid(unadjustedStaticEval))
             unadjustedStaticEval = evaluate(pos);
 
-        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
-
-        // ttValue can be used as a better position evaluation
-        if (is_valid(ttData.value)
-            && (ttData.bound & (ttData.value > eval ? BOUND_LOWER : BOUND_UPPER)))
-            eval = ttData.value;
+        ss->staticEval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
     }
     else
     {
         unadjustedStaticEval = evaluate(pos);
-        ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
+        ss->staticEval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
 
         // Static evaluation is saved as it was before adjustment by correction history
         ttWriter.write(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_UNSEARCHED, Move::none(),
@@ -835,7 +830,7 @@ Value Search::Worker::search(
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
     // For PvNodes, we must have a guard against mates being returned.
-    if (!PvNode && eval < alpha - 514 - 294 * depth * depth)
+    if (!PvNode && ss->staticEval < alpha - 514 - 294 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 8. Futility pruning: child node
@@ -851,9 +846,9 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 158105;
         };
 
-        if (!ss->ttPv && depth < 14 && (eval * 7 + ss->staticEval) / 8 - futility_margin(depth) >= beta && eval >= beta
-            && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-            return beta + (eval - beta) / 3;
+        if (!ss->ttPv && depth < 14 && ss->staticEval - futility_margin(depth) >= beta && ss->staticEval >= beta
+            && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(ss->staticEval))
+            return beta + (ss->staticEval - beta) / 3;
     }
 
     // Step 9. Null move search with verification search
