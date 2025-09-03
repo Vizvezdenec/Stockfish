@@ -850,7 +850,7 @@ Value Search::Worker::search(
             return futilityMult * d                                //
                  - 2094 * improving * futilityMult / 1024          //
                  - 1324 * opponentWorsening * futilityMult / 4096  //
-                 - 666 * (cutNode && !ss->ttHit) * futilityMult / 1024
+                 - 333 * (cutNode && !ss->ttHit) * futilityMult / 1024
                  + (ss - 1)->statScore / 331                       //
                  + std::abs(correctionValue) / 158105;
         };
