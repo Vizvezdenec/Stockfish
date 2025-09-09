@@ -932,9 +932,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      dynamicReduction = std::max((ss->staticEval - beta) / 306, -1);
-        Depth      probCutDepth     = std::max(depth - 5 - dynamicReduction, 0);
-        probCutDepth = std::max(depth - 6, probCutDepth);
+        Depth      probCutDepth     = depth - 5;
 
         while ((move = mp.next_move()) != Move::none())
         {
