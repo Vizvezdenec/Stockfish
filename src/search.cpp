@@ -853,12 +853,6 @@ Value Search::Worker::search(
     if (!PvNode && eval < alpha - 514 - 294 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha, beta);
 
-        // Step 10. Internal iterative reductions
-    // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
-    // (*Scaler) Especially if they make IIR less aggressive.
-    if (!allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
-        depth--;
-
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
     {
@@ -918,6 +912,12 @@ Value Search::Worker::search(
     }
 
     improving |= ss->staticEval >= beta;
+
+    // Step 10. Internal iterative reductions
+    // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
+    // (*Scaler) Especially if they make IIR less aggressive.
+    if (!allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
+        depth--;
 
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
@@ -1185,6 +1185,7 @@ moves_loop:  // When in check, search starts here
         r += 543;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
         r -= std::abs(correctionValue) / 30450;
+        r -= std::max(correctionValue / 30450, 0);
 
         // Increase reduction for cut nodes
         if (cutNode)
