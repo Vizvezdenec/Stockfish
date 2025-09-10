@@ -853,6 +853,12 @@ Value Search::Worker::search(
     if (!PvNode && eval < alpha - 514 - 294 * depth * depth)
         return qsearch<NonPV>(pos, ss, alpha, beta);
 
+        // Step 10. Internal iterative reductions
+    // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
+    // (*Scaler) Especially if they make IIR less aggressive.
+    if (!allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
+        depth--;
+
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
     {
@@ -870,12 +876,6 @@ Value Search::Worker::search(
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
-
-        // Step 10. Internal iterative reductions
-    // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
-    // (*Scaler) Especially if they make IIR less aggressive.
-    if (!allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
-        depth--;
 
     // Step 9. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 18 * depth + 390 && !excludedMove
