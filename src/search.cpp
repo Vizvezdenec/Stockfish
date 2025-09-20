@@ -1244,6 +1244,9 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 1118;
 
+            if (move == ttData.move && ss->ttPv && ttData.depth > 2 && rootDepth > 8)
+                newDepth = std::max(newDepth, 1);
+
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
                                    newDepth - (r > 3212) - (r > 4784 && newDepth > 2), !cutNode);
@@ -1257,7 +1260,7 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if (move == ttData.move && ttData.depth > 4 && rootDepth > 8)
+            if (move == ttData.move && rootDepth > 8)
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
