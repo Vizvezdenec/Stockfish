@@ -855,7 +855,7 @@ Value Search::Worker::search(
         };
 
         if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
-            && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
+            && (!ttData.move || ttCapture || eval - 2 * futility_margin(depth) - 200 >= beta) && !is_loss(beta) && !is_win(eval))
             return beta + (eval - beta) / 3;
     }
 
@@ -1345,7 +1345,7 @@ moves_loop:  // When in check, search starts here
                 if (value >= beta)
                 {
                     // (*Scaler) Especially if they make cutoffCnt increment more often.
-                    ss->cutoffCnt += (extension < 2) || PvNode || value >= beta + 600;
+                    ss->cutoffCnt += (extension < 2) || PvNode;
                     assert(value >= beta);  // Fail high
                     break;
                 }
