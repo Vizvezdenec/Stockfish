@@ -860,7 +860,7 @@ Value Search::Worker::search(
     }
 
     // Step 9. Null move search with verification search
-    if (cutNode && ss->staticEval >= beta - 18 * depth + 390 && !excludedMove
+    if (cutNode && ss->staticEval >= std::min(beta - 18 * depth + 390 , beta + 200) && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && !is_loss(beta))
     {
         assert((ss - 1)->currentMove != Move::null());
@@ -1256,8 +1256,8 @@ moves_loop:  // When in check, search starts here
             (ss + 1)->pv[0] = Move::none();
 
             // Extend move from transposition table if we are about to dive into qsearch.
-            if (move == ttData.move && ttData.depth > depth && rootDepth > 8 && newDepth < 2)
-                newDepth++;
+            if (move == ttData.move && ttData.depth > 1 && rootDepth > 8)
+                newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
         }
