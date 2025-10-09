@@ -118,7 +118,7 @@ void update_correction_history(const Position& pos,
         const Square to = m.to_sq();
         const Piece  pc = pos.piece_on(m.to_sq());
         (*(ss - 2)->continuationCorrectionHistory)[pc][to] << bonus * 137 / 128;
-        (*(ss - 3)->continuationCorrectionHistory)[pc][to] << bonus * 64 / 128;
+        (*(ss - 3)->continuationCorrectionHistory)[pc][to] << bonus * 96 / 128;
         (*(ss - 4)->continuationCorrectionHistory)[pc][to] << bonus * 64 / 128;
     }
 }
