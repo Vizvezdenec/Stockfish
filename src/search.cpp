@@ -1051,6 +1051,11 @@ moves_loop:  // When in check, search starts here
                         continue;
                 }
 
+                if (!capture && (*contHist[0])[movedPiece][move.to_sq()]
+                            + (*contHist[1])[movedPiece][move.to_sq()]
+                            + pawnHistory[pawn_history_index(pos)][movedPiece][move.to_sq()] < -18000 * depth)
+                    continue;
+
                 // SEE based pruning for captures and checks
                 // Avoid pruning sacrifices of our last piece for stalemate
                 int margin = std::max(157 * depth + captHist / 29, 0);
@@ -1577,7 +1582,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 302 + 100 * PvNode;
+        futilityBase = ss->staticEval + 352;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
