@@ -348,7 +348,7 @@ void Search::Worker::iterative_deepening() {
                 // Adjust the effective depth searched, but ensure at least one
                 // effective increment for every four searchAgain steps (see issue #2717).
                 Depth adjustedDepth =
-                  std::max(1, rootDepth + int(threadIdx & 2) - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
+                  std::max(1, rootDepth - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
                 rootDelta = beta - alpha;
                 bestValue = search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
@@ -923,7 +923,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 306, 0, depth);
+        Depth      probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 306, 0, depth + 1);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -941,7 +941,7 @@ Value Search::Worker::search(
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
+                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, move == ttData.move ? probCutDepth : std::min(probCutDepth, depth),
                                        !cutNode);
 
             undo_move(pos, move);
