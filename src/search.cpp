@@ -1195,11 +1195,9 @@ moves_loop:  // When in check, search starts here
             r -= 2018;
 
         if (capture)
-        {
             ss->statScore = 803 * int(PieceValue[pos.captured_piece()]) / 128
-                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
-            r += 256 * !improving;
-        }
+                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
+                          + 512 * givesCheck;
         else
             ss->statScore = 2 * mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
