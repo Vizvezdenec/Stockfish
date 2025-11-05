@@ -1189,7 +1189,8 @@ moves_loop:  // When in check, search starts here
 
         if (capture)
             ss->statScore = 803 * int(PieceValue[pos.captured_piece()]) / 128
-                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
+                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]
+                          + 666 * givesCheck;
         else
             ss->statScore = 2 * mainHistory[us][move.from_to()]
                           + (*contHist[0])[movedPiece][move.to_sq()]
@@ -1255,7 +1256,7 @@ moves_loop:  // When in check, search starts here
             // decisive score handling improves mate finding and retrograde analysis.
             if (move == ttData.move
                 && ((is_valid(ttData.value) && is_decisive(ttData.value) && ttData.depth > 0)
-                    || (ttData.depth > 0 && rootDepth > 8 && !ttCapture)))
+                    || (ttData.depth > 1 && rootDepth > 8)))
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
