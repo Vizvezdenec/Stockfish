@@ -1169,6 +1169,7 @@ moves_loop:  // When in check, search starts here
 
         r += 843;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
+        r -= depth * 16;
         r -= std::abs(correctionValue) / 30450;
 
         // Increase reduction for cut nodes
@@ -1255,7 +1256,7 @@ moves_loop:  // When in check, search starts here
             // decisive score handling improves mate finding and retrograde analysis.
             if (move == ttData.move
                 && ((is_valid(ttData.value) && is_decisive(ttData.value) && ttData.depth > 0)
-                    || (ttData.depth > 1 && rootDepth > 8 && (!ttCapture || (is_valid(ttData.value) && ttData.value >= beta)))))
+                    || (ttData.depth > 1 && rootDepth > 8)))
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
