@@ -1239,7 +1239,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 1118;
 
-            if (cutNode && r < -4000)
+            if (cutNode && r < -6500)
                 newDepth++;
 
             // Note that if expected reduction is high, we reduce search depth here
