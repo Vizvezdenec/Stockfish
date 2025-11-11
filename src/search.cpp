@@ -1169,7 +1169,6 @@ moves_loop:  // When in check, search starts here
 
         r += 843;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
-        r += depth * 66;
         r -= std::abs(correctionValue) / 30450;
 
         // Increase reduction for cut nodes
@@ -1239,6 +1238,9 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present
             if (!ttData.move)
                 r += 1118;
+
+            if (cutNode && r < -4000)
+                newDepth++;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
