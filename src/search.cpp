@@ -1153,6 +1153,8 @@ moves_loop:  // When in check, search starts here
                 extension = -2;
         }
 
+        int pawnhist = pawnHistory[pawn_history_index(pos)][movedPiece][move.to_sq()];
+
         // Step 16. Make the move
         do_move(pos, move, st, givesCheck, ss);
 
@@ -1198,6 +1200,9 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 794 / 8192;
 
+        if (!capture)
+            ss->statScore += pawnhist;
+
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
         {
@@ -1238,9 +1243,6 @@ moves_loop:  // When in check, search starts here
             // Increase reduction if ttMove is not present
             if (!ttData.move)
                 r += 1118;
-
-            if (cutNode && r < -6500)
-                newDepth++;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
