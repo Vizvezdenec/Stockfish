@@ -590,6 +590,7 @@ Value Search::Worker::search(
     constexpr bool PvNode   = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
     const bool     allNode  = !(PvNode || cutNode);
+    constexpr int piecevalues[5] = {85, 409, 463, 869, 1159};
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
@@ -823,6 +824,12 @@ Value Search::Worker::search(
         if (!ttHit && type_of(pos.piece_on(prevSq)) != PAWN
             && ((ss - 1)->currentMove).type_of() != PROMOTION)
             pawnHistory[pawn_history_index(pos)][pos.piece_on(prevSq)][prevSq] << evalDiff * 14;
+    }
+
+    if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && priorCapture && (ss - 1)->currentMove.type_of() != PROMOTION)
+    {
+        int evalDiff = std::clamp((-int((ss - 1)->staticEval + ss->staticEval) - piecevalues[type_of(pos.captured_piece()) - 1]), -200, 200);
+        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << evalDiff * 9;
     }
 
     // Set up the improving flag, which is true if current static evaluation is
