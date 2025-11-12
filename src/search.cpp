@@ -1201,7 +1201,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore * 794 / 8192;
 
         if (!capture)
-            ss->statScore += pawnhist;
+            ss->statScore += 2 * pawnhist;
 
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
