@@ -590,7 +590,6 @@ Value Search::Worker::search(
     constexpr bool PvNode   = nodeType != NonPV;
     constexpr bool rootNode = nodeType == Root;
     const bool     allNode  = !(PvNode || cutNode);
-    constexpr int piecevalues[5] = {85, 409, 463, 869, 1159};
 
     // Dive into quiescence search when the depth reaches zero
     if (depth <= 0)
@@ -826,12 +825,6 @@ Value Search::Worker::search(
             pawnHistory[pawn_history_index(pos)][pos.piece_on(prevSq)][prevSq] << evalDiff * 14;
     }
 
-    if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && priorCapture && (ss - 1)->currentMove.type_of() != PROMOTION)
-    {
-        int evalDiff = std::clamp((-int((ss - 1)->staticEval + ss->staticEval) - piecevalues[type_of(pos.captured_piece()) - 1]), -200, 200);
-        captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << evalDiff * 9;
-    }
-
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we go back until we weren't in check) and is
@@ -1047,9 +1040,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 7)
+                if (!givesCheck && lmrDepth < 8)
                 {
-                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
+                    Value futilityValue = ss->staticEval + 201 + 191 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
