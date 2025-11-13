@@ -1040,9 +1040,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 8)
+                if (!givesCheck && lmrDepth < 7)
                 {
-                    Value futilityValue = ss->staticEval + 201 + 191 * lmrDepth
+                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
@@ -1427,6 +1427,8 @@ moves_loop:  // When in check, search starts here
         Piece capturedPiece = pos.captured_piece();
         assert(capturedPiece != NO_PIECE);
         captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 964;
+        if (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 70)
+            captureHistory[pos.piece_on(prevSq)][prevSq][type_of(capturedPiece)] << 964;
     }
 
     if (PvNode)
