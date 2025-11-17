@@ -842,8 +842,10 @@ Value Search::Worker::search(
     // Hindsight adjustment of reductions based on static evaluation difference.
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
-    if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 173)
+    if (priorReduction >= 2 && ss->staticEval + (ss - 1)->staticEval > 173)
         depth--;
+    if (depth <= 0)
+        return qsearch<PvNode ? PV : NonPV>(pos, ss, alpha, beta);
 
     // Step 7. Razoring
     // If eval is really low, skip search entirely and return the qsearch value.
@@ -1042,9 +1044,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 9)
+                if (!givesCheck && lmrDepth < 7)
                 {
-                    Value futilityValue = ss->staticEval + 191 + 181 * lmrDepth
+                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
