@@ -1042,9 +1042,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 7)
+                if (!givesCheck && lmrDepth < 9)
                 {
-                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
+                    Value futilityValue = ss->staticEval + 191 + 181 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
@@ -1176,7 +1176,6 @@ moves_loop:  // When in check, search starts here
 
         r += 843;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 66;
-        r += depth * 16;
         r -= std::abs(correctionValue) / 30450;
 
         // Increase reduction for cut nodes
