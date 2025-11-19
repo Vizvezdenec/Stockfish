@@ -839,7 +839,7 @@ Value Search::Worker::search(
     // Similarly, opponentWorsening is true if our static evaluation is better
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
-    opponentWorsening = !priorCapture ? ss->staticEval > -(ss - 1)->staticEval : ss->staticEval > -(ss - 1)->staticEval - PieceValue[pos.captured_piece()];
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
 
     // Hindsight adjustment of reductions based on static evaluation difference.
     if (priorReduction >= 3 && !opponentWorsening)
@@ -1046,7 +1046,7 @@ moves_loop:  // When in check, search starts here
                 // Futility pruning for captures
                 if (!givesCheck && lmrDepth < 7)
                 {
-                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
+                    Value futilityValue = ss->staticEval + 211 + 191 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
