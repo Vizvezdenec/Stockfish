@@ -839,7 +839,7 @@ Value Search::Worker::search(
     // Similarly, opponentWorsening is true if our static evaluation is better
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
+    opponentWorsening = !priorCapture || ss->staticEval > -(ss - 1)->staticEval;
 
     // Hindsight adjustment of reductions based on static evaluation difference.
     if (priorReduction >= 3 && !opponentWorsening)
@@ -1089,8 +1089,6 @@ moves_loop:  // When in check, search starts here
                     continue;
                 }
 
-                if (lmrDepth <= 1)
-                    lmrDepth += 1 + (lmrDepth <= 0);
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE
