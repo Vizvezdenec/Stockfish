@@ -1089,10 +1089,12 @@ moves_loop:  // When in check, search starts here
                     continue;
                 }
 
+                if (lmrDepth <= 1)
+                    lmrDepth += 1 + (lmrDepth <= 0);
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE
-                if (!pos.see_ge(move, std::min(-27 * lmrDepth * lmrDepth, -200)))
+                if (!pos.see_ge(move, -27 * lmrDepth * lmrDepth))
                     continue;
             }
         }
