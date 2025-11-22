@@ -1075,8 +1075,8 @@ moves_loop:  // When in check, search starts here
                 // (*Scaler): Generally, lower divisors scales well
                 lmrDepth += history / 3220;
 
-                Value futilityValue = ss->staticEval + 37 + 151 * !bestMove + 114 * lmrDepth
-                                    + 70 * (ss->staticEval > alpha);
+                Value futilityValue = ss->staticEval + 42 + 161 * !bestMove + 124 * lmrDepth
+                                    + 80 * (ss->staticEval > alpha);
 
                 // Futility pruning: parent node
                 // (*Scaler): Generally, more frequent futility pruning
