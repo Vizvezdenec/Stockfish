@@ -1044,9 +1044,9 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 9)
+                if (!givesCheck && lmrDepth < 7)
                 {
-                    Value futilityValue = ss->staticEval + 211 + 191 * lmrDepth
+                    Value futilityValue = ss->staticEval + 231 + 211 * lmrDepth
                                         + PieceValue[capturedPiece] + 130 * captHist / 1024;
 
                     if (futilityValue <= alpha)
@@ -1075,8 +1075,8 @@ moves_loop:  // When in check, search starts here
                 // (*Scaler): Generally, lower divisors scales well
                 lmrDepth += history / 3220;
 
-                Value futilityValue = ss->staticEval + 47 + 171 * !bestMove + 134 * lmrDepth
-                                    + 90 * (ss->staticEval > alpha);
+                Value futilityValue = ss->staticEval + 37 + 151 * !bestMove + 114 * lmrDepth
+                                    + 70 * (ss->staticEval > alpha);
 
                 // Futility pruning: parent node
                 // (*Scaler): Generally, more frequent futility pruning
