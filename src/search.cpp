@@ -968,13 +968,9 @@ Value Search::Worker::search(
 
 moves_loop:  // When in check, search starts here
 
-    Depth probCutDepth = depth - 4;
-    if (!ss->inCheck)
-        probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
-
     // Step 12. A small Probcut idea
     probCutBeta = beta + 418;
-    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= probCutDepth && ttData.value >= probCutBeta
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -1622,7 +1618,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2)
+                if (moveCount > 1)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
