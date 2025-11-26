@@ -1407,6 +1407,7 @@ moves_loop:  // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonusScale = -215;
+        bonusScale -= 100 * ((ss - 1)->moveCount == 1 && (ss - 1)->ttHit);
         bonusScale -= (ss - 1)->statScore / 100;
         bonusScale += std::min(56 * depth, 489);
         bonusScale += 184 * ((ss - 1)->moveCount > 8);
