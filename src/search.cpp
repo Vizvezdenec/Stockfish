@@ -791,7 +791,7 @@ Value Search::Worker::search(
     }
 
     // Step 6. Static evaluation of the position
-    Value      unadjustedStaticEval = VALUE_NONE;
+    Value      unadjustedStaticEval = ss->unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
     if (ss->inCheck)
     {
@@ -801,13 +801,16 @@ Value Search::Worker::search(
         goto moves_loop;
     }
     else if (excludedMove)
-        unadjustedStaticEval = eval = ss->staticEval;
+    {
+        unadjustedStaticEval = ss->unadjustedStaticEval;
+        eval = ss->staticEval;
+    }
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        unadjustedStaticEval = ttData.eval;
+        unadjustedStaticEval = ss->unadjustedStaticEval = ttData.eval;
         if (!is_valid(unadjustedStaticEval))
-            unadjustedStaticEval = evaluate(pos);
+            unadjustedStaticEval = ss->unadjustedStaticEval = evaluate(pos);
 
         ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
 
@@ -818,7 +821,7 @@ Value Search::Worker::search(
     }
     else
     {
-        unadjustedStaticEval = evaluate(pos);
+        unadjustedStaticEval = ss->unadjustedStaticEval = evaluate(pos);
         ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
 
         // Static evaluation is saved as it was before adjustment by correction history
@@ -924,10 +927,9 @@ Value Search::Worker::search(
     probCutBeta = beta + 235 - 63 * improving;
     if (depth >= 3
         && !is_decisive(beta)
-        && !excludedMove
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
-        && !(is_valid(ttData.value) && ttData.value < probCutBeta))
+        && (excludedMove || !(is_valid(ttData.value) && ttData.value < probCutBeta)))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
@@ -938,7 +940,7 @@ Value Search::Worker::search(
         {
             assert(move.is_ok());
 
-            if (!pos.legal(move))
+            if (move == excludedMove || !pos.legal(move))
                 continue;
 
             assert(pos.capture_stage(move));
