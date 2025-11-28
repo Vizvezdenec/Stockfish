@@ -791,7 +791,7 @@ Value Search::Worker::search(
     }
 
     // Step 6. Static evaluation of the position
-    Value      unadjustedStaticEval = ss->unadjustedStaticEval = VALUE_NONE;
+    Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
     if (ss->inCheck)
     {
@@ -801,16 +801,13 @@ Value Search::Worker::search(
         goto moves_loop;
     }
     else if (excludedMove)
-    {
-        unadjustedStaticEval = ss->unadjustedStaticEval;
-        eval = ss->staticEval;
-    }
+        unadjustedStaticEval = eval = ss->staticEval;
     else if (ss->ttHit)
     {
         // Never assume anything about values stored in TT
-        unadjustedStaticEval = ss->unadjustedStaticEval = ttData.eval;
+        unadjustedStaticEval = ttData.eval;
         if (!is_valid(unadjustedStaticEval))
-            unadjustedStaticEval = ss->unadjustedStaticEval = evaluate(pos);
+            unadjustedStaticEval = evaluate(pos);
 
         ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
 
@@ -821,7 +818,7 @@ Value Search::Worker::search(
     }
     else
     {
-        unadjustedStaticEval = ss->unadjustedStaticEval = evaluate(pos);
+        unadjustedStaticEval = evaluate(pos);
         ss->staticEval = eval = to_corrected_static_eval(unadjustedStaticEval, correctionValue);
 
         // Static evaluation is saved as it was before adjustment by correction history
@@ -959,6 +956,7 @@ Value Search::Worker::search(
 
             if (value >= probCutBeta)
             {
+                if (!excludedMove)
                 // Save ProbCut data into transposition table
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
