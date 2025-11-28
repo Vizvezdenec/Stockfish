@@ -924,6 +924,7 @@ Value Search::Worker::search(
     probCutBeta = beta + 235 - 63 * improving;
     if (depth >= 3
         && !is_decisive(beta)
+        && !excludedMove
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
         && !(is_valid(ttData.value) && ttData.value < probCutBeta))
@@ -937,7 +938,7 @@ Value Search::Worker::search(
         {
             assert(move.is_ok());
 
-            if (move == excludedMove || !pos.legal(move))
+            if (!pos.legal(move))
                 continue;
 
             assert(pos.capture_stage(move));
