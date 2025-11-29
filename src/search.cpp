@@ -668,7 +668,7 @@ Value Search::Worker::search(
         // Step 2. Check for aborted search and immediate draw
         if (threads.stop.load(std::memory_order_relaxed) || pos.is_draw(ss->ply)
             || ss->ply >= MAX_PLY)
-            return (ss->ply >= MAX_PLY && !ss->inCheck) ? to_adjusted_static_eval(evaluate(pos), pos, 2 * optimism[pos.side_to_move()]) : value_draw(nodes);
+            return (ss->ply >= MAX_PLY && !ss->inCheck) ? to_adjusted_static_eval(evaluate(pos), pos, 3 * optimism[pos.side_to_move()]) : value_draw(nodes);
 
         // Step 3. Mate distance pruning. Even if we mate at the next move our score
         // would be at best mate_in(ss->ply + 1), but if alpha is already bigger because
@@ -821,7 +821,7 @@ Value Search::Worker::search(
         if (!is_valid(unadjustedStaticEval))
             unadjustedStaticEval = evaluate(pos);
 
-        ss->staticEval = eval = to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 2 * optimism[pos.side_to_move()]), correctionValue);
+        ss->staticEval = eval = to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 3 * optimism[pos.side_to_move()]), correctionValue);
 
         // ttValue can be used as a better position evaluation
         if (is_valid(ttData.value)
@@ -831,7 +831,7 @@ Value Search::Worker::search(
     else
     {
         unadjustedStaticEval = evaluate(pos);
-        ss->staticEval = eval = to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 2 * optimism[pos.side_to_move()]), correctionValue);
+        ss->staticEval = eval = to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 3 * optimism[pos.side_to_move()]), correctionValue);
 
         // Static evaluation is saved as it was before adjustment by correction history
         ttWriter.write(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_UNSEARCHED, Move::none(),
@@ -1531,7 +1531,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     // Step 2. Check for an immediate draw or maximum ply reached
     if (pos.is_draw(ss->ply) || ss->ply >= MAX_PLY)
-        return (ss->ply >= MAX_PLY && !ss->inCheck) ? to_adjusted_static_eval(evaluate(pos), pos, 2 * optimism[pos.side_to_move()]) : VALUE_DRAW;
+        return (ss->ply >= MAX_PLY && !ss->inCheck) ? to_adjusted_static_eval(evaluate(pos), pos, 3 * optimism[pos.side_to_move()]) : VALUE_DRAW;
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1565,7 +1565,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!is_valid(unadjustedStaticEval))
                 unadjustedStaticEval = evaluate(pos);
             ss->staticEval = bestValue =
-              to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 2 * optimism[pos.side_to_move()]), correctionValue);
+              to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 3 * optimism[pos.side_to_move()]), correctionValue);
 
             // ttValue can be used as a better position evaluation
             if (is_valid(ttData.value) && !is_decisive(ttData.value)
@@ -1577,7 +1577,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             unadjustedStaticEval = evaluate(pos);
 
             ss->staticEval = bestValue =
-              to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 2 * optimism[pos.side_to_move()]), correctionValue);
+              to_corrected_static_eval(to_adjusted_static_eval(unadjustedStaticEval, pos, 3 * optimism[pos.side_to_move()]), correctionValue);
         }
 
         // Stand pat. Return immediately if static value is at least beta
