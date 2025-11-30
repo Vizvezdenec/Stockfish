@@ -861,7 +861,7 @@ Value Search::Worker::search(
     // The depth condition is important for mate finding.
     {
         auto futility_margin = [&](Depth d) {
-            Value futilityMult = 76 - 23 * !ss->ttHit;
+            Value futilityMult = 76 - 36 * !ss->ttHit;
 
             return futilityMult * d                               //
                  - 2474 * improving * futilityMult / 1024         //
@@ -1406,8 +1406,7 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior quiet countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = -215 + 50;
-        bonusScale -= 90 * ((ss - 1)->moveCount == 1);
+        int bonusScale = -215;
         bonusScale -= (ss - 1)->statScore / 100;
         bonusScale += std::min(56 * depth, 489);
         bonusScale += 184 * ((ss - 1)->moveCount > 8);
