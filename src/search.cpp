@@ -576,7 +576,7 @@ void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 void Search::Worker::clear() {
     mainHistory.fill(68);
     captureHistory.fill(-689);
-    pawnHistory.fill(-2238);
+    pawnHistory.fill(-1238);
     pawnCorrectionHistory.fill(5);
     minorPieceCorrectionHistory.fill(0);
     nonPawnCorrectionHistory.fill(0);
@@ -1416,8 +1416,8 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior quiet countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = -115;
-        bonusScale -= 179 * ((ss - 1)->moveCount == 1);
+        int bonusScale = -155;
+        bonusScale -= 209 * ((ss - 1)->moveCount == 1);
         bonusScale -= (ss - 1)->statScore / 100;
         bonusScale += std::min(56 * depth, 489);
         bonusScale += 184 * ((ss - 1)->moveCount > 8);
