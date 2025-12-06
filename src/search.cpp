@@ -873,7 +873,7 @@ Value Search::Worker::search(
     // The depth condition is important for mate finding.
     {
         auto futility_margin = [&](Depth d) {
-            Value futilityMult = 69 - 33 * !ss->ttHit;
+            Value futilityMult = 76 - 23 * !ss->ttHit;
 
             return futilityMult * d                               //
                  - 2474 * improving * futilityMult / 1024         //
@@ -881,7 +881,7 @@ Value Search::Worker::search(
                  + std::abs(correctionValue) / 174665;
         };
 
-        if (!ss->ttPv && depth < 20 && eval - futility_margin(depth) >= beta && eval >= beta
+        if (!ss->ttPv && depth < 14 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
             return (2 * beta + eval) / 3;
     }
@@ -1228,7 +1228,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + PvNode;
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2 + PvNode)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
