@@ -1140,7 +1140,7 @@ moves_loop:  // When in check, search starts here
                               (*contHist[0])[movedPiece][move.to_sq()]
                             + (*contHist[1])[movedPiece][move.to_sq()]
                             + pawnHistory[pawn_history_index(pos)][movedPiece][move.to_sq()]
-                            + 2 * mainHistory[us][move.raw()];
+                            + 2 * mainHistory[us][move.raw()] - 15000;
                 int corrValAdj   = std::abs(correctionValue) / 230673;
                 int doubleMargin = -4 + 199 * PvNode - 201 * !ttCapture - corrValAdj
                                  - 897 * ttMoveHistory / 127649 - (ss->ply > rootDepth) * 42 - history / 1024;
