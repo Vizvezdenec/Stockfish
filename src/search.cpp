@@ -88,7 +88,7 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
                     + (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                  : 8;
 
-    auto npch = pos.side_to_move() == WHITE ? 12168 * wnpcv + 10168 * bnpcv : 10168 * wnpcv + 12168 * bnpcv;
+    auto npch = pos.side_to_move() == WHITE ? 10168 * wnpcv + 12168 * bnpcv : 12168 * wnpcv + 10168 * bnpcv;
     return 10347 * pcv + 8821 * micv + 7841 * cntcv + npch;
 }
 
