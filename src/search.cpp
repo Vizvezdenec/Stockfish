@@ -88,8 +88,7 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
                     + (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                  : 8;
 
-    auto npch = pos.side_to_move() == WHITE ? 13168 * wnpcv + 9168 * bnpcv : 9168 * wnpcv + 13168 * bnpcv;
-    return 10347 * pcv + 8821 * micv + 7841 * cntcv + npch;
+    return 10347 * pcv + 8821 * micv + 11168 * (wnpcv + bnpcv) + 7841 * cntcv;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -1423,6 +1422,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 184 * ((ss - 1)->moveCount > 8);
         bonusScale += 147 * (!ss->inCheck && bestValue <= ss->staticEval - 107);
         bonusScale += 156 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 65);
+        bonusScale += 150 * ((ss - 2)->currentMove == move.null());
 
         bonusScale = std::max(bonusScale, 0);
 
