@@ -1399,12 +1399,6 @@ moves_loop:  // When in check, search starts here
     // Adjust best value for fail high cases
     if (bestValue >= beta && !is_decisive(bestValue) && !is_decisive(alpha))
         bestValue = (bestValue * depth + beta) / (depth + 1);
-    else if (bestValue < alpha && !is_decisive(bestValue) && !is_decisive(alpha))
-    {
-        int bestValue1 = (bestValue * (depth + 1) - (alpha - bestValue)) / (depth + 1);
-        if (!is_decisive(bestValue1))
-            bestValue = bestValue1;
-    }
 
     if (!moveCount)
         bestValue = excludedMove ? alpha : ss->inCheck ? mated_in(ss->ply) : VALUE_DRAW;
@@ -1836,9 +1830,16 @@ void update_all_stats(const Position& pos,
     {
         update_quiet_histories(pos, ss, workerThread, bestMove, bonus * 910 / 1024);
 
+        int i = 0;
         // Decrease stats for all non-best quiet moves
         for (Move move : quietsSearched)
-            update_quiet_histories(pos, ss, workerThread, move, -malus * 1085 / 1024);
+        {
+            i++;
+            int actualMalus = malus * 1085 / 1024;
+            if (i > 10)
+                actualMalus -= actualMalus * (i - 10) / i;
+            update_quiet_histories(pos, ss, workerThread, move, -actualMalus);
+        }
     }
     else
     {
