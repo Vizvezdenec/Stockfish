@@ -1836,8 +1836,8 @@ void update_all_stats(const Position& pos,
         {
             i++;
             int actualMalus = malus * 1085 / 1024;
-            if (i > 10)
-                actualMalus -= actualMalus * (i - 10) / i;
+            if (i > 5)
+                actualMalus -= actualMalus * (i - 5) / i;
             update_quiet_histories(pos, ss, workerThread, move, -actualMalus);
         }
     }
