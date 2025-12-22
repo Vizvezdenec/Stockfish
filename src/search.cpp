@@ -1822,17 +1822,9 @@ void update_all_stats(const Position& pos,
     {
         update_quiet_histories(pos, ss, workerThread, bestMove, bonus * 910 / 1024);
 
-        int i = 0;
-        int actualMalus = malus * 1085 / 1024;
         // Decrease stats for all non-best quiet moves
         for (Move move : quietsSearched)
-        {
-            i++;
-            int malusA = actualMalus;
-            if (i > 5)
-                malusA -= actualMalus * (i - 5) / i;
-            update_quiet_histories(pos, ss, workerThread, move, -malusA);
-        }
+            update_quiet_histories(pos, ss, workerThread, move, -malus * 1085 / 1024);
     }
     else
     {
@@ -1846,12 +1838,17 @@ void update_all_stats(const Position& pos,
     if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 602 / 1024);
 
+    int i = 0;
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
     {
+        i++;
+        int actualMalus = malus * 1448 / 1024;
+        if (i > 5)
+            actualMalus -= actualMalus * (i - 5) / i;
         movedPiece    = pos.moved_piece(move);
         capturedPiece = type_of(pos.piece_on(move.to_sq()));
-        captureHistory[movedPiece][move.to_sq()][capturedPiece] << -malus * 1448 / 1024;
+        captureHistory[movedPiece][move.to_sq()][capturedPiece] << -actualMalus;
     }
 }
 
