@@ -1844,8 +1844,8 @@ void update_all_stats(const Position& pos,
     {
         i++;
         int actualMalus = malus * 1448 / 1024;
-        if (i > 3)
-            actualMalus -= actualMalus * (i - 3) / i;
+        if (i > 7)
+            actualMalus -= actualMalus * (i - 7) / i;
         movedPiece    = pos.moved_piece(move);
         capturedPiece = type_of(pos.piece_on(move.to_sq()));
         captureHistory[movedPiece][move.to_sq()][capturedPiece] << -actualMalus;
