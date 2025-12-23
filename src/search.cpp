@@ -1414,6 +1414,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 184 * ((ss - 1)->moveCount > 8);
         bonusScale += 147 * (!ss->inCheck && bestValue <= ss->staticEval - 107);
         bonusScale += 156 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 65);
+        bonusScale += 400 * ((ss - 2)->currentMove == move.null());
 
         bonusScale = std::max(bonusScale, 0);
 
@@ -1838,17 +1839,12 @@ void update_all_stats(const Position& pos,
     if (prevSq != SQ_NONE && ((ss - 1)->moveCount == 1 + (ss - 1)->ttHit) && !pos.captured_piece())
         update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -malus * 602 / 1024);
 
-    int i = 0;
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
     {
-        i++;
-        int actualMalus = malus * 1448 / 1024;
-        if (i > 7)
-            actualMalus -= actualMalus * (i - 7) / i;
         movedPiece    = pos.moved_piece(move);
         capturedPiece = type_of(pos.piece_on(move.to_sq()));
-        captureHistory[movedPiece][move.to_sq()][capturedPiece] << -actualMalus;
+        captureHistory[movedPiece][move.to_sq()][capturedPiece] << -malus * 1448 / 1024;
     }
 }
 
