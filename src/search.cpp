@@ -943,7 +943,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = std::clamp(depth - 6 - (ss->staticEval - beta) / 315, 0, depth);
+        Depth      probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -1137,7 +1137,7 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
-                int corrValAdj   = std::abs(correctionValue) / 230673;
+                int corrValAdj   = std::abs(correctionValue) / 131072;
                 int doubleMargin = -4 + 199 * PvNode - 201 * !ttCapture - corrValAdj
                                  - 897 * ttMoveHistory / 127649 - (ss->ply > rootDepth) * 42;
                 int tripleMargin = 73 + 302 * PvNode - 248 * !ttCapture + 90 * ss->ttPv - corrValAdj
