@@ -544,6 +544,7 @@ void Search::Worker::do_move(Position& pos, const Move move, StateInfo& st, Stac
 
 void Search::Worker::do_move(
   Position& pos, const Move move, StateInfo& st, const bool givesCheck, Stack* const ss) {
+    bool capture = pos.capture_stage(move);
     // Preferable over fetch_add to avoid locking instructions
     nodes.store(nodes.load(std::memory_order_relaxed) + 1, std::memory_order_relaxed);
 
@@ -554,7 +555,7 @@ void Search::Worker::do_move(
     {
         ss->currentMove = move;
         ss->continuationHistory =
-          &continuationHistory[ss->inCheck][type_of(pos.piece_on(move.to_sq()))][dirtyPiece.pc][move.to_sq()];
+          &continuationHistory[ss->inCheck][capture][dirtyPiece.pc][move.to_sq()];
         ss->continuationCorrectionHistory =
           &continuationCorrectionHistory[dirtyPiece.pc][move.to_sq()];
     }
@@ -595,7 +596,7 @@ void Search::Worker::clear() {
             h.fill(8);
 
     for (bool inCheck : {false, true})
-        for (PieceType c : {NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN})
+        for (StatsType c : {NoCaptures, Captures})
             for (auto& to : continuationHistory[inCheck][c])
                 for (auto& h : to)
                     h.fill(-529);
@@ -737,6 +738,9 @@ Value Search::Worker::search(
         ttWriter.write(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_UNSEARCHED, Move::none(),
                        unadjustedStaticEval, tt.generation());
     }
+
+    if (ss->staticEval >= beta)
+        ss->staticEval = ss->staticEval - (ss->staticEval - beta) / (depth + 15);
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in

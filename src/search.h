@@ -291,7 +291,7 @@ class Worker {
     LowPlyHistory    lowPlyHistory;
 
     CapturePieceToHistory           captureHistory;
-    ContinuationHistory             continuationHistory[2][6];
+    ContinuationHistory             continuationHistory[2][2];
     PawnHistory                     pawnHistory;
     CorrectionHistory<Continuation> continuationCorrectionHistory;
 
