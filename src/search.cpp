@@ -312,6 +312,12 @@ void Search::Worker::iterative_deepening() {
 
     lowPlyHistory.fill(97);
 
+    for (bool inCheck : {false, true})
+        for (StatsType c : {NoCaptures, Captures})
+            for (auto& to : continuationHistory[inCheck][c])
+                for (auto& h : to)
+                    h.fill(-529);
+
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
@@ -738,9 +744,6 @@ Value Search::Worker::search(
         ttWriter.write(posKey, VALUE_NONE, ss->ttPv, BOUND_NONE, DEPTH_UNSEARCHED, Move::none(),
                        unadjustedStaticEval, tt.generation());
     }
-
-    if (ss->staticEval >= beta)
-        ss->staticEval = ss->staticEval - (ss->staticEval - beta) / (depth * depth + 3);
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
