@@ -740,7 +740,7 @@ Value Search::Worker::search(
     }
 
     if (ss->staticEval >= beta)
-        ss->staticEval = ss->staticEval - (ss->staticEval - beta) / (depth + 15);
+        ss->staticEval = ss->staticEval - (ss->staticEval - beta) / (depth * depth + 3);
 
     // Set up the improving flag, which is true if current static evaluation is
     // bigger than the previous static evaluation at our turn (if we were in
