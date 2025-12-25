@@ -243,6 +243,7 @@ struct SharedHistories {
     }
 
     UnifiedCorrectionHistory correctionHistory;
+	LowPlyHistory lowPlyHistory;
 
    private:
     size_t sizeMinus1;

@@ -296,6 +296,7 @@ void Search::Worker::iterative_deepening() {
             mainThread->iterValue.fill(VALUE_ZERO);
         else
             mainThread->iterValue.fill(mainThread->bestPreviousScore);
+        sharedHistory.lowPlyHistory.fill(97);
     }
 
     size_t multiPV = size_t(options["MultiPV"]);
@@ -309,8 +310,6 @@ void Search::Worker::iterative_deepening() {
     multiPV = std::min(multiPV, rootMoves.size());
 
     int searchAgainCounter = 0;
-
-    lowPlyHistory.fill(97);
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
@@ -991,7 +990,7 @@ moves_loop:  // When in check, search starts here
       (ss - 4)->continuationHistory, (ss - 5)->continuationHistory, (ss - 6)->continuationHistory};
 
 
-    MovePicker mp(pos, ttData.move, depth, &mainHistory, &lowPlyHistory, &captureHistory, contHist,
+    MovePicker mp(pos, ttData.move, depth, &mainHistory, &sharedHistory.lowPlyHistory, &captureHistory, contHist,
                   &pawnHistory, ss->ply);
 
     value = bestValue;
@@ -1137,7 +1136,7 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
-                int corrValAdj   = std::abs(correctionValue) / 131072;
+                int corrValAdj   = std::abs(correctionValue) / 230673;
                 int doubleMargin = -4 + 199 * PvNode - 201 * !ttCapture - corrValAdj
                                  - 897 * ttMoveHistory / 127649 - (ss->ply > rootDepth) * 42;
                 int tripleMargin = 73 + 302 * PvNode - 248 * !ttCapture + 90 * ss->ttPv - corrValAdj
@@ -1605,7 +1604,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // Initialize a MovePicker object for the current position, and prepare to search
     // the moves. We presently use two stages of move generator in quiescence search:
     // captures, or evasions only when in check.
-    MovePicker mp(pos, ttData.move, DEPTH_QS, &mainHistory, &lowPlyHistory, &captureHistory,
+    MovePicker mp(pos, ttData.move, DEPTH_QS, &mainHistory, &sharedHistory.lowPlyHistory, &captureHistory,
                   contHist, &pawnHistory, ss->ply);
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain or a beta
@@ -1891,7 +1890,7 @@ void update_quiet_histories(
     workerThread.mainHistory[us][move.raw()] << bonus;  // Untuned to prevent duplicate effort
 
     if (ss->ply < LOW_PLY_HISTORY_SIZE)
-        workerThread.lowPlyHistory[ss->ply][move.raw()] << bonus * 805 / 1024;
+        workerThread.sharedHistory.lowPlyHistory[ss->ply][move.raw()] << bonus * 805 / 1024;
 
     update_continuation_histories(ss, pos.moved_piece(move), move.to_sq(), bonus * 896 / 1024);
 
