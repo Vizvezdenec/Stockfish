@@ -311,6 +311,7 @@ void Search::Worker::iterative_deepening() {
     int searchAgainCounter = 0;
 
     lowPlyHistory.fill(97);
+    mainHistory.fill(68);
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
@@ -1241,13 +1242,10 @@ moves_loop:  // When in check, search starts here
             {
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
-                if (!rootNode)
-                {
-                    const bool doDeeperSearch    = d < newDepth && value > (bestValue + newDepth + 44);
-                    const bool doShallowerSearch = value < bestValue + 9;
+                const bool doDeeperSearch    = d < newDepth && value > (bestValue + newDepth + 44);
+                const bool doShallowerSearch = value < bestValue + 9;
 
-                    newDepth += doDeeperSearch - doShallowerSearch;
-                }
+                newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
