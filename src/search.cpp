@@ -319,7 +319,7 @@ void Search::Worker::iterative_deepening() {
     {
         for (Color c: {WHITE, BLACK})
             for (int i = 0; i < UINT_16_HISTORY_SIZE; i++)
-                mainHistory[c][i] = (mainHistory[c][i] - mainHistoryDefault) * 3 / 4 + mainHistoryDefault;
+                mainHistory[c][i] = (mainHistory[c][i] - mainHistoryDefault) * 7 / 8 + mainHistoryDefault;
 
         // Age out PV variability metric
         if (mainThread)
