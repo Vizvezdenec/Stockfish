@@ -313,14 +313,14 @@ void Search::Worker::iterative_deepening() {
 
     lowPlyHistory.fill(97);
 
-    for (Color c: {WHITE, BLACK})
-        for (int i = 0; i < UINT_16_HISTORY_SIZE; i++)
-            mainHistory[c][i] = (mainHistory[c][i] - mainHistoryDefault) * 3 / 4 + mainHistoryDefault;
-
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
     {
+        for (Color c: {WHITE, BLACK})
+            for (int i = 0; i < UINT_16_HISTORY_SIZE; i++)
+                mainHistory[c][i] = (mainHistory[c][i] - mainHistoryDefault) * 3 / 4 + mainHistoryDefault;
+
         // Age out PV variability metric
         if (mainThread)
             totBestMoveChanges /= 2;
