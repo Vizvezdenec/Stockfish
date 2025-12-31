@@ -65,7 +65,6 @@ using namespace Search;
 namespace {
 
 constexpr int SEARCHEDLIST_CAPACITY = 32;
-constexpr int captureHistDefault = -689;
 using SearchedList                  = ValueList<Move, SEARCHEDLIST_CAPACITY>;
 
 // (*Scalers):
@@ -312,11 +311,6 @@ void Search::Worker::iterative_deepening() {
     int searchAgainCounter = 0;
 
     lowPlyHistory.fill(97);
-
-    for (int i = 0; i < PIECE_NB; i++)
-        for (int j = 0; j < SQUARE_NB; j++)
-            for (int k = 0; k < PIECE_TYPE_NB; k++)
-                captureHistory[i][j][k] = captureHistDefault;
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
@@ -585,7 +579,7 @@ void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 // Reset histories, usually before a new game
 void Search::Worker::clear() {
     mainHistory.fill(68);
-    captureHistory.fill(captureHistDefault);
+    captureHistory.fill(-689);
 
     // Each thread is responsible for clearing their part of shared history
     sharedHistory.correctionHistory.clear_range(0, numaThreadIdx);
@@ -1249,7 +1243,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = d < newDepth && value > bestValue + 50;
-                const bool doShallowerSearch = value < bestValue + 9;
+                const bool doShallowerSearch = !rootNode && value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
