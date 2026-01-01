@@ -1181,6 +1181,16 @@ moves_loop:  // When in check, search starts here
         newDepth += extension;
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
+        if (capture)
+            ss->statScore = 868 * int(PieceValue[pos.captured_piece()]) / 128
+                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
+        else
+            ss->statScore = 2 * mainHistory[us][move.raw()]
+                          + (*contHist[0])[movedPiece][move.to_sq()]
+                          + (*contHist[1])[movedPiece][move.to_sq()];
+
+        if (depth >= 2)
+        {
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
             r -= 2719 + PvNode * 983 + (ttData.value > alpha) * 922
@@ -1207,20 +1217,13 @@ moves_loop:  // When in check, search starts here
         if (move == ttData.move)
             r -= 2151;
 
-        if (capture)
-            ss->statScore = 868 * int(PieceValue[pos.captured_piece()]) / 128
-                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
-        else
-            ss->statScore = 2 * mainHistory[us][move.raw()]
-                          + (*contHist[0])[movedPiece][move.to_sq()]
-                          + (*contHist[1])[movedPiece][move.to_sq()];
-
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 850 / 8192;
 
         // Scale up reductions for expected ALL nodes
         if (allNode)
             r += r / (depth + 1);
+        }
 
         // Step 17. Late moves reduction / extension (LMR)
         if (depth >= 2 && moveCount > 1)
@@ -1243,7 +1246,7 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = d < newDepth && value > bestValue + 50;
-                const bool doShallowerSearch = !rootNode && value < bestValue + 9;
+                const bool doShallowerSearch = value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
 
