@@ -960,7 +960,7 @@ Value Search::Worker::search(
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
-            Depth probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
+            Depth probCutDepth = std::max(depth - 5, 0);
             Depth modProbCutDepth = std::max(probCutDepth - std::clamp((value - probCutBeta - 50) / 300, 0, 3), 0);
             int raisedProbCutBeta = probCutBeta + (probCutDepth - modProbCutDepth) * 300;
 
