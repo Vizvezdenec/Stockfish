@@ -945,7 +945,6 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -961,10 +960,24 @@ Value Search::Worker::search(
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
+            Depth probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
+            Depth modProbCutDepth = std::max(probCutDepth - std::clamp((value - probCutBeta - 50) / 300, 0, 3), 0);
+            int raisedProbCutBeta = probCutBeta + (probCutDepth - modProbCutDepth) * 300;
+
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
+            {
+                value = -search<NonPV>(pos, ss + 1, -raisedProbCutBeta, -raisedProbCutBeta + 1, modProbCutDepth,
                                        !cutNode);
+                if (value < raisedProbCutBeta && probCutBeta < raisedProbCutBeta)
+                {
+                    modProbCutDepth = probCutDepth;
+                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, modProbCutDepth,
+                                          !cutNode);
+                }
+                else
+                    probCutBeta = raisedProbCutBeta;
+            }
 
             undo_move(pos, move);
 
