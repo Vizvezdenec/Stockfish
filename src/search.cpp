@@ -709,6 +709,12 @@ Value Search::Worker::search(
     ss->ttPv     = excludedMove ? ss->ttPv : PvNode || (ttHit && ttData.is_pv);
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
 
+    // Step 12. A small Probcut idea
+    probCutBeta = beta + 418;
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
+        && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
+        return probCutBeta;
+
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
@@ -945,6 +951,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
+        Depth      probCutDepth = std::clamp(depth - 5 - (ss->staticEval - beta) / 315, 0, depth);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -960,24 +967,10 @@ Value Search::Worker::search(
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
-            Depth probCutDepth = std::max(depth - 5, 0);
-            Depth modProbCutDepth = std::max(probCutDepth - std::clamp((value - probCutBeta - 50) / 300, 0, 3), 0);
-            int raisedProbCutBeta = probCutBeta + (probCutDepth - modProbCutDepth) * 300;
-
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-            {
-                value = -search<NonPV>(pos, ss + 1, -raisedProbCutBeta, -raisedProbCutBeta + 1, modProbCutDepth,
+                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
-                if (value < raisedProbCutBeta && probCutBeta < raisedProbCutBeta)
-                {
-                    modProbCutDepth = probCutDepth;
-                    value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, modProbCutDepth,
-                                          !cutNode);
-                }
-                else
-                    probCutBeta = raisedProbCutBeta;
-            }
 
             undo_move(pos, move);
 
@@ -994,12 +987,6 @@ Value Search::Worker::search(
     }
 
 moves_loop:  // When in check, search starts here
-
-    // Step 12. A small Probcut idea
-    probCutBeta = beta + 418;
-    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
-        && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
-        return probCutBeta;
 
     const PieceToHistory* contHist[] = {
       (ss - 1)->continuationHistory, (ss - 2)->continuationHistory, (ss - 3)->continuationHistory,
