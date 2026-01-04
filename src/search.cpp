@@ -1160,7 +1160,7 @@ moves_loop:  // When in check, search starts here
             else if (value >= beta && !is_decisive(value))
             {
                 ttMoveHistory << std::max(-400 - 100 * depth, -4000);
-                return value;
+                return is_decisive(beta) ? value : (value * (singularDepth - 1) + beta) / singularDepth;
             }
 
             // Negative extensions
@@ -1645,7 +1645,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 // much lower than alpha, we can prune this move.
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, futilityValue - 50);
+                    bestValue = std::max(bestValue, futilityValue);
                     continue;
                 }
 
