@@ -1192,9 +1192,9 @@ moves_loop:  // When in check, search starts here
             r -= 2719 + PvNode * 983 + (ttData.value > alpha) * 922
                + (ttData.depth >= depth) * (934 + cutNode * 1011);
 
-        r += 714 + 158;  // Base reduction offset to compensate for other tweaks
+        r += 714;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 73;
-        r -= std::abs(correctionValue) / 20370;
+        r -= std::abs(correctionValue) / 30370;
 
         // Increase reduction for cut nodes
         if (cutNode)
@@ -1645,7 +1645,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 // much lower than alpha, we can prune this move.
                 if (futilityValue <= alpha)
                 {
-                    bestValue = std::max(bestValue, futilityValue);
+                    bestValue = std::max(bestValue, futilityValue - 25);
                     continue;
                 }
 
