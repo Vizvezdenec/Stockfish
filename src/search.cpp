@@ -322,7 +322,7 @@ void Search::Worker::iterative_deepening() {
     for (int i = 0; i < PIECE_NB; i++)
         for (int j = 0; j < SQUARE_NB; j++)
             for (int k = 0; k < PIECE_TYPE_NB; k++)
-                captureHistory[i][j][k] = (captureHistory[i][j][k] - captureHistoryDefault) * 3 / 4 + captureHistoryDefault;
+                captureHistory[i][j][k] = (captureHistory[i][j][k] - captureHistoryDefault) / 2+ captureHistoryDefault;
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
