@@ -890,7 +890,7 @@ Value Search::Worker::search(
     }
 
     // Step 9. Null move search with verification search
-    if (cutNode && std::abs(correctionValue) < 40000000 && ss->staticEval >= beta - 18 * depth + 350 && !excludedMove
+    if (cutNode && ss->staticEval >= beta - 18 * depth + 350 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && !is_loss(beta))
     {
         assert((ss - 1)->currentMove != Move::null());
@@ -958,8 +958,10 @@ Value Search::Worker::search(
 
             do_move(pos, move, st, ss);
 
-            // Perform a preliminary qsearch to verify that the move holds
-            value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
+            if (move != ttData.move)
+                // Perform a preliminary qsearch to verify that the move holds
+                value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
+            else value = ttData.value;
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
