@@ -892,7 +892,7 @@ Value Search::Worker::search(
     // Step 9. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 18 * depth + 350 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && !is_loss(beta) &&
-        !(ttData.move && is_valid(ttData.value) && ttCapture && ttData.bound == BOUND_LOWER && PieceValue[type_of(pos.piece_on(ttData.move.to_sq()))] >= KnightValue))
+        !(ttData.move && is_valid(ttData.value) && ttCapture && ttData.bound == BOUND_LOWER && pos.see_ge(ttData.move, 666)))
     {
         assert((ss - 1)->currentMove != Move::null());
 
