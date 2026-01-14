@@ -958,15 +958,15 @@ Value Search::Worker::search(
 
             do_move(pos, move, st, ss);
 
-            if (move != ttData.move)
-                // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
-            else value = ttData.value;
+            // Perform a preliminary qsearch to verify that the move holds
+            value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
-            probCutDepth = std::clamp(depth - 5 - (value - beta) / 315, 0, depth);
+            Depth probCutDepth1 = probCutDepth - (value - probCutBeta) / 256;
+            probCutDepth1 = std::clamp(probCutDepth1, 0, depth);
+
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
+                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth1,
                                        !cutNode);
 
             undo_move(pos, move);
@@ -975,7 +975,7 @@ Value Search::Worker::search(
             {
                 // Save ProbCut data into transposition table
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
-                               probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
+                               probCutDepth1 + 1, move, unadjustedStaticEval, tt.generation());
 
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
