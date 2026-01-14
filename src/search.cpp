@@ -963,6 +963,7 @@ Value Search::Worker::search(
                 value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
             else value = ttData.value;
 
+            probCutDepth = std::clamp(depth - 5 - (value - beta) / 315, 0, depth);
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
