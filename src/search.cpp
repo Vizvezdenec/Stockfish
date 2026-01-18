@@ -749,7 +749,6 @@ Value Search::Worker::search(
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
     opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
-    bool longImproving = ss->staticEval > (ss - 4)->staticEval;
 
     // Hindsight adjustment of reductions based on static evaluation difference.
     if (priorReduction >= 3 && !opponentWorsening)
@@ -881,7 +880,7 @@ Value Search::Worker::search(
             Value futilityMult = 76 - 23 * !ss->ttHit;
 
             return futilityMult * d
-                 - (2474 * improving + 331 * opponentWorsening + longImproving * 350) * futilityMult / 1024  //
+                 - (2474 * improving + 331 * opponentWorsening) * futilityMult / 1024  //
                  + std::abs(correctionValue) / 174665;
         };
 
@@ -984,7 +983,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea
-    probCutBeta = beta + 418;
+    probCutBeta = beta + 418 - 150 * (ss->inCheck && ttCapture);
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
