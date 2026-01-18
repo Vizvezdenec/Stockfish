@@ -749,6 +749,7 @@ Value Search::Worker::search(
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
     opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
+    bool longImproving = ss->staticEval > (ss - 4)->staticEval;
 
     // Hindsight adjustment of reductions based on static evaluation difference.
     if (priorReduction >= 3 && !opponentWorsening)
@@ -880,7 +881,7 @@ Value Search::Worker::search(
             Value futilityMult = 76 - 23 * !ss->ttHit;
 
             return futilityMult * d
-                 - (2474 * improving + 331 * opponentWorsening) * futilityMult / 1024  //
+                 - (2474 * improving + 331 * opponentWorsening + longImproving * 150) * futilityMult / 1024  //
                  + std::abs(correctionValue) / 174665;
         };
 
@@ -891,8 +892,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 18 * depth + 350 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && !is_loss(beta) &&
-        !(ttData.move && is_valid(ttData.value) && ttCapture && ttData.bound == BOUND_LOWER && pos.see_ge(ttData.move, std::max(200, ss->staticEval - beta + 500))))
+        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && !is_loss(beta))
     {
         assert((ss - 1)->currentMove != Move::null());
 
