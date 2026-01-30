@@ -772,7 +772,7 @@ Value Search::Worker::search(
 
             // Extra penalty for early quiet moves of the previous ply
             if (prevSq != SQ_NONE && (ss - 1)->moveCount < 4 && !priorCapture)
-                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -1860 - 1000 *  (!ss->inCheck && ttData.value >= ss->staticEval + 107));
+                update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -1960 - 1000 *  (!ss->inCheck && ttData.value >= ss->staticEval + 257));
         }
 
         // Partial workaround for the graph history interaction problem
