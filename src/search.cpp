@@ -757,7 +757,7 @@ Value Search::Worker::search(
         depth--;
 
     // At non-PV nodes we check for an early TT cutoff
-    if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
+    if (!excludedMove && ttData.depth > depth - (ttData.value <= beta)
         && is_valid(ttData.value)  // Can happen when !ttHit or when access race in probe()
         && (ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
         && (cutNode == (ttData.value >= beta) || depth > 5))
@@ -774,11 +774,10 @@ Value Search::Worker::search(
             if (prevSq != SQ_NONE && (ss - 1)->moveCount < 4 && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2060);
         }
-        if (ttData.value <= alpha && ttData.depth >= depth + 5 && (ss - 1)->moveCount > 15 && !priorCapture)
-            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, std::min(depth * 388, 2000));
+
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
-        if (pos.rule50_count() < 96)
+        if (pos.rule50_count() < 96 && !PvNode)
         {
             if (depth >= 8 && ttData.move && pos.pseudo_legal(ttData.move) && pos.legal(ttData.move)
                 && !is_decisive(ttData.value))
