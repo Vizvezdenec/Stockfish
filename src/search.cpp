@@ -774,10 +774,8 @@ Value Search::Worker::search(
             if (prevSq != SQ_NONE && (ss - 1)->moveCount < 4 && !priorCapture)
                 update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2060);
         }
-
-        if (ttData.value <= alpha && ttData.depth >= depth + 1 && (ss - 1)->moveCount > 3 && !priorCapture)
-            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, std::min(141 * depth - 87, 1351));
-
+        if (ttData.value <= alpha && ttData.depth >= depth + 4 && (ss - 1)->moveCount > 10 && !priorCapture)
+            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, std::min(depth * 388, 2000));
         // Partial workaround for the graph history interaction problem
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 96)
