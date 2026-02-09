@@ -753,7 +753,12 @@ Value Search::Worker::search(
     if (priorReduction >= 3 && !opponentWorsening)
         depth++;
     if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 173)
+    {
         depth--;
+        if (ss->staticEval + (ss - 1)->staticEval > 500)
+            depth--;
+        depth = std::max(depth, 1);
+    }
 
     // At non-PV nodes we check for an early TT cutoff
     if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
@@ -858,7 +863,7 @@ Value Search::Worker::search(
     // Use static evaluation difference to improve quiet move ordering
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
-        int evalDiff = std::clamp(-int((ss - 1)->staticEval + ss->staticEval), -209, 167) + 89;
+        int evalDiff = std::clamp(-int((ss - 1)->staticEval + ss->staticEval), -209, 167) + 59;
         mainHistory[~us][((ss - 1)->currentMove).raw()] << evalDiff * 9;
         if (!ttHit && type_of(pos.piece_on(prevSq)) != PAWN
             && ((ss - 1)->currentMove).type_of() != PROMOTION)
