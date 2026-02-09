@@ -982,8 +982,8 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea
-    probCutBeta = beta + 259;
-    if ((ttData.bound & BOUND_LOWER) && ss->inCheck && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
+    probCutBeta = beta + 418;
+    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -1210,6 +1210,12 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
             r -= 2151;
+            
+        if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture && !ss->inCheck)
+        {
+            int evalDiff = std::clamp(-int((ss - 1)->staticEval + ss->staticEval), -209, 167) + 59;
+            r += evalDiff * 4;
+        }
 
         if (capture)
             ss->statScore = 868 * int(PieceValue[pos.captured_piece()]) / 128
