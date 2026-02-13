@@ -316,10 +316,14 @@ void Search::Worker::iterative_deepening() {
         for (int i = 0; i < UINT_16_HISTORY_SIZE; i++)
             mainHistory[c][i] = mainHistory[c][i] * 3 / 4;
 
+    int bogus = 0;
+
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
     {
+        if (threadIdx % 4 == 3 && rootDepth % 4 == 0)
+            bogus++;
         // Age out PV variability metric
         if (mainThread)
             totBestMoveChanges /= 2;
@@ -368,7 +372,7 @@ void Search::Worker::iterative_deepening() {
                 // Adjust the effective depth searched, but ensure at least one
                 // effective increment for every four searchAgain steps (see issue #2717).
                 Depth adjustedDepth =
-                  std::max(1, rootDepth - failedHighCnt - 3 * (searchAgainCounter + 1) / 4);
+                  std::max(1, rootDepth - failedHighCnt - 3 * (searchAgainCounter + 1) / 4 - bogus);
                 rootDelta = beta - alpha;
                 bestValue = search<Root>(rootPos, ss, alpha, beta, adjustedDepth, false);
 
