@@ -582,12 +582,12 @@ void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 
 // Reset histories, usually before a new game
 void Search::Worker::clear() {
-    mainHistory.fill(0);
+    mainHistory.fill(-1400);
     captureHistory.fill(-689);
 
     // Each thread is responsible for clearing their part of shared history
     sharedHistory.correctionHistory.clear_range(0, numaThreadIdx, numaTotal);
-    sharedHistory.pawnHistory.clear_range(-1238, numaThreadIdx, numaTotal);
+    sharedHistory.pawnHistory.clear_range(-2000, numaThreadIdx, numaTotal);
 
     ttMoveHistory = 0;
 
