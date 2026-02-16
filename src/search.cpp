@@ -314,7 +314,7 @@ void Search::Worker::iterative_deepening() {
 
     for (Color c : {WHITE, BLACK})
         for (int i = 0; i < UINT_16_HISTORY_SIZE; i++)
-            mainHistory[c][i] = (mainHistory[c][i] - (-1400)) * 3 / 4 - 1400;
+            mainHistory[c][i] = mainHistory[c][i] * 3 / 4;
 
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
@@ -582,12 +582,12 @@ void Search::Worker::undo_null_move(Position& pos) { pos.undo_null_move(); }
 
 // Reset histories, usually before a new game
 void Search::Worker::clear() {
-    mainHistory.fill(-1400);
+    mainHistory.fill(0);
     captureHistory.fill(-689);
 
     // Each thread is responsible for clearing their part of shared history
     sharedHistory.correctionHistory.clear_range(0, numaThreadIdx, numaTotal);
-    sharedHistory.pawnHistory.clear_range(-2000, numaThreadIdx, numaTotal);
+    sharedHistory.pawnHistory.clear_range(-1238, numaThreadIdx, numaTotal);
 
     ttMoveHistory = 0;
 
@@ -857,7 +857,7 @@ Value Search::Worker::search(
     // Use static evaluation difference to improve quiet move ordering
     if (((ss - 1)->currentMove).is_ok() && !(ss - 1)->inCheck && !priorCapture)
     {
-        int evalDiff = std::clamp(-int((ss - 1)->staticEval + ss->staticEval), -209, 167) + 99;
+        int evalDiff = std::clamp(-int((ss - 1)->staticEval + ss->staticEval), -209, 167) + 59;
         mainHistory[~us][((ss - 1)->currentMove).raw()] << evalDiff * 9;
         if (!ttHit && type_of(pos.piece_on(prevSq)) != PAWN
             && ((ss - 1)->currentMove).type_of() != PROMOTION)
@@ -1684,7 +1684,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 if (PvNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
 
-                if (value < beta)  // Update alpha here!
+                if (value <= (alpha + beta) / 2)  // Update alpha here!
                     alpha = value;
                 else
                     break;  // Fail high
