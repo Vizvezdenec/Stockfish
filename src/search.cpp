@@ -1633,7 +1633,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 2)
+                if (moveCount > 2 || bestMove)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
@@ -1684,7 +1684,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 if (PvNode)  // Update pv even in fail-high case
                     update_pv(ss->pv, move, (ss + 1)->pv);
 
-                if (value <= (alpha + beta) / 2)  // Update alpha here!
+                if (value < beta)  // Update alpha here!
                     alpha = value;
                 else
                     break;  // Fail high
@@ -1722,7 +1722,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     // Save gathered info in transposition table. The static evaluation
     // is saved as it was before adjustment by correction history.
     ttWriter.write(posKey, value_to_tt(bestValue, ss->ply), pvHit,
-                   bestValue >= beta || (PvNode && bestValue > (alpha + beta) / 2) ? BOUND_LOWER : BOUND_UPPER, DEPTH_QS, bestMove,
+                   bestValue >= beta ? BOUND_LOWER : BOUND_UPPER, DEPTH_QS, bestMove,
                    unadjustedStaticEval, tt.generation());
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
