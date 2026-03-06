@@ -76,7 +76,7 @@ using SearchedList                  = ValueList<Move, SEARCHEDLIST_CAPACITY>;
 // (*Scaler) All tuned parameters at time controls shorter than
 // optimized for require verifications at longer time controls
 
-int correction_value(const Worker& w, const Position& pos, const Stack* const ss, int* corrplexity) {
+int correction_value(const Worker& w, const Position& pos, const Stack* const ss) {
     const Color us     = pos.side_to_move();
     const auto  m      = (ss - 1)->currentMove;
     const auto& shared = w.sharedHistory;
@@ -88,8 +88,6 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
       m.is_ok() ? (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                     + (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                   : 8;
-
-    *corrplexity = 11433 * std::abs(pcv) + 8823 *std::abs(micv) + 12749 * std::abs(wnpcv) + 12749 * std::abs(bnpcv) + 8022 * std::abs(cntcv);
 
     return 11433 * pcv + 8823 * micv + 12749 * (wnpcv + bnpcv) + 8022 * cntcv;
 }
@@ -650,7 +648,7 @@ Value Search::Worker::search(
     Value bestValue, value, eval, maxValue, probCutBeta;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
     bool  capture, ttCapture;
-    int   priorReduction, corrplexity;
+    int   priorReduction;
     Piece movedPiece;
 
     SearchedList capturesSearched;
@@ -713,7 +711,7 @@ Value Search::Worker::search(
 
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
-    const auto correctionValue      = correction_value(*this, pos, ss, &corrplexity);
+    const auto correctionValue      = correction_value(*this, pos, ss);
     // Skip early pruning when in check
     if (ss->inCheck)
         ss->staticEval = eval = (ss - 2)->staticEval;
@@ -757,6 +755,8 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
+    if ((ss - 1)->currentMove == Move::null() && ss->staticEval > beta + 18)
+        depth++;
 
     // At non-PV nodes we check for an early TT cutoff
     if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
@@ -1141,7 +1141,7 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
-                int corrValAdj   = corrplexity / 260879;
+                int corrValAdj   = std::abs(correctionValue) / 220870;
                 int doubleMargin = -4 + 213 * PvNode - 196 * !ttCapture - corrValAdj
                                  - 943 * ttMoveHistory / 123477 - (ss->ply > rootDepth) * 45;
                 int tripleMargin = 73 + 324 * PvNode - 229 * !ttCapture + 87 * ss->ttPv - corrValAdj
@@ -1562,8 +1562,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         bestValue = futilityBase = -VALUE_INFINITE;
     else
     {
-        int corrplexity;
-        const auto correctionValue = correction_value(*this, pos, ss, &corrplexity);
+        const auto correctionValue = correction_value(*this, pos, ss);
 
         if (ss->ttHit)
         {
