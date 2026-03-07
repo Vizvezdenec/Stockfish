@@ -755,7 +755,7 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 188)
         depth--;
-    if ((ss - 1)->currentMove == Move::null() && ss->staticEval > (ss - 1)->staticEval + 20)
+    if ((ss - 1)->currentMove == Move::null() && ss->staticEval > (ss - 1)->staticEval + 50)
         depth++;
 
     // At non-PV nodes we check for an early TT cutoff
