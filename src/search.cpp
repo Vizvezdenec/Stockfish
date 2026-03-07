@@ -86,6 +86,7 @@ int correction_value(const Worker& w, const Position& pos, const Stack* const ss
     const int   bnpcv  = shared.nonpawn_correction_entry<BLACK>(pos).at(us).nonPawnBlack;
     const int   cntcv =
       m.is_ok() ? (*(ss - 2)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
+                    + (*(ss - 3)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                     + (*(ss - 4)->continuationCorrectionHistory)[pos.piece_on(m.to_sq())][m.to_sq()]
                   : 8;
 
@@ -120,6 +121,7 @@ void update_correction_history(const Position& pos,
     const int    bonus2 = (bonus * 129 / 128) * mask;
     const int    bonus4 = (bonus * 61 / 128) * mask;
     (*(ss - 2)->continuationCorrectionHistory)[pc][to] << bonus2;
+    (*(ss - 3)->continuationCorrectionHistory)[pc][to] << bonus4;
     (*(ss - 4)->continuationCorrectionHistory)[pc][to] << bonus4;
 }
 
