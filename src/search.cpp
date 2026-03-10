@@ -1309,7 +1309,7 @@ moves_loop:  // When in check, search starts here
 
             Value averagingValue = std::clamp(value, -10000, 10000);
             rm.averageScore =
-              rm.averageScore != -VALUE_INFINITE ? (averagingValue + rm.averageScore) / 2 : value;
+              rm.averageScore != -VALUE_INFINITE ? (averagingValue + rm.averageScore) / 2 : averagingValue;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (averagingValue * std::abs(averagingValue) + rm.meanSquaredScore) / 2
