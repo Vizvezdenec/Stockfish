@@ -356,9 +356,7 @@ void Search::Worker::iterative_deepening() {
             beta      = std::min(avg + delta, VALUE_INFINITE);
 
             // Adjust optimism based on root move's averageScore
-            Value maxValue = 182;
-            Value bonus = maxValue * avg / (std::abs(avg) + 86);
-            optimism[us]  = optimism[us] + bonus - optimism[us] * std::abs(bonus) / maxValue;
+            optimism[us]  = 142 * avg / (std::abs(avg) + 86);
             optimism[~us] = -optimism[us];
 
             // Start with a small aspiration window and, in the case of a fail
@@ -1309,12 +1307,15 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
+            if (!is_decisive(value))
+            {
             rm.averageScore =
               rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
                                   ? (value * std::abs(value) + rm.meanSquaredScore) / 2
                                   : value * std::abs(value);
+            }
 
             // PV move or new best move?
             if (moveCount == 1 || value > alpha)
