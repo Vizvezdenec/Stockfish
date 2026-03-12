@@ -1310,11 +1310,11 @@ moves_loop:  // When in check, search starts here
             Value averagingValue = std::clamp(value, -10000, 10000);
 
             rm.averageScore =
-              rm.averageScore != -VALUE_INFINITE ? (averagingValue + rm.averageScore) / 2 : averagingValue;
+              rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
-                                  ? (value * std::abs(value) + rm.meanSquaredScore) / 2
-                                  : value * std::abs(value);
+                                  ? (averagingValue * std::abs(averagingValue) + rm.meanSquaredScore) / 2
+                                  : averagingValue * std::abs(averagingValue);
 
             // PV move or new best move?
             if (moveCount == 1 || value > alpha)
