@@ -1307,7 +1307,7 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
-            Value averagingValue = std::clamp(value, -5000, 5000);
+            Value averagingValue = std::clamp(value, -2000, 2000);
 
             rm.averageScore =
               rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
