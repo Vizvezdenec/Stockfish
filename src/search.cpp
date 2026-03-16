@@ -1083,7 +1083,7 @@ moves_loop:  // When in check, search starts here
             {
                 int history = (*contHist[0])[movedPiece][move.to_sq()]
                             + (*contHist[1])[movedPiece][move.to_sq()]
-                            + sharedHistory.pawn_entry(pos)[movedPiece][move.to_sq()];
+                            + 2 * sharedHistory.pawn_entry(pos)[movedPiece][move.to_sq()] + 1805;
 
                 // Continuation history based pruning
                 if (history < -3826 * depth)
@@ -1307,14 +1307,12 @@ moves_loop:  // When in check, search starts here
 
             rm.effort += nodes - nodeCount;
 
-            Value averagingValue = std::clamp(value, -2000, 2000);
-
             rm.averageScore =
               rm.averageScore != -VALUE_INFINITE ? (value + rm.averageScore) / 2 : value;
 
             rm.meanSquaredScore = rm.meanSquaredScore != -VALUE_INFINITE * VALUE_INFINITE
-                                  ? (averagingValue * std::abs(averagingValue) + rm.meanSquaredScore) / 2
-                                  : averagingValue * std::abs(averagingValue);
+                                  ? (value * std::abs(value) + rm.meanSquaredScore) / 2
+                                  : value * std::abs(value);
 
             // PV move or new best move?
             if (moveCount == 1 || value > alpha)
