@@ -1085,14 +1085,11 @@ moves_loop:  // When in check, search starts here
                             + (*contHist[1])[movedPiece][move.to_sq()]
                             + sharedHistory.pawn_entry(pos)[movedPiece][move.to_sq()];
 
-                int adj = 9015;
-                history += 73 * mainHistory[us][move.raw()] / 32 + adj;
-
                 // Continuation history based pruning
                 if (history < -3826 * depth)
                     continue;
 
-                history -= adj;
+                history += 73 * mainHistory[us][move.raw()] / 32;
 
                 // (*Scaler): Generally, lower divisors scales well
                 lmrDepth += history / 2917;
@@ -1426,8 +1423,8 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior quiet countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = -227;
-        bonusScale -= (ss - 1)->statScore / 101;
+        int bonusScale = -107;
+        bonusScale -= (ss - 1)->statScore / 50;
         bonusScale += std::min(58 * depth, 488);
         bonusScale += 172 * ((ss - 1)->moveCount > 8);
         bonusScale += 150 * (!ss->inCheck && bestValue <= ss->staticEval - 113);
