@@ -1267,7 +1267,7 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 993;
             else if (ttCapture)
-                r -= 500;
+                r += 500;
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
