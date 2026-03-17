@@ -1432,7 +1432,7 @@ moves_loop:  // When in check, search starts here
 
         if (type_of(pos.piece_on(prevSq)) != PAWN
             && ((ss - 1)->currentMove).type_of() != PROMOTION)
-            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 101;
+            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 64;
 
         bonusScale = std::max(bonusScale, 0);
 
