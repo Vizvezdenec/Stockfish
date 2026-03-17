@@ -1423,12 +1423,16 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior quiet countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = -286;
-        bonusScale -= (ss - 1)->statScore / 200;
+        int bonusScale = -227;
+        bonusScale -= (ss - 1)->statScore / 101;
         bonusScale += std::min(58 * depth, 488);
         bonusScale += 172 * ((ss - 1)->moveCount > 8);
         bonusScale += 150 * (!ss->inCheck && bestValue <= ss->staticEval - 113);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
+
+        if (type_of(pos.piece_on(prevSq)) != PAWN
+            && ((ss - 1)->currentMove).type_of() != PROMOTION)
+            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 101;
 
         bonusScale = std::max(bonusScale, 0);
 
