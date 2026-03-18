@@ -1267,6 +1267,9 @@ moves_loop:  // When in check, search starts here
             if (!ttData.move)
                 r += 993;
 
+            if (ttCapture)
+                r -= 1000;
+
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
                                    newDepth - (r > 4302) - (r > 5919 && newDepth > 2), !cutNode);
@@ -1429,10 +1432,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 172 * ((ss - 1)->moveCount > 8);
         bonusScale += 150 * (!ss->inCheck && bestValue <= ss->staticEval - 113);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
-
-        if (type_of(pos.piece_on(prevSq)) != PAWN
-            && ((ss - 1)->currentMove).type_of() != PROMOTION)
-            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 128;
 
         bonusScale = std::max(bonusScale, 0);
 
