@@ -1430,6 +1430,10 @@ moves_loop:  // When in check, search starts here
         bonusScale += 150 * (!ss->inCheck && bestValue <= ss->staticEval - 113);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
 
+        if (type_of(pos.piece_on(prevSq)) != PAWN
+            && ((ss - 1)->currentMove).type_of() != PROMOTION)
+            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 128;
+
         bonusScale = std::max(bonusScale, 0);
 
         // scaledBonus ranges from 0 to roughly 2.3M, overflows happen for multipliers larger than 900
