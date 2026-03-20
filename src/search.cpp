@@ -1063,7 +1063,6 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
-        if (ss->ttPv)
             r += 1013;
 
         // Step 14. Pruning at shallow depths.
@@ -1211,6 +1210,8 @@ moves_loop:  // When in check, search starts here
         if (ss->ttPv)
             r -= 2819 + PvNode * 973 + (ttData.value > alpha) * 905
                + (ttData.depth >= depth) * (935 + cutNode * 959);
+        else
+            r -= 1013;
 
         r += 691;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 65;
@@ -1267,7 +1268,7 @@ moves_loop:  // When in check, search starts here
             {
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
-                const bool doDeeperSearch    = d < newDepth && value > bestValue + 38 + 4 * newDepth;
+                const bool doDeeperSearch    = d < newDepth && value > bestValue + 48;
                 const bool doShallowerSearch = value < bestValue + 9;
 
                 newDepth += doDeeperSearch - doShallowerSearch;
