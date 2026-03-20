@@ -1063,6 +1063,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Larger values scale well
+        if (ss->ttPv)
             r += 1013;
 
         // Step 14. Pruning at shallow depths.
@@ -1210,8 +1211,6 @@ moves_loop:  // When in check, search starts here
         if (ss->ttPv)
             r -= 2819 + PvNode * 973 + (ttData.value > alpha) * 905
                + (ttData.depth >= depth) * (935 + cutNode * 959);
-        else
-            r -= 1013;
 
         r += 691;  // Base reduction offset to compensate for other tweaks
         r -= moveCount * 65;
@@ -1450,6 +1449,10 @@ moves_loop:  // When in check, search starts here
         bonusScale += 169 * ((ss - 1)->moveCount > 8);
         bonusScale += 145 * (!ss->inCheck && bestValue <= ss->staticEval - 110);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 73);
+
+        if (type_of(pos.piece_on(prevSq)) != PAWN
+            && ((ss - 1)->currentMove).type_of() != PROMOTION)
+            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 101;
 
         bonusScale = std::max(bonusScale, 0);
 
