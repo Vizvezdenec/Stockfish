@@ -906,7 +906,7 @@ Value Search::Worker::search(
 
         if (!ss->ttPv && depth < 15 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-            return (2 * beta + eval) / 3;
+            return (5 * beta + eval) / 6;
     }
 
     // Step 9. Null move search with verification search
@@ -1449,10 +1449,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 169 * ((ss - 1)->moveCount > 8);
         bonusScale += 145 * (!ss->inCheck && bestValue <= ss->staticEval - 110);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 73);
-
-        if (type_of(pos.piece_on(prevSq)) != PAWN
-            && ((ss - 1)->currentMove).type_of() != PROMOTION)
-            bonusScale -= (sharedHistory.pawn_entry(pos)[pos.piece_on(prevSq)][prevSq] - 2858) / 101;
 
         bonusScale = std::max(bonusScale, 0);
 
