@@ -906,7 +906,7 @@ Value Search::Worker::search(
 
         if (!ss->ttPv && depth < 15 && eval - futility_margin(depth) >= beta && eval >= beta
             && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
-            return eval != ss->staticEval && ttData.depth >= depth ? (beta + eval) / 2 : (2 * beta + eval) / 3;
+            return (2 * beta + eval) / 3;
     }
 
     // Step 9. Null move search with verification search
@@ -1284,7 +1284,7 @@ moves_loop:  // When in check, search starts here
         else if (!PvNode || moveCount > 1)
         {
             // Increase reduction if ttMove is not present
-            if (!ttData.move)
+            if (!ttData.move || ttCapture)
                 r += 1057;
 
             // Note that if expected reduction is high, we reduce search depth here
