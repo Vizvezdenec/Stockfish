@@ -1150,7 +1150,7 @@ moves_loop:  // When in check, search starts here
             && is_valid(ttData.value) && !is_decisive(ttData.value) && (ttData.bound & BOUND_LOWER)
             && ttData.depth >= depth - 3 && !is_shuffling(move, ss, pos))
         {
-            Value singularBeta  = ttData.value - (60 + 66 * (ss->ttPv && !PvNode)) * depth / 55;
+            Value singularBeta  = ttData.value - (60 + 66 * (ss->ttPv && !PvNode) - 10 * ss->followPV) * depth / 55;
             Depth singularDepth = newDepth / 2;
 
             ss->excludedMove = move;
@@ -1268,10 +1268,9 @@ moves_loop:  // When in check, search starts here
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
                 const bool doDeeperSearch    = d < newDepth && value > bestValue + 48;
-                const bool evenDeeper    = d < newDepth + doDeeperSearch && value > bestValue + 733;
                 const bool doShallowerSearch = value < bestValue + 9;
 
-                newDepth += doDeeperSearch - doShallowerSearch + evenDeeper;
+                newDepth += doDeeperSearch - doShallowerSearch;
 
                 if (newDepth > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
