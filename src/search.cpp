@@ -1657,7 +1657,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         {
             // Futility pruning and moveCount pruning
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
-                && move.type_of() != PROMOTION && (!ss->followPV || !PvNode))
+                && move.type_of() != PROMOTION)
             {
                 if (moveCount > 2)
                     continue;
@@ -1681,6 +1681,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 }
             }
 
+            if ((!ss->followPV || !PvNode))
+            {
             // Skip non-captures
             if (!capture)
                 continue;
@@ -1688,6 +1690,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             // Do not search moves with bad enough SEE values
             if (!pos.see_ge(move, -73))
                 continue;
+            }
         }
 
         // Step 7. Make and search the move
