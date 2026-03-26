@@ -1681,16 +1681,13 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 }
             }
 
-            if ((!ss->followPV || !PvNode))
-            {
             // Skip non-captures
-            if (!capture)
+            if ((!ss->followPV || !PvNode) && !capture)
                 continue;
 
             // Do not search moves with bad enough SEE values
             if (!pos.see_ge(move, -73))
                 continue;
-            }
         }
 
         // Step 7. Make and search the move
