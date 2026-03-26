@@ -1076,7 +1076,8 @@ moves_loop:  // When in check, search starts here
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r / 1024;
-
+            if (!ss->followPV || !PvNode)
+            {
             if (capture || givesCheck)
             {
                 Piece capturedPiece = pos.piece_on(move.to_sq());
@@ -1099,7 +1100,7 @@ moves_loop:  // When in check, search starts here
                     && !pos.see_ge(move, -margin))
                     continue;
             }
-            else if (!ss->followPV || !PvNode)
+            else
             {
                 int history = (*contHist[0])[movedPiece][move.to_sq()]
                             + (*contHist[1])[movedPiece][move.to_sq()]
@@ -1133,6 +1134,7 @@ moves_loop:  // When in check, search starts here
                 // Prune moves with negative SEE
                 if (!pos.see_ge(move, -25 * lmrDepth * lmrDepth))
                     continue;
+            }
             }
         }
 
@@ -1575,9 +1577,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         && (ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER)))
         return ttData.value;
 
-    ss->followPV = ((ss - 1)->followPV && static_cast<size_t>(ss->ply - 1) < lastIterationPV.size()
-                    && (ss - 1)->currentMove == lastIterationPV[ss->ply - 1]);
-
     // Step 4. Static evaluation of the position
     Value unadjustedStaticEval = VALUE_NONE;
     if (ss->inCheck)
@@ -1686,7 +1685,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 continue;
 
             // Do not search moves with bad enough SEE values
-            if ((!ss->followPV || !PvNode) && !pos.see_ge(move, -73))
+            if (!pos.see_ge(move, -73))
                 continue;
         }
 
