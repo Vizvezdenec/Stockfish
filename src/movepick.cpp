@@ -301,7 +301,7 @@ top:
         return select([]() { return true; });
 
     case PROBCUT :
-        return select([&]() { return pos.see_ge(*cur, std::max(threshold, -72)); });
+        return select([&]() { return pos.see_ge(*cur, std::max(threshold, -144)); });
     }
 
     assert(false);
