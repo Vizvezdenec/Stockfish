@@ -1205,7 +1205,7 @@ moves_loop:  // When in check, search starts here
         do_move(pos, move, st, givesCheck, ss);
 
         // Add extension to new depth
-        newDepth += extension + (move == ss->bm);
+        newDepth += extension;
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
         // Decrease reduction for PvNodes (*Scaler)
@@ -1232,6 +1232,9 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
             r -= 2239;
+
+        if (move == ss->bm)
+            r -= 512;
 
         if (capture)
             ss->statScore = 863 * int(PieceValue[pos.captured_piece()]) / 128
