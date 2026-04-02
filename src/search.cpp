@@ -1206,7 +1206,7 @@ moves_loop:  // When in check, search starts here
         do_move(pos, move, st, givesCheck, ss);
 
         // Add extension to new depth
-        newDepth += extension + 2 * (move == ss->bm);
+        newDepth += extension + (move == ss->bm && !capture);
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
         // Decrease reduction for PvNodes (*Scaler)
