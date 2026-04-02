@@ -729,6 +729,8 @@ Value Search::Worker::search(
     ss->ttPv     = excludedMove ? ss->ttPv : PvNode || (ttHit && ttData.is_pv);
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
 
+    ss->bm       = move.none();
+
     // Step 6. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
     const auto correctionValue      = correction_value(*this, pos, ss);
@@ -1204,7 +1206,7 @@ moves_loop:  // When in check, search starts here
         do_move(pos, move, st, givesCheck, ss);
 
         // Add extension to new depth
-        newDepth += extension;
+        newDepth += extension + 2 * (move == ss->bm);
         uint64_t nodeCount = rootNode ? uint64_t(nodes) : 0;
 
         // Decrease reduction for PvNodes (*Scaler)
@@ -1392,6 +1394,7 @@ moves_loop:  // When in check, search starts here
                 {
                     // (*Scaler) Infrequent and small updates scale well
                     ss->cutoffCnt += (extension < 2) || PvNode;
+                    ss->bm = move;
                     assert(value >= beta);  // Fail high
                     break;
                 }
