@@ -1254,15 +1254,9 @@ moves_loop:  // When in check, search starts here
             // std::clamp has been replaced by a more robust implementation.
             Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + PvNode;
 
-            if (d <= 3)
-                value = -qsearch<NonPV>(pos, ss + 1, -(alpha + 1), -alpha);
-
-            if (value > alpha || d > 3)
-            {
-                ss->reduction = newDepth - d;
-                value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
-                ss->reduction = 0;
-            }
+            ss->reduction = newDepth - d;
+            value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
+            ss->reduction = 0;
 
             // Do a full-depth search when reduced LMR search fails high
             // (*Scaler) Shallower searches here don't scale well
@@ -1306,7 +1300,7 @@ moves_loop:  // When in check, search starts here
             // decisive score handling improves mate finding and retrograde analysis.
             if (move == ttData.move
                 && ((is_valid(ttData.value) && is_decisive(ttData.value) && ttData.depth > 0)
-                    || ttData.depth > 1))
+                    || ttData.depth > 1 - capture))
                 newDepth = std::max(newDepth, 1);
 
             value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
