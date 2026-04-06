@@ -181,7 +181,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
 
             if ((rank1 & pos.square<KING>(us)) && (from & kingWall))
-                m.value -= 4000;
+                m.value -= 9000;
         }
 
         else  // Type == EVASIONS
