@@ -151,7 +151,6 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
         const PieceType pt            = type_of(pc);
         const Piece     capturedPiece = pos.piece_on(to);
         const Bitboard  kingWall      = attacks_bb<KING>(pos.square<KING>(us)) & pos.pieces(us, PAWN);
-        //const Bitboard  rank2         = us == WHITE ? RANK_2 : RANK_7;
         const Bitboard  rank1         = us == WHITE ? RANK_1 : RANK_8;
 
         if constexpr (Type == CAPTURES)
@@ -182,7 +181,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
 
             if ((rank1 & pos.square<KING>(us)) && (from & kingWall))
-                m.value -= 4000;
+                m.value -= 16000;
         }
 
         else  // Type == EVASIONS
