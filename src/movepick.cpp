@@ -129,8 +129,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
     Color us = pos.side_to_move();
 
     [[maybe_unused]] Bitboard threatByLesser[KING + 1];
-    [[maybe_unused]] Bitboard kingWall;
-    [[maybe_unused]] Bitboard rank1;
+    [[maybe_unused]] Bitboard krLineup;
     if constexpr (Type == QUIETS)
     {
         threatByLesser[PAWN]   = 0;
@@ -139,8 +138,11 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
           pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatByLesser[KNIGHT];
         threatByLesser[QUEEN] = pos.attacks_by<ROOK>(~us) | threatByLesser[ROOK];
         threatByLesser[KING]  = 0;
-        kingWall      = attacks_bb<KING>(pos.square<KING>(us)) & pos.pieces(us, PAWN);
-        rank1         = us == WHITE ? rank_bb(RANK_1) : rank_bb(RANK_8);
+        File oppKingFile = file_of(pos.square<KING>(~us));
+        krLineup = oppKingFile == FILE_A ? file_bb(FILE_A) | file_bb(FILE_B) | file_bb(FILE_C) :
+                   oppKingFile == FILE_H ? file_bb(FILE_F) | file_bb(FILE_G) | file_bb(FILE_H) :
+                   file_bb(oppKingFile) | file_bb(File(int(oppKingFile) - 1)) | file_bb(File(int(oppKingFile) + 1));
+
     }
 
     ExtMove* it = cur;
@@ -182,8 +184,8 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
 
-            if (pos.non_pawn_material() > 8000 && (rank1 & pos.square<KING>(us)) && (from & kingWall))
-                m.value -= 16000;
+            if ((krLineup & to) && !(krLineup & from))
+                m.value += pos.non_pawn_material() / 4;
         }
 
         else  // Type == EVASIONS
