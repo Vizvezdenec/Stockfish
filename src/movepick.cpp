@@ -129,6 +129,8 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
     Color us = pos.side_to_move();
 
     [[maybe_unused]] Bitboard threatByLesser[KING + 1];
+    [[maybe_unused]] Bitboard knightOnQueen = 0;
+    [[maybe_unused]] Bitboard knightOnRook = 0;
     if constexpr (Type == QUIETS)
     {
         threatByLesser[PAWN]   = 0;
@@ -137,6 +139,15 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
           pos.attacks_by<KNIGHT>(~us) | pos.attacks_by<BISHOP>(~us) | threatByLesser[KNIGHT];
         threatByLesser[QUEEN] = pos.attacks_by<ROOK>(~us) | threatByLesser[ROOK];
         threatByLesser[KING]  = 0;
+        knightOnQueen = 0;
+        knightOnRook = 0;
+        Bitboard bb = pos.pieces(~us, QUEEN);
+        while (bb)
+          knightOnQueen |= PseudoAttacks[KNIGHT][pop_lsb(bb)];
+        bb = pos.pieces(~us, ROOK);
+        while (bb)
+          knightOnRook |= PseudoAttacks[KNIGHT][pop_lsb(bb)];
+        knightOnRook &= ~threatByLesser[QUEEN];
     }
 
     ExtMove* it = cur;
@@ -153,7 +164,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
 
         if constexpr (Type == CAPTURES)
             m.value = (*captureHistory)[pc][to][type_of(capturedPiece)]
-                    + 7 * int(PieceValue[capturedPiece]) + 8000 * (m.type_of() == PROMOTION && m.promotion_type() == QUEEN && capturedPiece);
+                    + 7 * int(PieceValue[capturedPiece]);
 
         else if constexpr (Type == QUIETS)
         {
@@ -177,6 +188,12 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
 
             if (ply < LOW_PLY_HISTORY_SIZE)
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
+
+
+            m.value += (pt == KNIGHT && bool(knightOnQueen & to)) * 10000;
+            m.value += (pt == KNIGHT && bool(knightOnRook & to)) * 5000;
+            m.value -= (pt == KNIGHT && bool(knightOnQueen & from)) * 10000;
+            m.value -= (pt == KNIGHT && bool(knightOnRook & from)) * 5000;
         }
 
         else  // Type == EVASIONS
