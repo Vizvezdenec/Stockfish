@@ -190,9 +190,9 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
                 m.value += 8 * (*lowPlyHistory)[ply][m.raw()] / (1 + ply);
 
             m.value += (pt == KNIGHT && bool(knightOnQueen & to)) * 10000;
-            m.value += (pt == KNIGHT && bool(knightOnRook & to)) * 3000;
+            m.value += (pt == KNIGHT && bool(knightOnRook & to)) * 2500;
             m.value -= (pt == KNIGHT && bool(knightOnQueen & from)) * 10000;
-            m.value -= (pt == KNIGHT && bool(knightOnRook & from)) * 3000;
+            m.value -= (pt == KNIGHT && bool(knightOnRook & from)) * 2500;
         }
 
         else  // Type == EVASIONS
