@@ -798,7 +798,7 @@ Value Search::Worker::search(
         // For high rule50 counts don't produce transposition table cutoffs.
         if (pos.rule50_count() < 96)
         {
-            if (depth >= 7 + !cutNode && ttData.move && pos.pseudo_legal(ttData.move) && pos.legal(ttData.move)
+            if (depth >= 7 && ttData.move && pos.pseudo_legal(ttData.move) && pos.legal(ttData.move)
                 && !is_decisive(ttData.value))
             {
                 pos.do_move(ttData.move, st);
@@ -814,7 +814,7 @@ Value Search::Worker::search(
                     return ttData.value;
             }
             else
-                return ttData.value;
+                return ttData.value >= beta ? (ttData.value + beta) / 2 : ttData.value;
         }
     }
 
