@@ -814,7 +814,7 @@ Value Search::Worker::search(
                     return ttData.value;
             }
             else
-                return ttData.value >= beta ? (ttData.value + beta) / 2 : ttData.value;
+                return ttData.value >= beta ? (ttData.value + 3 * beta) / 4 : ttData.value;
         }
     }
 
