@@ -746,6 +746,7 @@ Value Search::Worker::search(
     ttData.value = ttHit ? value_from_tt(ttData.value, ss->ply, pos.rule50_count()) : VALUE_NONE;
     ss->ttPv     = excludedMove ? ss->ttPv : PvNode || (ttHit && ttData.is_pv);
     ttCapture    = ttData.move && pos.capture_stage(ttData.move);
+    ss->ttValue  = VALUE_NONE;
 
     // Step 5. Static evaluation of the position
     Value      unadjustedStaticEval = VALUE_NONE;
@@ -768,6 +769,9 @@ Value Search::Worker::search(
         if (is_valid(ttData.value)
             && (ttData.bound & (ttData.value > eval ? BOUND_LOWER : BOUND_UPPER)))
             eval = ttData.value;
+
+        if (is_valid(ttData.value))
+            ss->ttValue = ttData.value;
     }
     else
     {
@@ -1466,6 +1470,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 169 * ((ss - 1)->moveCount > 8);
         bonusScale += 145 * (!ss->inCheck && bestValue <= ss->staticEval - 110);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 73);
+        bonusScale += 100 * ((ss - 1)->ttValue != VALUE_NONE && (bestValue <= -(ss - 1)->ttValue - 80));
 
         bonusScale = std::max(bonusScale, 0);
 
