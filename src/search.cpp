@@ -1470,7 +1470,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 169 * ((ss - 1)->moveCount > 8);
         bonusScale += 145 * (!ss->inCheck && bestValue <= ss->staticEval - 110);
         bonusScale += 154 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 73);
-        bonusScale += 150 * ((ss - 1)->ttValue != VALUE_NONE && (-(ss - 1)->ttValue - 80 <= alpha));
+        bonusScale += 150 * ((ss - 1)->ttValue != VALUE_NONE && (-(ss - 1)->ttValue - 180 <= alpha));
 
         bonusScale = std::max(bonusScale, 0);
 
