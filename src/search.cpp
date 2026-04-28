@@ -830,7 +830,7 @@ Value Search::Worker::search(
                     return ttData.value;
 
                 if ((ttData.value >= beta) == (-ttDataNext.value >= beta))
-                return ttData.value >= beta ? ((ttData.depth + 3) * ttData.value + beta) / (ttData.depth + 4) : ttData.value;
+                return ttData.value >= beta ? ((ttData.depth + 4) * ttData.value + beta) / (ttData.depth + 5) : ttData.value;
             }
             else
                 return ttData.value;
