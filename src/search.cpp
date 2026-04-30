@@ -735,6 +735,7 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
+    ss->cutNode = cutNode;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -1248,6 +1249,9 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction
         if (move == ttData.move)
             r -= 2239;
+
+        if (cutNode && (ss - 1)->cutNode)
+            r += 512;
 
         if (capture)
             ss->statScore = 863 * int(PieceValue[pos.captured_piece()]) / 128
