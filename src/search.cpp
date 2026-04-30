@@ -1251,7 +1251,7 @@ moves_loop:  // When in check, search starts here
             r -= 2239;
 
         if (cutNode && (ss - 1)->cutNode)
-            r += 256;
+            r -= 256;
 
         if (capture)
             ss->statScore = 863 * int(PieceValue[pos.captured_piece()]) / 128
