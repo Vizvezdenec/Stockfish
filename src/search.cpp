@@ -1242,6 +1242,14 @@ moves_loop:  // When in check, search starts here
         if (ttCapture)
             r += 1054;
 
+        // Increase reduction if next ply has a lot of fail high
+        if ((ss + 1)->cutoffCnt > 1)
+            r += 251 + 1124 * ((ss + 1)->cutoffCnt > 2) + 1042 * allNode;
+
+        // For first picked move (ttMove) reduce reduction
+        else if (move == ttData.move)
+            r = std::max(-10, r - 2016 + 150 * cutNode);
+
         if (capture)
             ss->statScore = 863 * int(PieceValue[pos.captured_piece()]) / 128
                           + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
@@ -1252,14 +1260,6 @@ moves_loop:  // When in check, search starts here
 
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 428 / 4096;
-
-        // Increase reduction if next ply has a lot of fail high
-        if ((ss + 1)->cutoffCnt > 1)
-            r += 251 + 1124 * ((ss + 1)->cutoffCnt > 2) + 1042 * allNode;
-
-        // For first picked move (ttMove) reduce reduction
-        else if (move == ttData.move)
-            r = std::max(-10, r - 2016 + 150 * cutNode);
 
         // Scale up reductions for expected ALL nodes
         if (allNode)
@@ -1307,7 +1307,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
-                                   newDepth - (r > 4628) - (r > 5772 && newDepth > 2), !cutNode);
+                                   newDepth - (r > 4628) - (r > 5772 && newDepth > 2 && extension < 2), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
