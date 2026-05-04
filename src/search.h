@@ -116,7 +116,6 @@ struct Stack {
     bool                        ttPv;
     bool                        ttHit;
     bool                        followPV;
-    bool                        cutNode;
     int                         cutoffCnt;
     int                         reduction;
 };

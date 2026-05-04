@@ -734,7 +734,6 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
-    ss->cutNode = cutNode;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -1243,17 +1242,6 @@ moves_loop:  // When in check, search starts here
         if (ttCapture)
             r += 1054;
 
-        if (cutNode && (ss - 1)->cutNode)
-            r += 1024;
-
-        // Increase reduction if next ply has a lot of fail high
-        if ((ss + 1)->cutoffCnt > 1)
-            r += 251 + 1124 * ((ss + 1)->cutoffCnt > 2) + 1042 * allNode;
-
-        // For first picked move (ttMove) reduce reduction
-        else if (move == ttData.move)
-            r = std::max(-10, r - 2016 + 150 * cutNode);
-
         if (capture)
             ss->statScore = 863 * int(PieceValue[pos.captured_piece()]) / 128
                           + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())];
@@ -1264,6 +1252,14 @@ moves_loop:  // When in check, search starts here
 
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 428 / 4096;
+
+        // Increase reduction if next ply has a lot of fail high
+        if ((ss + 1)->cutoffCnt > 1)
+            r += 251 + 1124 * ((ss + 1)->cutoffCnt > 2) + 1042 * allNode;
+
+        // For first picked move (ttMove) reduce reduction
+        else if (move == ttData.move)
+            r = std::max(-10, r - 2016 + 150 * cutNode);
 
         // Scale up reductions for expected ALL nodes
         if (allNode)
