@@ -734,6 +734,7 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
+    ss->cutNode = cutNode;
 
     // Step 4. Transposition table lookup
     excludedMove                   = ss->excludedMove;
@@ -1241,6 +1242,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction if ttMove is a capture
         if (ttCapture)
             r += 1054;
+
+        if (cutNode && (ss - 1)->cutNode)
+            r += 1024;
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
