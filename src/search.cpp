@@ -1038,6 +1038,8 @@ moves_loop:  // When in check, search starts here
 
     int moveCount = 0;
 
+    Move pseudoTtMove = move.none();
+
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
     while ((move = mp.next_move()) != Move::none())
@@ -1297,6 +1299,9 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1415);
+
+                if (value > alpha)
+                    pseudoTtMove = move;
             }
         }
 
@@ -1463,10 +1468,10 @@ moves_loop:  // When in check, search starts here
     // Bonus for prior quiet countermove that caused the fail low
     else if (!priorCapture && prevSq != SQ_NONE)
     {
-        int bonusScale = -270;
+        int bonusScale = -245;
         bonusScale -= (ss - 1)->statScore / 98;
         bonusScale += std::min(59 * depth, 430);
-        bonusScale += std::min(15 * (ss - 1)->moveCount, 226);
+        bonusScale += 191 * ((ss - 1)->moveCount > 8);
         bonusScale += 143 * (!ss->inCheck && bestValue <= ss->staticEval - 103);
         bonusScale += 151 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 78);
 
@@ -1507,7 +1512,7 @@ moves_loop:  // When in check, search starts here
                        bestValue >= beta    ? BOUND_LOWER
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
-                       moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove,
+                       moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove ? bestMove : ttData.move ? ttData.move : pseudoTtMove,
                        unadjustedStaticEval, tt.generation());
 
     // Adjust correction history if the best move is not a capture
