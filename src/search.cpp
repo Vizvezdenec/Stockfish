@@ -1303,7 +1303,7 @@ moves_loop:  // When in check, search starts here
                 if (value > lmrAlpha)
                 {
                     pseudoTtMove = move;
-                    lmrAlpha = alpha;
+                    lmrAlpha = value;
                 }
             }
         }
