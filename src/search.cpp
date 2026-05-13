@@ -1037,8 +1037,6 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    Move pseudoTtMove = move.none();
-    Value lmrAlpha = alpha;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1299,12 +1297,6 @@ moves_loop:  // When in check, search starts here
 
                 // Post LMR continuation history updates
                 update_continuation_histories(ss, movedPiece, move.to_sq(), 1415);
-
-                if (value > lmrAlpha)
-                {
-                    pseudoTtMove = move;
-                    lmrAlpha = value;
-                }
             }
         }
 
@@ -1515,7 +1507,7 @@ moves_loop:  // When in check, search starts here
                        bestValue >= beta    ? BOUND_LOWER
                        : PvNode && bestMove ? BOUND_EXACT
                                             : BOUND_UPPER,
-                       moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove ? bestMove : ttData.move ? ttData.move : pseudoTtMove,
+                       moveCount != 0 ? depth : std::min(MAX_PLY - 1, depth + 6), bestMove,
                        unadjustedStaticEval, tt.generation());
 
     // Adjust correction history if the best move is not a capture
@@ -1649,7 +1641,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (bestValue > alpha)
             alpha = bestValue;
 
-        futilityBase = ss->staticEval + 335;
+        futilityBase = ss->staticEval + 335 - 66 + pos.non_pawn_material() / 64;
     }
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory};
