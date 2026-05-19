@@ -1119,7 +1119,7 @@ moves_loop:  // When in check, search starts here
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures
-                if (!givesCheck && lmrDepth < 7)
+                if (!givesCheck && lmrDepth < 7 && !(move.to_sq() == prevSq))
                 {
                     Value futilityValue = ss->staticEval + 231 + 232 * lmrDepth
                                         + PieceValue[capturedPiece] + 131 * captHist / 1024;
@@ -1293,7 +1293,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth.
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
-            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + (PvNode && !rootNode);
+            Depth d = std::max(1, std::min(newDepth - r / 1024, newDepth + 2)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
