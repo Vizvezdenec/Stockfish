@@ -199,7 +199,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
     Color us = pos.side_to_move();
 
     [[maybe_unused]] Bitboard threatByLesser[KING + 1];
-    if constexpr (Type == QUIETS)
+    if constexpr (Type == QUIETS || Type == CAPTURES)
     {
         threatByLesser[PAWN]   = 0;
         threatByLesser[KNIGHT] = threatByLesser[BISHOP] = pos.attacks_by<PAWN>(~us);
@@ -223,7 +223,7 @@ ExtMove* MovePicker::score(const MoveList<Type>& ml) {
 
         if constexpr (Type == CAPTURES)
             m.value = (*captureHistory)[pc][to][type_of(capturedPiece)]
-                    + 7 * int(PieceValue[capturedPiece]);
+                    + 7 * int(PieceValue[capturedPiece]) + 2 * bool(threatByLesser[pt] & from) * PieceValue[pt];
 
         else if constexpr (Type == QUIETS)
         {
