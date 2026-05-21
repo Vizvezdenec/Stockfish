@@ -1119,8 +1119,6 @@ moves_loop:  // When in check, search starts here
 
             if (capture || givesCheck)
             {
-                if (move.to_sq() != prevSq)
-                {
                 Piece capturedPiece = pos.piece_on(move.to_sq());
                 int   captHist = captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
@@ -1140,7 +1138,6 @@ moves_loop:  // When in check, search starts here
                 if ((alpha >= VALUE_DRAW || pos.non_pawn_material(us) != PieceValue[movedPiece])
                     && !pos.see_ge(move, -margin))
                     continue;
-                }
             }
             else if (!ss->followPV || !PvNode)
             {
