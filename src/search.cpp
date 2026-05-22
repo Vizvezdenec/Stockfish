@@ -941,9 +941,9 @@ Value Search::Worker::search(
         Value futilityMult = interpolate(std::min(int(depth), 10), 1, 10, 40, 80);
         futilityMult -= 20 * !ss->ttHit;
 
-        Value futilityMargin = futilityMult * depth
-                             - (2934 * improving + 343 * opponentWorsening) * futilityMult / 1024
-                             + std::abs(correctionValue) / 182069;
+        Value futilityMargin = (futilityMult * depth * 1024
+                             - (2934 * improving + 343 * opponentWorsening) * futilityMult 
+                             + std::abs(correctionValue) / 178) / 1024;
 
         if (eval - futilityMargin >= beta)
             return (716 * beta + 308 * eval) / 1024;
@@ -1126,7 +1126,7 @@ moves_loop:  // When in check, search starts here
                 if (!givesCheck && lmrDepth < 7)
                 {
                     Value futilityValue = ss->staticEval + 231 + 232 * lmrDepth
-                                        + PieceValue[capturedPiece] + 131 * captHist / 1024 + 666 * (move.to_sq() == prevSq);
+                                        + PieceValue[capturedPiece] + 131 * captHist / 1024;
 
                     if (futilityValue <= alpha)
                         continue;
