@@ -941,9 +941,9 @@ Value Search::Worker::search(
         Value futilityMult = interpolate(std::min(int(depth), 10), 1, 10, 40, 80);
         futilityMult -= 20 * !ss->ttHit;
 
-        Value futilityMargin = (futilityMult * depth * 1024
-                             - (2934 * improving + 343 * opponentWorsening) * futilityMult 
-                             + std::abs(correctionValue) / 178) / 1024;
+        Value futilityMargin = futilityMult * depth
+                             - (2934 * improving + 343 * opponentWorsening) * futilityMult / 1024
+                             + std::abs(correctionValue) / 182069;
 
         if (eval - futilityMargin >= beta)
             return (716 * beta + 308 * eval) / 1024;
@@ -989,7 +989,7 @@ Value Search::Worker::search(
     // Step 10. Internal iterative reductions
     // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
     // (*Scaler) Making IIR more aggressive scales poorly.
-    if (!ss->followPV && !allNode && depth >= 6 && !ttData.move && priorReduction <= 3)
+    if (!ss->followPV && !allNode && depth >= 6 && !ttData.move && priorReduction != 0)
         depth--;
 
     // Step 11. ProbCut
