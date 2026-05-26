@@ -1132,7 +1132,7 @@ moves_loop:  // When in check, search starts here
                     {
                         if (bestValue <= futilityValue && !is_decisive(bestValue)
                         && !is_win(futilityValue))
-                        bestValue = (futilityValue + 3 * bestValue) / 4;
+                            bestValue = (futilityValue + 7 * bestValue) / 8;
                         continue;
                     }
                 }
