@@ -1129,7 +1129,12 @@ moves_loop:  // When in check, search starts here
                                         + PieceValue[capturedPiece] + 131 * captHist / 1024;
 
                     if (futilityValue <= alpha)
+                    {
+                        if (bestValue <= futilityValue && !is_decisive(bestValue)
+                        && !is_win(futilityValue))
+                            bestValue = (futilityValue + 15 * bestValue) / 16;
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks
@@ -1697,7 +1702,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
             if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
                 && move.type_of() != PROMOTION)
             {
-                if (moveCount > 1 + bool(ttData.move))
+                if (moveCount > 2)
                     continue;
 
                 Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
