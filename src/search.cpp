@@ -1059,7 +1059,6 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    bool goodSing = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1209,8 +1208,6 @@ moves_loop:  // When in check, search starts here
 
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
-
-                goodSing = ttData.value >= beta + 66;
 
                 depth++;
             }
@@ -1494,7 +1491,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 191 * ((ss - 1)->moveCount > 8);
         bonusScale += 143 * (!ss->inCheck && bestValue <= ss->staticEval - 103);
         bonusScale += 151 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 78);
-        bonusScale += 150 * goodSing;
 
         bonusScale = std::max(bonusScale, 0);
 
