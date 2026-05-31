@@ -1279,7 +1279,7 @@ moves_loop:  // When in check, search starts here
             r = std::max(-10, r - 2016 + 150 * cutNode);
 
         if (negext && move != ttData.move)
-            r -= 512;
+            r += 512;
 
         if (capture)
             ss->statScore = 809 * int(PieceValue[pos.captured_piece()]) / 128
