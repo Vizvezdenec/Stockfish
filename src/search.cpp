@@ -1210,7 +1210,7 @@ moves_loop:  // When in check, search starts here
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
 
-                depth++;
+                negext = true;
             }
 
             // Multi-cut pruning
@@ -1234,10 +1234,7 @@ moves_loop:  // When in check, search starts here
 
             // If the ttMove is assumed to fail high over current beta
             else if (ttData.value >= beta)
-            {
                 extension = -3;
-                negext = true;
-            }
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
@@ -1279,7 +1276,7 @@ moves_loop:  // When in check, search starts here
             r = std::max(-10, r - 2016 + 150 * cutNode);
 
         if (negext && move != ttData.move)
-            r += 512;
+            r -= 1024;
 
         if (capture)
             ss->statScore = 809 * int(PieceValue[pos.captured_piece()]) / 128
