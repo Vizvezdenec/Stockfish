@@ -1211,8 +1211,6 @@ moves_loop:  // When in check, search starts here
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
 
                 depth++;
-
-                goodSing = ttData.value >= beta - 30;
             }
 
             // Multi-cut pruning
@@ -1236,7 +1234,10 @@ moves_loop:  // When in check, search starts here
 
             // If the ttMove is assumed to fail high over current beta
             else if (ttData.value >= beta)
+            {
                 extension = -3;
+                goodSing = true;
+            }
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
@@ -1268,6 +1269,9 @@ moves_loop:  // When in check, search starts here
         // Increase reduction if ttMove is a capture
         if (ttCapture)
             r += 1039;
+
+        if (goodSing && move != ttData.move)
+            r -= 1024;
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
@@ -1494,7 +1498,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 191 * ((ss - 1)->moveCount > 8);
         bonusScale += 143 * (!ss->inCheck && bestValue <= ss->staticEval - 103);
         bonusScale += 151 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 78);
-        bonusScale += 100 * goodSing;
 
         bonusScale = std::max(bonusScale, 0);
 
