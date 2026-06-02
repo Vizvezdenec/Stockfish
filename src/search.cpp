@@ -1059,7 +1059,6 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    bool goodSing = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1106,6 +1105,9 @@ moves_loop:  // When in check, search starts here
         // Larger values scale well
         if (ss->ttPv)
             r += 1006;
+
+        if ((ss + 1)->cutoffCnt > 1)
+            r += 236;
 
         // Step 14. Pruning at shallow depths.
         // Depth conditions are important for mate finding.
@@ -1234,10 +1236,7 @@ moves_loop:  // When in check, search starts here
 
             // If the ttMove is assumed to fail high over current beta
             else if (ttData.value >= beta)
-            {
                 extension = -3;
-                goodSing = true;
-            }
 
             // If we are on a cutNode but the ttMove is not assumed to fail high
             // over current beta
@@ -1270,12 +1269,9 @@ moves_loop:  // When in check, search starts here
         if (ttCapture)
             r += 1039;
 
-        if (goodSing && move != ttData.move)
-            r -= 1024;
-
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
-            r += 236 + 1079 * ((ss + 1)->cutoffCnt > 2) + 1143 * allNode;
+            r += 1079 * ((ss + 1)->cutoffCnt > 2) + 1143 * allNode;
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
