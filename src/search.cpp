@@ -1059,7 +1059,7 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    bool negext = false;
+    bool goodSing = false;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1210,7 +1210,9 @@ moves_loop:  // When in check, search starts here
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
 
-                negext = true;
+                depth++;
+
+                goodSing = ttData.value >= beta - 30;
             }
 
             // Multi-cut pruning
@@ -1274,9 +1276,6 @@ moves_loop:  // When in check, search starts here
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
             r = std::max(-10, r - 2016 + 150 * cutNode);
-
-        if (negext && move != ttData.move)
-            r -= 1024;
 
         if (capture)
             ss->statScore = 809 * int(PieceValue[pos.captured_piece()]) / 128
@@ -1495,6 +1494,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 191 * ((ss - 1)->moveCount > 8);
         bonusScale += 143 * (!ss->inCheck && bestValue <= ss->staticEval - 103);
         bonusScale += 151 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 78);
+        bonusScale += 100 * goodSing;
 
         bonusScale = std::max(bonusScale, 0);
 
