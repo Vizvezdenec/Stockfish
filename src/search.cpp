@@ -1106,7 +1106,7 @@ moves_loop:  // When in check, search starts here
         if (ss->ttPv)
             r += 1006;
 
-        if ((ss + 1)->cutoffCnt > 23)
+        if ((ss + 1)->cutoffCnt > 33)
             r += 512;
 
         // Step 14. Pruning at shallow depths.
@@ -1271,7 +1271,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
-            r += 236 + 1079 * ((ss + 1)->cutoffCnt > 2) + 1143 * allNode - 512 * ((ss + 1)->cutoffCnt > 23);
+            r += 236 + 1079 * ((ss + 1)->cutoffCnt > 2) + 1143 * allNode - 512 * ((ss + 1)->cutoffCnt > 33);
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
