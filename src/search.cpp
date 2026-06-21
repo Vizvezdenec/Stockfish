@@ -1001,7 +1001,7 @@ Value Search::Worker::search(
         if (nullValue >= beta && !is_win(nullValue))
         {
             if (nmpMinPly || depth < 16)
-                return nullValue;
+                return (nullValue + beta) / 2;
 
             assert(!nmpMinPly);  // Recursive verification is not allowed
 
@@ -1077,7 +1077,7 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 12. A small Probcut idea
-    probCutBeta = beta + 428 + 41 - 100 * improving;
+    probCutBeta = beta + 428;
     if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
