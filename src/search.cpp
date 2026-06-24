@@ -1342,7 +1342,7 @@ moves_loop:  // When in check, search starts here
             if (value > alpha)
             {
                 // Post LMR continuation history updates
-                update_continuation_histories(ss, movedPiece, move.to_sq(), 1415 - 100);
+                update_continuation_histories(ss, movedPiece, move.to_sq(), 1415 + 150);
 
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
