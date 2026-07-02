@@ -1755,10 +1755,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                     bestValue = std::max(bestValue, std::min(alpha, futilityBase));
                     continue;
                 }
-
-                if (7 * int(PieceValue[pos.captured_piece()])
-                      + captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] < -5000)
-                      continue;
             }
 
             // Skip non-captures
