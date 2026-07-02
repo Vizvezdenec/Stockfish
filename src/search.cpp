@@ -1757,7 +1757,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 }
 
                 if (7 * int(PieceValue[pos.captured_piece()])
-                      + captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] < -3000)
+                      + captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))] < -5000)
                       continue;
             }
 
