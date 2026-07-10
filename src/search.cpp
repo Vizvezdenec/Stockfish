@@ -994,7 +994,7 @@ Value Search::Worker::search(
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth
-        Depth R = 7 + depth / 3 + std::max(0, (ss->staticEval - beta) / 256) + opponentWorsening;
+        Depth R = 7 + depth / 3;
         do_null_move(pos, st, ss);
 
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
@@ -1043,7 +1043,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - 4 - improving;
+        Depth      probCutDepth = depth - 4 - improving - (ss->staticEval >= beta + 322);
 
         while ((move = mp.next_move()) != Move::none())
         {
