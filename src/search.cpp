@@ -1026,8 +1026,6 @@ Value Search::Worker::search(
         }
     }
 
-    improving |= ss->staticEval >= beta;
-
     // Step 10. Internal iterative reductions
     // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
     // (*Scaler) Making IIR more aggressive scales poorly.
@@ -1047,7 +1045,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - (improving ? 5 : 3) - (ss->staticEval >= beta + 202);
+        Depth      probCutDepth = depth - (improving || ss->staticEval >= beta ? 5 : 3);
 
         while ((move = mp.next_move()) != Move::none())
         {
