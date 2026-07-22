@@ -1047,7 +1047,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - (improving ? 5 : 3);
+        Depth      probCutDepth = depth - (improving ? 5 : 3) - (ss->staticEval >= beta + 511);;
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -1143,6 +1143,11 @@ moves_loop:  // When in check, search starts here
 
         int r = reduction(improving, depth, moveCount, delta);
 
+        // Increase reduction for ttPv nodes (*Scaler)
+        // Larger values scale well
+        if (ss->ttPv)
+            r += 929;
+
         // Step 14. Pruning at shallow depths.
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
@@ -1152,7 +1157,7 @@ moves_loop:  // When in check, search starts here
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
-            int lmrDepth = newDepth - r / 1024 - ss->ttPv;
+            int lmrDepth = newDepth - r / 1024;
 
             if (capture || givesCheck)
             {
@@ -1288,7 +1293,7 @@ moves_loop:  // When in check, search starts here
 
         // Decrease reduction for PvNodes (*Scaler)
         if (ss->ttPv)
-            r -= 3023 - 929 + PvNode * 1004 + (ttData.value > alpha) * 885
+            r -= 3023 + PvNode * 1004 + (ttData.value > alpha) * 885
                + (ttData.depth >= depth) * (816 + cutNode * 940);
 
         r += 697;  // Base reduction offset to compensate for other tweaks
