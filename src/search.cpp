@@ -1266,7 +1266,7 @@ moves_loop:  // When in check, search starts here
                 if (!ss->inCheck && value > ss->staticEval && !ttCapture)
                 {
                     const int bonus = std::clamp(
-                      int(value - ss->staticEval) * singularDepth * 200 / 1024,
+                      int(value - ss->staticEval) * singularDepth * 140 / 1024,
                       -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                     update_correction_history(pos, ss, *this, bonus);
                 }
