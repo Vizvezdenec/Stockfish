@@ -1047,7 +1047,7 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - (improving ? 5 : 3) - (improving && opponentWorsening);
+        Depth      probCutDepth = depth - (improving ? 5 : 3);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -1263,6 +1263,13 @@ moves_loop:  // When in check, search starts here
             else if (value >= beta && !is_decisive(value))
             {
                 ttMoveHistory << -421 - 110 * depth;
+                if (!ss->inCheck && value > ss->staticEval && !ttCapture)
+                {
+                    const int bonus = std::clamp(
+                      int(value - ss->staticEval) * singularDepth * 200 / 1024,
+                      -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, bonus);
+                }
                 return value;
             }
 
