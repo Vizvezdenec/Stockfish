@@ -1044,12 +1044,12 @@ Value Search::Worker::search(
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
         && !(is_valid(ttData.value) && ttData.value < probCutBeta)
-        && beta > -2000)
+        && beta > -4000)
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - (improving ? 5 : 3) - std::max((ss->staticEval - beta) / 256, 0);
+        Depth      probCutDepth = depth - (improving ? 5 : 3) - std::max((ss->staticEval - beta) / 512, 0);
 
         while ((move = mp.next_move()) != Move::none())
         {
