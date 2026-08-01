@@ -1010,7 +1010,16 @@ Value Search::Worker::search(
         if (nullValue >= beta && !is_win(nullValue))
         {
             if (nmpMinPly || depth < 16)
+            {
+                if (nullValue > ss->staticEval)
+                {
+                    const int bonus =
+                      std::clamp(int(nullValue - ss->staticEval) * std::max(1, depth - R + 1) * 177 / 1024,
+                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, bonus);
+                }
                 return nullValue;
+            }
 
             assert(!nmpMinPly);  // Recursive verification is not allowed
 
@@ -1507,14 +1516,6 @@ moves_loop:  // When in check, search starts here
                     break;
                 }
 
-                if (!ss->inCheck && !capture && value > ss->staticEval)
-                {
-                    auto bonus =
-                    std::clamp(int(value - ss->staticEval) * depth * 12 / 128,
-                                    -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4) / 2;
-                    update_correction_history(pos, ss, *this, 1061 * bonus / 1024);
-                }
-
                 // Reduce other moves if we have found at least one score improvement
                 if (depth > 3 && depth < 12 && !is_decisive(value))
                     depth -= 3;
@@ -1617,8 +1618,6 @@ moves_loop:  // When in check, search starts here
         auto bonus =
           std::clamp(int(bestValue - ss->staticEval) * depth * (bestMove ? 12 : 18) / 128,
                      -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-        if (bestMove && bestValue < beta)
-            bonus = bonus / 2;
         update_correction_history(pos, ss, *this, 1061 * bonus / 1024);
     }
 
