@@ -1265,10 +1265,10 @@ moves_loop:  // When in check, search starts here
             {
                 ttMoveHistory << -421 - 110 * depth;
 
-                if (!ss->inCheck && value > ss->staticEval && !ttCapture)
+                if (!ss->inCheck && value > ss->staticEval)
                 {
                     const int bonus =
-                      std::clamp(int(value - ss->staticEval) * singularDepth * 250 / 1024,
+                      std::clamp(int(value - ss->staticEval) * singularDepth * 177 / 1024,
                                  -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                     update_correction_history(pos, ss, *this, bonus);
                 }
@@ -1507,6 +1507,14 @@ moves_loop:  // When in check, search starts here
                     break;
                 }
 
+                if (!ss->inCheck && !capture && value > ss->staticEval)
+                {
+                    auto bonus =
+                    std::clamp(int(value - ss->staticEval) * depth * 12 / 128,
+                                    -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, 1061 * bonus / 1024);
+                }
+
                 // Reduce other moves if we have found at least one score improvement
                 if (depth > 3 && depth < 12 && !is_decisive(value))
                     depth -= 3;
@@ -1604,7 +1612,7 @@ moves_loop:  // When in check, search starts here
     // Adjust correction history if the best move is not a capture
     // and the error direction matches whether we are above/below bounds.
     if (!ss->inCheck && !(bestMove && pos.capture(bestMove))
-        && (bestValue > ss->staticEval) == bool(bestMove))
+        && (bestValue > ss->staticEval) == bool(bestMove) && (bestValue >= beta || !bestMove))
     {
         auto bonus =
           std::clamp(int(bestValue - ss->staticEval) * depth * (bestMove ? 12 : 18) / 128,
