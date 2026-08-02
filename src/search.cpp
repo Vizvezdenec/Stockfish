@@ -1324,7 +1324,7 @@ moves_loop:  // When in check, search starts here
 
         if (capture)
             ss->statScore = (873 * int(PieceValue[pos.captured_piece()]) / 128
-                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]) * 135 / 128;
+                          + captureHistory[movedPiece][move.to_sq()][type_of(pos.captured_piece())]) * 115 / 128;
         else
             ss->statScore =
               (2252 * mainHistory[us][move.raw()] + 1126 * (*contHist[0])[movedPiece][move.to_sq()]
