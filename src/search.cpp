@@ -978,15 +978,15 @@ Value Search::Worker::search(
 
     // Step 8. Futility pruning: child node
     // The depth condition is important for mate finding.
-    if (!ss->ttPv && cutNode && depth < 19 && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta)
+    if (!ss->ttPv && depth < 19 && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta)
         && !is_win(eval))
     {
         Value futilityMult = std::min(45 + depth * 4, 85);
         futilityMult -= 20 * !ss->ttHit;
 
-        Value futilityMargin = (futilityMult * depth
+        Value futilityMargin = futilityMult * depth
                              - (2789 * improving + 335 * opponentWorsening) * futilityMult / 1024
-                             + std::abs(correctionValue) / 198435) * 61 / 64;
+                             + std::abs(correctionValue) / 198435;
 
         if (eval - futilityMargin >= beta)
             return (661 * beta + 363 * eval) / 1024;
@@ -1009,8 +1009,16 @@ Value Search::Worker::search(
         // Do not return unproven mate or TB scores
         if (nullValue >= beta && !is_win(nullValue))
         {
-            if (nmpMinPly || depth < 16)
+            {
+                if (nullValue > ss->staticEval)
+                {
+                    const int bonus =
+                      std::clamp(int(nullValue - ss->staticEval) * std::max(1, depth - R + 1) * 307 / 1024,
+                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, bonus);
+                }
                 return nullValue;
+            }
 
             assert(!nmpMinPly);  // Recursive verification is not allowed
 
