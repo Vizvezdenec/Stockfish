@@ -1010,7 +1010,16 @@ Value Search::Worker::search(
         if (nullValue >= beta && !is_win(nullValue))
         {
             if (nmpMinPly || depth < 16)
+            {
+                if (nullValue > ss->staticEval)
+                {
+                    const int bonus =
+                      std::clamp(int(nullValue - ss->staticEval) * std::max(1, depth - R + 1) * 256 / 1024,
+                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, bonus);
+                }
                 return nullValue;
+            }
 
             assert(!nmpMinPly);  // Recursive verification is not allowed
 
@@ -1268,7 +1277,7 @@ moves_loop:  // When in check, search starts here
                 if (!ss->inCheck && value > ss->staticEval)
                 {
                     const int bonus =
-                      std::clamp(int(value - ss->staticEval) * depth * 197 / 1024,
+                      std::clamp(int(value - ss->staticEval) * singularDepth * 177 / 1024,
                                  -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                     update_correction_history(pos, ss, *this, bonus);
                 }
