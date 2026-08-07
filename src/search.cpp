@@ -1014,7 +1014,7 @@ Value Search::Worker::search(
                 if (nullValue > ss->staticEval)
                 {
                     const int bonus =
-                      std::clamp(int(nullValue - ss->staticEval) * std::max(1, depth - R + 1) * 236 / 1024,
+                      std::clamp(int(nullValue - ss->staticEval) * std::max(1, depth - R + 1) * 276 / 1024,
                                  -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
                     update_correction_history(pos, ss, *this, bonus);
                 }
