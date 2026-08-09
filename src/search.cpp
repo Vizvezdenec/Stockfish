@@ -994,7 +994,8 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 13 * depth - 47 * improving + 365 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
+        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000
+        && !(ttData.move && ttCapture && pos.see_ge(ttData.move, 700)))
     {
         assert((ss - 1)->currentMove != Move::null());
 
@@ -1038,12 +1039,11 @@ Value Search::Worker::search(
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + (241 - 64 * improving) * 7 / 8;
+    probCutBeta = beta + 241 - 64 * improving;
     if (depth >= 3
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
-        && (!ttData.move || ttCapture) 
         && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
