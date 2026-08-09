@@ -1043,6 +1043,7 @@ Value Search::Worker::search(
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
         // probCut there
+        && (!ttData.move || ttCapture) 
         && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
