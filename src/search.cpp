@@ -1018,7 +1018,7 @@ Value Search::Worker::search(
 
     // Step 9. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 13 * depth - 47 * improving + 365 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
+        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000 && beta <= 2000)
     {
         assert((ss - 1)->currentMove != Move::null());
 
@@ -1031,7 +1031,7 @@ Value Search::Worker::search(
         undo_null_move(pos);
 
         // Do not return unproven mate or TB scores
-        if (nullValue >= beta && !is_win(nullValue))
+        if (nullValue >= beta && !is_win(nullValue) && nullValue <= 2000)
         {
             if (nmpMinPly || depth < 16)
                 return nullValue;
@@ -1340,7 +1340,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
-            r += 264 + 1095 * ((ss + 1)->cutoffCnt > 2) + 1138 * allNode + 256 * ((ss + 1)->cutoffCnt > 20);
+            r += 264 + 1095 * ((ss + 1)->cutoffCnt > 2) + 1138 * allNode;
 
         // For first picked move (ttMove) reduce reduction
         else if (move == ttData.move)
