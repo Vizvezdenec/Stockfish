@@ -1008,12 +1008,12 @@ Value Search::Worker::search(
 
     // Step 10. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 13 * depth - 47 * improving + 365 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
+        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly)
     {
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth
-        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0);
+        Depth R = 7 + depth / 3 + !seekMate * std::max((ss->staticEval - beta) / 256, 0);
         do_null_move(pos, st, ss);
 
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
@@ -1259,12 +1259,11 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
-                int betaExt = 15 * (std::abs(beta) < 70);
                 int corrValAdj   = std::abs(correctionValue) / 198368;
                 int doubleMargin = -2 + 204 * PvNode - 152 * !ttCapture - corrValAdj
-                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38 - betaExt;
+                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38;
                 int tripleMargin = 70 + 279 * PvNode - 188 * !ttCapture + 81 * ss->ttPv - corrValAdj
-                                 - (ss->ply > rootDepth) * 43 - betaExt;
+                                 - (ss->ply > rootDepth) * 43;
 
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
