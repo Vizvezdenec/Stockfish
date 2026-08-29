@@ -1008,12 +1008,12 @@ Value Search::Worker::search(
 
     // Step 10. Null move search with verification search
     if (cutNode && ss->staticEval >= beta - 13 * depth - 47 * improving + 365 && !excludedMove
-        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly)
+        && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
     {
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth
-        Depth R = 7 + depth / 3 + !seekMate * std::max((ss->staticEval - beta) / 256, 0);
+        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0);
         do_null_move(pos, st, ss);
 
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
@@ -1052,7 +1052,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving;
+    probCutBeta = std::max(beta + 241 - 64 * improving - (eval - ss->staticEval) / 16, beta);
     if (depth >= 3
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
