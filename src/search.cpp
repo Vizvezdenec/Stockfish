@@ -808,7 +808,6 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
-    ss->inNmp           = false;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -869,8 +868,6 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 166)
         depth--;
-    if ((ss - 1)->inNmp && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 221)
-       depth--;
 
     // Step 6. At non-PV nodes we check for an early TT cutoff
     if (!PvNode && !excludedMove && ttData.depth > depth - (ttData.value <= beta)
@@ -1019,9 +1016,7 @@ Value Search::Worker::search(
         Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0);
         do_null_move(pos, st, ss);
 
-        ss->inNmp = true;
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
-        ss->inNmp = false;
 
         undo_null_move(pos);
 
@@ -1264,11 +1259,12 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
+                int betaExt = 30 * (std::abs(beta) < 45);
                 int corrValAdj   = std::abs(correctionValue) / 198368;
                 int doubleMargin = -2 + 204 * PvNode - 152 * !ttCapture - corrValAdj
-                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38;
+                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38 - betaExt;
                 int tripleMargin = 70 + 279 * PvNode - 188 * !ttCapture + 81 * ss->ttPv - corrValAdj
-                                 - (ss->ply > rootDepth) * 43;
+                                 - (ss->ply > rootDepth) * 43 - betaExt;
 
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
