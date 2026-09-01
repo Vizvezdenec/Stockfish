@@ -808,6 +808,7 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
+    ss->inNmp           = false;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -868,6 +869,8 @@ Value Search::Worker::search(
         depth++;
     if (priorReduction >= 2 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 166)
         depth--;
+    if ((ss - 1)->inNmp && ss->staticEval + (ss - 1)->staticEval < -55)
+       depth++;
 
     // Step 6. At non-PV nodes we check for an early TT cutoff. Note that we
     //         always check the validity of the TT value because of access races.
@@ -1017,7 +1020,9 @@ Value Search::Worker::search(
         Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0);
         do_null_move(pos, st, ss);
 
+        ss->inNmp = true;
         Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
+        ss->inNmp = false;
 
         undo_null_move(pos);
 
@@ -1054,7 +1059,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving - std::clamp((eval - ss->staticEval) / 16, -50, 50);
+    probCutBeta = beta + 241 - 64 * improving;
     if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
