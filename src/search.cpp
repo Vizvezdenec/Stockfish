@@ -1054,7 +1054,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving - std::clamp((eval - ss->staticEval) / 32, -50, 50);
+    probCutBeta = beta + 241 - 64 * improving;
     if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
@@ -1256,11 +1256,12 @@ moves_loop:  // When in check, search starts here
 
             if (value < singularBeta)
             {
+                int betaExt = 32 * (std::abs(beta) < 35);
                 int corrValAdj   = std::abs(correctionValue) / 198368;
                 int doubleMargin = -2 + 204 * PvNode - 152 * !ttCapture - corrValAdj
-                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38;
+                                 - 1175 * ttMoveHistory / 114178 - (ss->ply > rootDepth) * 38 - betaExt;
                 int tripleMargin = 70 + 279 * PvNode - 188 * !ttCapture + 81 * ss->ttPv - corrValAdj
-                                 - (ss->ply > rootDepth) * 43;
+                                 - (ss->ply > rootDepth) * 43 - betaExt;
 
                 extension =
                   1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
