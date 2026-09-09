@@ -808,7 +808,6 @@ Value Search::Worker::search(
     (ss - 1)->reduction = 0;
     ss->statScore       = 0;
     (ss + 2)->cutoffCnt = 0;
-    ss->cnStreak = rootNode || PvNode ? 0 : cutNode ? (ss - 1)->cnStreak : (ss - 1)->moveCount != 1 ? 0 : (ss - 1)->cnStreak + 1;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -1326,7 +1325,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction for cut nodes
         if (cutNode)
-            r += 4026 + 933 * !ttData.move + 1024 * (ss->cnStreak > 5);
+            r += 4026 + 933 * !ttData.move;
 
         // Increase reduction if ttMove is a capture
         if (ttCapture)
@@ -1351,6 +1350,9 @@ moves_loop:  // When in check, search starts here
 
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 439 / 4096;
+
+        if ((ss - 1)->statScore > 50000)
+            r += 512;
 
         if (!capture && !is_decisive(alpha))
             r += 3 * std::clamp(alpha - eval, -64, 96);
