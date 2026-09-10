@@ -1045,7 +1045,7 @@ Value Search::Worker::search(
 
             if (v >= beta)
             {
-                ++ss->priorNMPFailHigh;
+                ss->priorNMPFailHigh += 2;
                 return nullValue;
             }
         }
@@ -1062,7 +1062,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving - std::min(ss->priorNMPFailHigh, 6) * 5;
+    probCutBeta = beta + 241 - 64 * improving;
     if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
