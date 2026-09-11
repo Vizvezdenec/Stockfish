@@ -809,6 +809,7 @@ Value Search::Worker::search(
     ss->statScore              = 0;
     (ss + 2)->cutoffCnt        = 0;
     (ss + 1)->priorNMPFailHigh = 0;
+    (ss + 1)->priorPCFailHigh  = 0;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -1010,7 +1011,7 @@ Value Search::Worker::search(
 
     // Step 10. Null move search with verification search
     if (cutNode
-        && ss->staticEval + 60 * ss->priorNMPFailHigh >= beta - 13 * depth - 47 * improving + 365
+        && ss->staticEval + 50 * ss->priorNMPFailHigh >= beta - 13 * depth - 47 * improving + 365
         && !excludedMove && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
     {
         assert((ss - 1)->currentMove != Move::null());
@@ -1044,7 +1045,10 @@ Value Search::Worker::search(
             nmpMinPly = 0;
 
             if (v >= beta)
+            {
+                ++ss->priorNMPFailHigh;
                 return nullValue;
+            }
         }
     }
 
@@ -1059,7 +1063,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving;
+    probCutBeta = beta + 241 - 64 * improving - std::min(ss->priorPCFailHigh, 5) * 5;
     if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
@@ -1094,6 +1098,7 @@ Value Search::Worker::search(
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
+                ss->priorPCFailHigh++;
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
             }
