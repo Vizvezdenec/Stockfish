@@ -816,6 +816,7 @@ Value Search::Worker::search(
     ss->statScore              = 0;
     (ss + 2)->cutoffCnt        = 0;
     (ss + 1)->priorNMPFailHigh = 0;
+    (ss + 1)->priorFutilityFH  = 0;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -1009,7 +1010,7 @@ Value Search::Worker::search(
 
         Value futilityMargin = futilityMult * depth
                              - (2789 * improving + 335 * opponentWorsening) * futilityMult / 1024
-                             + std::abs(correctionValue) / 198435;
+                             + std::abs(correctionValue) / 198435 - 20 * std::min(ss->priorFutilityFH, 5) * 10;
 
         if (eval - futilityMargin >= beta)
             return (661 * beta + 363 * eval) / 1024;

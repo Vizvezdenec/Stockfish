@@ -130,6 +130,7 @@ struct Stack {
     int                         cutoffCnt;
     int                         reduction;
     int                         priorNMPFailHigh;
+    int                         priorFutilityFH;
 };
 
 
