@@ -1013,7 +1013,10 @@ Value Search::Worker::search(
                              + std::abs(correctionValue) / 198435 - 20 * std::min(ss->priorFutilityFH, 5) * 10;
 
         if (eval - futilityMargin >= beta)
+        {
+            ss->priorFutilityFH++;
             return (661 * beta + 363 * eval) / 1024;
+        }
     }
 
     // Step 10. Null move search with verification search
