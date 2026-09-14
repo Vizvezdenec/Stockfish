@@ -816,7 +816,7 @@ Value Search::Worker::search(
     ss->statScore              = 0;
     (ss + 2)->cutoffCnt        = 0;
     (ss + 1)->priorNMPFailHigh = 0;
-    (ss + 1)->priorFutilityFH  = 0;
+    (ss + 1)->priorPCFailHigh  = 0;
 
     const auto correctionValue = correction_value(*this, pos, ss);
 
@@ -1010,13 +1010,10 @@ Value Search::Worker::search(
 
         Value futilityMargin = futilityMult * depth
                              - (2789 * improving + 335 * opponentWorsening) * futilityMult / 1024
-                             + std::abs(correctionValue) / 198435 + std::min(ss->priorFutilityFH, 5) * 5;
+                             + std::abs(correctionValue) / 198435;
 
         if (eval - futilityMargin >= beta)
-        {
-            ss->priorFutilityFH++;
             return (661 * beta + 363 * eval) / 1024;
-        }
     }
 
     // Step 10. Null move search with verification search
@@ -1073,7 +1070,7 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 241 - 64 * improving;
+    probCutBeta = beta + 241 - 64 * improving - std::min(ss->priorPCFailHigh, 3) * 20;
     if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
@@ -1108,6 +1105,7 @@ Value Search::Worker::search(
                 ttWriter.write(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER,
                                probCutDepth + 1, move, unadjustedStaticEval, tt.generation());
 
+                ss->priorPCFailHigh++;
                 if (!is_decisive(value))
                     return value - (probCutBeta - beta);
             }
