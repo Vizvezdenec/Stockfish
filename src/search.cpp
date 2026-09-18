@@ -745,12 +745,14 @@ Value Search::Worker::search(
     // Limit the depth if extensions made it too large
     depth = std::min(depth, MAX_PLY - 1);
 
+    bool upcomingRep = false;
     // Check if we have an upcoming move that draws by repetition
     if (!rootNode && alpha < VALUE_DRAW && pos.upcoming_repetition(ss->ply))
     {
         alpha = value_draw(nodes);
         if (alpha >= beta)
             return alpha;
+        else upcomingRep = true;
     }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
@@ -1582,6 +1584,9 @@ moves_loop:  // When in check, search starts here
     if (bestValue >= beta && !is_decisive(bestValue) && !is_decisive(alpha))
         bestValue = (bestValue * depth + beta) / (depth + 1);
 
+    if (upcomingRep && bestValue < alpha)
+        bestValue = alpha;
+
     // All legal moves have been searched: if there are no legal moves, it
     // must be a mate or a stalemate (just a fail low score if we are in a
     // singular extension search).
@@ -1681,20 +1686,12 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
 
-    Value bestValue;
-    bool upcomingRep = false;
-
     // Check if we have an upcoming move that draws by repetition
     if (alpha < VALUE_DRAW && pos.upcoming_repetition(ss->ply))
     {
         alpha = value_draw(nodes);
         if (alpha >= beta)
             return alpha;
-        else
-        {
-            bestValue = alpha;
-            upcomingRep = true;
-        }
     }
 
     PVMoves   pv;
@@ -1702,7 +1699,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     Key   posKey;
     Move  move, bestMove;
-    Value value, futilityBase;
+    Value bestValue, value, futilityBase;
     bool  pvHit, givesCheck, capture;
     int   moveCount;
 
@@ -1789,9 +1786,6 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
         futilityBase = ss->staticEval + 306;
     }
-
-    if (upcomingRep && bestValue < value_draw(nodes))
-        bestValue = value_draw(nodes);
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory};
 
