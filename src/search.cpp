@@ -1001,15 +1001,16 @@ Value Search::Worker::search(
 
     // Step 9. Futility pruning: child node
     // The depth condition is important for mate finding. It should NOT be tuned.
-    if (!ss->ttPv && depth < (seekMate ? 6 : 19) && eval >= beta && (!ttData.move || ttCapture)
+    if (cutNode && !ss->ttPv && depth < (seekMate ? 6 : 19) && eval >= beta && (!ttData.move || ttCapture)
         && !is_loss(beta) && !is_win(eval))
     {
         Value futilityMult = std::min(45 + depth * 4, 85);
         futilityMult -= 20 * !ss->ttHit;
 
-        Value futilityMargin = futilityMult * depth
+        Value futilityMargin = (futilityMult * depth
                              - (2789 * improving + 335 * opponentWorsening) * futilityMult / 1024
-                             + std::abs(correctionValue) / 198435;
+                             + std::abs(correctionValue) / 198435) * 122;
+        futilityMargin = futilityMargin / 128;
 
         if (eval - futilityMargin >= beta)
             return (661 * beta + 363 * eval) / 1024;
@@ -1069,8 +1070,8 @@ Value Search::Worker::search(
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 221 - 58 * improving;
-    if ((cutNode || PvNode) && depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
+    probCutBeta = beta + 241 - 64 * improving;
+    if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
