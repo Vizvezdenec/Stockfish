@@ -1681,12 +1681,20 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     assert(alpha >= -VALUE_INFINITE && alpha < beta && beta <= VALUE_INFINITE);
     assert(PvNode || (alpha == beta - 1));
 
+    Value bestValue;
+    bool upcomingRep = false;
+
     // Check if we have an upcoming move that draws by repetition
     if (alpha < VALUE_DRAW && pos.upcoming_repetition(ss->ply))
     {
         alpha = value_draw(nodes);
         if (alpha >= beta)
             return alpha;
+        else
+        {
+            bestValue = alpha;
+            upcomingRep = true;
+        }
     }
 
     PVMoves   pv;
@@ -1694,7 +1702,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
     Key   posKey;
     Move  move, bestMove;
-    Value bestValue, value, futilityBase;
+    Value value, futilityBase;
     bool  pvHit, givesCheck, capture;
     int   moveCount;
 
@@ -1781,6 +1789,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
         futilityBase = ss->staticEval + 306;
     }
+
+    if (upcomingRep && bestValue < value_draw(nodes))
+        bestValue = value_draw(nodes);
 
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory};
 
