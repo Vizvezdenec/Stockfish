@@ -745,14 +745,12 @@ Value Search::Worker::search(
     // Limit the depth if extensions made it too large
     depth = std::min(depth, MAX_PLY - 1);
 
-    bool upcomingRep = false;
     // Check if we have an upcoming move that draws by repetition
     if (!rootNode && alpha < VALUE_DRAW && pos.upcoming_repetition(ss->ply))
     {
         alpha = value_draw(nodes);
         if (alpha >= beta)
             return alpha;
-        else upcomingRep = true;
     }
 
     assert(-VALUE_INFINITE <= alpha && alpha < beta && beta <= VALUE_INFINITE);
@@ -887,7 +885,7 @@ Value Search::Worker::search(
     // Step 6. At non-PV nodes we check for an early TT cutoff. Note that we
     //         always check the validity of the TT value because of access races.
     if (!PvNode && !excludedMove && is_valid(ttData.value)
-        && ttData.depth > depth - (ttData.value <= beta))
+        && ttData.depth > depth - (ttData.value < beta))
     {
         // Case A: TT entry can produce a cutoff
         if ((ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
@@ -1583,9 +1581,6 @@ moves_loop:  // When in check, search starts here
     // Adjust best value for fail high cases
     if (bestValue >= beta && !is_decisive(bestValue) && !is_decisive(alpha))
         bestValue = (bestValue * depth + beta) / (depth + 1);
-
-    if (upcomingRep && bestValue < alpha)
-        bestValue = alpha;
 
     // All legal moves have been searched: if there are no legal moves, it
     // must be a mate or a stalemate (just a fail low score if we are in a
