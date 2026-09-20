@@ -885,7 +885,7 @@ Value Search::Worker::search(
     // Step 6. At non-PV nodes we check for an early TT cutoff. Note that we
     //         always check the validity of the TT value because of access races.
     if (!PvNode && !excludedMove && is_valid(ttData.value)
-        && ttData.depth > depth - (ttData.value <= beta + 10))
+        && ttData.depth > depth - (ttData.value <= beta + 40))
     {
         // Case A: TT entry can produce a cutoff
         if ((ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
