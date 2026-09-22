@@ -1008,9 +1008,10 @@ Value Search::Worker::search(
     if (allNode && eval < alpha - 342 * depth && !seekMate)
     {
         Value aa = qsearch<NonPV>(pos, ss, alpha, beta);
-        if (aa <= alpha || depth > 2)
+        if (aa <= alpha || depth < 5)
             return aa;
     }
+
 
     // Step 9. Futility pruning: child node
     // The depth condition is important for mate finding. It should NOT be tuned.
