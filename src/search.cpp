@@ -1079,7 +1079,7 @@ Value Search::Worker::search(
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
     probCutBeta = beta + 241 - 64 * improving;
-    if ((depth >= 4 - 2 * cutNode) && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
+    if (depth >= 3 && !is_decisive(beta) && !(is_valid(ttData.value) && ttData.value < probCutBeta))
     {
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
@@ -1378,7 +1378,7 @@ moves_loop:  // When in check, search starts here
             r += 3 * std::clamp(alpha - eval, -64, 96);
 
         // Scale up reductions for expected ALL nodes
-        if (allNode)
+        if (allNode && r > 0)
             r += r * 276 / (256 * depth + 268);
 
         // Apply the computed LMR
