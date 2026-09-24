@@ -885,7 +885,7 @@ Value Search::Worker::search(
     // Step 6. At non-PV nodes we check for an early TT cutoff. Note that we
     //         always check the validity of the TT value because of access races.
     if (!PvNode && !excludedMove && is_valid(ttData.value)
-        && ttData.depth > depth - (ttData.value <= beta))
+        && ttData.depth > depth - (ttData.value <= beta || ttData.value >= beta + 123))
     {
         // Case A: TT entry can produce a cutoff
         if ((ttData.bound & (ttData.value >= beta ? BOUND_LOWER : BOUND_UPPER))
@@ -1378,7 +1378,7 @@ moves_loop:  // When in check, search starts here
             r += 3 * std::clamp(alpha - eval, -64, 96);
 
         // Scale up reductions for expected ALL nodes
-        if (allNode && r > 0)
+        if (allNode)
             r += r * 276 / (256 * depth + 268);
 
         // Apply the computed LMR
