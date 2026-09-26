@@ -1379,7 +1379,7 @@ moves_loop:  // When in check, search starts here
 
         // Scale up reductions for expected ALL nodes
         if (allNode && r > 0)
-            r += r * 286 / (256 * depth + 268);
+            r += r * 296 / (256 * depth + 268);
 
         // Apply the computed LMR
         if (depth >= 2 && moveCount > 1)
