@@ -874,7 +874,7 @@ Value Search::Worker::search(
     // Similarly, opponentWorsening is true if our static evaluation is better
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - 10;
 
     // Hindsight adjustment of reductions based on static evaluation difference
     if (priorReduction >= 3 && !opponentWorsening)
@@ -1378,8 +1378,8 @@ moves_loop:  // When in check, search starts here
             r += 3 * std::clamp(alpha - eval, -64, 96);
 
         // Scale up reductions for expected ALL nodes
-        if (allNode && r > 0)
-            r += r * 316 / (256 * depth + 268);
+        if (allNode)
+            r += r * 276 / (256 * depth + 268);
 
         // Apply the computed LMR
         if (depth >= 2 && moveCount > 1)
