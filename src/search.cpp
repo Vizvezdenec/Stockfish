@@ -874,7 +874,7 @@ Value Search::Worker::search(
     // Similarly, opponentWorsening is true if our static evaluation is better
     // for us than at the last ply.
     improving         = ss->staticEval > (ss - 2)->staticEval;
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval - 5;
+    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
 
     // Hindsight adjustment of reductions based on static evaluation difference
     if (priorReduction >= 3 && !opponentWorsening)
@@ -1102,8 +1102,11 @@ Value Search::Worker::search(
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
+            {
+                probCutBeta -= std::min((value - probCutBeta) / 16, 25);
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
+            }
 
             undo_move(pos, move);
 
