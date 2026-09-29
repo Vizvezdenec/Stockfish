@@ -1026,7 +1026,7 @@ Value Search::Worker::search(
 
     // Step 10. Null move search with verification search
     if (cutNode
-        && ss->staticEval + 50 * ss->priorNMPFailHigh >= beta - 13 * depth - 47 * improving + 365
+        && ss->staticEval + 50 * ss->priorNMPFailHigh >= beta - 13 * depth - 47 * improving + 334 + std::abs(correctionValue) / 131072
         && !excludedMove && pos.non_pawn_material(us) && ss->ply >= nmpMinPly && beta >= -2000)
     {
         assert((ss - 1)->currentMove != Move::null());
@@ -1102,11 +1102,8 @@ Value Search::Worker::search(
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
-            {
-                probCutBeta -= std::min((value - probCutBeta) / 16, 50);
                 value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
                                        !cutNode);
-            }
 
             undo_move(pos, move);
 
