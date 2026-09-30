@@ -1352,7 +1352,7 @@ moves_loop:  // When in check, search starts here
 
         // Increase reduction if ttMove is a capture
         if (ttCapture)
-            r += 1079 + 512 * (moveCount > 1);
+            r += 1079 + 256 * (moveCount > 1);
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
