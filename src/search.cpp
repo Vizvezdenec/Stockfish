@@ -1122,8 +1122,8 @@ Value Search::Worker::search(
 moves_loop:  // When in check, search starts here
 
     // Step 13. A small ProbCut idea
-    probCutBeta = beta + 428;
-    if ((ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
+    probCutBeta = beta + 400;
+    if (!improving && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 4 && ttData.value >= probCutBeta
         && !is_decisive(beta) && is_valid(ttData.value) && !is_decisive(ttData.value))
         return probCutBeta;
 
@@ -1138,8 +1138,6 @@ moves_loop:  // When in check, search starts here
     value = bestValue;
 
     int moveCount = 0;
-    bool noCalc = true;
-    int extraRed = 0;
 
     // Step 14. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1342,25 +1340,19 @@ moves_loop:  // When in check, search starts here
             r -= 3023 + PvNode * 1004 + (ttData.value > alpha) * 885
                + (ttData.depth >= depth) * (816 + cutNode * 940);
 
-        r -= moveCount * 65;
-
-        if (noCalc)
-        {
         // Base reduction offset to compensate for other tweaks
-        extraRed = 697;
+        r += 697;
 
-        extraRed -= std::abs(correctionValue) / 26310;
+        r -= moveCount * 65;
+        r -= std::abs(correctionValue) / 26310;
 
         // Increase reduction for cut nodes
         if (cutNode)
-            extraRed += 4026 + 933 * !ttData.move;
+            r += 4026 + 933 * !ttData.move;
 
         // Increase reduction if ttMove is a capture
         if (ttCapture)
-            extraRed += 1079;
-        noCalc = false;
-        }
-        r += extraRed;
+            r += 1079;
 
         // Increase reduction if next ply has a lot of fail high
         if ((ss + 1)->cutoffCnt > 1)
