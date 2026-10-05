@@ -1195,7 +1195,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our threshold
-            if (moveCount >= (3 + depth * depth) / (2 - improving) - ss->ttPv)
+            if (moveCount >= (3 + depth * depth) / (2 - improving))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
@@ -1302,7 +1302,7 @@ moves_loop:  // When in check, search starts here
             // over the original beta, we assume this expected cut-node is not
             // singular (multiple moves fail high), and we can prune the whole
             // subtree by returning a softbound.
-            else if (value >= beta && !is_decisive(value))
+            else if (value >= beta && !is_decisive(value) && ttData.value >= beta)
             {
                 ttMoveHistory << -421 - 110 * depth;
 
