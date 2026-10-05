@@ -1302,7 +1302,7 @@ moves_loop:  // When in check, search starts here
             // over the original beta, we assume this expected cut-node is not
             // singular (multiple moves fail high), and we can prune the whole
             // subtree by returning a softbound.
-            else if (value >= beta && !is_decisive(value) && ttData.value >= beta)
+            else if (value >= beta && !is_decisive(value))
             {
                 ttMoveHistory << -421 - 110 * depth;
 
@@ -1328,6 +1328,8 @@ moves_loop:  // When in check, search starts here
             // if we are on a cutNode
             else if (ttData.value >= beta || cutNode)
                 extension = -3;
+            else if (ttData.value <= value)
+                extension = -1;
         }
 
         u64 nodeCount = rootNode ? u64(nodes) : 0;
