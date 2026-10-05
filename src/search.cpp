@@ -1314,7 +1314,7 @@ moves_loop:  // When in check, search starts here
                     update_correction_history(pos, ss, *this, bonus);
                 }
 
-                return value;
+                return is_decisive(beta) ? value : (3 * value + beta) / 4;
             }
 
             // Negative extensions
@@ -1327,8 +1327,6 @@ moves_loop:  // When in check, search starts here
             // If the ttMove is assumed to fail high over current beta or
             // if we are on a cutNode
             else if (ttData.value >= beta || cutNode)
-                extension = -3;
-            else if (ttData.value <= value)
                 extension = -3;
         }
 
