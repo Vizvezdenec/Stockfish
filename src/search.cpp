@@ -1329,7 +1329,7 @@ moves_loop:  // When in check, search starts here
             else if (ttData.value >= beta || cutNode)
                 extension = -3;
             else if (ttData.value <= value)
-                extension = -2;
+                extension = -3;
         }
 
         u64 nodeCount = rootNode ? u64(nodes) : 0;
