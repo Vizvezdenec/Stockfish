@@ -820,6 +820,8 @@ Value Search::Worker::search(
         if (alpha >= beta)
             return alpha;
     }
+    else
+        rootDelta = beta - alpha;
 
     assert(0 <= ss->ply && ss->ply < MAX_PLY);
 
@@ -1351,6 +1353,9 @@ moves_loop:  // When in check, search starts here
 
         // Base reduction offset to compensate for other tweaks
         r += 697;
+
+        if (PvNode && beta - alpha <= rootDelta / 4)
+            r += 256;
 
         r -= moveCount * 65;
         r -= std::abs(correctionValue) / 26310;
