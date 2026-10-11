@@ -1196,8 +1196,8 @@ moves_loop:  // When in check, search starts here
         if (ss->ttPv)
             r += 929;
 
-        if (PvNode && beta - alpha <= rootDelta / 8)
-            r += 512;
+        if (PvNode && beta - alpha <= rootDelta / 4)
+            r += 256;
 
         // Step 15. Pruning at shallow depths.
         // Depth conditions are important for mate finding.
