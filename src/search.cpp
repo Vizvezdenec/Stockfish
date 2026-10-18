@@ -1106,13 +1106,16 @@ Value Search::Worker::search(
             capture = pos.capture_stage(move);
             assert(capture);
 
+            int capthist = captureHistory[pos.moved_piece(move)][move.to_sq()][type_of(pos.piece_on(move.to_sq()))];
+
             do_move(pos, move, st, pos.gives_check(move), capture, ss);
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
+            Depth adjustedDepth = probCutDepth - (capthist + 742) / 4096;
             // If the qsearch held, perform the regular search
-            if (value >= probCutBeta && probCutDepth > 0)
-                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, probCutDepth,
+            if (value >= probCutBeta && adjustedDepth > 0)
+                value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, adjustedDepth,
                                        !cutNode);
 
             undo_move(pos, move);
@@ -1315,7 +1318,7 @@ moves_loop:  // When in check, search starts here
                     update_correction_history(pos, ss, *this, bonus);
                 }
 
-                return is_decisive(beta) ? value : beta;
+                return value;
             }
 
             // Negative extensions
