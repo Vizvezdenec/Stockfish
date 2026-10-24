@@ -1110,7 +1110,7 @@ Value Search::Worker::search(
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
             Depth adjustedDepth = probCutDepth - (7 * int(PieceValue[pos.captured_piece()])
-                                                  + capthist > 10000);
+                                                  + capthist > 6000);
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && adjustedDepth > 0)
