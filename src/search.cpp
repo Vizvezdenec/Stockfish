@@ -906,9 +906,6 @@ Value Search::Worker::search(
                 // Extra penalty for early quiet moves of the previous ply
                 if (prevSq != SQ_NONE && (ss - 1)->moveCount < 5 && !priorCapture)
                     update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2210);
-
-                if (prevSq != SQ_NONE && (ss - 1)->moveCount < 5 && priorCapture)
-                    captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << -1338;
             }
 
             // Partial workaround for the graph history interaction problem.
@@ -931,7 +928,16 @@ Value Search::Worker::search(
                         return ttData.value;
                 }
                 else
+                {
+                    if (!ss->inCheck  && (!ttCapture || ttData.value < ss->staticEval))
+                    {
+                    const int bonus =
+                      std::clamp(int(ttData.value - ss->staticEval) * 256 / 1024,
+                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
+                    update_correction_history(pos, ss, *this, bonus);
+                    }
                     return ttData.value;
+                }
             }
         }
         // Case B: No cutoff, but depth was sufficient, so the bound points the wrong way.
