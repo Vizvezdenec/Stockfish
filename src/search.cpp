@@ -928,16 +928,7 @@ Value Search::Worker::search(
                         return ttData.value;
                 }
                 else
-                {
-                    if (!ss->inCheck  && (!ttCapture || ttData.value < ss->staticEval))
-                    {
-                    const int bonus =
-                      std::clamp(int(ttData.value - ss->staticEval) * 256 / 1024,
-                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
-                    update_correction_history(pos, ss, *this, bonus);
-                    }
                     return ttData.value;
-                }
             }
         }
         // Case B: No cutoff, but depth was sufficient, so the bound points the wrong way.
@@ -1048,7 +1039,7 @@ Value Search::Worker::search(
         assert((ss - 1)->currentMove != Move::null());
 
         // Null move dynamic reduction based on depth
-        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0);
+        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0) - (eval < ss->staticEval - 100);
         R -= seekMate * R / 2;
         do_null_move(pos, st, ss);
 
