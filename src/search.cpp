@@ -909,6 +909,9 @@ Value Search::Worker::search(
                 // Extra penalty for early quiet moves of the previous ply
                 if (prevSq != SQ_NONE && (ss - 1)->moveCount < 5 && !priorCapture)
                     update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2210);
+
+                if (prevSq != SQ_NONE && (ss - 1)->moveCount < 3 && priorCapture)
+                    captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << -892;
             }
 
             // Partial workaround for the graph history interaction problem.
