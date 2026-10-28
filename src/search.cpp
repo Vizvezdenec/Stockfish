@@ -909,9 +909,6 @@ Value Search::Worker::search(
                 // Extra penalty for early quiet moves of the previous ply
                 if (prevSq != SQ_NONE && (ss - 1)->moveCount < 5 && !priorCapture)
                     update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -2210);
-
-                if (prevSq != SQ_NONE && (ss - 1)->moveCount < 3 && priorCapture)
-                    captureHistory[pos.piece_on(prevSq)][prevSq][type_of(pos.captured_piece())] << -892;
             }
 
             // Partial workaround for the graph history interaction problem.
@@ -1046,7 +1043,7 @@ Value Search::Worker::search(
 
         // Null move dynamic reduction based on depth
         // Odd threads reduce one ply less
-        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0) - int(threadIdx & 1);
+        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0) - int(threadIdx & 3);
         R -= seekMate * R / 2;
         do_null_move(pos, st, ss);
 
