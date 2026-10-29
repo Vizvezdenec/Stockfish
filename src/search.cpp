@@ -1401,7 +1401,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth. To avoid search explosion, extensions
             // are not allowed deep, relative to rootDepth, in the search tree.
             Depth d =
-              std::max(1, newDepth + std::min(-r / 1024, ss->ply < 2 * rootDepth ? 2 : ss->ply < 3 * rootDepth ? 1 : 0)) + PvNode;
+              std::max(1, newDepth + std::min(-r / 1024, ss->ply < 2 * rootDepth ? 2 : 0)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
@@ -1619,6 +1619,7 @@ moves_loop:  // When in check, search starts here
         bonusScale += 186 * ((ss - 1)->moveCount > 9);
         bonusScale += 142 * (!ss->inCheck && bestValue <= ss->staticEval - 106);
         bonusScale += 159 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
+        bonusScale += 50 * ss->ttPv;
 
         bonusScale = std::max(bonusScale, 0);
 
