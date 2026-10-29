@@ -1043,7 +1043,7 @@ Value Search::Worker::search(
 
         // Null move dynamic reduction based on depth
         // Odd threads reduce one ply less
-        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0) - (int((threadIdx + 1) % 2) - 1);
+        Depth R = 7 + depth / 3 + std::max((ss->staticEval - beta) / 256, 0) - int(threadIdx & 1);
         R -= seekMate * R / 2;
         do_null_move(pos, st, ss);
 
@@ -1401,7 +1401,7 @@ moves_loop:  // When in check, search starts here
             // beyond the first move depth. To avoid search explosion, extensions
             // are not allowed deep, relative to rootDepth, in the search tree.
             Depth d =
-              std::max(1, newDepth + std::min(-r / 1024, ss->ply < 2 * rootDepth ? 2 : 0)) + PvNode;
+              std::max(1, newDepth + std::min(-r / 1024, ss->ply < 2 * rootDepth ? 2 : ss->ply < 3 * rootDepth ? 1 : 0)) + PvNode;
 
             ss->reduction = newDepth - d;
             value         = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
