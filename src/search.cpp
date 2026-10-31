@@ -1096,7 +1096,6 @@ Value Search::Worker::search(
         assert(probCutBeta < VALUE_INFINITE && probCutBeta > beta);
 
         MovePicker mp(pos, ttData.move, probCutBeta - ss->staticEval, &captureHistory);
-        Depth      probCutDepth = depth - (improving ? 5 : 3);
 
         while ((move = mp.next_move()) != Move::none())
         {
@@ -1111,6 +1110,8 @@ Value Search::Worker::search(
             do_move(pos, move, st, pos.gives_check(move), capture, ss);
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
+
+            Depth      probCutDepth = depth - (improving ? 5 : 3) - (value >= probCutBeta + 500);
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
@@ -1619,7 +1620,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 186 * ((ss - 1)->moveCount > 9);
         bonusScale += 142 * (!ss->inCheck && bestValue <= ss->staticEval - 106);
         bonusScale += 159 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
-        bonusScale += 40 * ss->ttPv;
 
         bonusScale = std::max(bonusScale, 0);
 
