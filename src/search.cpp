@@ -1111,7 +1111,7 @@ Value Search::Worker::search(
             // Perform a preliminary qsearch to verify that the move holds
             value = -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
-            Depth      probCutDepth = depth - (improving ? 5 : 3) - (value >= probCutBeta + 500);
+            Depth      probCutDepth = depth - (improving ? 5 : 3) - (value >= probCutBeta + 200);
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta && probCutDepth > 0)
