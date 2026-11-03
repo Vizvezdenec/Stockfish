@@ -1085,7 +1085,7 @@ Value Search::Worker::search(
     // At sufficient depth, reduce depth for PV/Cut nodes without a TTMove.
     // (*Scaler) Making IIR more aggressive scales poorly.
     if (!ss->followPV && !allNode && depth >= 6 && !ttData.move)
-        depth -= 1 + (is_valid(ttData.value) && ttData.value < alpha - 200);
+        depth -= 1 + (is_valid(ttData.value) && ttData.value < alpha - 333);
 
     // Step 12. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
