@@ -1383,7 +1383,7 @@ moves_loop:  // When in check, search starts here
         r -= ss->statScore * 439 / 4096;
 
         if (!capture && !is_decisive(alpha))
-            r += 3 * std::clamp(alpha - eval, -64, 96);
+            r += 2 * std::clamp(alpha - eval, -64, 96);
 
         // Scale up reductions for expected ALL nodes
         if (allNode)
@@ -1619,7 +1619,6 @@ moves_loop:  // When in check, search starts here
         bonusScale += 186 * ((ss - 1)->moveCount > 9);
         bonusScale += 142 * (!ss->inCheck && bestValue <= ss->staticEval - 106);
         bonusScale += 159 * (!(ss - 1)->inCheck && bestValue <= -(ss - 1)->staticEval - 68);
-        bonusScale += 20 * ss->ttPv;
 
         bonusScale = std::max(bonusScale, 0);
 
