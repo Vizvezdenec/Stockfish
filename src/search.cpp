@@ -1017,7 +1017,7 @@ Value Search::Worker::search(
     if (allNode && eval < alpha - 342 * depth && !seekMate)
     {
         value = qsearch<NonPV>(pos, ss, alpha, beta);
-        return value >= beta ? (value + beta) / 2 : value;
+        return value >= beta ? (value + beta * depth) / (depth + 1) : value;
     }
 
     // Step 9. Futility pruning: child node
