@@ -1015,10 +1015,7 @@ Value Search::Worker::search(
     // Step 8. Razoring
     // If eval is really low, skip search entirely and return the qsearch value
     if (allNode && eval < alpha - 342 * depth && !seekMate)
-    {
-        value = qsearch<NonPV>(pos, ss, alpha, beta);
-        return value >= beta ? (value + beta * depth) / (depth + 1) : value;
-    }
+        return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 9. Futility pruning: child node
     // The depth condition is important for mate finding. It should NOT be tuned.
@@ -1384,7 +1381,7 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history
         r -= ss->statScore * 439 / 4096;
 
-        if (!capture && !is_decisive(alpha))
+        if (!capture && !is_decisive(alpha) && !bestMove)
             r += 3 * std::clamp(alpha - eval, -64, 96);
 
         // Scale up reductions for expected ALL nodes
