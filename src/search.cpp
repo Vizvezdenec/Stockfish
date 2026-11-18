@@ -1015,10 +1015,7 @@ Value Search::Worker::search(
     // Step 8. Razoring
     // If eval is really low, skip search entirely and return the qsearch value
     if (allNode && eval < alpha - 342 * depth && !seekMate)
-    {
-        value = qsearch<NonPV>(pos, ss, alpha, beta);
-        return value >= beta ? (value * 3 + beta) / 4 : value;
-    }
+        return qsearch<NonPV>(pos, ss, alpha, beta);
 
     // Step 9. Futility pruning: child node
     // The depth condition is important for mate finding. It should NOT be tuned.
@@ -1026,7 +1023,7 @@ Value Search::Worker::search(
         && !is_loss(beta) && !is_win(eval))
     {
         Value futilityMult = std::min(45 + depth * 4, 85);
-        futilityMult -= 20 * !ss->ttHit;
+        futilityMult -= futilityMult * !ss->ttHit / 3;
 
         Value futilityMargin = futilityMult * depth
                              - (2789 * improving + 335 * opponentWorsening) * futilityMult / 1024
