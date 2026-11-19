@@ -253,7 +253,7 @@ ExtMove* MovePicker::generate_and_score() {
 
             // bonus for checks
             if ((pos.check_squares(pt) & to) && pos.see_ge(m, -75))
-                value += 16384 + (pt == ROOK) * 4000;
+                value += 16084 + (pt == ROOK) * 4000;
 
             m.value = value;
         }
