@@ -236,7 +236,7 @@ ExtMove* MovePicker::generate_and_score() {
 
             // histories
             int value = 2 * (*mainHist)[m.raw()];
-            value += 2 * (*pawnHist)[pc][to];
+            value += 2 * (*pawnHist)[bool(pos.pieces(QUEEN))][pc][to];
             value += (*ch0)[pc][to];
             value += (*ch1)[pc][to];
             value += (*ch2)[pc][to];
@@ -253,7 +253,7 @@ ExtMove* MovePicker::generate_and_score() {
 
             // bonus for checks
             if ((pos.check_squares(pt) & to) && pos.see_ge(m, -75))
-                value += 15384 + (pt == ROOK) * 6000;
+                value += 16384;
 
             m.value = value;
         }
