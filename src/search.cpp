@@ -1424,8 +1424,8 @@ moves_loop:  // When in check, search starts here
         else if (!PvNode || moveCount > 1)
         {
             // Increase reduction if ttMove is not present
-            if (!ttData.move)
-                r += 1127;
+            if (!ttData.move && cutNode)
+                r += 2300;
 
             // If expected reduction is high, we reduce search depth here
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha,
@@ -1809,7 +1809,8 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (!is_loss(bestValue))
         {
             // Futility pruning and moveCount pruning
-            if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase))
+            if (!givesCheck && move.to_sq() != prevSq && !is_loss(futilityBase)
+                && move.type_of() != PROMOTION)
             {
                 if (moveCount > 2)
                     continue;
