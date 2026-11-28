@@ -161,10 +161,10 @@ struct CorrectionBundle {
     StatsEntry<T, D, true> nonPawnBlack;
 
     void fill(T val) {
-        pawn[0][0]      = val;
-        pawn[0][1]      = val;
-        pawn[1][0]      = val;
-        pawn[1][1]      = val;
+        pawn[0][0]   = val;
+        pawn[0][1]   = val;
+        pawn[1][0]   = val;
+        pawn[1][1]   = val;
         minor        = val;
         nonPawnWhite = val;
         nonPawnBlack = val;
